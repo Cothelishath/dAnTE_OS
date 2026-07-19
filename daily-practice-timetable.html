@@ -1,0 +1,673 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Daily Practice — Timetable Reference</title>
+<link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=IBM+Plex+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #faf7f2;
+  --surface: #f2ede4;
+  --surface2: #e8e1d5;
+  --ink: #1c1814;
+  --ink-mid: #5a5248;
+  --ink-dim: #9a9088;
+  --gold: #9a7c3a;
+  --gold-light: #c9a84c;
+  --gold-pale: #f5ead0;
+  --rust: #7a3a28;
+  --sage: #3a5a3a;
+  --blue: #2a4a6a;
+  --t1: #3a5a3a;
+  --t2: #9a7c3a;
+  --t3: #7a3a28;
+  --border: rgba(28,24,20,0.1);
+  --border-strong: rgba(28,24,20,0.18);
+}
+* { margin:0; padding:0; box-sizing:border-box; }
+body { background:var(--bg); color:var(--ink); font-family:'IBM Plex Mono',monospace; font-size:13px; line-height:1.6; }
+
+.masthead {
+  background:var(--ink); color:var(--bg);
+  padding:40px 48px 36px; position:relative; overflow:hidden;
+}
+.masthead::before { content:''; position:absolute; top:-40px; right:-40px; width:300px; height:300px; border-radius:50%; border:1px solid rgba(250,247,242,0.06); }
+.masthead-eyebrow { font-size:9px; letter-spacing:0.35em; text-transform:uppercase; color:rgba(250,247,242,0.4); margin-bottom:10px; }
+.masthead h1 { font-family:'Libre Baskerville',serif; font-size:clamp(26px,5vw,42px); font-weight:400; line-height:1.15; margin-bottom:8px; }
+.masthead h1 em { font-style:italic; color:var(--gold-light); }
+.masthead-sub { font-size:10px; color:rgba(250,247,242,0.45); letter-spacing:0.08em; }
+
+.page-nav {
+  background:var(--surface); border-bottom:1px solid var(--border-strong);
+  display:flex; padding:0 32px; position:sticky; top:0; z-index:50;
+  overflow-x:auto;
+}
+.pnav-tab {
+  font-size:9px; letter-spacing:0.2em; text-transform:uppercase;
+  color:var(--ink-dim); padding:14px 18px; cursor:pointer;
+  border-bottom:2px solid transparent; transition:all 0.2s; white-space:nowrap;
+}
+.pnav-tab:hover { color:var(--ink-mid); }
+.pnav-tab.active { color:var(--gold); border-bottom-color:var(--gold); }
+
+.content { max-width:960px; margin:0 auto; padding:36px 28px 80px; }
+.tab-section { display:none; }
+.tab-section.active { display:block; }
+
+/* TIER LEGEND */
+.tier-legend { display:grid; grid-template-columns:repeat(3,1fr); gap:14px; margin-bottom:32px; }
+.tlc { border-radius:4px; padding:16px 18px; border:1px solid var(--border); }
+.tlc.t1 { background:rgba(58,90,58,0.06); border-color:rgba(58,90,58,0.2); }
+.tlc.t2 { background:rgba(154,124,58,0.06); border-color:rgba(154,124,58,0.2); }
+.tlc.t3 { background:rgba(122,58,40,0.06); border-color:rgba(122,58,40,0.2); }
+.tlc-num { font-size:8px; letter-spacing:0.25em; text-transform:uppercase; margin-bottom:3px; }
+.t1 .tlc-num { color:var(--t1); } .t2 .tlc-num { color:var(--t2); } .t3 .tlc-num { color:var(--t3); }
+.tlc-name { font-family:'Libre Baskerville',serif; font-size:17px; font-style:italic; margin-bottom:5px; }
+.tlc-desc { font-size:10px; color:var(--ink-mid); line-height:1.55; }
+.tlc-bonus { font-size:9px; margin-top:7px; }
+.t1 .tlc-bonus { color:var(--t1); } .t2 .tlc-bonus { color:var(--t2); } .t3 .tlc-bonus { color:var(--t3); }
+
+/* TIMETABLE */
+.timetable { border:1px solid var(--border-strong); border-radius:4px; overflow:hidden; }
+.tt-head { display:grid; grid-template-columns:68px 1fr; background:var(--ink); }
+.tt-head-cell { padding:11px 14px; font-size:8px; letter-spacing:0.25em; text-transform:uppercase; color:rgba(250,247,242,0.6); }
+.tt-head-cell:first-child { border-right:1px solid rgba(255,255,255,0.1); text-align:center; }
+.tt-row { display:grid; grid-template-columns:68px 1fr; border-top:1px solid var(--border); }
+.tt-time { background:var(--surface); border-right:1px solid var(--border-strong); padding:14px 8px; text-align:center; font-size:10px; color:var(--ink-dim); display:flex; align-items:flex-start; justify-content:center; padding-top:15px; }
+.tt-cell { padding:12px 16px; display:flex; flex-direction:column; gap:5px; background:var(--bg); }
+.tt-cell.prayer { background:rgba(58,90,58,0.03); }
+.tt-cell.study { background:rgba(154,124,58,0.025); }
+.tt-cell.work { background:rgba(42,74,106,0.03); }
+.tt-cell.rest { background:rgba(28,24,20,0.015); }
+.tt-cell.sleep { background:rgba(28,24,20,0.04); }
+
+.tags { display:flex; flex-wrap:wrap; gap:5px; }
+.tag { display:inline-flex; align-items:center; gap:5px; padding:3px 9px; border-radius:3px; font-size:9px; letter-spacing:0.06em; border:1px solid transparent; }
+.tag-t1 { background:rgba(58,90,58,0.1); border-color:rgba(58,90,58,0.22); color:var(--t1); }
+.tag-t2 { background:rgba(154,124,58,0.1); border-color:rgba(154,124,58,0.22); color:var(--t2); }
+.tag-t3 { background:rgba(122,58,40,0.1); border-color:rgba(122,58,40,0.22); color:var(--t3); }
+.tag-base { background:rgba(28,24,20,0.06); border-color:rgba(28,24,20,0.13); color:var(--ink-mid); }
+.tag-over { background:rgba(42,74,106,0.08); border-color:rgba(42,74,106,0.18); color:var(--blue); }
+.dot { width:5px; height:5px; border-radius:50%; flex-shrink:0; }
+.tag-t1 .dot { background:var(--t1); } .tag-t2 .dot { background:var(--t2); }
+.tag-t3 .dot { background:var(--t3); } .tag-base .dot { background:var(--ink-mid); }
+.tag-over .dot { background:var(--blue); }
+
+.tt-note { font-size:9px; color:var(--ink-dim); font-style:italic; padding-left:2px; line-height:1.55; }
+.tt-res { font-size:9px; color:var(--ink-dim); padding-left:2px; }
+.tt-res span { color:var(--gold); }
+
+/* SECTION TITLES */
+.s-title { font-family:'Libre Baskerville',serif; font-size:22px; font-weight:400; margin-bottom:5px; }
+.s-sub { font-size:10px; color:var(--ink-dim); margin-bottom:24px; }
+
+/* ACTIVITIES TABLE */
+.act-group { margin-bottom:36px; }
+.act-group-title { font-family:'Libre Baskerville',serif; font-size:18px; font-style:italic; margin-bottom:4px; }
+.act-group-sub { font-size:10px; color:var(--ink-dim); margin-bottom:14px; }
+.act-table { width:100%; border-collapse:collapse; border:1px solid var(--border-strong); border-radius:4px; overflow:hidden; }
+.act-table th { background:var(--surface2); padding:10px 13px; text-align:left; font-size:8px; letter-spacing:0.2em; text-transform:uppercase; color:var(--ink-mid); font-weight:500; }
+.act-table td { padding:10px 13px; border-top:1px solid var(--border); font-size:10px; vertical-align:top; line-height:1.5; }
+.act-table tr:hover td { background:var(--surface); }
+.act-name { color:var(--ink); font-weight:500; }
+.act-pts { color:var(--gold); white-space:nowrap; font-weight:500; }
+.tbadge { font-size:8px; padding:2px 7px; border-radius:2px; white-space:nowrap; }
+.tbadge.t1 { background:rgba(58,90,58,0.12); color:var(--t1); }
+.tbadge.t2 { background:rgba(154,124,58,0.12); color:var(--t2); }
+.tbadge.t3 { background:rgba(122,58,40,0.12); color:var(--t3); }
+.tbadge.all { background:rgba(28,24,20,0.07); color:var(--ink-mid); }
+.act-eng { color:var(--ink-mid); font-size:10px; }
+.act-res { color:var(--blue); font-size:9px; }
+
+/* REWARDS */
+.rewards-intro { font-family:'Libre Baskerville',serif; font-size:14px; font-style:italic; color:var(--ink-mid); line-height:1.8; margin-bottom:28px; padding:18px 22px; border-left:3px solid var(--gold-light); background:var(--gold-pale); border-radius:0 4px 4px 0; }
+.rewards-grid { display:grid; grid-template-columns:1fr 1fr; gap:18px; margin-bottom:28px; }
+.r-card { background:var(--surface); border:1px solid var(--border-strong); border-radius:4px; overflow:hidden; }
+.r-card-head { padding:12px 16px; font-size:9px; letter-spacing:0.2em; text-transform:uppercase; }
+.rch-daily { background:rgba(154,124,58,0.12); color:var(--t2); }
+.rch-weekly { background:rgba(42,74,106,0.1); color:var(--blue); }
+.rch-streak { background:rgba(58,90,58,0.1); color:var(--t1); }
+.rch-personal { background:rgba(122,58,40,0.1); color:var(--t3); }
+.r-row { display:flex; align-items:flex-start; gap:12px; padding:11px 16px; border-top:1px solid var(--border); }
+.r-target { font-size:10px; font-weight:500; color:var(--ink); white-space:nowrap; min-width:76px; }
+.r-name { font-family:'Libre Baskerville',serif; font-size:13px; font-style:italic; margin-bottom:2px; }
+.r-desc { font-size:9px; color:var(--ink-dim); line-height:1.5; }
+
+/* OVERLAPS */
+.overlap-list { display:flex; flex-direction:column; gap:12px; }
+.ov-item { background:var(--surface); border:1px solid var(--border); border-radius:4px; padding:16px 18px; display:grid; grid-template-columns:28px 1fr; gap:14px; align-items:start; }
+.ov-icon { font-size:20px; }
+.ov-title { font-family:'Libre Baskerville',serif; font-size:14px; font-style:italic; margin-bottom:4px; }
+.ov-desc { font-size:10px; color:var(--ink-mid); line-height:1.6; }
+.ov-eg { font-size:9px; color:var(--blue); margin-top:6px; }
+.ov-warn { border-color:rgba(122,58,40,0.3); background:rgba(122,58,40,0.04); }
+.ov-warn .ov-title { color:var(--rust); }
+
+.divider { border:none; border-top:1px solid var(--border); margin:28px 0; }
+
+@media(max-width:600px){
+  .masthead { padding:26px 18px 22px; }
+  .page-nav { padding:0 12px; }
+  .content { padding:20px 14px 60px; }
+  .tier-legend { grid-template-columns:1fr; }
+  .rewards-grid { grid-template-columns:1fr; }
+  .tt-head,.tt-row { grid-template-columns:52px 1fr; }
+}
+</style>
+</head>
+<body>
+
+<div class="masthead">
+  <div class="masthead-eyebrow">Daily Practice Reference</div>
+  <h1>The <em>Timetable</em> &amp; Rewards Guide</h1>
+  <div class="masthead-sub">24-hour map · tier dependencies · overlaps · engagement · rewards</div>
+</div>
+
+<nav class="page-nav">
+  <div class="pnav-tab active" onclick="showTab('timetable',this)">Timetable</div>
+  <div class="pnav-tab" onclick="showTab('activities',this)">All Activities</div>
+  <div class="pnav-tab" onclick="showTab('rewards',this)">Rewards</div>
+  <div class="pnav-tab" onclick="showTab('overlaps',this)">Overlaps</div>
+</nav>
+
+<div class="content">
+
+<!-- ═══════════ TIMETABLE ═══════════ -->
+<div class="tab-section active" id="tab-timetable">
+
+  <div class="tier-legend">
+    <div class="tlc t1">
+      <div class="tlc-num">Tier I</div>
+      <div class="tlc-name">Covenant</div>
+      <div class="tlc-desc">The floor. The minimum that honours who you're becoming. Every day, no exceptions.</div>
+      <div class="tlc-bonus">+15 AP tier bonus</div>
+    </div>
+    <div class="tlc t2">
+      <div class="tlc-num">Tier II</div>
+      <div class="tlc-name">Building</div>
+      <div class="tlc-desc">A good day. Real traction. Tier I plus focused productive work beyond the minimum.</div>
+      <div class="tlc-bonus">+25 AP tier bonus</div>
+    </div>
+    <div class="tlc t3">
+      <div class="tlc-num">Tier III</div>
+      <div class="tlc-name">Full Expression</div>
+      <div class="tlc-desc">Everything firing. Rare and earned. The full version of your best self in a single day.</div>
+      <div class="tlc-bonus">+40 AP tier bonus</div>
+    </div>
+  </div>
+
+  <p style="font-size:10px;color:var(--ink-dim);font-style:italic;margin-bottom:20px;line-height:1.7;">You may complete individual Tier II or III activities on a Tier I day — all earn their full points. The tier describes the day's overall completion level, not a gate that must be passed before higher activities unlock.</p>
+
+  <div class="timetable">
+    <div class="tt-head">
+      <div class="tt-head-cell" style="text-align:center">Time</div>
+      <div class="tt-head-cell">Activities &amp; Notes</div>
+    </div>
+
+    <div class="tt-row">
+      <div class="tt-time">04:00</div>
+      <div class="tt-cell prayer">
+        <div class="tags"><span class="tag tag-base"><span class="dot"></span>Wake</span><span class="tag tag-t1"><span class="dot"></span>Prayer begins</span></div>
+        <div class="tt-note">Worship playlist queued the night before — one press, no device handling. Let sound set atmosphere before thought does.</div>
+        <div class="tt-res">Resource: <span>Curated worship playlist ready, phone face-down</span></div>
+      </div>
+    </div>
+
+    <div class="tt-row">
+      <div class="tt-time">04:30</div>
+      <div class="tt-cell prayer">
+        <div class="tags"><span class="tag tag-t1"><span class="dot"></span>Prayer — deep</span></div>
+        <div class="tt-note">The unhurried centre of the morning. Not a task to complete — a conversation to inhabit. Speak aloud. Move if it helps. Worship softly behind.</div>
+        <div class="tt-res">Engagement: <span>Pray back the scripture. Write what comes if needed.</span></div>
+      </div>
+    </div>
+
+    <div class="tt-row">
+      <div class="tt-time">05:00</div>
+      <div class="tt-cell study">
+        <div class="tags"><span class="tag tag-t1"><span class="dot"></span>Bible Reading</span><span class="tag tag-t3"><span class="dot"></span>Full BibleInAYear (T3)</span></div>
+        <div class="tt-note">One passage minimum (T1). Full BibleInAYear plan for T3. Write one sentence — what landed, what challenged, what you'll carry today.</div>
+        <div class="tt-res">Resource: <span>Bible, journal nearby</span></div>
+      </div>
+    </div>
+
+    <div class="tt-row">
+      <div class="tt-time">05:45</div>
+      <div class="tt-cell">
+        <div class="tags"><span class="tag tag-t1"><span class="dot"></span>Workout / Stretch</span><span class="tag tag-over"><span class="dot"></span>Sermon or podcast plays during</span></div>
+        <div class="tt-note">20–30 min. Something you'll actually do — bodyweight, stretch, brisk walk. The body carries the spirit. Audio in background overlaps efficiently here.</div>
+        <div class="tt-res">Resource: <span>Space, mat optional, phone/speaker</span></div>
+      </div>
+    </div>
+
+    <div class="tt-row">
+      <div class="tt-time">06:15</div>
+      <div class="tt-cell prayer">
+        <div class="tags"><span class="tag tag-t2"><span class="dot"></span>Meditation</span></div>
+        <div class="tt-note">After movement, not before. Body warm, mind alert. 10–20 minutes of pure stillness. No device, no input. Just presence.</div>
+        <div class="tt-res">Resource: <span>Quiet space, timer only</span></div>
+      </div>
+    </div>
+
+    <div class="tt-row">
+      <div class="tt-time">06:35</div>
+      <div class="tt-cell">
+        <div class="tags"><span class="tag tag-base"><span class="dot"></span>Transition</span><span class="tag tag-over"><span class="dot"></span>Desktop on · Charts loading</span></div>
+        <div class="tt-note">Dishes, bath, prepare. Desktop switches on. Chart platform loads in background. By the time you sit down the market is already visible and alive.</div>
+        <div class="tt-res">Resource: <span>Power source checked the night before</span></div>
+      </div>
+    </div>
+
+    <div class="tt-row">
+      <div class="tt-time">07:00</div>
+      <div class="tt-cell work">
+        <div class="tags"><span class="tag tag-t1"><span class="dot"></span>Output Work</span><span class="tag tag-t2"><span class="dot"></span>Chart Work — Session 1</span></div>
+        <div class="tt-note">Most important block of the day. One completable output task (T1) — visibly finished by 8:30. Charts visible on second screen. Flow between both if energy allows.</div>
+        <div class="tt-res">Resource: <span>Desktop, chart platform, current output project open</span></div>
+      </div>
+    </div>
+
+    <div class="tt-row">
+      <div class="tt-time">08:30</div>
+      <div class="tt-cell rest">
+        <div class="tags"><span class="tag tag-base"><span class="dot"></span>Taper Break — 30 min</span></div>
+        <div class="tt-note">Not scrolling. Light movement or quiet. Let the morning settle. Prepares mind for focused learning ahead.</div>
+      </div>
+    </div>
+
+    <div class="tt-row">
+      <div class="tt-time">09:00</div>
+      <div class="tt-cell study">
+        <div class="tags"><span class="tag tag-t1"><span class="dot"></span>Book Reading — Session 1</span><span class="tag tag-t3"><span class="dot"></span>Cognitive Training (T3)</span></div>
+        <div class="tt-note">Minimum 6+ pages (T1). Points scale with depth — log actual pages. Engage actively: underline, note one insight before closing. T3: add Neuronation + Elevate after reading.</div>
+        <div class="tt-res">Resource: <span>Current book, pen or highlighter</span></div>
+      </div>
+    </div>
+
+    <div class="tt-row">
+      <div class="tt-time">09:50</div>
+      <div class="tt-cell study">
+        <div class="tags"><span class="tag tag-t3"><span class="dot"></span>Cognitive Games (T3)</span></div>
+        <div class="tt-note">Select 2–3, not all six. Neuronation + Elevate as priority pair. Intentional selection beats exhaustive coverage. Track scores — aim to beat previous session.</div>
+      </div>
+    </div>
+
+    <div class="tt-row">
+      <div class="tt-time">10:00</div>
+      <div class="tt-cell rest">
+        <div class="tags"><span class="tag tag-base"><span class="dot"></span>Breakfast</span></div>
+        <div class="tt-note">Away from screens. Nourish deliberately. The body funds the afternoon's focus.</div>
+      </div>
+    </div>
+
+    <div class="tt-row">
+      <div class="tt-time">10:30</div>
+      <div class="tt-cell work">
+        <div class="tags"><span class="tag tag-t2"><span class="dot"></span>Deep Chart Work</span><span class="tag tag-over"><span class="dot"></span>Sermon audio plays during</span></div>
+        <div class="tt-note">Mark levels, study price action, document setups in trading journal. Sermon running in background — 45 min toward daily target. Two activities, one block. Charts are visual; sermon is auditory.</div>
+        <div class="tt-res">Resource: <span>Chart platform, trading journal open, phone/speaker</span></div>
+      </div>
+    </div>
+
+    <div class="tt-row">
+      <div class="tt-time">12:00</div>
+      <div class="tt-cell study">
+        <div class="tags"><span class="tag tag-t1"><span class="dot"></span>Career / Skill Action</span><span class="tag tag-t3"><span class="dot"></span>Podcast (T3)</span></div>
+        <div class="tt-note">One skill action — AutoCAD, calc, strategy review, business development. 20 min minimum. Measured by something completed, not time. T3: podcast during light activity or lunch prep.</div>
+        <div class="tt-res">Resource: <span>Powered laptop, relevant software</span></div>
+      </div>
+    </div>
+
+    <div class="tt-row">
+      <div class="tt-time">13:00</div>
+      <div class="tt-cell rest">
+        <div class="tags"><span class="tag tag-base"><span class="dot"></span>Rest &amp; Transition</span></div>
+        <div class="tt-note">Midday rest. Not a failure — a feature. Short nap or complete mental break. Afternoon requires fresh energy.</div>
+      </div>
+    </div>
+
+    <div class="tt-row">
+      <div class="tt-time">14:00</div>
+      <div class="tt-cell work">
+        <div class="tags"><span class="tag tag-t2"><span class="dot"></span>Career Block</span><span class="tag tag-t3"><span class="dot"></span>Deep Project Work (T3)</span></div>
+        <div class="tt-note">Career growth — software, project templates, office work, engineering skills. T3: implementation not just learning. Build something real toward the institution or current engineering project.</div>
+        <div class="tt-res">Resource: <span>Laptop, internet if available, project files</span></div>
+      </div>
+    </div>
+
+    <div class="tt-row">
+      <div class="tt-time">15:00</div>
+      <div class="tt-cell work">
+        <div class="tags"><span class="tag tag-t2"><span class="dot"></span>Chart Work — Session 2</span><span class="tag tag-t2"><span class="dot"></span>Trade if criteria met</span><span class="tag tag-over"><span class="dot"></span>Sermon continues</span></div>
+        <div class="tt-note">Afternoon chart session. Review morning levels against live price. If criteria met — place trade and document it. Sermon audio continues toward daily 45-min target.</div>
+        <div class="tt-res">Resource: <span>Chart platform, trading journal</span></div>
+      </div>
+    </div>
+
+    <div class="tt-row">
+      <div class="tt-time">16:30</div>
+      <div class="tt-cell study">
+        <div class="tags"><span class="tag tag-t3"><span class="dot"></span>Vusi / Business Podcast (T3)</span><span class="tag tag-t3"><span class="dot"></span>Finance Podcast (T3)</span></div>
+        <div class="tt-note">One podcast with one written takeaway. What will you apply this week? Not passive listening — active receipt.</div>
+      </div>
+    </div>
+
+    <div class="tt-row">
+      <div class="tt-time">17:00</div>
+      <div class="tt-cell study">
+        <div class="tags"><span class="tag tag-t3"><span class="dot"></span>Book Reading — Session 2 (T3)</span><span class="tag tag-t2"><span class="dot"></span>Journaling as Output</span></div>
+        <div class="tt-note">Second reading session for those pushing deeper (T3). Or structured journaling as output — trade analysis, life design, framework notes. This is craft, not diary. Produces something reusable.</div>
+        <div class="tt-res">Engagement: <span>Apply what you read to your current season. Make it personal.</span></div>
+      </div>
+    </div>
+
+    <div class="tt-row">
+      <div class="tt-time">18:00</div>
+      <div class="tt-cell rest">
+        <div class="tags"><span class="tag tag-base"><span class="dot"></span>Dinner</span></div>
+        <div class="tt-note">Away from screens. Nourish. You built something today.</div>
+      </div>
+    </div>
+
+    <div class="tt-row">
+      <div class="tt-time">19:00</div>
+      <div class="tt-cell rest">
+        <div class="tags"><span class="tag tag-base"><span class="dot"></span>Free Evening</span><span class="tag tag-t3"><span class="dot"></span>Pinterest / Dreaming (T3)</span></div>
+        <div class="tt-note">Unstructured, guilt-free, time-bounded. Pinterest, planning, dreaming. Feed the visionary in you. Set a timer — 30–45 min. This is rest, not reward for completion.</div>
+      </div>
+    </div>
+
+    <div class="tt-row">
+      <div class="tt-time">20:00</div>
+      <div class="tt-cell study">
+        <div class="tags"><span class="tag tag-t2"><span class="dot"></span>Sermon — remaining</span></div>
+        <div class="tt-note">Remaining sermon content toward 45-min daily / 3-hour weekly target. Background while winding down. Write one key truth from today's content.</div>
+      </div>
+    </div>
+
+    <div class="tt-row">
+      <div class="tt-time">21:00</div>
+      <div class="tt-cell prayer">
+        <div class="tags"><span class="tag tag-t2"><span class="dot"></span>Evening Journal</span><span class="tag tag-t1"><span class="dot"></span>Set the Stage</span></div>
+        <div class="tt-note">Evening reflection: one win, one lesson, one intention. Then set the stage — playlist queued, desktop ready, tomorrow's output task open, tier target chosen.</div>
+        <div class="tt-res">Resource: <span>Journal, tomorrow's files open, phone charged</span></div>
+      </div>
+    </div>
+
+    <div class="tt-row">
+      <div class="tt-time">22:00</div>
+      <div class="tt-cell sleep">
+        <div class="tags"><span class="tag tag-base"><span class="dot"></span>Screens off — wind down</span></div>
+        <div class="tt-note">Protect sleep. 4am is not optional — 10pm screens-off makes it possible. The system runs on rest.</div>
+      </div>
+    </div>
+
+    <div class="tt-row">
+      <div class="tt-time">22:30</div>
+      <div class="tt-cell sleep">
+        <div class="tags"><span class="tag tag-base"><span class="dot"></span>Sleep</span></div>
+        <div class="tt-note">~5.5 hours. Sustainable for this season. Protect it fiercely. Negotiating with sleep is always a losing trade.</div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ═══════════ ALL ACTIVITIES ═══════════ -->
+<div class="tab-section" id="tab-activities">
+  <div class="s-title">All Activities</div>
+  <div class="s-sub">Complete list · points · tier · engagement · resource</div>
+
+  <div class="act-group">
+    <div class="act-group-title">Spiritual Foundation</div>
+    <div class="act-group-sub">The bedrock. Everything else draws from here. Prayer sits outside the tier system — it is the foundation, not a line item.</div>
+    <table class="act-table">
+      <thead><tr><th>Activity</th><th>AP</th><th>Tier</th><th>Engagement</th><th>Resource</th></tr></thead>
+      <tbody>
+        <tr><td class="act-name">Prayer — up to 30 min</td><td class="act-pts">20</td><td><span class="tbadge all">Foundation</span></td><td class="act-eng">Speak aloud. Move if stillness feels heavy. Worship playing softly behind.</td><td class="act-res">Playlist ready</td></tr>
+        <tr><td class="act-name">Prayer — 30–60 min</td><td class="act-pts">35</td><td><span class="tbadge all">Foundation</span></td><td class="act-eng">Let it breathe. Don't rush toward amen. Unhurried is the point.</td><td class="act-res">Playlist, journal</td></tr>
+        <tr><td class="act-name">Prayer — 60 min+</td><td class="act-pts">50</td><td><span class="tbadge all">Foundation</span></td><td class="act-eng">Full communion. Write what comes. Pray back the scripture you read.</td><td class="act-res">Playlist, Bible, journal</td></tr>
+        <tr><td class="act-name">Bible Reading</td><td class="act-pts">15</td><td><span class="tbadge t1">Tier I</span></td><td class="act-eng">One sentence of reflection after. What landed? What challenged you?</td><td class="act-res">Bible, journal</td></tr>
+        <tr><td class="act-name">BibleInAYear — full passage</td><td class="act-pts">15</td><td><span class="tbadge t3">Tier III</span></td><td class="act-eng">Cross-reference if something strikes you. Don't rush the text.</td><td class="act-res">Bible app or physical</td></tr>
+        <tr><td class="act-name">Sermon — 45 min</td><td class="act-pts">15</td><td><span class="tbadge t2">Tier II</span></td><td class="act-eng">One note per 15 minutes. One key truth written at the end.</td><td class="act-res">Phone / speaker</td></tr>
+        <tr><td class="act-name">Meditation — 10–20 min</td><td class="act-pts">10</td><td><span class="tbadge t2">Tier II</span></td><td class="act-eng">After workout, not before. Body warm = mind alert. No app. Pure stillness.</td><td class="act-res">Quiet, timer</td></tr>
+        <tr><td class="act-name">Sermon notes written</td><td class="act-pts">15 GP</td><td><span class="tbadge all">Any</span></td><td class="act-eng">Growth point bonus. What did you hear? What will you do?</td><td class="act-res">Journal</td></tr>
+        <tr><td class="act-name">Prayer breakthrough</td><td class="act-pts">25 GP</td><td><span class="tbadge all">Any</span></td><td class="act-eng">Self-reported. Note what happened. These are the moments to remember.</td><td class="act-res">Journal</td></tr>
+        <tr><td class="act-name">Fasted and prayed</td><td class="act-pts">35 GP</td><td><span class="tbadge all">Any</span></td><td class="act-eng">Intentional, not incidental. Note what you're surrendering and why.</td><td class="act-res">—</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="act-group">
+    <div class="act-group-title">Mind &amp; Learning</div>
+    <div class="act-group-sub">Feed the mind deliberately. Input that compounds over time.</div>
+    <table class="act-table">
+      <thead><tr><th>Activity</th><th>AP</th><th>Tier</th><th>Engagement</th><th>Resource</th></tr></thead>
+      <tbody>
+        <tr><td class="act-name">Book — 1–5 pages</td><td class="act-pts">10</td><td><span class="tbadge t1">Tier I</span></td><td class="act-eng">Better than zero. Even 3 pages counts. Don't let the bar feel too high.</td><td class="act-res">Current book</td></tr>
+        <tr><td class="act-name">Book — 6–10 pages</td><td class="act-pts">20</td><td><span class="tbadge t1">Tier I</span></td><td class="act-eng">Highlight or underline. One insight noted before closing.</td><td class="act-res">Book, pen</td></tr>
+        <tr><td class="act-name">Book — 11–20 pages</td><td class="act-pts">35</td><td><span class="tbadge t2">Tier II</span></td><td class="act-eng">Apply what you read to your current situation before moving on.</td><td class="act-res">Book, journal</td></tr>
+        <tr><td class="act-name">Book — 21+ pages</td><td class="act-pts">50</td><td><span class="tbadge t3">Tier III</span></td><td class="act-eng">Deep session. Write a brief reflection. What will you do with this?</td><td class="act-res">Book, journal</td></tr>
+        <tr><td class="act-name">Book Reading — Session 2</td><td class="act-pts">Same scale</td><td><span class="tbadge t3">Tier III</span></td><td class="act-eng">Second separate reading block in a day. Same page-scaling applies. Can be same or different book.</td><td class="act-res">Book</td></tr>
+        <tr><td class="act-name">Neuronation</td><td class="act-pts">20</td><td><span class="tbadge t3">Tier III</span></td><td class="act-eng">Most structured. Track score — beat your last session.</td><td class="act-res">Phone, quiet</td></tr>
+        <tr><td class="act-name">Elevate</td><td class="act-pts">20</td><td><span class="tbadge t3">Tier III</span></td><td class="act-eng">Language and maths focus. Prioritise your weakest areas.</td><td class="act-res">Phone</td></tr>
+        <tr><td class="act-name">Lumosity</td><td class="act-pts">15</td><td><span class="tbadge t3">Tier III</span></td><td class="act-eng">Broad cognitive training. Good complement to Neuronation.</td><td class="act-res">Phone</td></tr>
+        <tr><td class="act-name">Peak</td><td class="act-pts">12</td><td><span class="tbadge t3">Tier III</span></td><td class="act-eng">Problem solving and focus. Best when mind is already sharp.</td><td class="act-res">Phone</td></tr>
+        <tr><td class="act-name">Mindpal</td><td class="act-pts">12</td><td><span class="tbadge t3">Tier III</span></td><td class="act-eng">Solid support training. Good between heavier sessions.</td><td class="act-res">Phone</td></tr>
+        <tr><td class="act-name">Impulse</td><td class="act-pts">10</td><td><span class="tbadge t3">Tier III</span></td><td class="act-eng">Lightest and quickest. Reaction and reflex. Don't overuse.</td><td class="act-res">Phone</td></tr>
+        <tr><td class="act-name">Trading podcast</td><td class="act-pts">15</td><td><span class="tbadge t2">Tier II</span></td><td class="act-eng">Listen during chart study. Note one strategy insight.</td><td class="act-res">Phone / speaker</td></tr>
+        <tr><td class="act-name">Vusi Thembekwayo podcast</td><td class="act-pts">15</td><td><span class="tbadge t3">Tier III</span></td><td class="act-eng">One written takeaway per episode. What will you apply this week?</td><td class="act-res">Phone / speaker</td></tr>
+        <tr><td class="act-name">Money / finance podcast</td><td class="act-pts">15</td><td><span class="tbadge t3">Tier III</span></td><td class="act-eng">Link what you hear to your current financial situation.</td><td class="act-res">Phone / speaker</td></tr>
+        <tr><td class="act-name">Personal development podcast</td><td class="act-pts">12</td><td><span class="tbadge t2">Tier II</span></td><td class="act-eng">One idea deployed, not just collected.</td><td class="act-res">Phone / speaker</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="act-group">
+    <div class="act-group-title">Body</div>
+    <div class="act-group-sub">The vessel carries everything else.</div>
+    <table class="act-table">
+      <thead><tr><th>Activity</th><th>AP</th><th>Tier</th><th>Engagement</th><th>Resource</th></tr></thead>
+      <tbody>
+        <tr><td class="act-name">Workout / Stretch — 20–30 min</td><td class="act-pts">10</td><td><span class="tbadge t1">Tier I</span></td><td class="act-eng">Whatever you'll actually do. Consistency beats intensity.</td><td class="act-res">Space, mat optional</td></tr>
+        <tr><td class="act-name">Extended workout — 45 min+</td><td class="act-pts">18</td><td><span class="tbadge t2">Tier II</span></td><td class="act-eng">Audio in background — make movement a double-use block.</td><td class="act-res">Phone / speaker</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="act-group">
+    <div class="act-group-title">Building Work</div>
+    <div class="act-group-sub">The tangible work of becoming. Output, trading, career, institution.</div>
+    <table class="act-table">
+      <thead><tr><th>Activity</th><th>AP</th><th>Tier</th><th>Engagement</th><th>Resource</th></tr></thead>
+      <tbody>
+        <tr><td class="act-name">Chart Work — Session 1</td><td class="act-pts">20</td><td><span class="tbadge t1">Tier I</span></td><td class="act-eng">Mark levels, write one observation. Even 20 minutes counts.</td><td class="act-res">Desktop, charts</td></tr>
+        <tr><td class="act-name">Chart Work — Session 2</td><td class="act-pts">15</td><td><span class="tbadge t2">Tier II</span></td><td class="act-eng">Review morning levels. Look for live setups. Document what you see.</td><td class="act-res">Desktop, charts</td></tr>
+        <tr><td class="act-name">Chart Work — Session 3</td><td class="act-pts">10</td><td><span class="tbadge t3">Tier III</span></td><td class="act-eng">End-of-day review. What did price do? What did you miss?</td><td class="act-res">Desktop, charts</td></tr>
+        <tr><td class="act-name">Output Work — completed</td><td class="act-pts">20</td><td><span class="tbadge t1">Tier I</span></td><td class="act-eng">Must be completable in the session. Visibly done — template, analysis, drawing, document.</td><td class="act-res">Relevant project files</td></tr>
+        <tr><td class="act-name">Journaling as Output</td><td class="act-pts">15</td><td><span class="tbadge t2">Tier II</span></td><td class="act-eng">Structured writing that produces something reusable — trade analysis, life design, framework. Not diary.</td><td class="act-res">Journal, quiet</td></tr>
+        <tr><td class="act-name">Career / Skill Action</td><td class="act-pts">15</td><td><span class="tbadge t1">Tier I</span></td><td class="act-eng">One action from your skill list. Measured by something completed, not time spent.</td><td class="act-res">Laptop, software</td></tr>
+        <tr><td class="act-name">Set the Stage</td><td class="act-pts">10</td><td><span class="tbadge t1">Tier I</span></td><td class="act-eng">5 minutes that powers tomorrow. Playlist queued, output task open, tier chosen.</td><td class="act-res">Phone, desktop</td></tr>
+        <tr><td class="act-name">Evening Journal — reflection</td><td class="act-pts">10</td><td><span class="tbadge t2">Tier II</span></td><td class="act-eng">One win, one lesson, one intention. Brief but honest. Close the day deliberately.</td><td class="act-res">Journal</td></tr>
+        <tr><td class="act-name">Pinterest / Dreaming / Planning</td><td class="act-pts">8</td><td><span class="tbadge t3">Tier III</span></td><td class="act-eng">Time-bounded — 30–45 min. Feed the vision. Save what resonates.</td><td class="act-res">Phone, timer</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="act-group">
+    <div class="act-group-title">Growth Point Bonuses — Self Reported</div>
+    <div class="act-group-sub">Real-world results and consistency achievements. Trust-based — the streak and history make honesty obvious.</div>
+    <table class="act-table">
+      <thead><tr><th>Achievement</th><th>GP Bonus</th><th>How Measured</th></tr></thead>
+      <tbody>
+        <tr><td class="act-name">Trade placed with valid setup</td><td class="act-pts">+15</td><td class="act-eng">Setup matches your documented strategy criteria</td></tr>
+        <tr><td class="act-name">Profitable trade</td><td class="act-pts">+30</td><td class="act-eng">Trade closed in profit — any amount</td></tr>
+        <tr><td class="act-name">Trade documented with full reasoning</td><td class="act-pts">+20</td><td class="act-eng">Entry, exit, confluences, result all recorded in trading journal</td></tr>
+        <tr><td class="act-name">Backtest session completed</td><td class="act-pts">+25</td><td class="act-eng">Number of candles reviewed noted</td></tr>
+        <tr><td class="act-name">Strategy rule followed perfectly</td><td class="act-pts">+15</td><td class="act-eng">No deviation from your documented rules</td></tr>
+        <tr><td class="act-name">Account balance up on the week</td><td class="act-pts">+50</td><td class="act-eng">Week-end balance higher than week-start</td></tr>
+        <tr><td class="act-name">5-day chart streak</td><td class="act-pts">+40</td><td class="act-eng">Chart work completed 5 consecutive days</td></tr>
+        <tr><td class="act-name">Skill module or lesson completed</td><td class="act-pts">+25</td><td class="act-eng">Module, lesson or tutorial finished</td></tr>
+        <tr><td class="act-name">Drawing or template produced</td><td class="act-pts">+20</td><td class="act-eng">File exists and is usable</td></tr>
+        <tr><td class="act-name">Engineering problem solved</td><td class="act-pts">+20</td><td class="act-eng">Problem stated, worked through, answer documented</td></tr>
+        <tr><td class="act-name">Software feature learned and applied</td><td class="act-pts">+25</td><td class="act-eng">Feature used in actual work, not just tutorial</td></tr>
+        <tr><td class="act-name">Project document section completed</td><td class="act-pts">+30</td><td class="act-eng">Named section drafted and saved</td></tr>
+        <tr><td class="act-name">Estimation or calculation completed</td><td class="act-pts">+20</td><td class="act-eng">Numbers produced and documented</td></tr>
+        <tr><td class="act-name">Output work 3 days running</td><td class="act-pts">+35</td><td class="act-eng">Consecutive days with completed output</td></tr>
+        <tr><td class="act-name">Output work 5 days running</td><td class="act-pts">+60</td><td class="act-eng">Five consecutive days of visible output</td></tr>
+        <tr><td class="act-name">New framework or plan drafted</td><td class="act-pts">+25</td><td class="act-eng">Document exists, readable, usable</td></tr>
+        <tr><td class="act-name">Something shared or submitted</td><td class="act-pts">+30</td><td class="act-eng">Sent to another person or submitted for review</td></tr>
+        <tr><td class="act-name">Institution / vision work advanced</td><td class="act-pts">+40</td><td class="act-eng">Concrete step toward the institution documented</td></tr>
+        <tr><td class="act-name">Meaningful mentoring moment</td><td class="act-pts">+20</td><td class="act-eng">A conversation where wisdom was genuinely offered and received</td></tr>
+        <tr><td class="act-name">Personal insight documented</td><td class="act-pts">+15</td><td class="act-eng">Written in journal — something genuinely new you understood</td></tr>
+        <tr><td class="act-name">Act of conscious, deliberate good</td><td class="act-pts">+20</td><td class="act-eng">You chose good when it cost something</td></tr>
+        <tr><td class="act-name">3-day streak</td><td class="act-pts">+20</td><td class="act-eng">Auto-calculated in dashboard</td></tr>
+        <tr><td class="act-name">7-day streak</td><td class="act-pts">+50</td><td class="act-eng">Auto-calculated in dashboard</td></tr>
+        <tr><td class="act-name">14-day streak</td><td class="act-pts">+100</td><td class="act-eng">Auto-calculated in dashboard</td></tr>
+        <tr><td class="act-name">Tier II or above — 3 days running</td><td class="act-pts">+30</td><td class="act-eng">Three consecutive Building or Full Expression days</td></tr>
+        <tr><td class="act-name">No missed Tier I in a week</td><td class="act-pts">+45</td><td class="act-eng">Seven days, covenant held every single one</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ═══════════ REWARDS ═══════════ -->
+<div class="tab-section" id="tab-rewards">
+  <div class="s-title">Rewards</div>
+  <div class="s-sub">Every target earned should feel like something worth reaching for</div>
+
+  <div class="rewards-intro">
+    Rewards in this system are named acknowledgements of what you have done. The real reward is always compound — the person you are becoming, the balance growing, the clarity deepening. But named milestones give the mind something visible to reach for. Every rank, every milestone, every streak deserves to be felt.
+  </div>
+
+  <div class="rewards-grid">
+
+    <div class="r-card">
+      <div class="r-card-head rch-daily">Daily Activity Ranks</div>
+      <div class="r-row"><div class="r-target">100+ AP</div><div><div class="r-name">🔶 Bronze Day</div><div class="r-desc">You showed up. The covenant held. Bronze days are the foundation — they compound into silver weeks and golden months.</div></div></div>
+      <div class="r-row"><div class="r-target">160+ AP</div><div><div class="r-name">⬡ Silver Day</div><div class="r-desc">More than the minimum. You moved into building territory. The work is beginning to feel like yours.</div></div></div>
+      <div class="r-row"><div class="r-target">210+ AP</div><div><div class="r-name">✦ Gold Day</div><div class="r-desc">A genuinely good day. Full engagement across all categories. This day, compounded, changes your life.</div></div></div>
+      <div class="r-row"><div class="r-target">270+ AP</div><div><div class="r-name">✦✦ Legendary Day</div><div class="r-desc">Rare and earned. Everything fired. You are reminded today of exactly who you can be. Mark it.</div></div></div>
+    </div>
+
+    <div class="r-card">
+      <div class="r-card-head rch-weekly">Weekly Growth Milestones</div>
+      <div class="r-row"><div class="r-target">150 GP</div><div><div class="r-name">✓ Consistent</div><div class="r-desc">You were present all week. Automatic GP from showing up hit this milestone. Consistency is the foundation of everything.</div></div></div>
+      <div class="r-row"><div class="r-target">350 GP</div><div><div class="r-name">🏗 Builder</div><div class="r-desc">You produced something real this week. Not just present — contributing. The institution takes shape in weeks like this.</div></div></div>
+      <div class="r-row"><div class="r-target">600 GP</div><div><div class="r-name">🔥 Momentum</div><div class="r-desc">A week of genuine results. Trading, output and spiritual practice all active together. Remember this feeling.</div></div></div>
+      <div class="r-row"><div class="r-target">950 GP</div><div><div class="r-name">⚡ Unstoppable</div><div class="r-desc">Exceptional. Every category fired. The week that, replicated, changes your financial and spiritual status within months.</div></div></div>
+    </div>
+
+    <div class="r-card">
+      <div class="r-card-head rch-streak">Streak Milestones</div>
+      <div class="r-row"><div class="r-target">3 days</div><div><div class="r-name">🌱 Seedling</div><div class="r-desc">A pattern is beginning. Three is enough to prove you can. Now prove it can become seven.</div></div></div>
+      <div class="r-row"><div class="r-target">7 days</div><div><div class="r-name">🌿 Week Strong</div><div class="r-desc">A full unbroken week. You've reset your baseline. What you've done once, you can do again — and again.</div></div></div>
+      <div class="r-row"><div class="r-target">14 days</div><div><div class="r-name">🌳 Fortnight</div><div class="r-desc">Two unbroken weeks. Neuroscience says habits begin forming here. The system is becoming part of you.</div></div></div>
+      <div class="r-row"><div class="r-target">30 days</div><div><div class="r-name">🏔 The Month</div><div class="r-desc">A month of showing up. This is a character statement. You are the kind of person who does this.</div></div></div>
+      <div class="r-row"><div class="r-target">100 days</div><div><div class="r-name">🌟 Centurion</div><div class="r-desc">One hundred days. You have earned the right to call this a practice, not a project. This is identity now.</div></div></div>
+      <div class="r-row"><div class="r-target">365 days</div><div><div class="r-name">👑 The Year</div><div class="r-desc">A full year of deliberate living. You are unrecognisable from who you were. This is what a life looks like when it is chosen.</div></div></div>
+    </div>
+
+    <div class="r-card">
+      <div class="r-card-head rch-personal">Personal Milestones</div>
+      <div class="r-row"><div class="r-target">First Gold</div><div><div class="r-name">✦ Gold Standard Set</div><div class="r-desc">You know now what a full day feels like. The bar is set internally. Return here when the drift begins.</div></div></div>
+      <div class="r-row"><div class="r-target">5× Gold</div><div><div class="r-name">✦✦✦ Gold Standard</div><div class="r-desc">Five Gold Days in your history. This is becoming normal for you. Let it.</div></div></div>
+      <div class="r-row"><div class="r-target">First win</div><div><div class="r-name">📈 First Trade Profit</div><div class="r-desc">The strategy works. You executed it. Document every detail — you will return to this trade.</div></div></div>
+      <div class="r-row"><div class="r-target">Balance ×2</div><div><div class="r-name">💰 First Double</div><div class="r-desc">The account grew 100%. Small account, real result. The system is working. Scale it carefully.</div></div></div>
+      <div class="r-row"><div class="r-target">Output ×5</div><div><div class="r-name">🏗 Output Streak</div><div class="r-desc">Five consecutive days of visible, completable output. You are a maker. Keep making.</div></div></div>
+      <div class="r-row"><div class="r-target">Debt cleared</div><div><div class="r-name">🕊 Free</div><div class="r-desc">The weight is gone. Note this date. What you built to get here — keep building, now for vision, not survival.</div></div></div>
+      <div class="r-row"><div class="r-target">Institution step</div><div><div class="r-name">🌍 Foundation Stone</div><div class="r-desc">A concrete step toward the institution — registered, funded, located, or partnered. The vision has entered the physical world.</div></div></div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ═══════════ OVERLAPS ═══════════ -->
+<div class="tab-section" id="tab-overlaps">
+  <div class="s-title">Activity Overlaps</div>
+  <div class="s-sub">Where two activities share a block without either being diminished — and where they cannot</div>
+
+  <p style="font-size:10px;color:var(--ink-mid);font-style:italic;line-height:1.7;margin-bottom:24px;">Not all overlaps are equal. Some are intentional and productive — active listening while doing physical work, for example. Others are traps that disguise distraction as efficiency. The following have been specifically designed into the timetable and genuinely enhance rather than compete with each other.</p>
+
+  <div class="overlap-list">
+
+    <div class="ov-item">
+      <div class="ov-icon">🏋</div>
+      <div>
+        <div class="ov-title">Workout + Audio (Sermon / Podcast / Jim Rohn)</div>
+        <div class="ov-desc">Physical movement requires no cognitive bandwidth for the activity itself — your mind is free to receive. This is one of the most efficient double-use blocks in the day. Body moves, mind feeds. Neither is diminished.</div>
+        <div class="ov-eg">→ 30 min workout = 10 AP body + 15 AP sermon toward daily target. 25 AP in one block.</div>
+      </div>
+    </div>
+
+    <div class="ov-item">
+      <div class="ov-icon">📊</div>
+      <div>
+        <div class="ov-title">Deep Chart Work + Sermon Audio</div>
+        <div class="ov-desc">Chart study is visual and analytical. Sermon is auditory and spiritual. They use different cognitive channels entirely. The 10:30 and 15:00 blocks are designed for this pairing. Over a week this covers your 3-hour sermon target without requiring a dedicated block.</div>
+        <div class="ov-eg">→ 90 min chart session = 20 AP charts + 15 AP sermon. Each session advances both targets simultaneously.</div>
+      </div>
+    </div>
+
+    <div class="ov-item">
+      <div class="ov-icon">🌅</div>
+      <div>
+        <div class="ov-title">Morning Prayer + Worship Playlist</div>
+        <div class="ov-desc">The playlist is not entertainment — it is atmosphere. It sets the tone, reduces friction of entering prayer, and provides a gentle soundtrack for communion. This is not multitasking: the music serves the prayer, it does not compete with it.</div>
+        <div class="ov-eg">→ One press the night before. Morning-you walks into something already alive and prepared.</div>
+      </div>
+    </div>
+
+    <div class="ov-item">
+      <div class="ov-icon">🍳</div>
+      <div>
+        <div class="ov-title">Meal Prep / Eating + Light Podcast</div>
+        <div class="ov-desc">Meals require minimal attention. A podcast running during breakfast or dinner prep uses otherwise empty cognitive space. Keep it light — Vusi or a finance podcast. Not trading analysis, which requires full visual focus.</div>
+        <div class="ov-eg">→ 20 min lunch prep = 12–15 AP podcast. No cost to either activity.</div>
+      </div>
+    </div>
+
+    <div class="ov-item">
+      <div class="ov-icon">🌙</div>
+      <div>
+        <div class="ov-title">Evening Wind-down + Remaining Sermon</div>
+        <div class="ov-desc">As you wind down — light tidying, evening routine, lying still — sermon audio continues in background. This completes your daily sermon target without requiring a dedicated focused evening block. Cumulative across morning, afternoon and evening.</div>
+        <div class="ov-eg">→ Sermon target met in pieces across the day. No single block required to carry the full load.</div>
+      </div>
+    </div>
+
+    <div class="ov-item">
+      <div class="ov-icon">🔄</div>
+      <div>
+        <div class="ov-title">Transition Time + Charts Visible</div>
+        <div class="ov-desc">During the morning transition — dishes, bath, dressing — the desktop is already on and charts are loading. You are not yet working, but the environment is preparing itself. When you sit down at 7am, there is zero friction to beginning. The market is already alive on your screen.</div>
+        <div class="ov-eg">→ Preparation happens during unavoidable transition. Arrival at desk = immediate engagement.</div>
+      </div>
+    </div>
+
+    <div class="ov-item ov-warn">
+      <div class="ov-icon">⚠️</div>
+      <div>
+        <div class="ov-title">Overlaps to Avoid</div>
+        <div class="ov-desc">Chart work and book reading compete for the same analytical attention — both suffer. Prayer and phone browsing eliminates prayer entirely. Deep career work and a podcast that requires active listening dilutes both. Bible reading and anything else reduces retention and cheapens the text. These are not overlaps — they are compromises dressed as efficiency.</div>
+        <div class="ov-eg">→ Rule: if both activities require active cognitive engagement, they cannot share a block. One must be passive or physical. Choose one to receive your full attention.</div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+</div><!-- end content -->
+
+<script>
+function showTab(id, el) {
+  document.querySelectorAll('.tab-section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.pnav-tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('tab-' + id).classList.add('active');
+  el.classList.add('active');
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+</script>
+</body>
+</html>

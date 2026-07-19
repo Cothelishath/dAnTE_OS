@@ -1,0 +1,1809 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Life Plan — Paul Bassey</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400;1,500&family=Spectral:ital,wght@0,300;0,400;0,500;1,300;1,400&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+:root[data-theme="dark"]{
+  --bg:#080a0d;
+  --bg-2:#0e1114;
+  --bg-3:#141820;
+  --bg-4:#1c2028;
+  --border:rgba(255,255,255,0.06);
+  --border-gold:rgba(196,164,80,0.22);
+  --text-primary:#ede8e0;
+  --text-secondary:#8a8278;
+  --text-muted:#4a4640;
+  --gold:#c4a450;
+  --gold-dim:rgba(196,164,80,0.1);
+  --gold-bright:#d4b860;
+  --faith:#7a9e8a;
+  --faith-dim:rgba(122,158,138,0.1);
+  --work:#8a9abf;
+  --work-dim:rgba(138,154,191,0.1);
+  --health:#b47a6a;
+  --health-dim:rgba(180,122,106,0.1);
+  --finance:#9a8abf;
+  --finance-dim:rgba(154,138,191,0.1);
+  --relation:#b48a6a;
+  --relation-dim:rgba(180,138,106,0.1);
+  --character:#7a9a8a;
+  --character-dim:rgba(122,154,138,0.1);
+  --dante:#c4a450;
+  --dante-dim:rgba(196,164,80,0.08);
+}
+:root[data-theme="light"]{
+  --bg:#f4f0e8;
+  --bg-2:#ece8de;
+  --bg-3:#e2ddd2;
+  --bg-4:#d8d2c4;
+  --border:rgba(0,0,0,0.07);
+  --border-gold:rgba(140,100,20,0.2);
+  --text-primary:#14100a;
+  --text-secondary:#6a6055;
+  --text-muted:#a09888;
+  --gold:#8a6820;
+  --gold-dim:rgba(138,104,32,0.08);
+  --gold-bright:#9a7828;
+  --faith:#3a6a50;
+  --faith-dim:rgba(58,106,80,0.08);
+  --work:#3a4a7a;
+  --work-dim:rgba(58,74,122,0.08);
+  --health:#7a3a2a;
+  --health-dim:rgba(122,58,42,0.08);
+  --finance:#5a3a8a;
+  --finance-dim:rgba(90,58,138,0.08);
+  --relation:#7a4a2a;
+  --relation-dim:rgba(122,74,42,0.08);
+  --character:#3a6a50;
+  --character-dim:rgba(58,106,80,0.08);
+  --dante:#8a6820;
+  --dante-dim:rgba(138,104,32,0.06);
+}
+
+*{margin:0;padding:0;box-sizing:border-box;}
+
+body{
+  background:var(--bg);
+  color:var(--text-primary);
+  font-family:'Spectral',serif;
+  font-weight:300;
+  min-height:100vh;
+  transition:background 0.5s,color 0.5s;
+}
+
+/* ── HEADER ── */
+header{
+  position:sticky;top:0;z-index:100;
+  background:var(--bg);
+  border-bottom:1px solid var(--border);
+  padding:0 2.5rem;
+  display:flex;align-items:center;justify-content:space-between;
+  height:58px;
+}
+
+.logo{
+  display:flex;align-items:baseline;gap:0.75rem;
+}
+.logo-name{
+  font-family:'Cormorant',serif;
+  font-size:1.15rem;font-weight:400;
+  color:var(--text-primary);
+  letter-spacing:0.08em;
+  text-transform:uppercase;
+}
+.logo-sep{color:var(--text-muted);font-weight:300;}
+.logo-doc{
+  font-family:'DM Mono',monospace;
+  font-size:0.58rem;letter-spacing:0.14em;
+  text-transform:uppercase;color:var(--gold);
+}
+
+.header-right{display:flex;align-items:center;gap:1.25rem;}
+.save-status{
+  font-family:'DM Mono',monospace;
+  font-size:0.55rem;letter-spacing:0.1em;
+  text-transform:uppercase;color:var(--text-muted);
+  transition:color 0.3s;
+}
+.save-status.saving{color:var(--gold);}
+.save-status.saved{color:var(--faith);}
+
+.theme-btn{
+  width:32px;height:32px;border-radius:50%;
+  border:1px solid var(--border);background:var(--bg-3);
+  color:var(--text-secondary);cursor:pointer;
+  display:flex;align-items:center;justify-content:center;
+  font-size:0.8rem;transition:all 0.2s;
+}
+.theme-btn:hover{border-color:var(--gold);color:var(--gold);}
+
+/* ── PROGRESS STRIP ── */
+.progress-strip{
+  height:2px;background:var(--border);
+  position:fixed;top:58px;left:0;right:0;z-index:99;
+}
+.progress-fill{
+  height:100%;background:var(--gold);
+  transition:width 0.6s ease;
+}
+
+/* ── NAV ── */
+.nav{
+  display:flex;padding:0 2.5rem;
+  background:var(--bg-2);
+  border-bottom:1px solid var(--border);
+  overflow-x:auto;scrollbar-width:none;
+}
+.nav::-webkit-scrollbar{display:none;}
+
+.nav-btn{
+  padding:0.8rem 1.2rem;
+  background:none;border:none;
+  border-bottom:2px solid transparent;
+  color:var(--text-muted);
+  font-family:'DM Mono',monospace;
+  font-size:0.57rem;letter-spacing:0.1em;
+  text-transform:uppercase;cursor:pointer;
+  white-space:nowrap;transition:all 0.2s;
+}
+.nav-btn:hover{color:var(--text-secondary);}
+.nav-btn.active{color:var(--gold);border-bottom-color:var(--gold);}
+
+/* ── MAIN ── */
+main{max-width:920px;margin:0 auto;padding:3rem 2.5rem 7rem;}
+.tab-panel{display:none;}
+.tab-panel.active{display:block;animation:rise 0.35s ease both;}
+@keyframes rise{from{opacity:0;transform:translateY(12px);}to{opacity:1;transform:translateY(0);}}
+
+/* ── SHARED COMPONENTS ── */
+.section-eyebrow{
+  font-family:'DM Mono',monospace;
+  font-size:0.55rem;letter-spacing:0.2em;
+  text-transform:uppercase;color:var(--text-muted);
+  margin-bottom:0.6rem;
+}
+.section-heading{
+  font-family:'Cormorant',serif;
+  font-size:2.2rem;font-weight:300;
+  color:var(--text-primary);
+  line-height:1.15;margin-bottom:1rem;
+}
+.section-preamble{
+  font-size:0.9rem;color:var(--text-secondary);
+  line-height:1.85;
+  border-left:2px solid var(--border-gold);
+  padding-left:1.5rem;
+  margin-bottom:2.5rem;
+  font-style:italic;
+}
+
+.gold-rule{
+  height:1px;
+  background:linear-gradient(90deg,var(--gold) 0%,transparent 60%);
+  opacity:0.2;margin:2.5rem 0;
+}
+
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:1rem;}
+.three-col{display:grid;grid-template-columns:1fr 1fr 1fr;gap:1rem;}
+@media(max-width:680px){.two-col,.three-col{grid-template-columns:1fr;}}
+
+/* EDITABLE BLOCK */
+.editable-block{
+  background:var(--bg-2);
+  border:1px solid var(--border);
+  border-radius:2px;
+  padding:1.5rem;
+  margin-bottom:1rem;
+  position:relative;
+  transition:border-color 0.2s;
+}
+.editable-block:hover{border-color:var(--border-gold);}
+.eb-label{
+  font-family:'DM Mono',monospace;
+  font-size:0.53rem;letter-spacing:0.15em;
+  text-transform:uppercase;color:var(--text-muted);
+  margin-bottom:0.6rem;
+}
+.eb-content{
+  font-size:0.88rem;color:var(--text-secondary);
+  line-height:1.8;
+  font-family:'Spectral',serif;
+}
+.eb-content.large{
+  font-family:'Cormorant',serif;
+  font-size:1.25rem;font-weight:300;font-style:italic;
+  color:var(--text-primary);line-height:1.6;
+}
+.eb-edit-btn{
+  position:absolute;top:0.85rem;right:0.85rem;
+  background:none;border:none;
+  font-family:'DM Mono',monospace;
+  font-size:0.5rem;letter-spacing:0.08em;
+  text-transform:uppercase;
+  color:var(--text-muted);cursor:pointer;
+  padding:0.2rem 0.4rem;border-radius:2px;
+  transition:all 0.15s;
+}
+.eb-edit-btn:hover{color:var(--gold);background:var(--gold-dim);}
+
+/* TEXTAREA */
+.write-area{
+  width:100%;
+  background:var(--bg-2);
+  border:1px solid var(--border);
+  border-radius:2px;
+  padding:1.25rem 1.5rem;
+  color:var(--text-primary);
+  font-family:'Spectral',serif;
+  font-size:0.88rem;line-height:1.8;
+  resize:vertical;outline:none;
+  transition:border-color 0.2s,background 0.2s;
+  min-height:110px;
+}
+.write-area:focus{border-color:var(--border-gold);background:var(--bg-3);}
+.write-area::placeholder{color:var(--text-muted);font-style:italic;}
+.write-area.has-content{border-color:rgba(122,158,138,0.25);}
+
+/* DOMAIN CARD */
+.domain-card{
+  background:var(--bg-2);
+  border:1px solid var(--border);
+  border-radius:2px;
+  padding:1.5rem;
+  position:relative;
+  overflow:hidden;
+  transition:border-color 0.2s;
+}
+.domain-card::before{
+  content:'';
+  position:absolute;top:0;left:0;right:0;
+  height:2px;
+}
+.domain-card:hover{border-color:var(--border-gold);}
+.domain-card.faith::before{background:var(--faith);}
+.domain-card.work::before{background:var(--work);}
+.domain-card.health::before{background:var(--health);}
+.domain-card.finance::before{background:var(--finance);}
+.domain-card.relation::before{background:var(--relation);}
+.domain-card.character::before{background:var(--character);}
+.domain-card.dante::before{background:var(--dante);}
+
+.domain-label{
+  font-family:'DM Mono',monospace;
+  font-size:0.53rem;letter-spacing:0.15em;
+  text-transform:uppercase;margin-bottom:0.6rem;
+}
+.domain-card.faith .domain-label{color:var(--faith);}
+.domain-card.work .domain-label{color:var(--work);}
+.domain-card.health .domain-label{color:var(--health);}
+.domain-card.finance .domain-label{color:var(--finance);}
+.domain-card.relation .domain-label{color:var(--relation);}
+.domain-card.character .domain-label{color:var(--character);}
+.domain-card.dante .domain-label{color:var(--dante);}
+
+.domain-title{
+  font-family:'Cormorant',serif;
+  font-size:1.1rem;font-weight:400;
+  color:var(--text-primary);margin-bottom:0.5rem;
+}
+.domain-body{
+  font-size:0.8rem;color:var(--text-secondary);
+  line-height:1.65;
+}
+.domain-progress{
+  margin-top:1rem;
+  height:2px;background:var(--border);border-radius:1px;
+  overflow:hidden;
+}
+.domain-progress-fill{
+  height:100%;border-radius:1px;
+  transition:width 0.6s ease;
+}
+.domain-card.faith .domain-progress-fill{background:var(--faith);}
+.domain-card.work .domain-progress-fill{background:var(--work);}
+.domain-card.health .domain-progress-fill{background:var(--health);}
+.domain-card.finance .domain-progress-fill{background:var(--finance);}
+.domain-card.relation .domain-progress-fill{background:var(--relation);}
+.domain-card.character .domain-progress-fill{background:var(--character);}
+.domain-card.dante .domain-progress-fill{background:var(--dante);}
+
+.domain-score{
+  font-family:'DM Mono',monospace;
+  font-size:0.55rem;letter-spacing:0.08em;
+  color:var(--text-muted);
+  margin-top:0.4rem;
+  display:flex;justify-content:space-between;
+}
+
+/* MILESTONE */
+.milestone-item{
+  display:flex;align-items:flex-start;gap:1rem;
+  padding:0.9rem 0;
+  border-bottom:1px solid var(--border);
+  cursor:pointer;
+  transition:all 0.15s;
+}
+.milestone-item:last-child{border-bottom:none;padding-bottom:0;}
+.milestone-item:first-child{padding-top:0;}
+.milestone-item:hover{padding-left:0.3rem;}
+.milestone-item.done{opacity:0.4;}
+
+.m-check{
+  width:16px;height:16px;border-radius:50%;
+  border:1px solid var(--border-gold);
+  flex-shrink:0;margin-top:0.15rem;
+  display:flex;align-items:center;justify-content:center;
+  font-size:0.55rem;color:transparent;
+  transition:all 0.2s;
+}
+.milestone-item.done .m-check{
+  background:var(--gold);border-color:var(--gold);color:#000;
+}
+.m-content{flex:1;}
+.m-title{font-size:0.85rem;font-weight:400;color:var(--text-primary);margin-bottom:0.15rem;}
+.m-detail{font-size:0.75rem;color:var(--text-muted);line-height:1.5;}
+.m-when{
+  font-family:'DM Mono',monospace;
+  font-size:0.52rem;letter-spacing:0.07em;
+  color:var(--gold);white-space:nowrap;margin-top:0.1rem;
+  flex-shrink:0;
+}
+
+/* TIMELINE */
+.timeline{position:relative;padding-left:2rem;}
+.timeline::before{
+  content:'';position:absolute;
+  left:6px;top:0;bottom:0;
+  width:1px;background:var(--border);
+}
+.tl-item{
+  position:relative;margin-bottom:2rem;
+}
+.tl-item::before{
+  content:'';position:absolute;
+  left:-2rem;top:0.35rem;
+  width:12px;height:12px;border-radius:50%;
+  border:1px solid var(--border-gold);
+  background:var(--bg);
+  transition:background 0.2s;
+}
+.tl-item.filled::before{background:var(--gold);}
+.tl-horizon{
+  font-family:'DM Mono',monospace;
+  font-size:0.55rem;letter-spacing:0.14em;
+  text-transform:uppercase;color:var(--gold);
+  margin-bottom:0.4rem;
+}
+.tl-title{
+  font-family:'Cormorant',serif;
+  font-size:1.05rem;font-style:italic;
+  color:var(--text-primary);margin-bottom:0.35rem;
+}
+.tl-body{
+  font-size:0.82rem;color:var(--text-secondary);
+  line-height:1.7;
+}
+
+/* VERSE BLOCK */
+.verse-block{
+  background:var(--bg-2);
+  border:1px solid var(--border);
+  border-left:3px solid var(--gold);
+  border-radius:2px;
+  padding:1.5rem 2rem;
+  margin-bottom:1.5rem;
+}
+.verse-text{
+  font-family:'Cormorant',serif;
+  font-size:1.15rem;font-style:italic;font-weight:300;
+  color:var(--text-primary);line-height:1.75;
+  margin-bottom:0.5rem;
+}
+.verse-ref{
+  font-family:'DM Mono',monospace;
+  font-size:0.55rem;letter-spacing:0.12em;
+  text-transform:uppercase;color:var(--text-muted);
+}
+
+/* OVERVIEW STATS */
+.stat-row{
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  gap:0.75rem;
+  margin-bottom:2rem;
+}
+@media(max-width:600px){.stat-row{grid-template-columns:1fr 1fr;}}
+.stat-card{
+  background:var(--bg-2);
+  border:1px solid var(--border);
+  border-radius:2px;
+  padding:1.1rem 1.25rem;
+}
+.stat-label{
+  font-family:'DM Mono',monospace;
+  font-size:0.52rem;letter-spacing:0.13em;
+  text-transform:uppercase;color:var(--text-muted);
+  margin-bottom:0.4rem;
+}
+.stat-value{
+  font-family:'Cormorant',serif;
+  font-size:1.8rem;font-weight:300;
+  color:var(--gold);line-height:1;
+}
+.stat-sub{
+  font-family:'DM Mono',monospace;
+  font-size:0.5rem;color:var(--text-muted);
+  margin-top:0.3rem;letter-spacing:0.06em;
+}
+
+/* EDIT/ADD BTNS */
+.edit-btn{
+  background:none;border:none;
+  font-family:'DM Mono',monospace;
+  font-size:0.5rem;letter-spacing:0.08em;
+  text-transform:uppercase;
+  color:var(--text-muted);cursor:pointer;
+  padding:0.2rem 0.4rem;border-radius:2px;
+  transition:all 0.15s;flex-shrink:0;
+}
+.edit-btn:hover{color:var(--gold);background:var(--gold-dim);}
+.del-btn{
+  background:none;border:none;
+  font-family:'DM Mono',monospace;
+  font-size:0.5rem;color:var(--text-muted);
+  cursor:pointer;padding:0.2rem 0.4rem;
+  border-radius:2px;transition:all 0.15s;
+}
+.del-btn:hover{color:#c07060;background:rgba(192,112,96,0.1);}
+.add-btn{
+  width:100%;background:var(--bg-2);
+  border:1px dashed var(--border);
+  border-radius:2px;padding:0.9rem;
+  color:var(--text-muted);
+  font-family:'DM Mono',monospace;
+  font-size:0.57rem;letter-spacing:0.1em;
+  text-transform:uppercase;cursor:pointer;
+  transition:all 0.2s;text-align:center;
+  margin-top:0.75rem;
+}
+.add-btn:hover{border-color:var(--gold);color:var(--gold);}
+
+/* SAVE BAR */
+.save-bar{
+  position:fixed;bottom:0;left:0;right:0;
+  background:var(--bg-2);
+  border-top:1px solid var(--border);
+  padding:0.8rem 2.5rem;
+  display:flex;align-items:center;justify-content:flex-end;
+  gap:0.75rem;z-index:50;
+}
+.save-main-btn{
+  padding:0.5rem 1.5rem;
+  background:var(--gold-dim);
+  border:1px solid var(--border-gold);
+  border-radius:2px;color:var(--gold);
+  font-family:'DM Mono',monospace;
+  font-size:0.58rem;letter-spacing:0.1em;
+  text-transform:uppercase;cursor:pointer;
+  transition:all 0.2s;
+}
+.save-main-btn:hover{background:var(--gold);color:#000;}
+.saved-flash{
+  font-family:'DM Mono',monospace;
+  font-size:0.55rem;color:var(--faith);
+  letter-spacing:0.1em;opacity:0;transition:opacity 0.3s;
+}
+
+/* MODAL */
+.modal-overlay{
+  display:none;position:fixed;inset:0;
+  background:rgba(0,0,0,0.8);z-index:200;
+  align-items:center;justify-content:center;
+}
+.modal-overlay.open{display:flex;}
+.modal{
+  background:var(--bg-2);
+  border:1px solid var(--border-gold);
+  border-radius:3px;
+  padding:2rem;width:90%;max-width:520px;
+  max-height:85vh;overflow-y:auto;
+}
+.modal-title{
+  font-family:'Cormorant',serif;
+  font-size:1.15rem;font-style:italic;
+  color:var(--text-primary);margin-bottom:1.25rem;
+}
+.modal input,.modal textarea,.modal select{
+  width:100%;background:var(--bg-3);
+  border:1px solid var(--border);
+  border-radius:2px;padding:0.65rem 0.9rem;
+  color:var(--text-primary);
+  font-family:'Spectral',serif;
+  font-size:0.85rem;outline:none;
+  margin-bottom:0.7rem;
+  transition:border-color 0.2s;
+}
+.modal input:focus,.modal textarea:focus{border-color:var(--border-gold);}
+.modal textarea{min-height:90px;resize:vertical;}
+.modal select option{background:var(--bg-3);}
+.modal-label{
+  font-family:'DM Mono',monospace;
+  font-size:0.52rem;letter-spacing:0.1em;
+  text-transform:uppercase;color:var(--text-muted);
+  margin-bottom:0.35rem;display:block;
+}
+.modal-actions{
+  display:flex;gap:0.75rem;
+  justify-content:flex-end;margin-top:0.5rem;
+}
+.modal-cancel{
+  padding:0.5rem 1rem;background:none;
+  border:1px solid var(--border);border-radius:2px;
+  color:var(--text-muted);
+  font-family:'DM Mono',monospace;
+  font-size:0.55rem;letter-spacing:0.08em;
+  text-transform:uppercase;cursor:pointer;
+}
+.modal-confirm{
+  padding:0.5rem 1.25rem;
+  background:var(--gold-dim);
+  border:1px solid var(--border-gold);
+  border-radius:2px;color:var(--gold);
+  font-family:'DM Mono',monospace;
+  font-size:0.55rem;letter-spacing:0.08em;
+  text-transform:uppercase;cursor:pointer;
+  transition:all 0.2s;
+}
+.modal-confirm:hover{background:var(--gold);color:#000;}
+
+.spacer{height:1.5rem;}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">
+    <span class="logo-name">Paul Bassey</span>
+    <span class="logo-sep">·</span>
+    <span class="logo-doc">Life Plan</span>
+  </div>
+  <div class="header-right">
+    <span class="save-status" id="save-status">Unsaved</span>
+    <button class="theme-btn" onclick="toggleTheme()"><span id="theme-icon">☀</span></button>
+  </div>
+</header>
+
+<div class="progress-strip"><div class="progress-fill" id="progress-fill" style="width:0%"></div></div>
+
+<nav class="nav">
+  <button class="nav-btn active" onclick="switchTab('overview',this)">Overview</button>
+  <button class="nav-btn" onclick="switchTab('foundation',this)">Foundation</button>
+  <button class="nav-btn" onclick="switchTab('vision',this)">Vision & Mission</button>
+  <button class="nav-btn" onclick="switchTab('domains',this)">Life Domains</button>
+  <button class="nav-btn" onclick="switchTab('timeline',this)">Horizon</button>
+  <button class="nav-btn" onclick="switchTab('now',this)">Now</button>
+  <button class="nav-btn" onclick="switchTab('together',this)">Together</button>
+  <button class="nav-btn" onclick="switchTab('anchors',this)">Anchors</button>
+</nav>
+
+<main>
+
+<!-- ══════════════════════════════════════════
+     OVERVIEW
+══════════════════════════════════════════ -->
+<div class="tab-panel active" id="tab-overview">
+
+  <div class="section-eyebrow">The Life Plan</div>
+  <div class="section-heading">A Direction,<br>Not a Destination</div>
+  <div class="section-preamble">This document holds the direction of a life. It is faith-backed — meaning the plan moves in a given direction until God redirects, and that redirection, when it comes, is received not as a failure of planning but as a refinement of it. Plans made without God are fragile. Plans made with Him are flexible in the right places and immovable in the right places. This is both.</div>
+
+  <div class="stat-row">
+    <div class="stat-card">
+      <div class="stat-label">Horizon</div>
+      <div class="stat-value">20+</div>
+      <div class="stat-sub">years of direction</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Life Domains</div>
+      <div class="stat-value">7</div>
+      <div class="stat-sub">areas tracked</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Last Updated</div>
+      <div class="stat-value" id="ov-updated" style="font-size:1rem;margin-top:0.3rem;">—</div>
+      <div class="stat-sub">revisit quarterly</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Version</div>
+      <div class="stat-value" id="ov-version" style="font-size:1rem;margin-top:0.3rem;">1.0</div>
+      <div class="stat-sub">living document</div>
+    </div>
+  </div>
+
+  <div class="verse-block" id="anchor-verse">
+    <div class="verse-text" id="anchor-verse-text">For I know the plans I have for you, declares the Lord — plans to prosper you and not to harm you, plans to give you hope and a future.</div>
+    <div class="verse-ref" id="anchor-verse-ref">Jeremiah 29:11 · Plan anchor verse</div>
+    <button class="eb-edit-btn" onclick="editVerseBlock()">Edit</button>
+  </div>
+
+  <div class="section-eyebrow" style="margin-bottom:1rem;">Domain Overview</div>
+  <div class="three-col" id="domain-overview-grid">
+    <div class="domain-card faith">
+      <div class="domain-label">Faith & Spirituality</div>
+      <div class="domain-title">The Ground</div>
+      <div class="domain-body">Active relationship with God. The 4AM anchor. Everything else stands on this or does not stand at all.</div>
+      <div class="domain-progress"><div class="domain-progress-fill" id="dp-faith" style="width:0%"></div></div>
+      <div class="domain-score"><span id="ds-faith-l">No entries</span><span id="ds-faith-r"></span></div>
+    </div>
+    <div class="domain-card work">
+      <div class="domain-label">Work & Craft</div>
+      <div class="domain-title">The Build</div>
+      <div class="domain-body">Dante Craft. Trading. Engineering career. The professional expression of what you are becoming.</div>
+      <div class="domain-progress"><div class="domain-progress-fill" id="dp-work" style="width:0%"></div></div>
+      <div class="domain-score"><span id="ds-work-l">No entries</span><span id="ds-work-r"></span></div>
+    </div>
+    <div class="domain-card health">
+      <div class="domain-label">Health & Body</div>
+      <div class="domain-title">The Instrument</div>
+      <div class="domain-body">Physical strength, discipline, fitness. The body that carries the vision.</div>
+      <div class="domain-progress"><div class="domain-progress-fill" id="dp-health" style="width:0%"></div></div>
+      <div class="domain-score"><span id="ds-health-l">No entries</span><span id="ds-health-r"></span></div>
+    </div>
+    <div class="domain-card finance">
+      <div class="domain-label">Finances & Freedom</div>
+      <div class="domain-title">The Architecture</div>
+      <div class="domain-body">Financial independence. Trading. Debt resolution. The infrastructure of freedom.</div>
+      <div class="domain-progress"><div class="domain-progress-fill" id="dp-finance" style="width:0%"></div></div>
+      <div class="domain-score"><span id="ds-finance-l">No entries</span><span id="ds-finance-r"></span></div>
+    </div>
+    <div class="domain-card relation">
+      <div class="domain-label">Relationships</div>
+      <div class="domain-title">The Covenant</div>
+      <div class="domain-body">Tamara. Family. The people who matter. How you show up for them.</div>
+      <div class="domain-progress"><div class="domain-progress-fill" id="dp-relation" style="width:0%"></div></div>
+      <div class="domain-score"><span id="ds-relation-l">No entries</span><span id="ds-relation-r"></span></div>
+    </div>
+    <div class="domain-card character">
+      <div class="domain-label">Character & Mind</div>
+      <div class="domain-title">The Formation</div>
+      <div class="domain-body">Integrity, wisdom, learning, discipline. The person the work is producing.</div>
+      <div class="domain-progress"><div class="domain-progress-fill" id="dp-character" style="width:0%"></div></div>
+      <div class="domain-score"><span id="ds-character-l">No entries</span><span id="ds-character-r"></span></div>
+    </div>
+    <div class="domain-card dante">
+      <div class="domain-label">dAnTE Inc.</div>
+      <div class="domain-title">The Legacy</div>
+      <div class="domain-body">The conglomerate vision. Energy, environment, hospitality, the Foundation. Twenty years and beyond.</div>
+      <div class="domain-progress"><div class="domain-progress-fill" id="dp-dante" style="width:0%"></div></div>
+      <div class="domain-score"><span id="ds-dante-l">No entries</span><span id="ds-dante-r"></span></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════
+     FOUNDATION
+══════════════════════════════════════════ -->
+<div class="tab-panel" id="tab-foundation">
+
+  <div class="section-eyebrow">The Ground</div>
+  <div class="section-heading">Foundation</div>
+  <div class="section-preamble">Everything in this document stands on what is written here. The faith, the values, the operating principles. These do not change because circumstances change. They are the thing that makes the changes in circumstance navigable. Write them, own them, return to them.</div>
+
+  <div class="section-eyebrow" style="margin-bottom:0.75rem;">The Faith Statement</div>
+  <div class="editable-block" id="eb-faith-statement">
+    <div class="eb-content large" id="faith-statement-text">Faith is not a department of my life. It is the ground beneath everything else — not a value among values but the condition that makes all other values possible, coherent, and directional. I am in active relationship with a living God, and every plan in this document is held in that relationship, subject to His direction, and dependent on His strength.</div>
+    <button class="eb-edit-btn" onclick="editBlock('faith-statement')">Edit</button>
+  </div>
+
+  <div class="gold-rule"></div>
+
+  <div class="section-eyebrow" style="margin-bottom:0.75rem;">The Four Anchors</div>
+  <div class="two-col" style="margin-bottom:1rem;">
+    <div class="editable-block" id="eb-anchor-1">
+      <div class="eb-label">Anchor I</div>
+      <div class="eb-content large" style="font-size:1rem;" id="anchor-1-title">Individual Responsibility to Self</div>
+      <div class="eb-content" style="margin-top:0.5rem;" id="anchor-1-body">Circumstances are context, not verdict. The obligation to become, to build, and to show up fully belongs entirely to the individual. Circumstances are information. They are not permission to stop.</div>
+      <button class="eb-edit-btn" onclick="editAnchor(1)">Edit</button>
+    </div>
+    <div class="editable-block" id="eb-anchor-2">
+      <div class="eb-label">Anchor II</div>
+      <div class="eb-content large" style="font-size:1rem;" id="anchor-2-title">A Full Present Life</div>
+      <div class="eb-content" style="margin-top:0.5rem;" id="anchor-2-body">The long horizon and the present moment are not in competition. The small days are not the price of the life — they are the life. The life is now, compounding.</div>
+      <button class="eb-edit-btn" onclick="editAnchor(2)">Edit</button>
+    </div>
+    <div class="editable-block" id="eb-anchor-3">
+      <div class="eb-label">Anchor III</div>
+      <div class="eb-content large" style="font-size:1rem;" id="anchor-3-title">Autonomy</div>
+      <div class="eb-content" style="margin-top:0.5rem;" id="anchor-3-body">Freedom from constraint in all its forms. The goal is not accumulation but the capacity to choose — what to do, what to refuse, how to give. Build toward freedom, then use the freedom to build toward others.</div>
+      <button class="eb-edit-btn" onclick="editAnchor(3)">Edit</button>
+    </div>
+    <div class="editable-block" id="eb-anchor-4">
+      <div class="eb-label">Anchor IV</div>
+      <div class="eb-content large" style="font-size:1rem;" id="anchor-4-title">Self-Possession and Coherence</div>
+      <div class="eb-content" style="margin-top:0.5rem;" id="anchor-4-body">To be the same person in every room. Thought, word, action, and presentation consistent with each other. What cannot be backed up should not be claimed. What is claimed must be delivered.</div>
+      <button class="eb-edit-btn" onclick="editAnchor(4)">Edit</button>
+    </div>
+  </div>
+
+  <div class="gold-rule"></div>
+
+  <div class="section-eyebrow" style="margin-bottom:0.75rem;">Operating Principles</div>
+  <div class="editable-block" id="eb-principles">
+    <div class="eb-content" id="principles-text" style="line-height:2.1;">
+      Begin with God. The quality of every downstream hour is shaped by the first hour.<br>
+      Circumstances are the starting point, not the ceiling.<br>
+      Do not take credit the ability cannot substantiate.<br>
+      Compounding is the primary mechanism. Little drops.<br>
+      Incur no new debt.<br>
+      Treat each person as a distinct individual.<br>
+      Prepare before entering — but avoidance dressed as preparation is still avoidance.<br>
+      Extract the lesson from every failure and record it.<br>
+      Flexibility with the self has a limit. Know the difference between grace and the habit of letting the hook go.<br>
+      Build toward freedom in order to give freely.<br>
+      The present day is not a rehearsal.<br>
+      Maintain beauty as an underlying condition of daily life.<br>
+      Seek wisdom, not merely information.<br>
+      Be dependable above being impressive.
+    </div>
+    <button class="eb-edit-btn" onclick="editBlock('principles')">Edit</button>
+  </div>
+
+</div>
+
+<!-- ══════════════════════════════════════════
+     VISION & MISSION
+══════════════════════════════════════════ -->
+<div class="tab-panel" id="tab-vision">
+
+  <div class="section-eyebrow">Direction</div>
+  <div class="section-heading">Vision & Mission</div>
+  <div class="section-preamble">The personal vision is where this life is pointed. The mission is how it gets there, day by day. The legacy statement is what remains after. These three together form the directional spine of the plan. Write them in your own words. Return to them when the days feel disconnected from the direction.</div>
+
+  <div class="section-eyebrow" style="margin-bottom:0.75rem;">Personal Vision</div>
+  <div class="editable-block">
+    <div class="eb-label">The man this life is building toward</div>
+    <div class="eb-content large" id="vision-text">To become a man of complete integrity and deep faith — free in the fullest sense, structurally capable, and relationally generous — whose life constitutes a sustained argument that the individual, anchored in God and committed to their own becoming, is above their circumstances. And to build institutions that carry that argument past the limits of a single life.</div>
+    <button class="eb-edit-btn" onclick="editBlock('vision')">Edit</button>
+  </div>
+
+  <div class="spacer"></div>
+
+  <div class="section-eyebrow" style="margin-bottom:0.75rem;">Personal Mission</div>
+  <div class="editable-block">
+    <div class="eb-label">How the vision is lived daily</div>
+    <div class="eb-content large" id="mission-text">To show up fully every day — in faith, in craft, in character — compounding small acts of discipline and presence into a life of increasing freedom, depth, and impact. To be a man whose word can be trusted and whose work can be verified, and whose presence leaves people better than it found them.</div>
+    <button class="eb-edit-btn" onclick="editBlock('mission')">Edit</button>
+  </div>
+
+  <div class="spacer"></div>
+
+  <div class="section-eyebrow" style="margin-bottom:0.75rem;">Daily Mission</div>
+  <div class="editable-block">
+    <div class="eb-label">What today asks of you</div>
+    <div class="eb-content" id="daily-mission-text" style="line-height:2;">Begin with God. Move the body. Feed the mind. Do the work. Leave something better than it was. Sleep having given the day its due. Repeat — compounding.</div>
+    <button class="eb-edit-btn" onclick="editBlock('daily-mission')">Edit</button>
+  </div>
+
+  <div class="gold-rule"></div>
+
+  <div class="section-eyebrow" style="margin-bottom:0.75rem;">Legacy Statement</div>
+  <div class="editable-block" style="border-left:3px solid var(--gold);">
+    <div class="eb-label">What remains</div>
+    <div class="eb-content large" id="legacy-text">To leave a trail of lives awakened to their responsibility and ability to change — with institutions that inspire people to believe they deserve, and can do, better.</div>
+    <button class="eb-edit-btn" onclick="editBlock('legacy')">Edit</button>
+  </div>
+
+  <div class="spacer"></div>
+
+  <div class="section-eyebrow" style="margin-bottom:0.75rem;">Roles</div>
+  <div class="editable-block">
+    <div class="eb-label">How you hold yourself</div>
+    <div class="eb-content large" id="roles-text">Son · Steward · Builder · Connoisseur</div>
+    <button class="eb-edit-btn" onclick="editBlock('roles')">Edit</button>
+  </div>
+
+</div>
+
+<!-- ══════════════════════════════════════════
+     LIFE DOMAINS
+══════════════════════════════════════════ -->
+<div class="tab-panel" id="tab-domains">
+
+  <div class="section-eyebrow">Current State & Direction</div>
+  <div class="section-heading">Life Domains</div>
+  <div class="section-preamble">Each domain holds three things: where you are now, where you are going, and the milestones between. The current state is honest — not aspirational. The direction is the plan until God redirects. The milestones are measurable enough to know whether you're moving.</div>
+
+  <!-- FAITH -->
+  <div class="domain-card faith" style="margin-bottom:1.5rem;">
+    <div class="domain-label">Faith & Spirituality</div>
+    <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:1rem;flex-wrap:wrap;margin-bottom:1rem;">
+      <div style="flex:1;min-width:200px;">
+        <div class="domain-title">The Ground Everything Stands On</div>
+        <div class="domain-body">Active relationship with God. The 4AM prayer block. Scripture, Spirit, and the daily practice of alignment. This is not one domain among seven — it is the condition under which all others function.</div>
+      </div>
+    </div>
+    <div class="two-col" style="margin-bottom:1rem;">
+      <div>
+        <div class="eb-label" style="margin-bottom:0.4rem;">Where I am now</div>
+        <textarea class="write-area" data-key="domain-faith-now" placeholder="The honest current state of your faith practice. What is working, what is inconsistent, what is being built." style="min-height:80px;"></textarea>
+      </div>
+      <div>
+        <div class="eb-label" style="margin-bottom:0.4rem;">Where I am going</div>
+        <textarea class="write-area" data-key="domain-faith-direction" placeholder="The direction. What a mature, sustained faith practice looks like for you at 5, 10, 20 years." style="min-height:80px;"></textarea>
+      </div>
+    </div>
+    <div class="eb-label" style="margin-bottom:0.75rem;">Milestones</div>
+    <div id="milestones-faith"></div>
+    <button class="add-btn" onclick="addMilestone('faith')">+ Add milestone</button>
+  </div>
+
+  <!-- WORK -->
+  <div class="domain-card work" style="margin-bottom:1.5rem;">
+    <div class="domain-label">Work & Craft</div>
+    <div style="margin-bottom:1rem;">
+      <div class="domain-title">The Professional Life</div>
+      <div class="domain-body">Dante Craft, trading, the engineering career, the MSc, the certifications. The professional expression of what you are building. Not a job — a craft and a calling.</div>
+    </div>
+    <div class="two-col" style="margin-bottom:1rem;">
+      <div>
+        <div class="eb-label" style="margin-bottom:0.4rem;">Where I am now</div>
+        <textarea class="write-area" data-key="domain-work-now" placeholder="CGSL contract. Dante Craft. Trading live account. The current professional state." style="min-height:80px;"></textarea>
+      </div>
+      <div>
+        <div class="eb-label" style="margin-bottom:0.4rem;">Where I am going</div>
+        <textarea class="write-area" data-key="domain-work-direction" placeholder="The professional vision. Dante Craft at year 5. Trading at financial independence. The MSc trajectory." style="min-height:80px;"></textarea>
+      </div>
+    </div>
+    <div class="eb-label" style="margin-bottom:0.75rem;">Milestones</div>
+    <div id="milestones-work"></div>
+    <button class="add-btn" onclick="addMilestone('work')">+ Add milestone</button>
+  </div>
+
+  <!-- HEALTH -->
+  <div class="domain-card health" style="margin-bottom:1.5rem;">
+    <div class="domain-label">Health & Body</div>
+    <div style="margin-bottom:1rem;">
+      <div class="domain-title">The Instrument</div>
+      <div class="domain-body">Physical strength, discipline, fitness. The body that carries the vision. What you build in the morning routine compounds the same way everything else does.</div>
+    </div>
+    <div class="two-col" style="margin-bottom:1rem;">
+      <div>
+        <div class="eb-label" style="margin-bottom:0.4rem;">Where I am now</div>
+        <textarea class="write-area" data-key="domain-health-now" placeholder="Current physical state. What the morning workout looks like. What's inconsistent." style="min-height:80px;"></textarea>
+      </div>
+      <div>
+        <div class="eb-label" style="margin-bottom:0.4rem;">Where I am going</div>
+        <textarea class="write-area" data-key="domain-health-direction" placeholder="The physical target. What visibly changes. How the body reflects the discipline of the life." style="min-height:80px;"></textarea>
+      </div>
+    </div>
+    <div class="eb-label" style="margin-bottom:0.75rem;">Milestones</div>
+    <div id="milestones-health"></div>
+    <button class="add-btn" onclick="addMilestone('health')">+ Add milestone</button>
+  </div>
+
+  <!-- FINANCE -->
+  <div class="domain-card finance" style="margin-bottom:1.5rem;">
+    <div class="domain-label">Finances & Freedom</div>
+    <div style="margin-bottom:1rem;">
+      <div class="domain-title">The Architecture of Freedom</div>
+      <div class="domain-body">Financial independence through trading. Debt resolved. Dante Craft generating revenue. The number that means the constraint is gone — defined, targeted, pursued.</div>
+    </div>
+    <div class="two-col" style="margin-bottom:1rem;">
+      <div>
+        <div class="eb-label" style="margin-bottom:0.4rem;">Where I am now</div>
+        <textarea class="write-area" data-key="domain-finance-now" placeholder="Honest current state. Debt, account size, income, what the month looks like financially." style="min-height:80px;"></textarea>
+      </div>
+      <div>
+        <div class="eb-label" style="margin-bottom:0.4rem;">Where I am going</div>
+        <textarea class="write-area" data-key="domain-finance-direction" placeholder="The financial target. The number. The state. When the constraint is genuinely gone." style="min-height:80px;"></textarea>
+      </div>
+    </div>
+    <div class="eb-label" style="margin-bottom:0.75rem;">Milestones</div>
+    <div id="milestones-finance"></div>
+    <button class="add-btn" onclick="addMilestone('finance')">+ Add milestone</button>
+  </div>
+
+  <!-- RELATIONSHIPS -->
+  <div class="domain-card relation" style="margin-bottom:1.5rem;">
+    <div class="domain-label">Relationships</div>
+    <div style="margin-bottom:1rem;">
+      <div class="domain-title">The Covenant Life</div>
+      <div class="domain-body">Tamara. Family. The people whose lives are shaped by yours and whose shape yours. Relationships are not peripheral to the plan — they are part of the legacy.</div>
+    </div>
+    <div class="two-col" style="margin-bottom:1rem;">
+      <div>
+        <div class="eb-label" style="margin-bottom:0.4rem;">Where I am now</div>
+        <textarea class="write-area" data-key="domain-relation-now" placeholder="The honest relational state. Tamara, family, what is being invested in and what isn't." style="min-height:80px;"></textarea>
+      </div>
+      <div>
+        <div class="eb-label" style="margin-bottom:0.4rem;">Where I am going</div>
+        <textarea class="write-area" data-key="domain-relation-direction" placeholder="Marriage, family, the relational life at 5 and 20 years. What you are building relationally." style="min-height:80px;"></textarea>
+      </div>
+    </div>
+    <div class="eb-label" style="margin-bottom:0.75rem;">Milestones</div>
+    <div id="milestones-relation"></div>
+    <button class="add-btn" onclick="addMilestone('relation')">+ Add milestone</button>
+  </div>
+
+  <!-- CHARACTER -->
+  <div class="domain-card character" style="margin-bottom:1.5rem;">
+    <div class="domain-label">Character & Mind</div>
+    <div style="margin-bottom:1rem;">
+      <div class="domain-title">The Formation</div>
+      <div class="domain-body">Integrity, wisdom, learning, discipline. The reading, the journaling, the self-knowledge. The person the work is producing — not the output but the builder.</div>
+    </div>
+    <div class="two-col" style="margin-bottom:1rem;">
+      <div>
+        <div class="eb-label" style="margin-bottom:0.4rem;">Where I am now</div>
+        <textarea class="write-area" data-key="domain-character-now" placeholder="Current intellectual and character state. What you're reading, what you're learning about yourself, what the discipline looks like." style="min-height:80px;"></textarea>
+      </div>
+      <div>
+        <div class="eb-label" style="margin-bottom:0.4rem;">Where I am going</div>
+        <textarea class="write-area" data-key="domain-character-direction" placeholder="The man at 50. What the character looks like when the formation is far along. What you want wisdom to look like in you." style="min-height:80px;"></textarea>
+      </div>
+    </div>
+    <div class="eb-label" style="margin-bottom:0.75rem;">Milestones</div>
+    <div id="milestones-character"></div>
+    <button class="add-btn" onclick="addMilestone('character')">+ Add milestone</button>
+  </div>
+
+  <!-- DANTE -->
+  <div class="domain-card dante" style="margin-bottom:1.5rem;">
+    <div class="domain-label">dAnTE Inc.</div>
+    <div style="margin-bottom:1rem;">
+      <div class="domain-title">The Legacy Institutions</div>
+      <div class="domain-body">The conglomerate vision. Dante Craft operational. Energy, environment, hospitality, the Foundation in development. Twenty years and beyond. The argument that individuals anchored in God can build things that outlast them.</div>
+    </div>
+    <div class="two-col" style="margin-bottom:1rem;">
+      <div>
+        <div class="eb-label" style="margin-bottom:0.4rem;">Where I am now</div>
+        <textarea class="write-area" data-key="domain-dante-now" placeholder="Dante Craft registered. Founding documents drafted. Other entities in early development." style="min-height:80px;"></textarea>
+      </div>
+      <div>
+        <div class="eb-label" style="margin-bottom:0.4rem;">Where I am going</div>
+        <textarea class="write-area" data-key="domain-dante-direction" placeholder="The group at 5, 10, 20 years. The Foundation specifically — what it does, who it serves, what it produces." style="min-height:80px;"></textarea>
+      </div>
+    </div>
+    <div class="eb-label" style="margin-bottom:0.75rem;">Milestones</div>
+    <div id="milestones-dante"></div>
+    <button class="add-btn" onclick="addMilestone('dante')">+ Add milestone</button>
+  </div>
+
+</div>
+
+<!-- ══════════════════════════════════════════
+     HORIZON / TIMELINE
+══════════════════════════════════════════ -->
+<div class="tab-panel" id="tab-timeline">
+
+  <div class="section-eyebrow">The Long View</div>
+  <div class="section-heading">Horizon</div>
+  <div class="section-preamble">What the life looks like at each major interval. Not a promise — a direction. The faith-backed plan moves here until God redirects. Each horizon builds on the one before it. Read this and ask: am I moving toward this, and is this what I actually want?</div>
+
+  <div class="timeline" id="timeline-items">
+
+    <div class="tl-item filled" data-id="tl-now">
+      <div class="tl-horizon">Now — May 2026</div>
+      <div class="tl-title">The Reset Month</div>
+      <div class="tl-body">Apartment settled. CGSL contract active. Trading live with $5. Tamara — a door re-opening. dAnTE founding documents drafted. The 4AM routine being established. The platform from which everything else launches.</div>
+    </div>
+
+    <div class="tl-item" data-id="tl-1yr">
+      <div class="tl-horizon">Year 1 — May 2027</div>
+      <div class="tl-title" id="tl-1yr-title">Foundation Laid</div>
+      <div class="tl-body" id="tl-1yr-body">Trading generating consistent monthly withdrawals. Dante Craft with active projects. MSc underway or admitted. Debt fully resolved. The routine unbreakable. Tamara — same city or a clear plan toward it. The 4AM producing qualitatively different days, consistently.</div>
+      <button class="edit-btn" style="margin-top:0.5rem;" onclick="editTimeline('tl-1yr')">Edit</button>
+    </div>
+
+    <div class="tl-item" data-id="tl-3yr">
+      <div class="tl-horizon">Year 3 — 2029</div>
+      <div class="tl-title" id="tl-3yr-title">The Structure Visible</div>
+      <div class="tl-body" id="tl-3yr-body">MSc completed. Dante Craft a recognised name with a team. Trading account at meaningful scale. Married or engaged with a clear date. Same city as Tamara. dAnTE Energy or dAnTE Environment in early operation. A man who no longer explains what he is building — he shows it.</div>
+      <button class="edit-btn" style="margin-top:0.5rem;" onclick="editTimeline('tl-3yr')">Edit</button>
+    </div>
+
+    <div class="tl-item" data-id="tl-5yr">
+      <div class="tl-horizon">Year 5 — 2031</div>
+      <div class="tl-title" id="tl-5yr-title">The Household Built</div>
+      <div class="tl-body" id="tl-5yr-body">Married. A household with shared vision and shared faith practice. Dante Craft with significant revenue and a capable team. Trading as a primary income source. dAnTE Inc. group entities each with operational presence. The Foundation — not yet open, but planned in specificity. Children, or a clear view of when.</div>
+      <button class="edit-btn" style="margin-top:0.5rem;" onclick="editTimeline('tl-5yr')">Edit</button>
+    </div>
+
+    <div class="tl-item" data-id="tl-10yr">
+      <div class="tl-horizon">Year 10 — 2036</div>
+      <div class="tl-title" id="tl-10yr-title">The Compound Visible</div>
+      <div class="tl-body" id="tl-10yr-body">A decade of daily compounding made visible. The man, the marriage, the enterprise, the faith — all at a level of maturity that could not have been rushed. dAnTE Hospitality operational. The Foundation receiving its first students. Financial independence achieved. The life no longer explained — simply lived.</div>
+      <button class="edit-btn" style="margin-top:0.5rem;" onclick="editTimeline('tl-10yr')">Edit</button>
+    </div>
+
+    <div class="tl-item" data-id="tl-20yr">
+      <div class="tl-horizon">Year 20 — 2046</div>
+      <div class="tl-title" id="tl-20yr-title">The Legacy Established</div>
+      <div class="tl-body" id="tl-20yr-body">The dAnTE Inc. group across all entities, operational and impactful. The Foundation producing graduates who believe they deserve better and know how to build toward it. Children who have grown up inside a household that demonstrated what faith, discipline, and love look like when held together. A marriage that has lasted and deepened. A trail of lives changed. The argument, lived.</div>
+      <button class="edit-btn" style="margin-top:0.5rem;" onclick="editTimeline('tl-20yr')">Edit</button>
+    </div>
+
+    <div class="tl-item" data-id="tl-beyond">
+      <div class="tl-horizon">Beyond — 2046+</div>
+      <div class="tl-title" id="tl-beyond-title">What Remains</div>
+      <div class="tl-body" id="tl-beyond-body">The institutions outlast the man. The Foundation continues. The companies continue. The children carry the values. The legacy is not a monument — it is a living argument, still being made by the people and structures that this life produced. A trail of lives awakened to their responsibility and ability to change.</div>
+      <button class="edit-btn" style="margin-top:0.5rem;" onclick="editTimeline('tl-beyond')">Edit</button>
+    </div>
+
+  </div>
+
+  <button class="add-btn" onclick="addTimelineItem()">+ Add a horizon point</button>
+
+</div>
+
+<!-- ══════════════════════════════════════════
+     NOW
+══════════════════════════════════════════ -->
+<div class="tab-panel" id="tab-now">
+
+  <div class="section-eyebrow">The Active Plan</div>
+  <div class="section-heading">Now</div>
+  <div class="section-preamble">Where the long vision meets today. This tab changes most frequently. It holds what you are working on this month, this quarter, and the immediate next steps in each domain. It is the bridge between the horizon and the morning.</div>
+
+  <div class="section-eyebrow" style="margin-bottom:0.75rem;">This Month — May 2026</div>
+  <div class="editable-block">
+    <div class="eb-label">The Month's Spine</div>
+    <div class="eb-content" id="month-spine-text" style="line-height:2;">Trading sessions daily — V75(1s), execution discipline, real withdrawals.<br>
+4AM routine established and held.<br>
+MSc decision made by May 31.<br>
+Founding documents reviewed and signed.<br>
+Debt scheduled payment executed.<br>
+AutoCAD begun — 2012 closes now.<br>
+≥5 books read.<br>
+IOSH enrolled.</div>
+    <button class="eb-edit-btn" onclick="editBlock('month-spine')">Edit</button>
+  </div>
+
+  <div class="spacer"></div>
+
+  <div class="section-eyebrow" style="margin-bottom:0.75rem;">Active Priorities — Ranked</div>
+  <div id="now-priorities"></div>
+  <button class="add-btn" onclick="addNowPriority()">+ Add a priority</button>
+
+  <div class="gold-rule"></div>
+
+  <div class="section-eyebrow" style="margin-bottom:0.75rem;">This Quarter — Q2 2026</div>
+  <textarea class="write-area" data-key="now-quarter" placeholder="What Q2 2026 needs to produce. The targets across domains that tell you the quarter was well spent." style="min-height:120px;"></textarea>
+
+  <div class="spacer"></div>
+
+  <div class="section-eyebrow" style="margin-bottom:0.75rem;">Next 90 Days — Running Notes</div>
+  <textarea class="write-area" data-key="now-90days" placeholder="Decisions forming, things to research, conversations to have, adjustments being considered. The live thinking of the near future." style="min-height:150px;"></textarea>
+
+</div>
+
+<!-- ══════════════════════════════════════════
+     TOGETHER
+══════════════════════════════════════════ -->
+<div class="tab-panel" id="tab-together">
+
+  <div class="section-eyebrow">The Shared Life</div>
+  <div class="section-heading">Together</div>
+  <div class="section-preamble">This section is the part of the plan you build with Tamara — or at minimum, the part you bring to her. One of her complaints was that you didn't plan together. The answer to that is not to plan more privately and present it to her. It is to have a section of the plan that is genuinely hers to enter. This is that section. Write your part first. Then open the door.</div>
+
+  <div class="section-eyebrow" style="margin-bottom:0.75rem;">What I Am Building Toward, With Her</div>
+  <div class="editable-block" style="border-left:3px solid var(--relation);">
+    <div class="eb-label">The shared vision — your words first</div>
+    <div class="eb-content large" id="together-vision-text">Imagine five years of shared experiences. She moves to Port Harcourt. We're in a duplex on Sars Road — furnished properly, a kitchen that works, space for her to make things and space for me to build things. She is Creative Director in practice if not yet in documentation. We run ideas by each other before anyone else. She has Pyros. I have Dante Craft. We have one joint venture already underway — a building, a plot of land, something we own together. The household is one of balance and love and genuine partnership, both of us in step with God and with each other. No eggshells. No antennas. Just two people who chose each other on the hard days and compounded that choice into something neither of us could have built alone.</div>
+    <button class="eb-edit-btn" onclick="editBlock('together-vision')">Edit</button>
+  </div>
+
+  <div class="spacer"></div>
+
+  <div class="section-eyebrow" style="margin-bottom:0.75rem;">The Shared Timeline</div>
+
+  <div class="two-col" style="margin-bottom:1rem;">
+    <div class="editable-block">
+      <div class="eb-label">Same city — target</div>
+      <div class="eb-content" id="together-city-text">Port Harcourt. She moves — her work is not location-bound. Not Abuja, not Lagos, not Ibadan. PH has the cost of living, the quality of life we can build, and my career is here for now. Target: she is here within a year of marriage. Duplex on Sars Road is the housing goal for year one. First visit end of Q2 2026 — flight funded, apartment ready for her. Quarterly visits (two months, two fortnights) until we're in the same city.</div>
+      <button class="eb-edit-btn" onclick="editBlock('together-city')">Edit</button>
+    </div>
+    <div class="editable-block">
+      <div class="eb-label">Marriage — target</div>
+      <div class="eb-content" id="together-marriage-text">December 2026 — propose. This requires monthly income of at least ₦1m, the debt fully resolved, the apartment complete, and the relationship in a rhythm that makes the question feel like the natural next step rather than a rescue. The conditions are financial stability and relational health, both together. She knows the direction. Tell her more often that you do too.</div>
+      <button class="eb-edit-btn" onclick="editBlock('together-marriage')">Edit</button>
+    </div>
+    <div class="editable-block">
+      <div class="eb-label">Children — intent</div>
+      <div class="eb-content" id="together-children-text">We agreed — no children. She doesn't want them. You, if you'd have them, never wanted more than two, and staying at none is settled. You wrote it yourself: "I've always thought to have my one person, untethered, unshared." That is the household. Two people fully committed to each other and to the work, without division. This is a decision made together, not a compromise — honour it as such.</div>
+      <button class="eb-edit-btn" onclick="editBlock('together-children')">Edit</button>
+    </div>
+    <div class="editable-block">
+      <div class="eb-label">Her place in the build</div>
+      <div class="eb-content" id="together-role-text">Creative Director — in practice even if not yet in documentation. R&D reports to her. She runs ideas by the work. Pyros (her food and making enterprise) sits alongside dAnTE Inc., not inside it — her own thing, fully hers. The dAnTE Foundation training program incorporates Pyros at the vocational level. You run every significant idea by her first. She forwarded you coal trailer specs with routes and pricing on a Saturday. She is already operating like a partner. Meet her there.</div>
+      <button class="eb-edit-btn" onclick="editBlock('together-role')">Edit</button>
+    </div>
+  </div>
+
+  <div class="gold-rule"></div>
+
+  <div class="section-eyebrow" style="margin-bottom:0.75rem;">What I Need Her to Know — Before We Plan Together</div>
+  <textarea class="write-area" data-key="together-letter" placeholder="Write to her here — not the things you'll say perfectly in a conversation, but the things she needs to understand about who you are becoming and what you are building and why you want to build it with her. This becomes the door you open." style="min-height:200px;"></textarea>
+
+  <div class="spacer"></div>
+
+  <div class="section-eyebrow" style="margin-bottom:0.75rem;">Things to Plan Together — When the Time Comes</div>
+  <div id="together-items"></div>
+  <button class="add-btn" onclick="addTogetherItem()">+ Add something to plan together</button>
+
+</div>
+
+<script>
+// Seed together items from Clarity Document answers — runs once
+(function(){
+  if(localStorage.getItem('lifeplan-together-seeded'))return;
+  const seeds=[
+    {title:'Communication rhythm and schedule',detail:'How long off, what a good week looks like — text, call times, when you\'re unavailable. Name it clearly so neither of you is guessing.',done:false},
+    {title:'Conflict naming — as e dey hot',detail:'She needs to know it\'s safe to name something the moment it lands. You need to know she\'ll do it before it becomes a confrontation. Agree on this explicitly.',done:false},
+    {title:'Financial transparency going forward',detail:'The debt is nearly cleared. When it is — she finds out it existed and was handled. Build the habit of financial openness from that point.',done:false},
+    {title:'Platonic relationships and boundaries',detail:'Named explicitly, once, clearly. What both of you are comfortable with. Not assumed.',done:false},
+    {title:'Visit schedule — Q2 2026 onwards',detail:'End of Q2 2026: first visit to PHC. Two months and two fortnights per year thereafter. You fund the travel. You plan it. She arrives to something already built.',done:false},
+    {title:'The duplex on Sars Road',detail:'Year one housing target. Research it together. She should know this is the direction and why PH over Lagos or Abuja.',done:false},
+    {title:'A joint property or investment',detail:'By year three — a building, a plot, something owned together. The first thing that is both of yours simultaneously.',done:false},
+    {title:'Pyros and dAnTE — how they sit',detail:'Her enterprise is hers. The Foundation training program incorporates Pyros at the vocational level. Define this before it gets assumed into something it isn\'t.',done:false},
+    {title:'Faith practice as a household',detail:'Evening prayer, afternoon philosophy discussions, verse of the day in the morning call. What the shared spiritual life looks like in the same city.',done:false},
+    {title:'A shared goal and accountability system',detail:'She complained there was no growth system together. Build one — something you both contribute to and can see each other\'s progress in.',done:false},
+  ];
+  localStorage.setItem('lifeplan-together',JSON.stringify(seeds));
+  localStorage.setItem('lifeplan-together-seeded','1');
+})();
+</script>
+
+<!-- ══════════════════════════════════════════
+     ANCHORS / REVIEW
+══════════════════════════════════════════ -->
+<div class="tab-panel" id="tab-anchors">
+
+  <div class="section-eyebrow">Return Here Often</div>
+  <div class="section-heading">Anchors & Review</div>
+  <div class="section-preamble">This tab is for the moments when the document needs to be revisited — not just updated but reread. Quarterly review prompts, the verses that anchor the plan, and a running journal of how the plan is evolving. Plans do not fail because they are wrong. They fail because they are forgotten.</div>
+
+  <div class="section-eyebrow" style="margin-bottom:0.75rem;">Anchor Verses — The Scriptural Foundation</div>
+  <div id="verse-list">
+    <div class="verse-block" data-id="v1">
+      <div class="verse-text">For I know the plans I have for you, declares the Lord — plans to prosper you and not to harm you, plans to give you hope and a future.</div>
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-top:0.5rem;">
+        <div class="verse-ref">Jeremiah 29:11</div>
+        <div style="display:flex;gap:0.25rem;">
+          <button class="edit-btn" onclick="editVerse('v1')">Edit</button>
+          <button class="del-btn" onclick="deleteVerse('v1')">✕</button>
+        </div>
+      </div>
+    </div>
+    <div class="verse-block" data-id="v2">
+      <div class="verse-text">Commit your way to the Lord; trust in him and he will act. He will make your righteous reward shine like the dawn, your vindication like the noonday sun.</div>
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-top:0.5rem;">
+        <div class="verse-ref">Psalm 37:5–6</div>
+        <div style="display:flex;gap:0.25rem;">
+          <button class="edit-btn" onclick="editVerse('v2')">Edit</button>
+          <button class="del-btn" onclick="deleteVerse('v2')">✕</button>
+        </div>
+      </div>
+    </div>
+    <div class="verse-block" data-id="v3">
+      <div class="verse-text">Unless the Lord builds the house, the builders labour in vain.</div>
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-top:0.5rem;">
+        <div class="verse-ref">Psalm 127:1</div>
+        <div style="display:flex;gap:0.25rem;">
+          <button class="edit-btn" onclick="editVerse('v3')">Edit</button>
+          <button class="del-btn" onclick="deleteVerse('v3')">✕</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <button class="add-btn" onclick="addVerse()">+ Add a verse</button>
+
+  <div class="gold-rule"></div>
+
+  <div class="section-eyebrow" style="margin-bottom:0.75rem;">Quarterly Review Prompts</div>
+  <div class="editable-block">
+    <div class="eb-content" style="line-height:2.2;font-size:0.85rem;">
+      Is the direction still right, or has God redirected something?<br>
+      What domain has had the least attention and why?<br>
+      What has the last three months revealed about me that I hadn't seen before?<br>
+      Am I moving toward the one-year horizon or drifting from it?<br>
+      What did I say I would do that I didn't? What do I do about that now?<br>
+      What has compounded well? What has stalled?<br>
+      What does Tamara need from me that the last quarter didn't produce?<br>
+      What does God seem to be saying about the direction of this season?<br>
+      What is the one thing that, if it changed, would change everything else?
+    </div>
+  </div>
+
+  <div class="gold-rule"></div>
+
+  <div class="section-eyebrow" style="margin-bottom:0.75rem;">Plan Journal — Revisions and Reflections</div>
+  <textarea class="write-area" id="plan-journal-input" placeholder="Date your entries. Write what changed, what you noticed, what God showed you, what the plan needed. This is the living record of how the plan evolves." style="min-height:140px;"></textarea>
+  <div style="display:flex;justify-content:flex-end;margin-top:0.5rem;margin-bottom:1.5rem;">
+    <button class="save-main-btn" onclick="addJournalEntry()">Add Entry</button>
+  </div>
+  <div id="plan-journal-entries"></div>
+
+</div>
+
+</main>
+
+<div class="save-bar">
+  <span class="saved-flash" id="saved-flash">Saved.</span>
+  <button class="save-main-btn" onclick="saveAll()">Save Document</button>
+</div>
+
+<!-- MODAL -->
+<div class="modal-overlay" id="modal">
+  <div class="modal">
+    <div class="modal-title" id="modal-title">Edit</div>
+    <div id="modal-fields"></div>
+    <div class="modal-actions">
+      <button class="modal-cancel" onclick="closeModal()">Cancel</button>
+      <button class="modal-confirm" onclick="confirmModal()">Save</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ── STATE ──
+let modalMode=null, modalTargetId=null;
+let autoTimer=null;
+
+const DOMAINS=['faith','work','health','finance','relation','character','dante'];
+
+// ── THEME ──
+function toggleTheme(){
+  const h=document.documentElement;
+  const dark=h.getAttribute('data-theme')==='dark';
+  h.setAttribute('data-theme',dark?'light':'dark');
+  document.getElementById('theme-icon').textContent=dark?'☾':'☀';
+  localStorage.setItem('lifeplan-theme',dark?'light':'dark');
+}
+
+// ── TABS ──
+function switchTab(name,btn){
+  document.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
+  document.getElementById('tab-'+name).classList.add('active');
+  btn.classList.add('active');
+  window.scrollTo(0,0);
+}
+
+// ── MILESTONES ──
+function renderMilestones(domain){
+  const data=JSON.parse(localStorage.getItem('lifeplan-milestones')||'{}');
+  const items=data[domain]||[];
+  const container=document.getElementById('milestones-'+domain);
+  if(!container)return;
+  if(!items.length){container.innerHTML='<div style="font-family:\'DM Mono\',monospace;font-size:0.55rem;color:var(--text-muted);letter-spacing:0.08em;padding:0.5rem 0;">No milestones yet.</div>';return;}
+  container.innerHTML=items.map((m,i)=>`
+    <div class="milestone-item ${m.done?'done':''}" data-domain="${domain}" data-idx="${i}" onclick="toggleMilestone('${domain}',${i})">
+      <div class="m-check">✓</div>
+      <div class="m-content">
+        <div class="m-title">${m.title}</div>
+        ${m.detail?`<div class="m-detail">${m.detail}</div>`:''}
+      </div>
+      <div style="display:flex;flex-direction:column;align-items:flex-end;gap:0.3rem;">
+        <span class="m-when">${m.when||''}</span>
+        <div style="display:flex;gap:0.2rem;">
+          <button class="edit-btn" onclick="event.stopPropagation();editMilestone('${domain}',${i})">Edit</button>
+          <button class="del-btn" onclick="event.stopPropagation();deleteMilestone('${domain}',${i})">✕</button>
+        </div>
+      </div>
+    </div>`).join('');
+  updateDomainProgress();
+}
+
+function toggleMilestone(domain,idx){
+  const data=JSON.parse(localStorage.getItem('lifeplan-milestones')||'{}');
+  if(!data[domain])return;
+  data[domain][idx].done=!data[domain][idx].done;
+  localStorage.setItem('lifeplan-milestones',JSON.stringify(data));
+  renderMilestones(domain);
+  scheduleAutosave();
+}
+
+function deleteMilestone(domain,idx){
+  if(!confirm('Remove this milestone?'))return;
+  const data=JSON.parse(localStorage.getItem('lifeplan-milestones')||'{}');
+  data[domain].splice(idx,1);
+  localStorage.setItem('lifeplan-milestones',JSON.stringify(data));
+  renderMilestones(domain);
+}
+
+function addMilestone(domain){
+  modalMode='add-milestone';modalTargetId=domain;
+  document.getElementById('modal-title').textContent='Add milestone';
+  document.getElementById('modal-fields').innerHTML=`
+    <label class="modal-label">Milestone</label>
+    <input type="text" id="mf-title" placeholder="What needs to happen">
+    <label class="modal-label">Detail (optional)</label>
+    <textarea id="mf-detail" placeholder="More context, what success looks like" style="min-height:70px;"></textarea>
+    <label class="modal-label">When</label>
+    <input type="text" id="mf-when" placeholder="e.g. Q3 2026 · Year 2 · May 2027">`;
+  document.getElementById('modal').classList.add('open');
+}
+
+function editMilestone(domain,idx){
+  modalMode='edit-milestone';modalTargetId={domain,idx};
+  const data=JSON.parse(localStorage.getItem('lifeplan-milestones')||'{}');
+  const m=data[domain][idx];
+  document.getElementById('modal-title').textContent='Edit milestone';
+  document.getElementById('modal-fields').innerHTML=`
+    <label class="modal-label">Milestone</label>
+    <input type="text" id="mf-title" value="${m.title||''}">
+    <label class="modal-label">Detail</label>
+    <textarea id="mf-detail" style="min-height:70px;">${m.detail||''}</textarea>
+    <label class="modal-label">When</label>
+    <input type="text" id="mf-when" value="${m.when||''}">`;
+  document.getElementById('modal').classList.add('open');
+}
+
+function updateDomainProgress(){
+  const data=JSON.parse(localStorage.getItem('lifeplan-milestones')||'{}');
+  DOMAINS.forEach(d=>{
+    const items=data[d]||[];
+    const total=items.length;
+    const done=items.filter(m=>m.done).length;
+    const pct=total>0?Math.round(done/total*100):0;
+    const fill=document.getElementById('dp-'+d);
+    if(fill)fill.style.width=pct+'%';
+    const l=document.getElementById('ds-'+d+'-l');
+    const r=document.getElementById('ds-'+d+'-r');
+    if(l)l.textContent=total>0?`${done}/${total} milestones`:'No milestones';
+    if(r)r.textContent=total>0?`${pct}%`:'';
+  });
+}
+
+// ── NOW PRIORITIES ──
+function renderNowPriorities(){
+  const items=JSON.parse(localStorage.getItem('lifeplan-priorities')||'[]');
+  const c=document.getElementById('now-priorities');
+  if(!c)return;
+  if(!items.length){c.innerHTML='<div style="font-family:\'DM Mono\',monospace;font-size:0.55rem;color:var(--text-muted);padding:0.5rem 0;">No priorities added yet.</div>';return;}
+  c.innerHTML=items.map((p,i)=>`
+    <div class="milestone-item ${p.done?'done':''}" onclick="togglePriority(${i})">
+      <div class="m-check">✓</div>
+      <div class="m-content">
+        <div class="m-title">${p.title}</div>
+        ${p.detail?`<div class="m-detail">${p.detail}</div>`:''}
+      </div>
+      <div style="display:flex;align-items:center;gap:0.3rem;">
+        <button class="edit-btn" onclick="event.stopPropagation();editPriority(${i})">Edit</button>
+        <button class="del-btn" onclick="event.stopPropagation();deletePriority(${i})">✕</button>
+      </div>
+    </div>`).join('');
+}
+
+function togglePriority(i){
+  const items=JSON.parse(localStorage.getItem('lifeplan-priorities')||'[]');
+  items[i].done=!items[i].done;
+  localStorage.setItem('lifeplan-priorities',JSON.stringify(items));
+  renderNowPriorities();
+}
+function deletePriority(i){
+  if(!confirm('Remove?'))return;
+  const items=JSON.parse(localStorage.getItem('lifeplan-priorities')||'[]');
+  items.splice(i,1);
+  localStorage.setItem('lifeplan-priorities',JSON.stringify(items));
+  renderNowPriorities();
+}
+function addNowPriority(){
+  modalMode='add-priority';modalTargetId=null;
+  document.getElementById('modal-title').textContent='Add priority';
+  document.getElementById('modal-fields').innerHTML=`
+    <label class="modal-label">Priority</label>
+    <input type="text" id="mf-title" placeholder="What needs to happen">
+    <label class="modal-label">Detail (optional)</label>
+    <textarea id="mf-detail" placeholder="Specifics" style="min-height:60px;"></textarea>`;
+  document.getElementById('modal').classList.add('open');
+}
+function editPriority(i){
+  modalMode='edit-priority';modalTargetId=i;
+  const items=JSON.parse(localStorage.getItem('lifeplan-priorities')||'[]');
+  const p=items[i];
+  document.getElementById('modal-title').textContent='Edit priority';
+  document.getElementById('modal-fields').innerHTML=`
+    <label class="modal-label">Priority</label>
+    <input type="text" id="mf-title" value="${p.title||''}">
+    <label class="modal-label">Detail</label>
+    <textarea id="mf-detail" style="min-height:60px;">${p.detail||''}</textarea>`;
+  document.getElementById('modal').classList.add('open');
+}
+
+// ── TOGETHER ITEMS ──
+function renderTogetherItems(){
+  const items=JSON.parse(localStorage.getItem('lifeplan-together')||'[]');
+  const c=document.getElementById('together-items');
+  if(!c)return;
+  if(!items.length){c.innerHTML='<div style="font-family:\'DM Mono\',monospace;font-size:0.55rem;color:var(--text-muted);padding:0.5rem 0;">Nothing added yet.</div>';return;}
+  c.innerHTML=items.map((p,i)=>`
+    <div class="milestone-item ${p.done?'done':''}" onclick="toggleTogether(${i})">
+      <div class="m-check">✓</div>
+      <div class="m-content">
+        <div class="m-title">${p.title}</div>
+        ${p.detail?`<div class="m-detail">${p.detail}</div>`:''}
+      </div>
+      <div style="display:flex;gap:0.3rem;">
+        <button class="edit-btn" onclick="event.stopPropagation();editTogether(${i})">Edit</button>
+        <button class="del-btn" onclick="event.stopPropagation();deleteTogether(${i})">✕</button>
+      </div>
+    </div>`).join('');
+}
+function toggleTogether(i){
+  const items=JSON.parse(localStorage.getItem('lifeplan-together')||'[]');
+  items[i].done=!items[i].done;
+  localStorage.setItem('lifeplan-together',JSON.stringify(items));
+  renderTogetherItems();
+}
+function deleteTogether(i){
+  if(!confirm('Remove?'))return;
+  const items=JSON.parse(localStorage.getItem('lifeplan-together')||'[]');
+  items.splice(i,1);
+  localStorage.setItem('lifeplan-together',JSON.stringify(items));
+  renderTogetherItems();
+}
+function addTogetherItem(){
+  modalMode='add-together';modalTargetId=null;
+  document.getElementById('modal-title').textContent='Add something to plan together';
+  document.getElementById('modal-fields').innerHTML=`
+    <label class="modal-label">What to plan together</label>
+    <input type="text" id="mf-title" placeholder="e.g. Where we'll live, the wedding, the Foundation">
+    <label class="modal-label">Notes</label>
+    <textarea id="mf-detail" placeholder="What you already know, what needs to be decided together" style="min-height:70px;"></textarea>`;
+  document.getElementById('modal').classList.add('open');
+}
+function editTogether(i){
+  modalMode='edit-together';modalTargetId=i;
+  const items=JSON.parse(localStorage.getItem('lifeplan-together')||'[]');
+  const p=items[i];
+  document.getElementById('modal-title').textContent='Edit';
+  document.getElementById('modal-fields').innerHTML=`
+    <label class="modal-label">What to plan together</label>
+    <input type="text" id="mf-title" value="${p.title||''}">
+    <label class="modal-label">Notes</label>
+    <textarea id="mf-detail" style="min-height:70px;">${p.detail||''}</textarea>`;
+  document.getElementById('modal').classList.add('open');
+}
+
+// ── VERSES ──
+function editVerse(id){
+  modalMode='edit-verse';modalTargetId=id;
+  const el=document.querySelector(`.verse-block[data-id="${id}"]`);
+  const text=el.querySelector('.verse-text').textContent;
+  const ref=el.querySelector('.verse-ref').textContent;
+  document.getElementById('modal-title').textContent='Edit verse';
+  document.getElementById('modal-fields').innerHTML=`
+    <label class="modal-label">Verse text</label>
+    <textarea id="mf-title" style="min-height:80px;">${text}</textarea>
+    <label class="modal-label">Reference</label>
+    <input type="text" id="mf-detail" value="${ref}">`;
+  document.getElementById('modal').classList.add('open');
+}
+function deleteVerse(id){
+  if(!confirm('Remove this verse?'))return;
+  document.querySelector(`.verse-block[data-id="${id}"]`)?.remove();
+  scheduleAutosave();
+}
+function addVerse(){
+  modalMode='add-verse';modalTargetId=null;
+  document.getElementById('modal-title').textContent='Add a verse';
+  document.getElementById('modal-fields').innerHTML=`
+    <label class="modal-label">Verse text</label>
+    <textarea id="mf-title" style="min-height:80px;" placeholder="The verse"></textarea>
+    <label class="modal-label">Reference</label>
+    <input type="text" id="mf-detail" placeholder="Book chapter:verse">`;
+  document.getElementById('modal').classList.add('open');
+}
+
+// ── TIMELINE ──
+function editTimeline(id){
+  modalMode='edit-timeline';modalTargetId=id;
+  const titleEl=document.getElementById(id+'-title');
+  const bodyEl=document.getElementById(id+'-body');
+  document.getElementById('modal-title').textContent='Edit horizon point';
+  document.getElementById('modal-fields').innerHTML=`
+    <label class="modal-label">Title</label>
+    <input type="text" id="mf-title" value="${titleEl?.textContent||''}">
+    <label class="modal-label">Description</label>
+    <textarea id="mf-detail" style="min-height:100px;">${bodyEl?.textContent||''}</textarea>`;
+  document.getElementById('modal').classList.add('open');
+}
+function addTimelineItem(){
+  modalMode='add-timeline';modalTargetId=null;
+  document.getElementById('modal-title').textContent='Add a horizon point';
+  document.getElementById('modal-fields').innerHTML=`
+    <label class="modal-label">Horizon label (e.g. Year 15 — 2041)</label>
+    <input type="text" id="mf-when" placeholder="Year X — 20XX">
+    <label class="modal-label">Title</label>
+    <input type="text" id="mf-title" placeholder="What this horizon represents">
+    <label class="modal-label">Description</label>
+    <textarea id="mf-detail" style="min-height:90px;" placeholder="What the life looks like at this point"></textarea>`;
+  document.getElementById('modal').classList.add('open');
+}
+
+// ── EDITABLE BLOCKS ──
+function editBlock(key){
+  modalMode='edit-block';modalTargetId=key;
+  const el=document.getElementById(key+'-text');
+  const content=el?el.innerHTML.replace(/<br>/g,'\n'):'';
+  document.getElementById('modal-title').textContent='Edit';
+  document.getElementById('modal-fields').innerHTML=`
+    <textarea id="mf-title" style="min-height:140px;">${content}</textarea>`;
+  document.getElementById('modal').classList.add('open');
+}
+function editVerseBlock(){
+  modalMode='edit-verse-block';modalTargetId=null;
+  document.getElementById('modal-title').textContent='Edit anchor verse';
+  document.getElementById('modal-fields').innerHTML=`
+    <label class="modal-label">Verse text</label>
+    <textarea id="mf-title" style="min-height:80px;">${document.getElementById('anchor-verse-text').textContent}</textarea>
+    <label class="modal-label">Reference</label>
+    <input type="text" id="mf-detail" value="${document.getElementById('anchor-verse-ref').textContent}">`;
+  document.getElementById('modal').classList.add('open');
+}
+function editAnchor(n){
+  modalMode='edit-anchor';modalTargetId=n;
+  document.getElementById('modal-title').textContent='Edit Anchor '+['I','II','III','IV'][n-1];
+  document.getElementById('modal-fields').innerHTML=`
+    <label class="modal-label">Title</label>
+    <input type="text" id="mf-title" value="${document.getElementById('anchor-'+n+'-title').textContent}">
+    <label class="modal-label">Description</label>
+    <textarea id="mf-detail" style="min-height:90px;">${document.getElementById('anchor-'+n+'-body').textContent}</textarea>`;
+  document.getElementById('modal').classList.add('open');
+}
+
+// ── JOURNAL ──
+function addJournalEntry(){
+  const text=document.getElementById('plan-journal-input').value.trim();
+  if(!text)return;
+  const entries=JSON.parse(localStorage.getItem('lifeplan-journal')||'[]');
+  entries.unshift({date:new Date().toISOString(),text});
+  localStorage.setItem('lifeplan-journal',JSON.stringify(entries));
+  document.getElementById('plan-journal-input').value='';
+  renderJournal();
+}
+function renderJournal(){
+  const c=document.getElementById('plan-journal-entries');
+  if(!c)return;
+  const entries=JSON.parse(localStorage.getItem('lifeplan-journal')||'[]');
+  if(!entries.length){c.innerHTML='<div style="font-size:0.8rem;color:var(--text-muted);font-style:italic;">No entries yet.</div>';return;}
+  c.innerHTML=entries.map((e,i)=>{
+    const d=new Date(e.date);
+    const ds=d.toLocaleDateString('en-GB',{weekday:'short',day:'numeric',month:'long',year:'numeric'});
+    return `<div style="background:var(--bg-2);border:1px solid var(--border);border-radius:2px;margin-bottom:0.75rem;overflow:hidden;">
+      <div style="padding:0.7rem 1.2rem;display:flex;justify-content:space-between;border-bottom:1px solid var(--border);background:var(--bg-3);">
+        <span style="font-family:'DM Mono',monospace;font-size:0.55rem;letter-spacing:0.1em;text-transform:uppercase;color:var(--text-muted);">${ds}</span>
+        <button class="del-btn" onclick="deleteJournal(${i})">Delete</button>
+      </div>
+      <div style="padding:1.1rem 1.2rem;font-size:0.84rem;color:var(--text-secondary);line-height:1.75;white-space:pre-wrap;">${e.text}</div>
+    </div>`;
+  }).join('');
+}
+function deleteJournal(i){
+  if(!confirm('Delete?'))return;
+  const entries=JSON.parse(localStorage.getItem('lifeplan-journal')||'[]');
+  entries.splice(i,1);
+  localStorage.setItem('lifeplan-journal',JSON.stringify(entries));
+  renderJournal();
+}
+
+// ── MODAL ──
+function closeModal(){
+  document.getElementById('modal').classList.remove('open');
+  modalMode=null;modalTargetId=null;
+}
+
+function confirmModal(){
+  const f1=(document.getElementById('mf-title')?.value||'').trim();
+  const f2=(document.getElementById('mf-detail')?.value||'').trim();
+  const f3=(document.getElementById('mf-when')?.value||'').trim();
+
+  if(modalMode==='add-milestone'){
+    if(!f1){closeModal();return;}
+    const data=JSON.parse(localStorage.getItem('lifeplan-milestones')||'{}');
+    if(!data[modalTargetId])data[modalTargetId]=[];
+    data[modalTargetId].push({title:f1,detail:f2,when:f3,done:false});
+    localStorage.setItem('lifeplan-milestones',JSON.stringify(data));
+    renderMilestones(modalTargetId);
+  }else if(modalMode==='edit-milestone'){
+    const {domain,idx}=modalTargetId;
+    const data=JSON.parse(localStorage.getItem('lifeplan-milestones')||'{}');
+    data[domain][idx]={...data[domain][idx],title:f1,detail:f2,when:f3};
+    localStorage.setItem('lifeplan-milestones',JSON.stringify(data));
+    renderMilestones(domain);
+  }else if(modalMode==='add-priority'){
+    if(!f1){closeModal();return;}
+    const items=JSON.parse(localStorage.getItem('lifeplan-priorities')||'[]');
+    items.push({title:f1,detail:f2,done:false});
+    localStorage.setItem('lifeplan-priorities',JSON.stringify(items));
+    renderNowPriorities();
+  }else if(modalMode==='edit-priority'){
+    const items=JSON.parse(localStorage.getItem('lifeplan-priorities')||'[]');
+    items[modalTargetId]={...items[modalTargetId],title:f1,detail:f2};
+    localStorage.setItem('lifeplan-priorities',JSON.stringify(items));
+    renderNowPriorities();
+  }else if(modalMode==='add-together'){
+    if(!f1){closeModal();return;}
+    const items=JSON.parse(localStorage.getItem('lifeplan-together')||'[]');
+    items.push({title:f1,detail:f2,done:false});
+    localStorage.setItem('lifeplan-together',JSON.stringify(items));
+    renderTogetherItems();
+  }else if(modalMode==='edit-together'){
+    const items=JSON.parse(localStorage.getItem('lifeplan-together')||'[]');
+    items[modalTargetId]={...items[modalTargetId],title:f1,detail:f2};
+    localStorage.setItem('lifeplan-together',JSON.stringify(items));
+    renderTogetherItems();
+  }else if(modalMode==='edit-verse'){
+    const el=document.querySelector(`.verse-block[data-id="${modalTargetId}"]`);
+    if(el){el.querySelector('.verse-text').textContent=f1;el.querySelector('.verse-ref').textContent=f2;}
+  }else if(modalMode==='add-verse'){
+    if(!f1){closeModal();return;}
+    const id='v'+Date.now();
+    document.getElementById('verse-list').insertAdjacentHTML('beforeend',`
+      <div class="verse-block" data-id="${id}">
+        <div class="verse-text">${f1}</div>
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-top:0.5rem;">
+          <div class="verse-ref">${f2}</div>
+          <div style="display:flex;gap:0.25rem;">
+            <button class="edit-btn" onclick="editVerse('${id}')">Edit</button>
+            <button class="del-btn" onclick="deleteVerse('${id}')">✕</button>
+          </div>
+        </div>
+      </div>`);
+  }else if(modalMode==='edit-timeline'){
+    const titleEl=document.getElementById(modalTargetId+'-title');
+    const bodyEl=document.getElementById(modalTargetId+'-body');
+    if(titleEl)titleEl.textContent=f1;
+    if(bodyEl)bodyEl.textContent=f2;
+  }else if(modalMode==='add-timeline'){
+    const id='tl-'+Date.now();
+    document.getElementById('timeline-items').insertAdjacentHTML('beforeend',`
+      <div class="tl-item" data-id="${id}">
+        <div class="tl-horizon">${f3}</div>
+        <div class="tl-title" id="${id}-title">${f1}</div>
+        <div class="tl-body" id="${id}-body">${f2}</div>
+        <button class="edit-btn" style="margin-top:0.5rem;" onclick="editTimeline('${id}')">Edit</button>
+      </div>`);
+  }else if(modalMode==='edit-block'){
+    const el=document.getElementById(modalTargetId+'-text');
+    if(el)el.innerHTML=f1.replace(/\n/g,'<br>');
+  }else if(modalMode==='edit-verse-block'){
+    document.getElementById('anchor-verse-text').textContent=f1;
+    document.getElementById('anchor-verse-ref').textContent=f2;
+  }else if(modalMode==='edit-anchor'){
+    const n=modalTargetId;
+    document.getElementById('anchor-'+n+'-title').textContent=f1;
+    document.getElementById('anchor-'+n+'-body').textContent=f2;
+  }
+
+  scheduleAutosave();
+  closeModal();
+}
+
+// ── SAVE / LOAD ──
+function saveAll(){
+  const d={};
+  // textareas
+  document.querySelectorAll('.write-area[data-key]').forEach(ta=>{d[ta.dataset.key]=ta.value;});
+  // inline editable content
+  const inlineKeys=[
+    'faith-statement','vision','mission','daily-mission','legacy','roles',
+    'principles','month-spine','together-vision','together-city',
+    'together-marriage','together-children','together-role','anchor-verse','anchor-verse-ref'
+  ];
+  inlineKeys.forEach(k=>{
+    const el=document.getElementById(k+'-text')||document.getElementById(k);
+    if(el)d['inline-'+k]=el.innerHTML;
+  });
+  for(let i=1;i<=4;i++){
+    const t=document.getElementById('anchor-'+i+'-title');
+    const b=document.getElementById('anchor-'+i+'-body');
+    if(t)d['anchor-'+i+'-title']=t.textContent;
+    if(b)d['anchor-'+i+'-body']=b.textContent;
+  }
+  // anchor verse
+  const av=document.getElementById('anchor-verse-text');
+  const avr=document.getElementById('anchor-verse-ref');
+  if(av)d['anchor-verse-text']=av.textContent;
+  if(avr)d['anchor-verse-ref']=avr.textContent;
+  // timeline
+  document.querySelectorAll('.tl-item[data-id]').forEach(el=>{
+    const id=el.dataset.id;
+    const t=document.getElementById(id+'-title');
+    const b=document.getElementById(id+'-body');
+    if(t)d['tl-'+id+'-title']=t.textContent;
+    if(b)d['tl-'+id+'-body']=b.textContent;
+  });
+  d['_saved']=new Date().toISOString();
+  if(!d['_started'])d['_started']=new Date().toISOString();
+  localStorage.setItem('lifeplan-data',JSON.stringify(d));
+
+  const status=document.getElementById('save-status');
+  status.textContent='Saved';status.className='save-status saved';
+  const flash=document.getElementById('saved-flash');
+  flash.style.opacity='1';setTimeout(()=>{flash.style.opacity='0';},2000);
+  setTimeout(()=>{status.textContent='Auto-saving';status.className='save-status';},3000);
+  updateOverview();
+}
+
+function loadAll(){
+  const d=JSON.parse(localStorage.getItem('lifeplan-data')||'{}');
+  document.querySelectorAll('.write-area[data-key]').forEach(ta=>{
+    if(d[ta.dataset.key])ta.value=d[ta.dataset.key];
+    if(ta.value.trim())ta.classList.add('has-content');
+  });
+  for(let i=1;i<=4;i++){
+    if(d['anchor-'+i+'-title'])document.getElementById('anchor-'+i+'-title').textContent=d['anchor-'+i+'-title'];
+    if(d['anchor-'+i+'-body'])document.getElementById('anchor-'+i+'-body').textContent=d['anchor-'+i+'-body'];
+  }
+  if(d['anchor-verse-text'])document.getElementById('anchor-verse-text').textContent=d['anchor-verse-text'];
+  if(d['anchor-verse-ref'])document.getElementById('anchor-verse-ref').textContent=d['anchor-verse-ref'];
+  const inlineKeys=['faith-statement','vision','mission','daily-mission','legacy','roles','principles','month-spine','together-vision','together-city','together-marriage','together-children','together-role'];
+  inlineKeys.forEach(k=>{
+    const el=document.getElementById(k+'-text');
+    if(el&&d['inline-'+k])el.innerHTML=d['inline-'+k];
+  });
+  ['1yr','3yr','5yr','10yr','20yr','beyond'].forEach(h=>{
+    const t=document.getElementById('tl-'+h+'-title');
+    const b=document.getElementById('tl-'+h+'-body');
+    if(t&&d['tl-tl-'+h+'-title'])t.textContent=d['tl-tl-'+h+'-title'];
+    if(b&&d['tl-tl-'+h+'-body'])b.textContent=d['tl-tl-'+h+'-body'];
+  });
+}
+
+function updateOverview(){
+  const d=JSON.parse(localStorage.getItem('lifeplan-data')||'{}');
+  if(d['_saved']){
+    const dt=new Date(d['_saved']);
+    const el=document.getElementById('ov-updated');
+    if(el)el.textContent=dt.toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'});
+  }
+}
+
+function scheduleAutosave(){
+  const s=document.getElementById('save-status');
+  if(s){s.textContent='Saving…';s.className='save-status saving';}
+  if(autoTimer)clearTimeout(autoTimer);
+  autoTimer=setTimeout(saveAll,5000);
+}
+
+// ── INIT ──
+function init(){
+  const theme=localStorage.getItem('lifeplan-theme')||'dark';
+  document.documentElement.setAttribute('data-theme',theme);
+  document.getElementById('theme-icon').textContent=theme==='dark'?'☀':'☾';
+
+  loadAll();
+  DOMAINS.forEach(d=>renderMilestones(d));
+  renderNowPriorities();
+  renderTogetherItems();
+  renderJournal();
+  updateDomainProgress();
+  updateOverview();
+
+  document.querySelectorAll('.write-area').forEach(ta=>{
+    ta.addEventListener('input',()=>{
+      if(ta.value.trim())ta.classList.add('has-content');
+      else ta.classList.remove('has-content');
+      scheduleAutosave();
+    });
+  });
+
+  document.addEventListener('keydown',e=>{
+    if((e.metaKey||e.ctrlKey)&&e.key==='s'){e.preventDefault();saveAll();}
+  });
+
+  document.getElementById('modal').addEventListener('click',e=>{
+    if(e.target.id==='modal')closeModal();
+  });
+}
+
+init();
+</script>
+</body>
+</html>

@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>dAnTE Inc. — Founding Document</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400;1,500&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#09090c;--surface:#111116;--surface2:#18181e;
+  --border:rgba(255,255,255,0.07);--border-gold:rgba(196,164,112,0.28);
+  --gold:#c4a470;--gold-bright:#dcc090;--gold-dim:#7a6440;
+  --text:#e4dfd4;--text-mid:#8a8278;--text-dim:#4a4540;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{background:var(--bg);color:var(--text);font-family:'DM Mono',monospace;font-size:13px;line-height:1.7;min-height:100vh;}
+body.light{--bg:#f5f0e8;--surface:#ede7db;--surface2:#e5ddd0;--border:rgba(0,0,0,0.08);--border-gold:rgba(140,100,50,0.25);--text:#1a1410;--text-mid:#5a4a38;--text-dim:#8a7a68;--gold:#8c6432;--gold-bright:#a07840;--gold-dim:#c0a070;}
+
+/* COVER */
+.cover{min-height:100vh;display:flex;flex-direction:column;justify-content:center;padding:100px 64px;position:relative;overflow:hidden;border-bottom:1px solid var(--border-gold);}
+.cover::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 80% 60% at 50% -10%,rgba(196,164,112,0.06) 0%,transparent 60%);}
+.cover-grid{position:absolute;inset:0;background-image:linear-gradient(rgba(196,164,112,0.025) 1px,transparent 1px),linear-gradient(90deg,rgba(196,164,112,0.025) 1px,transparent 1px);background-size:80px 80px;mask-image:radial-gradient(ellipse 80% 80% at 50% 50%,black 20%,transparent 100%);}
+.cover-content{position:relative;z-index:1;max-width:700px;}
+.cover-class{font-size:9px;letter-spacing:0.45em;text-transform:uppercase;color:var(--gold-dim);margin-bottom:36px;display:flex;align-items:center;gap:16px;}
+.cover-class::after{content:'';flex:1;height:1px;background:linear-gradient(90deg,var(--gold-dim),transparent);}
+.cover-mark{font-family:'Cormorant Garamond',serif;font-size:clamp(56px,10vw,100px);font-weight:300;line-height:0.95;letter-spacing:-0.01em;margin-bottom:20px;color:var(--text);}
+.cover-mark .gold{color:var(--gold);}
+.cover-mark .bright{color:var(--gold-bright);}
+.cover-mark .dim{color:var(--text-mid);font-size:0.35em;vertical-align:super;letter-spacing:0.1em;}
+.cover-rule{width:48px;height:1px;background:var(--gold-dim);margin-bottom:24px;}
+.cover-desc{font-family:'Cormorant Garamond',serif;font-style:italic;font-size:clamp(16px,2.5vw,22px);color:var(--text-mid);line-height:1.65;margin-bottom:48px;max-width:560px;}
+.cover-meta{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;padding-top:28px;border-top:1px solid var(--border);}
+.cm-label{font-size:8px;letter-spacing:0.28em;text-transform:uppercase;color:var(--gold-dim);margin-bottom:4px;}
+.cm-val{font-size:11px;color:var(--text-mid);}
+.cover-controls{position:absolute;top:32px;right:64px;z-index:2;display:flex;gap:8px;}
+.ctrl{background:rgba(196,164,112,0.06);border:1px solid var(--border-gold);color:var(--gold-dim);padding:5px 12px;cursor:pointer;font-family:'DM Mono',monospace;font-size:9px;letter-spacing:0.12em;transition:all 0.2s;}
+.ctrl:hover{color:var(--gold);border-color:var(--gold);}
+
+/* BODY */
+.doc-body{max-width:800px;margin:0 auto;padding:64px 44px 100px;}
+
+/* SECTIONS */
+.doc-section{margin-bottom:56px;padding-bottom:56px;border-bottom:1px solid var(--border);}
+.doc-section:last-child{border-bottom:none;}
+.sec-marker{display:flex;align-items:center;gap:14px;margin-bottom:30px;}
+.sec-roman{font-family:'Cormorant Garamond',serif;font-style:italic;font-size:11px;color:var(--gold-dim);letter-spacing:0.1em;flex-shrink:0;}
+.sec-rule{flex:1;height:1px;background:linear-gradient(90deg,var(--border-gold),transparent);}
+.sec-title{font-family:'Cormorant Garamond',serif;font-size:clamp(22px,4vw,32px);font-weight:300;color:var(--text);margin-bottom:6px;line-height:1.2;}
+.sec-sub{font-size:10px;color:var(--text-dim);letter-spacing:0.12em;margin-bottom:26px;}
+
+/* PROSE */
+.prose p{font-family:'Cormorant Garamond',serif;font-size:17px;color:var(--text-mid);line-height:1.9;margin-bottom:20px;}
+.prose p:last-child{margin-bottom:0;}
+.prose em{font-style:italic;color:var(--gold);}
+.prose strong{font-weight:500;color:var(--text);}
+
+/* PULLQUOTE */
+.pullquote{border-left:2px solid var(--gold-dim);padding:4px 0 4px 24px;margin:32px 0;}
+.pq-text{font-family:'Cormorant Garamond',serif;font-style:italic;font-size:clamp(17px,3vw,22px);color:var(--gold-bright);line-height:1.55;}
+.pq-attr{font-size:8px;letter-spacing:0.22em;color:var(--text-dim);margin-top:8px;text-transform:uppercase;}
+
+/* OBJECTS */
+.objects-list{display:flex;flex-direction:column;gap:8px;margin:22px 0;}
+.obj-item{display:flex;gap:16px;padding:14px 18px;background:var(--surface);border:1px solid var(--border);border-radius:2px;transition:border-color 0.2s;}
+.obj-item:hover{border-color:var(--border-gold);}
+.obj-num{font-size:9px;color:var(--gold-dim);width:24px;flex-shrink:0;padding-top:2px;}
+.obj-text{font-family:'Cormorant Garamond',serif;font-size:15px;color:var(--text-mid);line-height:1.75;flex:1;}
+
+/* ENTITIES TABLE */
+.entities-list{display:flex;flex-direction:column;gap:8px;margin:22px 0;}
+.ent-item{background:var(--surface);border:1px solid var(--border);border-radius:2px;overflow:hidden;transition:border-color 0.2s;}
+.ent-item:hover{border-color:var(--border-gold);}
+.ent-item.active{border-color:rgba(196,164,112,0.3);}
+.ei-head{display:flex;align-items:center;gap:14px;padding:14px 18px;border-bottom:1px solid var(--border);}
+.ei-status{display:flex;align-items:center;gap:6px;font-size:8px;letter-spacing:0.18em;text-transform:uppercase;flex-shrink:0;}
+.status-dot{width:6px;height:6px;border-radius:50%;}
+.dot-active{background:var(--gold);box-shadow:0 0 6px rgba(196,164,112,0.4);}
+.dot-future{background:var(--text-dim);}
+.active-text{color:var(--gold);}
+.future-text{color:var(--text-dim);}
+.ei-name{font-family:'Cormorant Garamond',serif;font-size:18px;color:var(--text);flex:1;}
+.ei-sector{font-size:9px;color:var(--gold-dim);letter-spacing:0.12em;text-transform:uppercase;}
+.ei-body{padding:12px 18px;font-family:'Cormorant Garamond',serif;font-style:italic;font-size:14px;color:var(--text-dim);line-height:1.7;}
+
+/* VALUES */
+.values-list{display:flex;flex-direction:column;gap:7px;margin:22px 0;}
+.vl-row{display:flex;gap:16px;padding:12px 18px;background:var(--surface);border:1px solid var(--border);border-radius:2px;}
+.vl-name{font-size:11px;color:var(--gold);width:150px;flex-shrink:0;padding-top:2px;letter-spacing:0.04em;}
+.vl-def{font-family:'Cormorant Garamond',serif;font-style:italic;font-size:14px;color:var(--text-mid);line-height:1.7;flex:1;}
+
+/* PRINCIPALS */
+.principal-item{display:flex;gap:18px;padding:20px 22px;background:var(--surface);border:1px solid var(--border-gold);border-radius:3px;margin:20px 0;}
+.pi-left{width:4px;background:linear-gradient(to bottom,var(--gold-bright),var(--gold-dim));border-radius:2px;flex-shrink:0;}
+.pi-content{}
+.pi-role{font-size:9px;letter-spacing:0.22em;text-transform:uppercase;color:var(--gold-dim);margin-bottom:6px;}
+.pi-name{font-family:'Cormorant Garamond',serif;font-size:24px;font-weight:300;color:var(--text);margin-bottom:6px;}
+.pi-desc{font-size:11px;color:var(--text-mid);line-height:1.7;}
+
+/* SIG */
+.sig-block{background:var(--surface);border:1px solid var(--border-gold);border-radius:3px;padding:28px 32px;margin-top:32px;}
+.sig-header{font-size:9px;letter-spacing:0.28em;text-transform:uppercase;color:var(--gold-dim);margin-bottom:24px;}
+.sig-grid{display:grid;grid-template-columns:1fr 1fr;gap:32px;}
+.sig-field{border-bottom:1px solid var(--border-gold);padding-bottom:4px;margin-bottom:8px;min-height:44px;}
+.sig-label{font-size:9px;color:var(--text-dim);letter-spacing:0.1em;margin-top:5px;}
+.sig-date{display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;margin-top:24px;padding-top:24px;border-top:1px solid var(--border);}
+.sd-field{border-bottom:1px solid var(--border-gold);min-height:36px;}
+.sd-label{font-size:9px;color:var(--text-dim);margin-top:4px;}
+
+.draft-badge{display:inline-block;background:rgba(196,164,112,0.08);border:1px solid var(--border-gold);color:var(--gold-dim);font-size:9px;letter-spacing:0.28em;text-transform:uppercase;padding:4px 12px;margin-bottom:24px;}
+
+@media print{.cover-controls{display:none;}}
+@media(max-width:600px){.cover{padding:80px 24px 60px;}.doc-body{padding:40px 20px 60px;}.cover-meta,.sig-grid,.sig-date{grid-template-columns:1fr;}}
+</style>
+</head>
+<body>
+
+<!-- COVER -->
+<div class="cover">
+  <div class="cover-controls">
+    <button class="ctrl" onclick="document.body.classList.toggle('light')">☀ / ☾</button>
+    <button class="ctrl" onclick="window.print()">Print</button>
+  </div>
+  <div class="cover-grid"></div>
+  <div class="cover-content">
+    <div class="cover-class">Founding Document — First Draft</div>
+    <div class="cover-mark">
+      <span class="gold">d</span><span class="bright">An</span><span class="gold">TE</span><span class="dim"> Inc.</span>
+    </div>
+    <div class="cover-rule"></div>
+    <div class="cover-desc">A holding company building across multiple sectors — a long-horizon enterprise whose first expression is Dante Craft.</div>
+    <div class="cover-meta">
+      <div><div class="cm-label">Entity Type</div><div class="cm-val">Holding Company / Conglomerate</div></div>
+      <div><div class="cm-label">Registered</div><div class="cm-val">Nigeria</div></div>
+      <div><div class="cm-label">Horizon</div><div class="cm-val">20 years and beyond</div></div>
+      <div><div class="cm-label">First Entity</div><div class="cm-val">Dante Craft</div></div>
+      <div><div class="cm-label">Scope</div><div class="cm-val">Global</div></div>
+      <div><div class="cm-label">Version</div><div class="cm-val">v1.0 — Draft · May 2026</div></div>
+    </div>
+  </div>
+</div>
+
+<div class="doc-body">
+  <div class="draft-badge">First Draft — For Review and Signature</div>
+
+  <!-- I. IDENTITY -->
+  <div class="doc-section">
+    <div class="sec-marker"><div class="sec-roman">I</div><div class="sec-rule"></div></div>
+    <div class="sec-title">Identity & Purpose</div>
+    <div class="sec-sub">What dAnTE Inc. is and why it exists</div>
+    <div class="prose">
+      <p>dAnTE Inc. is a holding company and multi-sector conglomerate founded by Paul Bassey. It is both a holding company in legal structure and a conglomerate in the description of what it holds and intends to hold — these are not competing descriptions. They coexist accurately.</p>
+      <p>The company exists to build institutions across multiple sectors that produce genuine value — not merely profit. The defining measure of a dAnTE Inc. entity is whether it is <em>generative:</em> whether it changes what people believe is possible for themselves, and whether it creates genuine opportunity for those it serves.</p>
+      <p>dAnTE Inc. operates on a horizon of twenty years and beyond. Its decisions are made with that horizon in view. Short-term compromise in service of long-term integrity is accepted. Long-term compromise in service of short-term convenience is not.</p>
+      <p>The capitalisation of the name is intentional and fixed: <strong>lowercase d, uppercase A, uppercase N, lowercase T, uppercase E.</strong> This is not a stylistic preference — it is identity. It does not change.</p>
+    </div>
+    <div class="pullquote">
+      <div class="pq-text">We are not building companies. We are building institutions — structures that carry a mission past the limits of a single life.</div>
+      <div class="pq-attr">dAnTE Inc. — Founding Statement</div>
+    </div>
+  </div>
+
+  <!-- II. STATED OBJECTS -->
+  <div class="doc-section">
+    <div class="sec-marker"><div class="sec-roman">II</div><div class="sec-rule"></div></div>
+    <div class="sec-title">Stated Objects</div>
+    <div class="sec-sub">The registered scope of the holding company's operations</div>
+    <div class="objects-list">
+      <div class="obj-item"><div class="obj-num">01</div><div class="obj-text">To act as a holding company for subsidiary and associated companies operating across multiple sectors including engineering, energy, environment, hospitality, and education.</div></div>
+      <div class="obj-item"><div class="obj-num">02</div><div class="obj-text">To invest in, acquire, establish, and manage companies, joint ventures, partnerships, and other business entities in any sector consistent with the group's values and long-term vision.</div></div>
+      <div class="obj-item"><div class="obj-num">03</div><div class="obj-text">To provide strategic direction, administrative support, financial oversight, and governance services to all entities within the dAnTE Inc. group.</div></div>
+      <div class="obj-item"><div class="obj-num">04</div><div class="obj-text">To raise capital through lawful means — including equity, debt, grants, and partnerships — in support of the group's development objectives and the establishment of new entities.</div></div>
+      <div class="obj-item"><div class="obj-num">05</div><div class="obj-text">To establish and operate educational institutions dedicated to the development of underprivileged youth — providing access to quality education, skills, and opportunity without regard to socioeconomic background.</div></div>
+      <div class="obj-item"><div class="obj-num">06</div><div class="obj-text">To engage in all activities incidental or conducive to the attainment of the above objects, including the acquisition of assets, the employment of staff, the execution of contracts, and the pursuit of international operations.</div></div>
+    </div>
+  </div>
+
+  <!-- III. GROUP ENTITIES -->
+  <div class="doc-section">
+    <div class="sec-marker"><div class="sec-roman">III</div><div class="sec-rule"></div></div>
+    <div class="sec-title">Group Entities</div>
+    <div class="sec-sub">The companies within the dAnTE Inc. group — current and planned</div>
+    <div class="entities-list">
+
+      <div class="ent-item active">
+        <div class="ei-head">
+          <div class="ei-status"><span class="status-dot dot-active"></span><span class="active-text">Active</span></div>
+          <div class="ei-name">Dante Craft</div>
+          <div class="ei-sector">Civil Engineering & Project Management</div>
+        </div>
+        <div class="ei-body">The first and presently primary operational entity within the group. Registered and operational. Delivers civil engineering construction, project management, and engineering consulting services. Full founding document exists separately.</div>
+      </div>
+
+      <div class="ent-item">
+        <div class="ei-head">
+          <div class="ei-status"><span class="status-dot dot-future"></span><span class="future-text">In Development</span></div>
+          <div class="ei-name">dAnTE Energy</div>
+          <div class="ei-sector">Energy Production & Distribution</div>
+        </div>
+        <div class="ei-body">Energy production and distribution entity. Focus areas and operational model to be determined as sector expertise and capital allow. Aligned with the group's commitment to building infrastructure that serves communities.</div>
+      </div>
+
+      <div class="ent-item">
+        <div class="ei-head">
+          <div class="ei-status"><span class="status-dot dot-future"></span><span class="future-text">In Development</span></div>
+          <div class="ei-name">dAnTE Environment</div>
+          <div class="ei-sector">Waste Management & Environmental Services</div>
+        </div>
+        <div class="ei-body">Waste management and environmental services entity. Focused on responsible resource management and the infrastructure that keeps communities functional and sustainable.</div>
+      </div>
+
+      <div class="ent-item">
+        <div class="ei-head">
+          <div class="ei-status"><span class="status-dot dot-future"></span><span class="future-text">In Development</span></div>
+          <div class="ei-name">dAnTE Hospitality</div>
+          <div class="ei-sector">Resorts & Hospitality Group</div>
+        </div>
+        <div class="ei-body">Hospitality group anchored in beauty, experience, and excellence of service. Resort and related hospitality offerings. Designed for those who expect more from where they rest and gather.</div>
+      </div>
+
+      <div class="ent-item">
+        <div class="ei-head">
+          <div class="ei-status"><span class="status-dot dot-future"></span><span class="future-text">In Development</span></div>
+          <div class="ei-name">dAnTE Foundation</div>
+          <div class="ei-sector">Education & Human Development</div>
+        </div>
+        <div class="ei-body">Educational institution dedicated to underprivileged youth. The foundational conviction: that every young person planned for, thought of, and invested in — regardless of their starting point — deserves the chance to become what they were made to be. Not charity. A structural argument, built in brick, curriculum, and consistent resource. Global in scope from inception.</div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- IV. VALUES -->
+  <div class="doc-section">
+    <div class="sec-marker"><div class="sec-roman">IV</div><div class="sec-rule"></div></div>
+    <div class="sec-title">Group Values</div>
+    <div class="sec-sub">The standards that govern all entities within the dAnTE Inc. group</div>
+    <div class="prose">
+      <p>Every entity within the dAnTE Inc. group is expected to operate consistently with these values. They are not aspirations — they are requirements. An entity that cannot uphold them does not belong within the group.</p>
+    </div>
+    <div class="values-list">
+      <div class="vl-row"><div class="vl-name">Integrity</div><div class="vl-def">What is said is meant. What is committed to is delivered. The group is the same in every room, in every market, with every stakeholder.</div></div>
+      <div class="vl-row"><div class="vl-name">Excellence</div><div class="vl-def">The standard of God's own workmanship — expressed through deliberate human effort. We do not deliver less than the work deserves. Excellence is the refusal to answer to less than the work requires.</div></div>
+      <div class="vl-row"><div class="vl-name">Human Dignity</div><div class="vl-def">Every person encountered by a dAnTE entity — client, employee, community member, beneficiary — is treated as an individual of inherent worth and unrealised potential.</div></div>
+      <div class="vl-row"><div class="vl-name">Long-Horizon Thinking</div><div class="vl-def">Decisions are made with the long view. Short-term inconvenience in service of long-term integrity is accepted and expected. We build for what endures.</div></div>
+      <div class="vl-row"><div class="vl-name">Generosity</div><div class="vl-def">The group is built partly so it can give — freely, without calculation, and from fullness rather than depletion. Generosity is a design principle, not an afterthought.</div></div>
+      <div class="vl-row"><div class="vl-name">Faith</div><div class="vl-def">The group's founder operates from a foundation of active faith in God. This is the ground from which all other values grow. It is not imposed on employees or partners — but it is never hidden or apologised for.</div></div>
+    </div>
+  </div>
+
+  <!-- V. VISION -->
+  <div class="doc-section">
+    <div class="sec-marker"><div class="sec-roman">V</div><div class="sec-rule"></div></div>
+    <div class="sec-title">Vision & Mission</div>
+    <div class="sec-sub">The long horizon and the daily work that reaches it</div>
+    <div class="prose">
+      <p><strong>Vision:</strong> A multi-sector holding group — built with patience and precision across engineering, energy, environment, hospitality, and education — that is generative in the fullest sense: changing what people believe is possible for themselves, and producing institutions that outlast the life of any single person within them.</p>
+      <p><strong>Mission:</strong> To build, through deliberate long-horizon investment and institutional discipline, a group of companies that produce genuine value across multiple sectors — funding the freedom of the founder, creating meaningful employment and opportunity, and ultimately building the educational institution that becomes the group's most enduring legacy.</p>
+    </div>
+    <div class="pullquote">
+      <div class="pq-text">To leave a trail of lives awakened to their responsibility and ability to change — with institutions that inspire people to believe they deserve, and can do, better.</div>
+      <div class="pq-attr">dAnTE Inc. — Legacy Statement</div>
+    </div>
+  </div>
+
+  <!-- VI. FOUNDER -->
+  <div class="doc-section">
+    <div class="sec-marker"><div class="sec-roman">VI</div><div class="sec-rule"></div></div>
+    <div class="sec-title">Founder</div>
+    <div class="sec-sub">The individual behind the group</div>
+    <div class="principal-item">
+      <div class="pi-left"></div>
+      <div class="pi-content">
+        <div class="pi-role">Founder & Group Principal</div>
+        <div class="pi-name">Paul Bassey</div>
+        <div class="pi-desc">Graduate civil engineer. Port Harcourt, Nigeria. Project Engineer at Chairborne Global Services Ltd. Founder of Dante Craft and dAnTE Inc. Spirit-filled believer. His personal vision — to become a man of complete integrity and deep faith, whose life constitutes a sustained argument that the individual, anchored in God and committed to their own becoming, is above their circumstances — is the vision from which dAnTE Inc. grows.</div>
+      </div>
+    </div>
+    <div class="prose">
+      <p>The group is at its founding stage. All strategic decisions, entity oversight, and group direction rest with the founder. As individual entities grow and as the group matures, governance structures — including boards of directors, advisory councils, and management teams — will be established for each entity consistent with their scale and operational requirements.</p>
+    </div>
+  </div>
+
+  <!-- VII. SIGNATURE -->
+  <div class="doc-section">
+    <div class="sec-marker"><div class="sec-roman">VII</div><div class="sec-rule"></div></div>
+    <div class="sec-title">Declaration & Signature</div>
+    <div class="sec-sub">The founder's formal adoption of this document</div>
+    <div class="prose">
+      <p>This founding document represents the first formal articulation of dAnTE Inc.'s identity, purpose, values, and group structure. It is a living document — to be amended as entities develop, as the operating environment changes, and as the founder's own knowledge and capacity grows. No amendment shall contradict the founding values herein without deliberate review and written record of the change.</p>
+      <p>By signing this document, the founder adopts its contents as the binding framework for the group's conduct, direction, and identity — from this date forward.</p>
+    </div>
+    <div class="sig-block">
+      <div class="sig-header">Founder's Declaration — dAnTE Inc.</div>
+      <div class="sig-grid">
+        <div>
+          <div class="sig-field"></div>
+          <div class="sig-label">Signature — Paul Bassey, Founder</div>
+        </div>
+        <div>
+          <div class="sig-field"></div>
+          <div class="sig-label">Witness Signature</div>
+        </div>
+        <div>
+          <div class="sig-field"></div>
+          <div class="sig-label">Full Name (print)</div>
+        </div>
+        <div>
+          <div class="sig-field"></div>
+          <div class="sig-label">Witness Full Name (print)</div>
+        </div>
+      </div>
+      <div class="sig-date">
+        <div><div class="sd-field"></div><div class="sd-label">Day</div></div>
+        <div><div class="sd-field"></div><div class="sd-label">Month</div></div>
+        <div><div class="sd-field"></div><div class="sd-label">Year</div></div>
+      </div>
+    </div>
+  </div>
+
+</div>
+</body>
+</html>

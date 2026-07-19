@@ -1,0 +1,621 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Software Curriculum — dAnTE</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0b0b0c; --bg2:#131315; --panel:#17181a; --panel2:#1d1e21;
+    --line:#2a2b2f; --line2:#35363b;
+    --text:#e9e7e1; --text-dim:#9a988f; --text-faint:#68665f;
+    --gold:#c9a45c; --gold-bright:#e8c785; --gold-dim:#6b5c3a;
+    --tier0:#2a2b2f; --tier1:#4a3f2a; --tier2:#8a6d33; --tier3:#c9a45c;
+    --radius:10px;
+  }
+  [data-theme="light"]{
+    --bg:#f5f2ec; --bg2:#ece8e0; --panel:#ffffff; --panel2:#f7f4ee;
+    --line:#ddd6c8; --line2:#cdc4ae;
+    --text:#211f1a; --text-dim:#5c5847; --text-faint:#8a8571;
+    --gold:#8a6d23; --gold-bright:#6b5419; --gold-dim:#d8c58f;
+    --tier0:#e4ded0; --tier1:#e0cd9c; --tier2:#c9a45c; --tier3:#8a6d23;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0; background:var(--bg); color:var(--text);
+    font-family:'Inter',sans-serif; line-height:1.5;
+    transition:background .3s,color .3s;
+  }
+  h1,h2,h3{ font-family:'Cormorant Garamond',serif; font-weight:600; margin:0; }
+  .mono{ font-family:'JetBrains Mono',monospace; }
+
+  header{
+    padding:36px 24px 20px; max-width:1000px; margin:0 auto;
+    display:flex; justify-content:space-between; align-items:flex-start; gap:16px;
+  }
+  header .title-block h1{ font-size:2.1rem; letter-spacing:.01em; }
+  header .title-block .eyebrow{
+    font-family:'JetBrains Mono',monospace; font-size:.68rem; letter-spacing:.15em;
+    color:var(--gold); text-transform:uppercase; margin-bottom:6px;
+  }
+  header .title-block p{ color:var(--text-dim); font-size:.92rem; margin-top:8px; max-width:560px; }
+  .top-actions{ display:flex; gap:8px; flex-shrink:0; flex-wrap:wrap; }
+  .icon-btn{
+    background:var(--panel); border:1px solid var(--line); color:var(--text-dim);
+    border-radius:8px; padding:8px 12px; cursor:pointer; font-size:.78rem;
+    font-family:'Inter',sans-serif; transition:.15s;
+  }
+  .icon-btn:hover{ border-color:var(--gold-dim); color:var(--text); }
+
+  .container{ max-width:1000px; margin:0 auto; padding:0 24px 80px; }
+
+  .note-banner{
+    background:var(--panel2); border:1px solid var(--line); border-radius:8px;
+    padding:12px 16px; font-size:.78rem; color:var(--text-dim); margin-bottom:22px; line-height:1.6;
+  }
+  .note-banner b{ color:var(--text); }
+
+  .overview{
+    background:var(--panel); border:1px solid var(--line); border-radius:var(--radius);
+    padding:22px 24px; margin-bottom:22px;
+  }
+  .overview-top{ display:flex; justify-content:space-between; align-items:baseline; margin-bottom:14px; flex-wrap:wrap; gap:8px;}
+  .overview-top .big-stat{ font-family:'JetBrains Mono',monospace; font-size:1.9rem; color:var(--gold-bright); }
+  .overview-top .big-stat span{ font-size:.95rem; color:var(--text-dim); margin-left:6px; }
+  .legend{ display:flex; gap:14px; flex-wrap:wrap; font-size:.72rem; color:var(--text-dim); }
+  .legend .dot{ display:inline-block; width:9px; height:9px; border-radius:50%; margin-right:5px; vertical-align:middle; }
+  .global-bar{ height:6px; background:var(--tier0); border-radius:4px; overflow:hidden; display:flex; margin-top:14px;}
+  .global-bar > div{ height:100%; }
+  .focus-row{ display:flex; gap:8px; flex-wrap:wrap; margin-top:16px; }
+  .focus-chip{
+    background:var(--bg2); border:1px solid var(--gold-dim); color:var(--gold-bright);
+    font-size:.74rem; padding:5px 10px; border-radius:20px; font-family:'JetBrains Mono',monospace;
+  }
+  .focus-empty{ color:var(--text-faint); font-size:.8rem; font-style:italic; }
+
+  .search-row{ margin-bottom:22px; display:flex; gap:10px; flex-wrap:wrap; }
+  .search-row input{
+    flex:1; min-width:200px; background:var(--panel); border:1px solid var(--line); color:var(--text);
+    padding:11px 14px; border-radius:8px; font-size:.88rem; font-family:'Inter',sans-serif;
+  }
+  .search-row input:focus{ outline:none; border-color:var(--gold-dim); }
+  .filter-select{
+    background:var(--panel); border:1px solid var(--line); color:var(--text-dim);
+    padding:11px 12px; border-radius:8px; font-size:.8rem; font-family:'Inter',sans-serif;
+  }
+
+  .branch{
+    border:1px solid var(--line); border-radius:var(--radius); margin-bottom:14px;
+    background:var(--panel); overflow:hidden;
+  }
+  .branch.extra{ border-color:var(--gold-dim); }
+  .branch-head{
+    padding:16px 20px; cursor:pointer; display:flex; justify-content:space-between; align-items:center;
+    gap:16px; user-select:none;
+  }
+  .branch-head:hover{ background:var(--panel2); }
+  .branch-head-left{ display:flex; flex-direction:column; gap:3px; }
+  .branch-head h2{ font-size:1.35rem; }
+  .branch-head h2 .new-tag{ font-family:'JetBrains Mono',monospace; font-size:.6rem; color:var(--gold); border:1px solid var(--gold-dim); border-radius:3px; padding:1px 5px; margin-left:8px; vertical-align:middle; letter-spacing:.06em; }
+  .branch-software{ font-family:'JetBrains Mono',monospace; font-size:.7rem; color:var(--text-faint); letter-spacing:.04em; }
+  .branch-head-right{ display:flex; align-items:center; gap:14px; flex-shrink:0; }
+  .branch-progress-text{ font-family:'JetBrains Mono',monospace; font-size:.78rem; color:var(--text-dim); white-space:nowrap; }
+  .branch-bar{ width:90px; height:5px; background:var(--tier0); border-radius:3px; overflow:hidden; display:flex; }
+  .branch-bar > div{ height:100%; }
+  .chevron{ transition:.2s; color:var(--text-faint); font-size:.8rem; }
+  .branch.open .chevron{ transform:rotate(90deg); }
+  .branch-body{ display:none; border-top:1px solid var(--line); }
+  .branch.open .branch-body{ display:block; }
+
+  .resources{ padding:12px 20px; border-bottom:1px solid var(--line); background:var(--panel2); }
+  .resources-label{ font-family:'JetBrains Mono',monospace; font-size:.62rem; letter-spacing:.1em; text-transform:uppercase; color:var(--text-faint); margin-bottom:6px; }
+  .resources ul{ margin:0; padding-left:18px; }
+  .resources li{ font-size:.78rem; color:var(--text-dim); margin-bottom:3px; }
+  .resources li b{ color:var(--text); font-weight:500; }
+
+  .skill-row{
+    display:flex; align-items:center; gap:12px; padding:12px 20px;
+    border-bottom:1px solid var(--line); transition:background .12s; flex-wrap:wrap;
+  }
+  .skill-row:last-child{ border-bottom:none; }
+  .skill-row:hover{ background:var(--panel2); }
+  .skill-row.hidden{ display:none; }
+
+  .tier-btn{
+    width:15px; height:15px; border-radius:50%; border:1px solid var(--line2);
+    cursor:pointer; flex-shrink:0; transition:.15s; position:relative;
+  }
+  .tier-btn[data-tier="0"]{ background:var(--tier0); }
+  .tier-btn[data-tier="1"]{ background:var(--tier1); border-color:var(--tier1); }
+  .tier-btn[data-tier="2"]{ background:var(--tier2); border-color:var(--tier2); }
+  .tier-btn[data-tier="3"]{ background:var(--tier3); border-color:var(--tier3); box-shadow:0 0 8px rgba(201,164,92,.5); }
+
+  .skill-name{ flex:1; font-size:.92rem; min-width:180px; }
+  .skill-name.t3{ color:var(--gold-bright); }
+  .skill-name.t0{ color:var(--text-dim); }
+
+  .tier-label{
+    font-family:'JetBrains Mono',monospace; font-size:.66rem; text-transform:uppercase;
+    letter-spacing:.06em; color:var(--text-faint); width:74px; flex-shrink:0;
+  }
+  .date-stamp{
+    font-family:'JetBrains Mono',monospace; font-size:.64rem; color:var(--text-faint);
+    width:72px; flex-shrink:0; text-align:right;
+  }
+
+  .pin-btn{ background:none; border:none; cursor:pointer; color:var(--text-faint); font-size:.95rem; flex-shrink:0; padding:2px 4px; transition:.15s; }
+  .pin-btn.active{ color:var(--gold-bright); }
+  .pin-btn:hover{ color:var(--gold); }
+  .note-toggle{ background:none; border:none; cursor:pointer; color:var(--text-faint); font-size:.78rem; flex-shrink:0; padding:2px 6px; }
+  .note-toggle:hover{ color:var(--text); }
+  .note-toggle.has-note{ color:var(--gold); }
+
+  .note-area{ display:none; padding:0 20px 14px 47px; border-bottom:1px solid var(--line); }
+  .note-area.open{ display:block; }
+  .note-area textarea{
+    width:100%; background:var(--bg2); border:1px solid var(--line); color:var(--text);
+    border-radius:6px; padding:9px 11px; font-family:'Inter',sans-serif; font-size:.82rem;
+    resize:vertical; min-height:44px;
+  }
+  .note-area textarea:focus{ outline:none; border-color:var(--gold-dim); }
+  .note-area .note-hint{ font-size:.68rem; color:var(--text-faint); margin-top:4px; }
+
+  footer{ text-align:center; color:var(--text-faint); font-size:.72rem; padding:20px 0 40px; font-family:'JetBrains Mono',monospace; }
+
+  @media (max-width:600px){
+    header{ flex-direction:column; }
+    .skill-name{ min-width:140px; }
+    .tier-label,.date-stamp{ display:none; }
+    .branch-bar{ width:60px; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="title-block">
+    <div class="eyebrow">dAnTE · Builder</div>
+    <h1>Software Curriculum</h1>
+    <p>2D/3D modeling, drafting, BIM, structural, site, landscape, GIS, cost, and reality-capture software for civil engineering — tracked to fluency, not exposure.</p>
+  </div>
+  <div class="top-actions">
+    <button class="icon-btn" id="themeToggle">Light/Dark</button>
+    <button class="icon-btn" id="exportBtn">Export</button>
+    <button class="icon-btn" id="importBtn">Import</button>
+    <input type="file" id="importFile" accept=".json" style="display:none;">
+  </div>
+</header>
+
+<div class="container">
+
+  <div class="note-banner">
+    <b>On resources:</b> these are curated per category, not per micro-skill. Inventing a unique link for each of 150+ items would mean guessing at quality for things I can't verify are still good — a handful of real starting points per category is more honest. Whatever you settle on, add it to a skill's own note (✎) so this becomes your actual reference over time.
+  </div>
+
+  <div class="overview">
+    <div class="overview-top">
+      <div class="big-stat" id="overallPct">0%<span>overall fluent+practiced</span></div>
+      <div class="legend">
+        <span><span class="dot" style="background:var(--tier0)"></span>Not started</span>
+        <span><span class="dot" style="background:var(--tier1)"></span>Aware</span>
+        <span><span class="dot" style="background:var(--tier2)"></span>Practiced</span>
+        <span><span class="dot" style="background:var(--tier3)"></span>Fluent</span>
+      </div>
+    </div>
+    <div class="global-bar" id="globalBar"></div>
+    <div class="focus-row" id="focusRow"></div>
+  </div>
+
+  <div class="search-row">
+    <input type="text" id="searchInput" placeholder="Search skills — e.g. roof, rebar, contour, takeoff, point cloud...">
+    <select class="filter-select" id="filterSelect">
+      <option value="all">All</option>
+      <option value="pinned">Pinned only</option>
+      <option value="unstarted">Not started</option>
+      <option value="inprogress">In progress</option>
+      <option value="fluent">Fluent</option>
+    </select>
+  </div>
+
+  <div id="branchesContainer"></div>
+
+</div>
+
+<footer>dAnTE_Claude · software-curriculum.html · click a dot to cycle tier · ✎ notes/resources · ☆ pin to focus · last-touched date stamps automatically</footer>
+
+<script>
+const DATA = [
+  { id:"drafting2d", name:"2D Drafting & Technical Drawing", software:"AutoCAD / DraftSight",
+    resources:["Autodesk's own AutoCAD Certified User/Professional learning path (official, free study guides)","LinkedIn Learning — search \"AutoCAD Civil Engineering Essentials\"","Autodesk University recorded sessions (free, searchable by topic)"],
+    skills:[
+    "Layer setup & drawing standards (AIA/ISO)","Line types, weights & object properties",
+    "Precision drawing — osnap, ortho, polar tracking","Basic geometry — lines, arcs, circles, polylines",
+    "Modify tools — trim, extend, offset, fillet, chamfer","Array, mirror, rotate & scale operations",
+    "Blocks — creation, insertion & attributes","Dynamic blocks",
+    "Dimensioning — linear, angular, radial, ordinate","Dimension styles & overrides",
+    "Text & annotation standards","Multileaders & callouts","Hatching & fills",
+    "External references (Xrefs) & image underlays","Sheet sets & paper space / layout viewports",
+    "Plotting to scale, page setups & title blocks","CAD standards & template (.dwt) creation",
+    "Isometric drawing basics",
+  ]},
+  { id:"model3d", name:"3D Modeling", software:"AutoCAD 3D / SketchUp / Rhino",
+    resources:["SketchUp's official \"Learn\" video library (free)","Rhino's own Level 1 training guide (free PDF, self-paced)","YouTube — search \"parametric modeling basics civil\""],
+    skills:[
+    "Solid primitives — extrude, revolve, loft, sweep","Boolean operations — union, subtract, intersect",
+    "Surface modeling basics","Mesh modeling & smoothing",
+    "Generating 2D sections/elevations from 3D models","Materials & basic texture mapping",
+    "Site/terrain 3D modeling","Assemblies & parametric components",
+    "Camera navigation & saved views","Walkthroughs & flythrough paths",
+    "Model organization — groups, layers, tags","Import/export between 3D platforms (interoperability)",
+    "Scaling & unit management across models","Basic component libraries & reuse",
+    "Model repair & cleanup — fixing corrupt/non-manifold geometry",
+  ]},
+  { id:"bim", name:"BIM — Building Information Modeling", software:"Revit / ArchiCAD",
+    resources:["Autodesk's official Revit Certified Professional exam guide","Balkan Architect and similar Revit-focused YouTube channels (search current top results, quality varies by upload date)","Graphisoft's own ArchiCAD getting-started tutorials (if using ArchiCAD instead)"],
+    skills:[
+    "Levels, grids & reference planes","Walls — basic, compound, curtain","Curtain wall systems & mullions",
+    "Doors & windows — families & schedules","Floors & ceilings","Roof design — flat, gable, hip, dormer",
+    "Stairs, ramps & railings","Structural framing — beams & columns","Foundations in BIM",
+    "Custom family creation (parametric families)","In-place families & massing",
+    "Schedules & quantity takeoffs","Sheet views, view templates & annotation",
+    "Phasing & design options","Worksharing & collaboration (central/local files)",
+    "Model coordination & clash detection","Rendering within the BIM environment",
+    "Point cloud / scan-to-BIM linking",
+  ]},
+  { id:"structural", name:"Structural Analysis & Detailing", software:"STAAD Pro / ETABS / Tekla",
+    resources:["Bentley's official STAAD.Pro learning resources (free intro courses)","CSI's own ETABS watch-and-learn video series","Tekla's official \"Learn\" portal for structural detailing basics"],
+    skills:[
+    "Model geometry & support conditions","Load application — dead, live, wind, seismic",
+    "Load combinations & code compliance checks","Running analysis & interpreting results",
+    "Steel member design/checks","Concrete member design/checks","Timber member design/checks",
+    "Reinforcement detailing & rebar schedules","Connection design — steel & concrete",
+    "Foundation design & detailing","Structural shop / fabrication drawings",
+    "Dynamic/seismic analysis basics","Finite element model refinement",
+    "Structural BIM integration (Tekla/Revit link)","Structural drawing sets & general notes",
+    "Regional wind/seismic code-specific detailing",
+  ]},
+  { id:"civil3d", name:"Site Layout & Civil 3D", software:"Civil 3D",
+    resources:["Autodesk's official Civil 3D Essential Skills learning path","Autodesk University sessions tagged \"Civil 3D corridor design\"","YouTube — search \"Civil 3D grading and surfaces tutorial\""],
+    skills:[
+    "Survey point import & point groups","Surface creation & contour generation",
+    "Grading design & grading objects","Road/corridor design — alignments & profiles",
+    "Pipe networks — storm & sanitary","Earthwork — cut/fill volume calculations",
+    "Site plan layout — setbacks, parking, access","Utility coordination & clash checks",
+    "Parcel/lot layout & subdivision","Stormwater management modeling",
+    "Retaining wall layout & grading interface","Sight distance & horizontal/vertical curve design",
+    "Data shortcuts & project-based Civil 3D workflows","Construction staking data export",
+    "Watershed/catchment delineation",
+  ]},
+  { id:"landscape", name:"Landscape Design", software:"Land F/X / SketchUp / Lumion",
+    resources:["Land F/X official tutorial library","SketchUp's landscape-specific plugin/extension warehouse listings","Lumion's official quick-start guide for exterior/landscape scenes"],
+    skills:[
+    "Planting plans & plant schedules","Hardscape layout — paving, walkways, patios",
+    "Grading for surface drainage","Irrigation layout basics","Softscape 3D visualization",
+    "Site furniture, lighting & signage layout","Native/regional planting palettes",
+    "Water features & pool layout integration","Slope stabilization & retaining planting design",
+    "Outdoor lighting design basics","Site accessibility in landscape design",
+    "Seasonal/maintenance planning documentation",
+  ]},
+  { id:"commercial", name:"Commercial & Architectural Design Conventions", software:"Cross-platform / code references",
+    resources:["Local building code & zoning ordinance documents (start with your actual jurisdiction, not a generic one)","ADA/accessibility standard guides (or the equivalent local accessibility code)","Architecture 2030 or similar case-study libraries for programming references"],
+    skills:[
+    "Building codes & zoning basics","Space planning & programming",
+    "Egress & accessibility (ADA / local code)","Core & shell vs tenant fit-out drawings",
+    "Facade design & detailing","Full construction documentation sets","Life safety plans",
+    "Hospitality-specific planning — guest rooms, back-of-house flow",
+    "Mixed-use building programming","Renovation/retrofit documentation",
+    "Code research & jurisdiction submission packages","Value engineering documentation basics",
+  ]},
+  { id:"render", name:"Rendering & Presentation", software:"Lumion / Enscape / V-Ray",
+    resources:["Lumion's official tutorial library (free, well-maintained)","Enscape's own \"getting started\" video series","Chaos (V-Ray) official learning hub"],
+    skills:[
+    "Material & lighting setup","Camera views, sections & elevations for presentation",
+    "Rendering engine workflow","Presentation board / sheet composition",
+    "Animation & fly-through basics","VR/interactive walkthrough basics",
+    "Post-production/image editing for renders","Client presentation deck assembly",
+    "Before/after & comparison visualizations","Branding integration into presentation materials",
+  ]},
+  { id:"gis", name:"GIS & Site Selection", software:"QGIS / ArcGIS",
+    resources:["QGIS official training manual (free, thorough, open-source)","Esri's own free introductory ArcGIS courses","YouTube — search \"GIS site suitability analysis tutorial\""],
+    skills:[
+    "Base mapping & coordinate systems","Land use & zoning overlay analysis",
+    "Site suitability analysis (multi-criteria)","Terrain/slope analysis for siting",
+    "Environmental & flood zone overlays","Utility & infrastructure proximity mapping",
+    "Parcel data & cadastral referencing","Drone/aerial imagery integration into GIS",
+    "Thematic mapping for client presentations","Data export/import between GIS and CAD/BIM",
+    "Basic spatial database management","Site comparison scorecards from GIS data",
+    "Remote sensing basics for land cover classification",
+  ], extra:true },
+  { id:"cost", name:"Cost Estimation & Quantity Takeoff Software", software:"Bluebeam Revu / CostX / PlanSwift",
+    resources:["Bluebeam's official Revu training videos (free)","CostX's own product tutorials","Search \"quantity takeoff workflow BIM to estimate\" for current integration guides"],
+    skills:[
+    "Digital takeoff from 2D drawings","Digital takeoff from BIM models",
+    "Unit cost database management","Assembly/composite pricing",
+    "Markup, contingency & escalation modeling","Comparative estimating (design options)",
+    "Linking estimates to project schedule (cost-loading)","Change order / variation tracking",
+    "Estimate reporting & client-facing summaries","Historical cost data analysis",
+    "Software-assisted BOQ generation","Estimate accuracy tracking against actuals",
+    "Software integration with accounting/ERP systems",
+  ], extra:true },
+  { id:"reality", name:"Reality Capture & Existing Conditions", software:"Recap / Pix4D / DJI Terra",
+    resources:["Autodesk ReCap's official getting-started guide","Pix4D's free introductory photogrammetry course","DJI's own drone-survey planning documentation"],
+    skills:[
+    "Drone survey planning & flight paths","Photogrammetry processing basics",
+    "Laser scan (point cloud) registration","Point cloud to BIM/CAD conversion",
+    "Existing conditions documentation standards","Scan-based clash detection for renovations",
+    "360° site documentation basics","Progress monitoring via repeat capture",
+    "Data storage/management for large scan datasets","Client deliverables from reality capture data",
+    "Mesh generation from scan data for visualization",
+  ], extra:true },
+];
+
+const STORAGE_KEY = "danteSoftwareCurriculum_v2";
+const TIER_LABELS = ["Not started","Aware","Practiced","Fluent"];
+let openBranches = new Set(); // tracked separately so re-render doesn't collapse categories
+
+function loadState(){
+  try{
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if(raw) return JSON.parse(raw);
+    // migrate from v1 if present
+    const oldRaw = localStorage.getItem("danteSoftwareCurriculum_v1");
+    if(oldRaw){
+      const old = JSON.parse(oldRaw);
+      return { skills: old.skills || {}, theme: old.theme || "dark" };
+    }
+  }catch(e){}
+  return { skills:{}, theme:"dark" };
+}
+function saveState(){ try{ localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); }catch(e){ console.error("Save failed", e); } }
+
+let state = loadState();
+
+function skillKey(branchId, idx){ return branchId + "::" + idx; }
+function getSkill(key){
+  if(!state.skills[key]) state.skills[key] = { tier:0, note:"", pinned:false, dateUpdated:null };
+  return state.skills[key];
+}
+function todayStr(){
+  const d = new Date();
+  return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0");
+}
+function fmtDate(iso){
+  if(!iso) return "—";
+  const [y,m,d] = iso.split("-");
+  const months=["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+  return d+" "+months[parseInt(m)-1];
+}
+
+function setTheme(t){
+  document.documentElement.setAttribute("data-theme", t);
+  state.theme = t; saveState();
+}
+setTheme(state.theme || "dark");
+document.getElementById("themeToggle").addEventListener("click", ()=>{
+  setTheme(state.theme === "dark" ? "light" : "dark");
+});
+
+function render(){
+  renderBranches();
+  renderOverview();
+  applyFilters();
+}
+
+function renderBranches(){
+  const container = document.getElementById("branchesContainer");
+  container.innerHTML = "";
+  DATA.forEach(branch=>{
+    const el = document.createElement("div");
+    el.className = "branch" + (branch.extra?" extra":"") + (openBranches.has(branch.id)?" open":"");
+    el.dataset.branchId = branch.id;
+
+    const head = document.createElement("div");
+    head.className = "branch-head";
+    head.innerHTML = `
+      <div class="branch-head-left">
+        <h2>${branch.name}${branch.extra?'<span class="new-tag">added</span>':''}</h2>
+        <div class="branch-software">${branch.software}</div>
+      </div>
+      <div class="branch-head-right">
+        <div class="branch-progress-text mono" data-role="branch-pct">0%</div>
+        <div class="branch-bar" data-role="branch-bar"></div>
+        <div class="chevron">▶</div>
+      </div>
+    `;
+    head.addEventListener("click", ()=>{
+      if(openBranches.has(branch.id)) openBranches.delete(branch.id);
+      else openBranches.add(branch.id);
+      el.classList.toggle("open");
+    });
+    el.appendChild(head);
+
+    const body = document.createElement("div");
+    body.className = "branch-body";
+
+    if(branch.resources && branch.resources.length){
+      const res = document.createElement("div");
+      res.className = "resources";
+      res.innerHTML = `<div class="resources-label">Starting points</div><ul>${branch.resources.map(r=>`<li>${r}</li>`).join("")}</ul>`;
+      body.appendChild(res);
+    }
+
+    branch.skills.forEach((skillName, idx)=>{
+      const key = skillKey(branch.id, idx);
+      const sk = getSkill(key);
+
+      const row = document.createElement("div");
+      row.className = "skill-row";
+      row.dataset.key = key;
+      row.dataset.name = skillName.toLowerCase();
+
+      row.innerHTML = `
+        <div class="tier-btn" data-tier="${sk.tier}" data-key="${key}" title="Click to cycle: Not started → Aware → Practiced → Fluent"></div>
+        <div class="skill-name ${sk.tier===3?'t3':sk.tier===0?'t0':''}" data-role="skill-name">${skillName}</div>
+        <div class="tier-label mono" data-role="tier-label">${TIER_LABELS[sk.tier]}</div>
+        <div class="date-stamp mono" data-role="date-stamp" title="Last touched">${fmtDate(sk.dateUpdated)}</div>
+        <button class="pin-btn ${sk.pinned?'active':''}" data-key="${key}" title="Pin as current focus">${sk.pinned?'★':'☆'}</button>
+        <button class="note-toggle ${sk.note?'has-note':''}" data-key="${key}" title="Notes / resource link">✎</button>
+      `;
+      body.appendChild(row);
+
+      const noteArea = document.createElement("div");
+      noteArea.className = "note-area";
+      noteArea.dataset.key = key;
+      noteArea.innerHTML = `
+        <textarea placeholder="Resource link, note, or what 'fluent' should mean for this skill...">${sk.note || ""}</textarea>
+        <div class="note-hint">Saved automatically.</div>
+      `;
+      body.appendChild(noteArea);
+    });
+
+    el.appendChild(body);
+    container.appendChild(el);
+  });
+
+  container.querySelectorAll(".tier-btn").forEach(btn=>{
+    btn.addEventListener("click", (e)=>{
+      e.stopPropagation();
+      const key = btn.dataset.key;
+      const sk = getSkill(key);
+      sk.tier = (sk.tier + 1) % 4;
+      sk.dateUpdated = todayStr();
+      saveState();
+      render();
+    });
+  });
+
+  container.querySelectorAll(".pin-btn").forEach(btn=>{
+    btn.addEventListener("click", (e)=>{
+      e.stopPropagation();
+      const key = btn.dataset.key;
+      const sk = getSkill(key);
+      const currentlyPinned = Object.values(state.skills).filter(s=>s.pinned).length;
+      if(!sk.pinned && currentlyPinned >= 3){ alert("Only 3 pinned focus skills at a time — unpin one first."); return; }
+      sk.pinned = !sk.pinned;
+      saveState();
+      render();
+    });
+  });
+
+  container.querySelectorAll(".note-toggle").forEach(btn=>{
+    btn.addEventListener("click", (e)=>{
+      e.stopPropagation();
+      const key = btn.dataset.key;
+      const area = container.querySelector(`.note-area[data-key="${key}"]`);
+      area.classList.toggle("open");
+    });
+  });
+
+  container.querySelectorAll(".note-area textarea").forEach(ta=>{
+    ta.addEventListener("input", ()=>{
+      const key = ta.closest(".note-area").dataset.key;
+      const sk = getSkill(key);
+      sk.note = ta.value;
+      saveState();
+    });
+  });
+
+  DATA.forEach(branch=>{
+    const el = container.querySelector(`.branch[data-branch-id="${branch.id}"]`);
+    let total = branch.skills.length, sum = 0;
+    branch.skills.forEach((_, idx)=>{ sum += getSkill(skillKey(branch.id, idx)).tier; });
+    const pct = Math.round((sum / (total*3)) * 100);
+    el.querySelector('[data-role="branch-pct"]').textContent = pct + "%";
+    el.querySelector('[data-role="branch-bar"]').innerHTML = `<div style="width:${pct}%; background:var(--gold);"></div>`;
+  });
+}
+
+function renderOverview(){
+  let totalSkills = 0, sumTier = 0, fluentCount = 0;
+  DATA.forEach(branch=> branch.skills.forEach((_, idx)=>{
+    const sk = getSkill(skillKey(branch.id, idx));
+    totalSkills++; sumTier += sk.tier;
+    if(sk.tier === 3) fluentCount++;
+  }));
+  const pct = Math.round((sumTier / (totalSkills*3)) * 100);
+  document.getElementById("overallPct").innerHTML = `${pct}%<span>overall (${fluentCount} of ${totalSkills} fluent)</span>`;
+
+  let t0=0,t1=0,t2=0,t3=0;
+  DATA.forEach(branch=> branch.skills.forEach((_, idx)=>{
+    const t = getSkill(skillKey(branch.id, idx)).tier;
+    if(t===0) t0++; else if(t===1) t1++; else if(t===2) t2++; else t3++;
+  }));
+  document.getElementById("globalBar").innerHTML = `
+    <div style="width:${t3/totalSkills*100}%; background:var(--tier3);"></div>
+    <div style="width:${t2/totalSkills*100}%; background:var(--tier2);"></div>
+    <div style="width:${t1/totalSkills*100}%; background:var(--tier1);"></div>
+    <div style="width:${t0/totalSkills*100}%; background:var(--tier0);"></div>
+  `;
+
+  const focusRow = document.getElementById("focusRow");
+  const pinned = [];
+  DATA.forEach(branch=> branch.skills.forEach((name, idx)=>{
+    const sk = getSkill(skillKey(branch.id, idx));
+    if(sk.pinned) pinned.push(name);
+  }));
+  focusRow.innerHTML = pinned.length
+    ? pinned.map(n=>`<div class="focus-chip">${n}</div>`).join("")
+    : `<div class="focus-empty">No current focus pinned — click ☆ next to a skill to mark it active.</div>`;
+}
+
+function applyFilters(){
+  const q = document.getElementById("searchInput").value.trim().toLowerCase();
+  const filter = document.getElementById("filterSelect").value;
+  document.querySelectorAll(".skill-row").forEach(row=>{
+    const key = row.dataset.key;
+    const sk = getSkill(key);
+    const name = row.dataset.name;
+    let show = true;
+    if(q && !name.includes(q)) show = false;
+    if(filter === "pinned" && !sk.pinned) show = false;
+    if(filter === "unstarted" && sk.tier !== 0) show = false;
+    if(filter === "inprogress" && (sk.tier === 0 || sk.tier === 3)) show = false;
+    if(filter === "fluent" && sk.tier !== 3) show = false;
+    row.classList.toggle("hidden", !show);
+    const noteArea = row.parentElement.querySelector(`.note-area[data-key="${key}"]`);
+    if(noteArea) noteArea.classList.toggle("hidden", !show);
+  });
+  if(q || filter !== "all"){
+    document.querySelectorAll(".branch").forEach(branch=>{
+      const anyVisible = [...branch.querySelectorAll(".skill-row")].some(r=>!r.classList.contains("hidden"));
+      if(anyVisible){ branch.classList.add("open"); openBranches.add(branch.dataset.branchId); }
+    });
+  }
+}
+
+document.getElementById("searchInput").addEventListener("input", applyFilters);
+document.getElementById("filterSelect").addEventListener("change", applyFilters);
+
+document.getElementById("exportBtn").addEventListener("click", ()=>{
+  const blob = new Blob([JSON.stringify(state, null, 2)], {type:"application/json"});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url; a.download = "software-curriculum-progress.json";
+  a.click();
+  URL.revokeObjectURL(url);
+});
+document.getElementById("importBtn").addEventListener("click", ()=> document.getElementById("importFile").click());
+document.getElementById("importFile").addEventListener("change", (e)=>{
+  const file = e.target.files[0];
+  if(!file) return;
+  const reader = new FileReader();
+  reader.onload = (evt)=>{
+    try{
+      const imported = JSON.parse(evt.target.result);
+      if(imported && imported.skills){
+        state = imported;
+        saveState();
+        setTheme(state.theme || "dark");
+        render();
+      } else { alert("This file doesn't look like a valid progress export."); }
+    }catch(err){ alert("Couldn't parse that file."); }
+  };
+  reader.readAsText(file);
+});
+
+render();
+</script>
+</body>
+</html>

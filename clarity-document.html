@@ -1,0 +1,789 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Clarity Document</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;1,400&family=Lora:ital,wght@0,400;0,500;1,400&family=DM+Mono:wght@300;400&display=swap" rel="stylesheet">
+<style>
+:root[data-theme="dark"]{
+  --bg:#0d0b0e;--bg-2:#151318;--bg-3:#1c1820;--bg-4:#231f27;
+  --border:rgba(255,255,255,0.07);--border-warm:rgba(180,140,100,0.22);
+  --text-primary:#f0ece8;--text-secondary:#968e88;--text-muted:#534d58;
+  --gold:#c8a86a;--gold-dim:rgba(200,168,106,0.1);
+  --rose:#c47860;--sage:#6a9478;--lavender:#8a7aae;
+  --answered:#6a9478;
+}
+:root[data-theme="light"]{
+  --bg:#f8f4ef;--bg-2:#f0ebe4;--bg-3:#e6dfd6;--bg-4:#d8d0c5;
+  --border:rgba(0,0,0,0.07);--border-warm:rgba(140,100,60,0.2);
+  --text-primary:#18140f;--text-secondary:#68604f;--text-muted:#a89880;
+  --gold:#8a6820;--gold-dim:rgba(138,104,32,0.08);
+  --rose:#a05840;--sage:#3a7050;--lavender:#5a4a8a;
+  --answered:#3a7050;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{background:var(--bg);color:var(--text-primary);font-family:'Lora',serif;min-height:100vh;transition:background 0.4s,color 0.4s;}
+
+header{position:sticky;top:0;z-index:100;background:var(--bg);border-bottom:1px solid var(--border);padding:0 2rem;display:flex;align-items:center;justify-content:space-between;height:60px;}
+.header-title{font-family:'Playfair Display',serif;font-size:1.2rem;font-style:italic;color:var(--gold);}
+.header-right{display:flex;align-items:center;gap:1.25rem;}
+.progress-text{font-family:'DM Mono',monospace;font-size:0.6rem;letter-spacing:0.1em;text-transform:uppercase;color:var(--text-muted);}
+.theme-toggle{width:32px;height:32px;border-radius:50%;border:1px solid var(--border);background:var(--bg-3);color:var(--text-secondary);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:0.8rem;transition:all 0.2s;}
+.theme-toggle:hover{border-color:var(--gold);color:var(--gold);}
+
+.nav-tabs{display:flex;padding:0 2rem;background:var(--bg-2);border-bottom:1px solid var(--border);overflow-x:auto;scrollbar-width:none;}
+.nav-tabs::-webkit-scrollbar{display:none;}
+.tab-btn{padding:0.8rem 1.2rem;background:none;border:none;border-bottom:2px solid transparent;color:var(--text-muted);font-family:'DM Mono',monospace;font-size:0.58rem;letter-spacing:0.1em;text-transform:uppercase;cursor:pointer;white-space:nowrap;transition:all 0.2s;}
+.tab-btn:hover{color:var(--text-secondary);}
+.tab-btn.active{color:var(--gold);border-bottom-color:var(--gold);}
+.tab-btn.has-answers{color:var(--answered);}
+.tab-btn.has-answers.active{color:var(--gold);border-bottom-color:var(--gold);}
+
+main{max-width:860px;margin:0 auto;padding:3rem 2rem 6rem;}
+.tab-panel{display:none;}
+.tab-panel.active{display:block;animation:fadeUp 0.3s ease both;}
+@keyframes fadeUp{from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:translateY(0);}}
+
+/* SECTION INTRO */
+.section-intro{margin-bottom:2.5rem;}
+.section-number{font-family:'DM Mono',monospace;font-size:0.58rem;letter-spacing:0.18em;text-transform:uppercase;color:var(--text-muted);margin-bottom:0.5rem;}
+.section-title{font-family:'Playfair Display',serif;font-size:1.6rem;font-weight:400;color:var(--text-primary);margin-bottom:0.75rem;line-height:1.3;}
+.section-preamble{font-size:0.88rem;color:var(--text-secondary);line-height:1.8;font-style:italic;border-left:2px solid var(--border-warm);padding-left:1.25rem;}
+
+/* QUESTION BLOCKS */
+.q-block{margin-bottom:1.75rem;}
+.q-header{display:flex;align-items:flex-start;justify-content:space-between;gap:1rem;margin-bottom:0.6rem;}
+.q-text{font-family:'Playfair Display',serif;font-size:1rem;font-style:italic;color:var(--text-primary);line-height:1.6;flex:1;}
+.q-meta{display:flex;align-items:center;gap:0.5rem;flex-shrink:0;margin-top:0.2rem;}
+.q-tag{font-family:'DM Mono',monospace;font-size:0.5rem;letter-spacing:0.1em;text-transform:uppercase;padding:0.18rem 0.45rem;border-radius:20px;border:1px solid var(--border);color:var(--text-muted);}
+.q-tag.honest{border-color:rgba(200,120,96,0.3);color:var(--rose);}
+.q-tag.measurable{border-color:rgba(200,168,106,0.3);color:var(--gold);}
+.q-tag.hard{border-color:rgba(138,122,174,0.3);color:var(--lavender);}
+.q-tag.faith{border-color:rgba(106,148,120,0.3);color:var(--sage);}
+
+.answer-area{width:100%;min-height:100px;background:var(--bg-2);border:1px solid var(--border);border-radius:3px;padding:1rem 1.25rem;color:var(--text-primary);font-family:'Lora',serif;font-size:0.85rem;line-height:1.75;resize:vertical;outline:none;transition:border-color 0.2s,background 0.2s;}
+.answer-area:focus{border-color:var(--border-warm);background:var(--bg-3);}
+.answer-area.has-content{border-color:rgba(106,148,120,0.3);}
+.answer-area::placeholder{color:var(--text-muted);font-style:italic;}
+
+.q-footer{display:flex;justify-content:flex-end;margin-top:0.4rem;}
+.char-hint{font-family:'DM Mono',monospace;font-size:0.52rem;color:var(--text-muted);letter-spacing:0.06em;}
+
+.q-divider{height:1px;background:var(--border);margin:2.5rem 0;}
+
+/* SAVE BAR */
+.save-bar{position:fixed;bottom:0;left:0;right:0;background:var(--bg-2);border-top:1px solid var(--border);padding:0.85rem 2rem;display:flex;align-items:center;justify-content:space-between;z-index:50;}
+.save-bar-left{font-family:'DM Mono',monospace;font-size:0.58rem;letter-spacing:0.1em;text-transform:uppercase;color:var(--text-muted);}
+.save-bar-right{display:flex;gap:0.75rem;align-items:center;}
+.save-btn{padding:0.5rem 1.4rem;background:var(--gold-dim);border:1px solid var(--border-warm);border-radius:3px;color:var(--gold);font-family:'DM Mono',monospace;font-size:0.6rem;letter-spacing:0.1em;text-transform:uppercase;cursor:pointer;transition:all 0.2s;}
+.save-btn:hover{background:var(--gold);color:#fff;}
+.saved-msg{font-family:'DM Mono',monospace;font-size:0.58rem;color:var(--answered);letter-spacing:0.1em;opacity:0;transition:opacity 0.3s;}
+
+/* PROGRESS BAR */
+.progress-bar-wrap{height:2px;background:var(--border);position:fixed;top:60px;left:0;right:0;z-index:99;}
+.progress-bar-fill{height:100%;background:var(--gold);transition:width 0.5s ease;}
+
+/* OVERVIEW TAB */
+.overview-grid{display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:2rem;}
+@media(max-width:580px){.overview-grid{grid-template-columns:1fr;}}
+.ov-card{background:var(--bg-2);border:1px solid var(--border);border-radius:3px;padding:1.25rem;}
+.ov-card-label{font-family:'DM Mono',monospace;font-size:0.55rem;letter-spacing:0.13em;text-transform:uppercase;color:var(--text-muted);margin-bottom:0.4rem;}
+.ov-card-value{font-family:'Playfair Display',serif;font-size:1.5rem;color:var(--gold);}
+.ov-card-sub{font-size:0.75rem;color:var(--text-muted);margin-top:0.2rem;font-family:'DM Mono',monospace;letter-spacing:0.05em;}
+
+.section-list{list-style:none;display:flex;flex-direction:column;gap:0.5rem;margin-bottom:2rem;}
+.section-list li{display:flex;align-items:center;gap:1rem;padding:0.85rem 1.1rem;background:var(--bg-2);border:1px solid var(--border);border-radius:3px;cursor:pointer;transition:border-color 0.2s;}
+.section-list li:hover{border-color:var(--border-warm);}
+.sl-number{font-family:'DM Mono',monospace;font-size:0.6rem;color:var(--text-muted);width:24px;flex-shrink:0;}
+.sl-title{font-family:'Playfair Display',serif;font-size:0.95rem;color:var(--text-primary);flex:1;}
+.sl-count{font-family:'DM Mono',monospace;font-size:0.55rem;color:var(--text-muted);letter-spacing:0.08em;}
+.sl-progress{width:60px;height:3px;background:var(--border);border-radius:2px;overflow:hidden;}
+.sl-progress-fill{height:100%;background:var(--answered);transition:width 0.4s;}
+
+.doc-note{background:var(--bg-2);border:1px solid var(--border);border-left:3px solid var(--gold);padding:1.5rem 2rem;border-radius:3px;margin-bottom:2rem;}
+.doc-note p{font-size:0.84rem;color:var(--text-secondary);line-height:1.8;font-style:italic;}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-title">The Clarity Document</div>
+  <div class="header-right">
+    <span class="progress-text" id="progress-label">0 of 0 answered</span>
+    <button class="theme-toggle" onclick="toggleTheme()"><span id="theme-icon">☀</span></button>
+  </div>
+</header>
+
+<div class="progress-bar-wrap"><div class="progress-bar-fill" id="progress-bar" style="width:0%"></div></div>
+
+<nav class="nav-tabs">
+  <button class="tab-btn active" onclick="switchTab('overview',this)">Overview</button>
+  <button class="tab-btn" id="tab-btn-intent" onclick="switchTab('intent',this)">I. Intent</button>
+  <button class="tab-btn" id="tab-btn-audit" onclick="switchTab('audit',this)">II. The Audit</button>
+  <button class="tab-btn" id="tab-btn-growth" onclick="switchTab('growth',this)">III. Your Growth</button>
+  <button class="tab-btn" id="tab-btn-tamara" onclick="switchTab('tamara',this)">IV. Her</button>
+  <button class="tab-btn" id="tab-btn-together" onclick="switchTab('together',this)">V. Together</button>
+  <button class="tab-btn" id="tab-btn-future" onclick="switchTab('future',this)">VI. The Future</button>
+  <button class="tab-btn" id="tab-btn-faith" onclick="switchTab('faith',this)">VII. Faith & Foundation</button>
+  <button class="tab-btn" id="tab-btn-self" onclick="switchTab('self',this)">VIII. You First</button>
+</nav>
+
+<main>
+
+<!-- OVERVIEW -->
+<div class="tab-panel active" id="tab-overview">
+  <div class="doc-note">
+    <p>This is not a planning document. It is a clarity document. The questions here are not asking you to perform certainty — they are asking you to sit with the things you have not yet put into words. Answer honestly, not well. Vague answers are permitted only as placeholders; they should be revisited and sharpened. The document is private, living, and never finished. It grows as you do.</p>
+  </div>
+
+  <div class="overview-grid">
+    <div class="ov-card"><div class="ov-card-label">Total Questions</div><div class="ov-card-value" id="ov-total">—</div><div class="ov-card-sub">across 8 sections</div></div>
+    <div class="ov-card"><div class="ov-card-label">Answered</div><div class="ov-card-value" id="ov-answered">—</div><div class="ov-card-sub" id="ov-pct">— % complete</div></div>
+    <div class="ov-card"><div class="ov-card-label">Last Saved</div><div class="ov-card-value" style="font-size:1rem;margin-top:0.3rem;" id="ov-saved">Never</div><div class="ov-card-sub">save often</div></div>
+    <div class="ov-card"><div class="ov-card-label">Document Started</div><div class="ov-card-value" style="font-size:1rem;margin-top:0.3rem;" id="ov-started">—</div><div class="ov-card-sub">revisit quarterly</div></div>
+  </div>
+
+  <div class="section-number" style="margin-bottom:1rem;">Sections</div>
+  <ul class="section-list" id="section-nav">
+    <li onclick="switchTabByName('intent')"><span class="sl-number">I</span><span class="sl-title">Intent — Do I actually want this?</span><span class="sl-count" id="sc-intent">—</span><div class="sl-progress"><div class="sl-progress-fill" id="sp-intent" style="width:0%"></div></div></li>
+    <li onclick="switchTabByName('audit')"><span class="sl-number">II</span><span class="sl-title">The Audit — What went wrong and why</span><span class="sl-count" id="sc-audit">—</span><div class="sl-progress"><div class="sl-progress-fill" id="sp-audit" style="width:0%"></div></div></li>
+    <li onclick="switchTabByName('growth')"><span class="sl-number">III</span><span class="sl-title">Your Growth — What has changed in you</span><span class="sl-count" id="sc-growth">—</span><div class="sl-progress"><div class="sl-progress-fill" id="sp-growth" style="width:0%"></div></div></li>
+    <li onclick="switchTabByName('tamara')"><span class="sl-number">IV</span><span class="sl-title">Her — What you want, what you offer</span><span class="sl-count" id="sc-tamara">—</span><div class="sl-progress"><div class="sl-progress-fill" id="sp-tamara" style="width:0%"></div></div></li>
+    <li onclick="switchTabByName('together')"><span class="sl-number">V</span><span class="sl-title">Together — How you build this</span><span class="sl-count" id="sc-together">—</span><div class="sl-progress"><div class="sl-progress-fill" id="sp-together" style="width:0%"></div></div></li>
+    <li onclick="switchTabByName('future')"><span class="sl-number">VI</span><span class="sl-title">The Future — Timelines and architecture</span><span class="sl-count" id="sc-future">—</span><div class="sl-progress"><div class="sl-progress-fill" id="sp-future" style="width:0%"></div></div></li>
+    <li onclick="switchTabByName('faith')"><span class="sl-number">VII</span><span class="sl-title">Faith & Foundation — The ground beneath it</span><span class="sl-count" id="sc-faith">—</span><div class="sl-progress"><div class="sl-progress-fill" id="sp-faith" style="width:0%"></div></div></li>
+    <li onclick="switchTabByName('self')"><span class="sl-number">VIII</span><span class="sl-title">You First — Your own life independent of this</span><span class="sl-count" id="sc-self">—</span><div class="sl-progress"><div class="sl-progress-fill" id="sp-self" style="width:0%"></div></div></li>
+  </ul>
+</div>
+
+<!-- I. INTENT -->
+<div class="tab-panel" id="tab-intent">
+  <div class="section-intro">
+    <div class="section-number">Section I</div>
+    <div class="section-title">Intent</div>
+    <div class="section-preamble">Before anything else, the question underneath every other question: do you actually want this? Not the idea of it, not the comfort of it, not the resolution of missing her. The real thing, with its weight and its demands and its particular shape. Answer this section before the rest. Come back to it after the rest.</div>
+  </div>
+
+  <div class="q-block" data-section="intent">
+    <div class="q-header"><div class="q-text">Why do you want to get back with Tamara? Write every reason, including the ones that don't sound noble.</div><div class="q-meta"><span class="q-tag honest">Honest</span></div></div>
+    <textarea class="answer-area" data-key="intent-1" placeholder="All of it. The ones you'd say out loud and the ones you wouldn't."></textarea>
+    <div class="q-footer"><span class="char-hint" id="hint-intent-1"></span></div>
+  </div>
+
+  <div class="q-block" data-section="intent">
+    <div class="q-header"><div class="q-text">Is any part of this decision driven by financial inconvenience — the cost of pursuing a relationship, the cost of visiting, of gifting, of eventually building a shared life? Sit with this honestly. What is the honest answer?</div><div class="q-meta"><span class="q-tag honest">Honest</span></div></div>
+    <textarea class="answer-area" data-key="intent-2" placeholder="Yes, no, partly — and in what proportion, and does that proportion disqualify anything?"></textarea>
+    <div class="q-footer"><span class="char-hint" id="hint-intent-2"></span></div>
+  </div>
+
+  <div class="q-block" data-section="intent">
+    <div class="q-header"><div class="q-text">What would your life look like in five years if you didn't pursue this? Not as a threat or a manipulation — as a genuine alternative. What does the version of you without Tamara look like?</div><div class="q-meta"><span class="q-tag hard">Hard</span></div></div>
+    <textarea class="answer-area" data-key="intent-3" placeholder="Describe that life honestly. Then ask if it satisfies you."></textarea>
+    <div class="q-footer"><span class="char-hint" id="hint-intent-3"></span></div>
+  </div>
+
+  <div class="q-block" data-section="intent">
+    <div class="q-header"><div class="q-text">Is the aversion to re-entering a relationship a genuine need for freedom, or is it the comfort of not being accountable to another person's needs? Be precise about which it is — or whether both are true simultaneously.</div><div class="q-meta"><span class="q-tag honest">Honest</span></div></div>
+    <textarea class="answer-area" data-key="intent-4" placeholder="Freedom is a real value. So is avoidance. Name which is operating here."></textarea>
+    <div class="q-footer"><span class="char-hint" id="hint-intent-4"></span></div>
+  </div>
+
+  <div class="q-block" data-section="intent">
+    <div class="q-header"><div class="q-text">What does a relationship with Tamara require of you that your current single life does not? List the specific demands — emotional, financial, temporal, spiritual. Then ask yourself whether you are willing to meet them.</div><div class="q-meta"><span class="q-tag measurable">Measurable</span></div></div>
+    <textarea class="answer-area" data-key="intent-5" placeholder="Be specific. Not 'time and energy' — what specific time, what specific energy, what specific changes to how you live."></textarea>
+    <div class="q-footer"><span class="char-hint" id="hint-intent-5"></span></div>
+  </div>
+
+  <div class="q-block" data-section="intent">
+    <div class="q-header"><div class="q-text">Do you love her? Not in the abstract — specifically. What do you love about Tamara Dogubo that you could not say about another woman?</div><div class="q-meta"><span class="q-tag honest">Honest</span></div></div>
+    <textarea class="answer-area" data-key="intent-6" placeholder="Specific. Not qualities any impressive woman could have — the particular things that are her."></textarea>
+    <div class="q-footer"><span class="char-hint" id="hint-intent-6"></span></div>
+  </div>
+
+  <div class="q-block" data-section="intent">
+    <div class="q-header"><div class="q-text">If the financial pressure were entirely removed — the account was full, the debt was gone, the apartment was complete — would your desire to be with her change? More urgent? Less? The same?</div><div class="q-meta"><span class="q-tag hard">Hard</span></div></div>
+    <textarea class="answer-area" data-key="intent-7" placeholder="This question separates circumstantial hesitation from substantive hesitation."></textarea>
+    <div class="q-footer"><span class="char-hint" id="hint-intent-7"></span></div>
+  </div>
+
+  <div class="q-block" data-section="intent">
+    <div class="q-header"><div class="q-text">What are you afraid of — specifically — about being in this relationship again?</div><div class="q-meta"><span class="q-tag honest">Honest</span></div></div>
+    <textarea class="answer-area" data-key="intent-8" placeholder="Not the diplomatic answer. The one that sits in the chest."></textarea>
+    <div class="q-footer"><span class="char-hint" id="hint-intent-8"></span></div>
+  </div>
+</div>
+
+<!-- II. THE AUDIT -->
+<div class="tab-panel" id="tab-audit">
+  <div class="section-intro">
+    <div class="section-number">Section II</div>
+    <div class="section-title">The Audit</div>
+    <div class="section-preamble">What happened the first time. Not the story you've told people, not the version that distributes blame evenly for politeness — the honest account of what you did, what you didn't do, and what it cost her. And what she brought that was difficult. This section is not about guilt. It is about pattern recognition.</div>
+  </div>
+
+  <div class="q-block" data-section="audit">
+    <div class="q-header"><div class="q-text">What were her specific complaints the first time? List them all, as accurately as you can remember them — not summarised, not softened.</div><div class="q-meta"><span class="q-tag honest">Honest</span></div></div>
+    <textarea class="answer-area" data-key="audit-1" placeholder="Her words if you can recall them. Her recurring themes. What she kept coming back to."></textarea>
+    <div class="q-footer"><span class="char-hint" id="hint-audit-1"></span></div>
+  </div>
+
+  <div class="q-block" data-section="audit">
+    <div class="q-header"><div class="q-text">For each complaint she had — were they valid? What specifically made them valid or not? Do not defend yourself here. Examine.</div><div class="q-meta"><span class="q-tag honest">Honest</span></div></div>
+    <textarea class="answer-area" data-key="audit-2" placeholder="Take each complaint in turn. What was true in it? What were the circumstances that shaped your behaviour? Were the circumstances an explanation or an excuse?"></textarea>
+    <div class="q-footer"><span class="char-hint" id="hint-audit-2"></span></div>
+  </div>
+
+  <div class="q-block" data-section="audit">
+    <div class="q-header"><div class="q-text">What did the financial pressure specifically do to your behaviour in the relationship? Be concrete — what did it change, what did it suppress, what did it produce in you that she experienced?</div><div class="q-meta"><span class="q-tag measurable">Measurable</span></div></div>
+    <textarea class="answer-area" data-key="audit-3" placeholder="Not 'it stressed me out' — what did the stress produce? Withdrawal? Unavailability? Shame that expressed itself as distance?"></textarea>
+    <div class="q-footer"><span class="char-hint" id="hint-audit-3"></span></div>
+  </div>
+
+  <div class="q-block" data-section="audit">
+    <div class="q-header"><div class="q-text">Where did you fail to initiate? Conflict resolution, planning, spiritual leadership, reaching out. Not once — as a pattern. What did the pattern look like and what drove it?</div><div class="q-meta"><span class="q-tag honest">Honest</span></div></div>
+    <textarea class="answer-area" data-key="audit-4" placeholder="The pattern, not the isolated incidents. What was underneath the failure to initiate?"></textarea>
+    <div class="q-footer"><span class="char-hint" id="hint-audit-4"></span></div>
+  </div>
+
+  <div class="q-block" data-section="audit">
+    <div class="q-header"><div class="q-text">What did you withhold from her — information, emotion, plans, fears — and why? What did the withholding cost the relationship?</div><div class="q-meta"><span class="q-tag honest">Honest</span></div></div>
+    <textarea class="answer-area" data-key="audit-5" placeholder="The debt you couldn't tell her about. Other things. What stayed private that should have been shared?"></textarea>
+    <div class="q-footer"><span class="char-hint" id="hint-audit-5"></span></div>
+  </div>
+
+  <div class="q-block" data-section="audit">
+    <div class="q-header"><div class="q-text">What did she bring that was genuinely difficult for you? Not as a counter-argument — as an honest account of what you found hard. What challenged you about her?</div><div class="q-meta"><span class="q-tag honest">Honest</span></div></div>
+    <textarea class="answer-area" data-key="audit-6" placeholder="This is not for blame. It is for understanding what you are walking back into and whether you are equipped for it now."></textarea>
+    <div class="q-footer"><span class="char-hint" id="hint-audit-6"></span></div>
+  </div>
+
+  <div class="q-block" data-section="audit">
+    <div class="q-header"><div class="q-text">What patterns in the relationship repeated more than once? What did you see coming back around that you never addressed at the root?</div><div class="q-meta"><span class="q-tag measurable">Measurable</span></div></div>
+    <textarea class="answer-area" data-key="audit-7" placeholder="Recurring arguments, recurring distance, recurring dynamics. Name the loop."></textarea>
+    <div class="q-footer"><span class="char-hint" id="hint-audit-7"></span></div>
+  </div>
+
+  <div class="q-block" data-section="audit">
+    <div class="q-header"><div class="q-text">What did the two months of silence after the break reveal to you — about yourself, about her, about what the relationship was and what it wasn't?</div><div class="q-meta"><span class="q-tag hard">Hard</span></div></div>
+    <textarea class="answer-area" data-key="audit-8" placeholder="Distance clarifies things that proximity obscures. What did you see in the silence?"></textarea>
+    <div class="q-footer"><span class="char-hint" id="hint-audit-8"></span></div>
+  </div>
+
+  <div class="q-block" data-section="audit">
+    <div class="q-header"><div class="q-text">If Tamara were answering these questions about you — what would she say were your three most significant failures in the relationship? Do you agree with her assessment?</div><div class="q-meta"><span class="q-tag hard">Hard</span></div></div>
+    <textarea class="answer-area" data-key="audit-9" placeholder="Speak for her honestly. Then respond to what she said."></textarea>
+    <div class="q-footer"><span class="char-hint" id="hint-audit-9"></span></div>
+  </div>
+</div>
+
+<!-- III. YOUR GROWTH -->
+<div class="tab-panel" id="tab-growth">
+  <div class="section-intro">
+    <div class="section-number">Section III</div>
+    <div class="section-title">Your Growth</div>
+    <div class="section-preamble">What has actually changed. Not what you intend to change, not what you plan to work on — what has concretely shifted in you in the two months since. The distinction matters: she will not be returning to a man of good intentions. She will be returning to a man of demonstrated change. What evidence exists?</div>
+  </div>
+
+  <div class="q-block" data-section="growth">
+    <div class="q-header"><div class="q-text">What has materially changed in your life since the relationship ended? The job, the apartment, the debt plan. What do these changes actually mean for who you are in a relationship now versus then?</div><div class="q-meta"><span class="q-tag measurable">Measurable</span></div></div>
+    <textarea class="answer-area" data-key="growth-1" placeholder="Not a list of achievements — what do these changes mean for her experience of being with you?"></textarea>
+    <div class="q-footer"><span class="char-hint" id="hint-growth-1"></span></div>
+  </div>
+
+  <div class="q-block" data-section="growth">
+    <div class="q-header"><div class="q-text">For each specific complaint she had — what have you concretely done differently in the two months since? Not what you plan to do. What you have actually done, even without her present to see it.</div><div class="q-meta"><span class="q-tag measurable">Measurable</span></div></div>
+    <textarea class="answer-area" data-key="growth-2" placeholder="Take each complaint. Evidence of change, or honest acknowledgement that the change hasn't happened yet."></textarea>
+    <div class="q-footer"><span class="char-hint" id="hint-growth-2"></span></div>
+  </div>
+
+  <div class="q-block" data-section="growth">
+    <div class="q-header"><div class="q-text">What have you learned about yourself in the two months since — through the move, the job, the solitude, the faith practice — that you did not know about yourself before?</div><div class="q-meta"><span class="q-tag honest">Honest</span></div></div>
+    <textarea class="answer-area" data-key="growth-3" placeholder="Self-knowledge acquired. Not theoretical — learned through experience."></textarea>
+    <div class="q-footer"><span class="char-hint" id="hint-growth-3"></span></div>
+  </div>
+
+  <div class="q-block" data-section="growth">
+    <div class="q-header"><div class="q-text">The pattern you identified in yourself — excessive flexibility with self, letting the hook go — how does this pattern manifest in a relationship specifically? And what are you doing about it?</div><div class="q-meta"><span class="q-tag honest">Honest</span></div></div>
+    <textarea class="answer-area" data-key="growth-4" placeholder="The discipline beneath all other disciplines. What does it look like when it shows up between two people?"></textarea>
+    <div class="q-footer"><span class="char-hint" id="hint-growth-4"></span></div>
+  </div>
+
+  <div class="q-block" data-section="growth">
+    <div class="q-header"><div class="q-text">What have you not worked on yet that you know you need to? Name it plainly. Not as a confession — as a plan.</div><div class="q-meta"><span class="q-tag honest">Honest</span></div></div>
+    <textarea class="answer-area" data-key="growth-5" placeholder="The things that are still the same. Then what you're going to do about each one — specifically and measurably."></textarea>
+    <div class="q-footer"><span class="char-hint" id="hint-growth-5"></span></div>
+  </div>
+
+  <div class="q-block" data-section="growth">
+    <div class="q-header"><div class="q-text">How are you different in conflict now than you were twelve months ago? Give a specific example — real or hypothetical — of how you would handle something differently.</div><div class="q-meta"><span class="q-tag measurable">Measurable</span></div></div>
+    <textarea class="answer-area" data-key="growth-6" placeholder="Not 'I'm more patient now.' Show it. A scenario, a response, a concrete difference."></textarea>
+    <div class="q-footer"><span class="char-hint" id="hint-growth-6"></span></div>
+  </div>
+
+  <div class="q-block" data-section="growth">
+    <div class="q-header"><div class="q-text">What are you currently doing — in your daily life, your routine, your faith practice — that is preparing you to be the man she needs? Not planning to do. Doing.</div><div class="q-meta"><span class="q-tag measurable">Measurable</span></div></div>
+    <textarea class="answer-area" data-key="growth-7" placeholder="The 4AM, the trading discipline, the reading, the building. How does it all make you more capable of this relationship?"></textarea>
+    <div class="q-footer"><span class="char-hint" id="hint-growth-7"></span></div>
+  </div>
+</div>
+
+<!-- IV. HER -->
+<div class="tab-panel" id="tab-tamara">
+  <div class="section-intro">
+    <div class="section-number">Section IV</div>
+    <div class="section-title">Her</div>
+    <div class="section-preamble">What you want from Tamara, what you are prepared to offer her, and what you genuinely need her to bring. Not the romantic version — the honest architecture of what this relationship requires from both sides to actually work.</div>
+  </div>
+
+  <div class="q-block" data-section="tamara">
+    <div class="q-header"><div class="q-text">What do you specifically need from Tamara in this relationship — not preferences, not nice-to-haves, but the things whose sustained absence would hollow the relationship out?</div><div class="q-meta"><span class="q-tag honest">Honest</span></div></div>
+    <textarea class="answer-area" data-key="tamara-1" placeholder="Be specific enough that she could read this and know exactly what you need."></textarea>
+    <div class="q-footer"><span class="char-hint" id="hint-tamara-1"></span></div>
+  </div>
+
+  <div class="q-block" data-section="tamara">
+    <div class="q-header"><div class="q-text">What are you prepared to do for her — concretely, measurably — that you were not doing before? Not character improvements. Actions. What will she see that she didn't see?</div><div class="q-meta"><span class="q-tag measurable">Measurable</span></div></div>
+    <textarea class="answer-area" data-key="tamara-2" placeholder="Actions, not intentions. What she will experience from you that she didn't before."></textarea>
+    <div class="q-footer"><span class="char-hint" id="hint-tamara-2"></span></div>
+  </div>
+
+  <div class="q-block" data-section="tamara">
+    <div class="q-header"><div class="q-text">Her BPD is a real dimension of who she is. What does loving someone with BPD require of you specifically — not in general terms, but in daily practice — and are you genuinely prepared to provide it?</div><div class="q-meta"><span class="q-tag honest">Honest</span></div></div>
+    <textarea class="answer-area" data-key="tamara-3" placeholder="Consistency, presence, steady reassurance, reading the room early. What does each of these actually cost you? Are you willing to pay it?"></textarea>
+    <div class="q-footer"><span class="char-hint" id="hint-tamara-3"></span></div>
+  </div>
+
+  <div class="q-block" data-section="tamara">
+    <div class="q-header"><div class="q-text">What do you expect her to have worked on or changed in the two months of silence? What would you need to see from her before you feel ready to trust the dynamic again?</div><div class="q-meta"><span class="q-tag honest">Honest</span></div></div>
+    <textarea class="answer-area" data-key="tamara-4" placeholder="She has been in her own two months. What growth do you need to see from her — or is that expectation unfair given what you have or haven't done yourself?"></textarea>
+    <div class="q-footer"><span class="char-hint" id="hint-tamara-4"></span></div>
+  </div>
+
+  <div class="q-block" data-section="tamara">
+    <div class="q-header"><div class="q-text">What are you not willing to accept this time that you tolerated before? Draw the line clearly. Not as an ultimatum to deliver — as a clarity for yourself.</div><div class="q-meta"><span class="q-tag honest">Honest</span></div></div>
+    <textarea class="answer-area" data-key="tamara-5" placeholder="Your limits. The things that, if they recur, tell you something important about what this is."></textarea>
+    <div class="q-footer"><span class="char-hint" id="hint-tamara-5"></span></div>
+  </div>
+
+  <div class="q-block" data-section="tamara">
+    <div class="q-header"><div class="q-text">How do you plan to handle the phone time tension honestly — her need for connection and your need for capacity — without one of you silently resenting the other?</div><div class="q-meta"><span class="q-tag measurable">Measurable</span></div></div>
+    <textarea class="answer-area" data-key="tamara-6" placeholder="A real plan. Not 'we'll figure it out.' What does the structure actually look like?"></textarea>
+    <div class="q-footer"><span class="char-hint" id="hint-tamara-6"></span></div>
+  </div>
+
+  <div class="q-block" data-section="tamara">
+    <div class="q-header"><div class="q-text">What does Tamara need that you have historically been bad at providing — and what is your specific, actionable plan for each one?</div><div class="q-meta"><span class="q-tag measurable">Measurable</span></div></div>
+    <textarea class="answer-area" data-key="tamara-7" placeholder="Initiation. Conflict naming. Spiritual leadership. Planning. Appreciation. Take each one and write a real plan — not a promise."></textarea>
+    <div class="q-footer"><span class="char-hint" id="hint-tamara-7"></span></div>
+  </div>
+
+  <div class="q-block" data-section="tamara">
+    <div class="q-header"><div class="q-text">What conversation do you need to have with Tamara before or early in re-entering — things that need to be said clearly, debts acknowledged, expectations named? What are you going to say and how?</div><div class="q-meta"><span class="q-tag honest">Honest</span></div></div>
+    <textarea class="answer-area" data-key="tamara-8" placeholder="The conversations that can't be skipped. What they cover and how you intend to have them."></textarea>
+    <div class="q-footer"><span class="char-hint" id="hint-tamara-8"></span></div>
+  </div>
+</div>
+
+<!-- V. TOGETHER -->
+<div class="tab-panel" id="tab-together">
+  <div class="section-intro">
+    <div class="section-number">Section V</div>
+    <div class="section-title">Together</div>
+    <div class="section-preamble">How you build this — not the aspirational version, but the operational one. What the relationship looks like in practice, how the distance is bridged, how conflict is handled, how finances work, how the two of you function as a unit.</div>
+  </div>
+
+  <div class="q-block" data-section="together">
+    <div class="q-header"><div class="q-text">How do you intend to bridge the Lagos–Port Harcourt distance practically? Visits — frequency, who plans, who funds at what stage of the relationship. What is the actual plan?</div><div class="q-meta"><span class="q-tag measurable">Measurable</span></div></div>
+    <textarea class="answer-area" data-key="together-1" placeholder="Frequency. Funding. Who plans. What triggers a visit. What the cadence looks like at different financial stages."></textarea>
+    <div class="q-footer"><span class="char-hint" id="hint-together-1"></span></div>
+  </div>
+
+  <div class="q-block" data-section="together">
+    <div class="q-header"><div class="q-text">How will you handle conflict in this relationship? Specifically — what is the protocol when something is wrong, when you notice a shift, when she comes to you dysregulated? Not values. Steps.</div><div class="q-meta"><span class="q-tag measurable">Measurable</span></div></div>
+    <textarea class="answer-area" data-key="together-2" placeholder="What you do first. What you say. How you stay present. When you take space and how you communicate that you're doing it."></textarea>
+    <div class="q-footer"><span class="char-hint" id="hint-together-2"></span></div>
+  </div>
+
+  <div class="q-block" data-section="together">
+    <div class="q-header"><div class="q-text">How will finances work in this relationship — who pays for what, at what stage, under what expectations? Be specific about the current stage and the intended progression.</div><div class="q-meta"><span class="q-tag measurable">Measurable</span></div></div>
+    <textarea class="answer-area" data-key="together-3" placeholder="Not the ideal — the realistic current stage and the direction of travel."></textarea>
+    <div class="q-footer"><span class="char-hint" id="hint-together-3"></span></div>
+  </div>
+
+  <div class="q-block" data-section="together">
+    <div class="q-header"><div class="q-text">How will you protect your morning routine — the 4AM, the prayer block, the trading sessions, the building — while also being present and available to her? What is the actual structure?</div><div class="q-meta"><span class="q-tag measurable">Measurable</span></div></div>
+    <textarea class="answer-area" data-key="together-4" placeholder="She needs connection. You need solitude and structure. How do both exist without one eating the other?"></textarea>
+    <div class="q-footer"><span class="char-hint" id="hint-together-4"></span></div>
+  </div>
+
+  <div class="q-block" data-section="together">
+    <div class="q-header"><div class="q-text">How will you build a shared spiritual life — not alongside each other but together? What does that actually look like in a long-distance relationship and then in the same city?</div><div class="q-meta"><span class="q-tag faith">Faith</span></div></div>
+    <textarea class="answer-area" data-key="together-5" placeholder="Prayer together on calls. Shared reading. Attending church together when possible. The progression from individual faith practices to a shared one."></textarea>
+    <div class="q-footer"><span class="char-hint" id="hint-together-5"></span></div>
+  </div>
+
+  <div class="q-block" data-section="together">
+    <div class="q-header"><div class="q-text">What agreements or understandings need to be explicit between you two at the start of this — things that were implicit before and caused friction? What do you want to name clearly this time?</div><div class="q-meta"><span class="q-tag honest">Honest</span></div></div>
+    <textarea class="answer-area" data-key="together-6" placeholder="Communication rhythms. Expectation about visits. Transparency about finances. What needs to be said out loud this time."></textarea>
+    <div class="q-footer"><span class="char-hint" id="hint-together-6"></span></div>
+  </div>
+
+  <div class="q-block" data-section="together">
+    <div class="q-header"><div class="q-text">What does a good week look like between you two — specifically? Calls, messages, things sent, things planned. Not a maximum — a minimum that both of you could agree constitutes being present in each other's lives.</div><div class="q-meta"><span class="q-tag measurable">Measurable</span></div></div>
+    <textarea class="answer-area" data-key="together-7" placeholder="The floor, not the ceiling. What does 'showing up' actually look like in practical terms per week?"></textarea>
+    <div class="q-footer"><span class="char-hint" id="hint-together-7"></span></div>
+  </div>
+</div>
+
+<!-- VI. THE FUTURE -->
+<div class="tab-panel" id="tab-future">
+  <div class="section-intro">
+    <div class="section-number">Section VI</div>
+    <div class="section-title">The Future</div>
+    <div class="section-preamble">The architecture of the long horizon. Not wishes — decisions in formation. Where you are going, when, and what shapes the path. Timelines are not prisons — they are directions. They tell you whether you are moving or standing still.</div>
+  </div>
+
+  <div class="q-block" data-section="future">
+    <div class="q-header"><div class="q-text">When do you want to get married — and what needs to be true in your life before that is the right moment? Give a realistic range, not a wish.</div><div class="q-meta"><span class="q-tag measurable">Measurable</span></div></div>
+    <textarea class="answer-area" data-key="future-1" placeholder="The conditions: financial, relational, professional. What needs to be in place? And given those conditions, when is realistic?"></textarea>
+    <div class="q-footer"><span class="char-hint" id="hint-future-1"></span></div>
+  </div>
+
+  <div class="q-block" data-section="future">
+    <div class="q-header"><div class="q-text">Where will you live — and what dictates that decision? Her career, your career, family, dAnTE Inc., quality of life, cost of living. How does Port Harcourt vs Lagos vs elsewhere get resolved?</div><div class="q-meta"><span class="q-tag measurable">Measurable</span></div></div>
+    <textarea class="answer-area" data-key="future-2" placeholder="The factors in order of weight. Who moves? When? What triggers the move? What if her answer differs from yours?"></textarea>
+    <div class="q-footer"><span class="char-hint" id="hint-future-2"></span></div>
+  </div>
+
+  <div class="q-block" data-section="future">
+    <div class="q-header"><div class="q-text">In one year from now, what does the relationship look like concretely — same city, still long distance, engaged, frequency of visits, financial state, shared plans?</div><div class="q-meta"><span class="q-tag measurable">Measurable</span></div></div>
+    <textarea class="answer-area" data-key="future-3" placeholder="Year one. What is the target state — not the hope, the target you're building toward?"></textarea>
+    <div class="q-footer"><span class="char-hint" id="hint-future-3"></span></div>
+  </div>
+
+  <div class="q-block" data-section="future">
+    <div class="q-header"><div class="q-text">In three years — where are you, where is she, what are you building together, what has the relationship become?</div><div class="q-meta"><span class="q-tag measurable">Measurable</span></div></div>
+    <textarea class="answer-area" data-key="future-4" placeholder="Year three target. Married? Same city? What are the professional and financial conditions? What does the shared life look like?"></textarea>
+    <div class="q-footer"><span class="char-hint" id="hint-future-4"></span></div>
+  </div>
+
+  <div class="q-block" data-section="future">
+    <div class="q-header"><div class="q-text">In five years — what does the household look like? Children? Where? What is each of you building professionally and for dAnTE Inc.? What role does she play in or alongside the vision?</div><div class="q-meta"><span class="q-tag measurable">Measurable</span></div></div>
+    <textarea class="answer-area" data-key="future-5" placeholder="Year five. The shape of the shared life at a meaningful level of maturity."></textarea>
+    <div class="q-footer"><span class="char-hint" id="hint-future-5"></span></div>
+  </div>
+
+  <div class="q-block" data-section="future">
+    <div class="q-header"><div class="q-text">In ten years — what have you built together, what kind of household have you created, what does she know about herself and the world because she has been with you, and what do you know because you have been with her?</div><div class="q-meta"><span class="q-tag measurable">Measurable</span></div></div>
+    <textarea class="answer-area" data-key="future-6" placeholder="Year ten. The mutual shaping of two people. What has the relationship produced in each of you?"></textarea>
+    <div class="q-footer"><span class="char-hint" id="hint-future-6"></span></div>
+  </div>
+
+  <div class="q-block" data-section="future">
+    <div class="q-header"><div class="q-text">In twenty years — what does the legacy of this marriage look like? What have the two of you built together that would not have existed otherwise? What do your children or the people around you carry because of what you built?</div><div class="q-meta"><span class="q-tag measurable">Measurable</span></div></div>
+    <textarea class="answer-area" data-key="future-7" placeholder="The long horizon. The dAnTE Foundation, the hospitality group, the children, the faith, the creative legacy. What does two people fully committed to their own becoming and to each other produce at twenty years?"></textarea>
+    <div class="q-footer"><span class="char-hint" id="hint-future-7"></span></div>
+  </div>
+
+  <div class="q-block" data-section="future">
+    <div class="q-header"><div class="q-text">What role does Tamara play in dAnTE Inc. — as partner, as supporter, as independent builder alongside it? How does her creative career intersect with or run alongside the conglomerate vision?</div><div class="q-meta"><span class="q-tag measurable">Measurable</span></div></div>
+    <textarea class="answer-area" data-key="future-8" placeholder="She is a scriptwriter, a performance coach, a poet. She has her own creative enterprise. How does that coexist with what you're building? Do they intersect?"></textarea>
+    <div class="q-footer"><span class="char-hint" id="hint-future-8"></span></div>
+  </div>
+
+  <div class="q-block" data-section="future">
+    <div class="q-header"><div class="q-text">What needs to happen financially before you can support a shared household — and what is the timeline for getting there? Be specific about the numbers and the plan.</div><div class="q-meta"><span class="q-tag measurable">Measurable</span></div></div>
+    <textarea class="answer-area" data-key="future-9" placeholder="Not 'when I'm financially stable.' What does financially stable mean in numbers? When does the trading account reach that level? When does Dante Craft generate that revenue?"></textarea>
+    <div class="q-footer"><span class="char-hint" id="hint-future-9"></span></div>
+  </div>
+
+  <div class="q-block" data-section="future">
+    <div class="q-header"><div class="q-text">Children — do you want them, when, how many, and what kind of father do you intend to be? What needs to be true in the marriage before that is the right moment?</div><div class="q-meta"><span class="q-tag honest">Honest</span></div></div>
+    <textarea class="answer-area" data-key="future-10" placeholder="The real answer. Not the socially correct one."></textarea>
+    <div class="q-footer"><span class="char-hint" id="hint-future-10"></span></div>
+  </div>
+
+  <div class="q-block" data-section="future">
+    <div class="q-header"><div class="q-text">What would cause this relationship to not work even if you both gave it everything? What are the conditions under which it should end — clearly defined, not vague?</div><div class="q-meta"><span class="q-tag hard">Hard</span></div></div>
+    <textarea class="answer-area" data-key="future-11" placeholder="Not as a threat. As clarity. What are the things whose presence would make this the wrong relationship, regardless of love?"></textarea>
+    <div class="q-footer"><span class="char-hint" id="hint-future-11"></span></div>
+  </div>
+</div>
+
+<!-- VII. FAITH & FOUNDATION -->
+<div class="tab-panel" id="tab-faith">
+  <div class="section-intro">
+    <div class="section-number">Section VII</div>
+    <div class="section-title">Faith & Foundation</div>
+    <div class="section-preamble">Faith is not a department of your life — it is the ground beneath everything. This section asks what that means specifically in the context of this relationship. Not principles you affirm. Practices you embody.</div>
+  </div>
+
+  <div class="q-block" data-section="faith">
+    <div class="q-header"><div class="q-text">Have you prayed specifically about Tamara — not for her, but about whether this relationship is right? What has come from that? What has God said, shown, or been silent about?</div><div class="q-meta"><span class="q-tag faith">Faith</span></div></div>
+    <textarea class="answer-area" data-key="faith-1" placeholder="Not the answer you hope for. What has actually come from bringing this before God?"></textarea>
+    <div class="q-footer"><span class="char-hint" id="hint-faith-1"></span></div>
+  </div>
+
+  <div class="q-block" data-section="faith">
+    <div class="q-header"><div class="q-text">What does it mean to be the spiritual head of this relationship — practically, daily? What does it look like when you are doing it well and when you are failing at it?</div><div class="q-meta"><span class="q-tag faith">Faith</span></div></div>
+    <textarea class="answer-area" data-key="faith-2" placeholder="Not the theological definition. The lived expression in a relationship with this specific woman."></textarea>
+    <div class="q-footer"><span class="char-hint" id="hint-faith-2"></span></div>
+  </div>
+
+  <div class="q-block" data-section="faith">
+    <div class="q-header"><div class="q-text">Is Tamara a woman whose faith is compatible with the life you are building — not identical, but moving in the same direction? What do you know about her relationship with God and what does it tell you?</div><div class="q-meta"><span class="q-tag faith">Faith</span></div></div>
+    <textarea class="answer-area" data-key="faith-3" placeholder="What you know. What you don't know yet. What you need to find out."></textarea>
+    <div class="q-footer"><span class="char-hint" id="hint-faith-3"></span></div>
+  </div>
+
+  <div class="q-block" data-section="faith">
+    <div class="q-header"><div class="q-text">How will you build a shared prayer life — from where you are now, across distance, and then in the same household? What does that progression look like?</div><div class="q-meta"><span class="q-tag faith">Faith</span></div></div>
+    <textarea class="answer-area" data-key="faith-4" placeholder="The honest starting point and the intended destination. The steps between them."></textarea>
+    <div class="q-footer"><span class="char-hint" id="hint-faith-4"></span></div>
+  </div>
+
+  <div class="q-block" data-section="faith">
+    <div class="q-header"><div class="q-text">What does it mean to love Tamara the way God intends — not the romantic ideal, but the covenant commitment? What does that cost and are you willing to pay it?</div><div class="q-meta"><span class="q-tag faith">Faith</span></div></div>
+    <textarea class="answer-area" data-key="faith-5" placeholder="Agape, not eros. Sacrificial, not transactional. What does that look like with her specifically?"></textarea>
+    <div class="q-footer"><span class="char-hint" id="hint-faith-5"></span></div>
+  </div>
+
+  <div class="q-block" data-section="faith">
+    <div class="q-header"><div class="q-text">What role does faith play in how you would handle the hard moments — her BPD episodes, financial pressure, distance, disagreement? How does your belief actively shape your response rather than just your values?</div><div class="q-meta"><span class="q-tag faith">Faith</span></div></div>
+    <textarea class="answer-area" data-key="faith-6" placeholder="Faith as active practice in the relationship, not just a background value."></textarea>
+    <div class="q-footer"><span class="char-hint" id="hint-faith-6"></span></div>
+  </div>
+
+  <div class="q-block" data-section="faith">
+    <div class="q-header"><div class="q-text">What do you believe God thinks of this relationship — this specific one, with this specific woman, at this specific point in your life? Not what you hope He thinks. What discernment have you received or are you seeking?</div><div class="q-meta"><span class="q-tag faith">Faith</span></div></div>
+    <textarea class="answer-area" data-key="faith-7" placeholder="The question you may have been avoiding. Sit with it."></textarea>
+    <div class="q-footer"><span class="char-hint" id="hint-faith-7"></span></div>
+  </div>
+</div>
+
+<!-- VIII. YOU FIRST -->
+<div class="tab-panel" id="tab-self">
+  <div class="section-intro">
+    <div class="section-number">Section VIII</div>
+    <div class="section-title">You First</div>
+    <div class="section-preamble">Who you are independent of this relationship. What you are building for yourself, what your life looks like on its own terms, where you are going with or without anyone else in the picture. A man who needs a relationship to function is a different man from one who chooses a relationship from fullness. This section is about which man you are right now.</div>
+  </div>
+
+  <div class="q-block" data-section="self">
+    <div class="q-header"><div class="q-text">Where are you right now — honestly, completely? Financial position, emotional state, faith practice, trading discipline, professional clarity, physical health. The full picture, as of today.</div><div class="q-meta"><span class="q-tag honest">Honest</span></div></div>
+    <textarea class="answer-area" data-key="self-1" placeholder="The real inventory. Not the aspirational one. Where you actually are today."></textarea>
+    <div class="q-footer"><span class="char-hint" id="hint-self-1"></span></div>
+  </div>
+
+  <div class="q-block" data-section="self">
+    <div class="q-header"><div class="q-text">What are your non-negotiable personal goals for the next twelve months — independent of any relationship? What must happen for you to consider the year a success on your own terms?</div><div class="q-meta"><span class="q-tag measurable">Measurable</span></div></div>
+    <textarea class="answer-area" data-key="self-2" placeholder="Trading targets. dAnTE milestones. MSc decision. Physical transformation. Faith depth. Be specific."></textarea>
+    <div class="q-footer"><span class="char-hint" id="hint-self-2"></span></div>
+  </div>
+
+  <div class="q-block" data-section="self">
+    <div class="q-header"><div class="q-text">Where do you want to be in three years — professionally, financially, physically, spiritually — entirely on your own terms? What is the version of Paul at 30-something that you are building toward?</div><div class="q-meta"><span class="q-tag measurable">Measurable</span></div></div>
+    <textarea class="answer-area" data-key="self-3" placeholder="The man at year three. Specific enough to measure against."></textarea>
+    <div class="q-footer"><span class="char-hint" id="hint-self-3"></span></div>
+  </div>
+
+  <div class="q-block" data-section="self">
+    <div class="q-header"><div class="q-text">What does dAnTE Inc. look like in five years — specifically? Which entities are operational, what revenue, what team, what impact? This is the life's work. Name it concretely.</div><div class="q-meta"><span class="q-tag measurable">Measurable</span></div></div>
+    <textarea class="answer-area" data-key="self-4" placeholder="Dante Craft, dAnTE Energy, dAnTE Environment, dAnTE Hospitality, dAnTE Foundation. Year five state for each."></textarea>
+    <div class="q-footer"><span class="char-hint" id="hint-self-4"></span></div>
+  </div>
+
+  <div class="q-block" data-section="self">
+    <div class="q-header"><div class="q-text">What kind of man do you want to be at fifty? Not what you want to have — who you want to be. What does the character, the faith, the presence of Paul Bassey at fifty look like?</div><div class="q-meta"><span class="q-tag honest">Honest</span></div></div>
+    <textarea class="answer-area" data-key="self-5" placeholder="The long formation. The man the boy is becoming. What is the target character?"></textarea>
+    <div class="q-footer"><span class="char-hint" id="hint-self-5"></span></div>
+  </div>
+
+  <div class="q-block" data-section="self">
+    <div class="q-header"><div class="q-text">What is the dAnTE Foundation — specifically? What does the educational institution look like, who does it serve, where does it operate, what does it produce in the young people who pass through it? This is the legacy. Name it.</div><div class="q-meta"><span class="q-tag measurable">Measurable</span></div></div>
+    <textarea class="answer-area" data-key="self-6" placeholder="Not 'an educational institution for underprivileged youth.' What specifically — curriculum, location, model, intended outcome. What are you building?"></textarea>
+    <div class="q-footer"><span class="char-hint" id="hint-self-6"></span></div>
+  </div>
+
+  <div class="q-block" data-section="self">
+    <div class="q-header"><div class="q-text">What does financial independence look like for you — specifically, in numbers? What is the trading account size, the Dante Craft revenue, the passive income that tells you the constraint is gone?</div><div class="q-meta"><span class="q-tag measurable">Measurable</span></div></div>
+    <textarea class="answer-area" data-key="self-7" placeholder="The number. The state. The point at which freedom from financial constraint is genuinely achieved."></textarea>
+    <div class="q-footer"><span class="char-hint" id="hint-self-7"></span></div>
+  </div>
+
+  <div class="q-block" data-section="self">
+    <div class="q-header"><div class="q-text">What are the things you are afraid of — for yourself, about your own life, independent of any relationship? Name the fears that live in the quiet.</div><div class="q-meta"><span class="q-tag hard">Hard</span></div></div>
+    <textarea class="answer-area" data-key="self-8" placeholder="Not the fears about her or the relationship. The ones about you. The ones that sit in the 4AM sometimes."></textarea>
+    <div class="q-footer"><span class="char-hint" id="hint-self-8"></span></div>
+  </div>
+
+  <div class="q-block" data-section="self">
+    <div class="q-header"><div class="q-text">What do you need to become before you would feel you have no excuse left — before you could stand before God and say: I gave this life everything it deserved?</div><div class="q-meta"><span class="q-tag faith">Faith</span></div></div>
+    <textarea class="answer-area" data-key="self-9" placeholder="The deepest question in the document. Take time with it."></textarea>
+    <div class="q-footer"><span class="char-hint" id="hint-self-9"></span></div>
+  </div>
+</div>
+
+</main>
+
+<div class="save-bar">
+  <span class="save-bar-left" id="unsaved-indicator">All changes saved</span>
+  <div class="save-bar-right">
+    <span class="saved-msg" id="save-confirm">Saved.</span>
+    <button class="save-btn" onclick="saveAll()">Save Everything</button>
+  </div>
+</div>
+
+<script>
+// ── CONFIG ──
+const SECTIONS = {
+  intent:   { label:'I',   count:8 },
+  audit:    { label:'II',  count:9 },
+  growth:   { label:'III', count:7 },
+  tamara:   { label:'IV',  count:8 },
+  together: { label:'V',   count:7 },
+  future:   { label:'VI',  count:11 },
+  faith:    { label:'VII', count:7 },
+  self:     { label:'VIII',count:9 }
+};
+
+let unsaved = false;
+
+// ── THEME ──
+function toggleTheme(){
+  const html=document.documentElement;
+  const dark=html.getAttribute('data-theme')==='dark';
+  html.setAttribute('data-theme',dark?'light':'dark');
+  document.getElementById('theme-icon').textContent=dark?'☾':'☀';
+  localStorage.setItem('clarity-theme',dark?'light':'dark');
+}
+
+// ── TABS ──
+function switchTab(name,btn){
+  document.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+  document.getElementById('tab-'+name).classList.add('active');
+  btn.classList.add('active');
+  window.scrollTo(0,0);
+}
+function switchTabByName(name){
+  const btn=document.getElementById('tab-btn-'+name);
+  if(btn)switchTab(name,btn);
+}
+
+// ── SAVE ──
+function saveAll(){
+  const data=JSON.parse(localStorage.getItem('clarity-answers')||'{}');
+  document.querySelectorAll('.answer-area').forEach(ta=>{
+    data[ta.dataset.key]=ta.value;
+  });
+  data['_saved']=new Date().toISOString();
+  if(!data['_started'])data['_started']=new Date().toISOString();
+  localStorage.setItem('clarity-answers',JSON.stringify(data));
+  unsaved=false;
+  document.getElementById('unsaved-indicator').textContent='All changes saved';
+  const msg=document.getElementById('save-confirm');
+  msg.style.opacity='1';setTimeout(()=>msg.style.opacity='0',2000);
+  updateProgress();
+  updateOverview();
+}
+
+function markUnsaved(){
+  if(!unsaved){
+    unsaved=true;
+    document.getElementById('unsaved-indicator').textContent='Unsaved changes';
+  }
+}
+
+// ── PROGRESS ──
+function updateProgress(){
+  const data=JSON.parse(localStorage.getItem('clarity-answers')||'{}');
+  let total=0,answered=0;
+  Object.keys(SECTIONS).forEach(sec=>{
+    const n=SECTIONS[sec].count;
+    total+=n;
+    let secAnswered=0;
+    for(let i=1;i<=n;i++){
+      const v=data[sec+'-'+i]||'';
+      if(v.trim().length>10){answered++;secAnswered++;}
+    }
+    const pct=n>0?Math.round(secAnswered/n*100):0;
+    const countEl=document.getElementById('sc-'+sec);
+    const fillEl=document.getElementById('sp-'+sec);
+    if(countEl)countEl.textContent=secAnswered+'/'+n+' answered';
+    if(fillEl)fillEl.style.width=pct+'%';
+    // tab colour
+    const tabBtn=document.getElementById('tab-btn-'+sec);
+    if(tabBtn&&secAnswered>0)tabBtn.classList.add('has-answers');
+  });
+  const pct=total>0?Math.round(answered/total*100):0;
+  document.getElementById('progress-bar').style.width=pct+'%';
+  document.getElementById('progress-label').textContent=answered+' of '+total+' answered';
+  document.getElementById('ov-total').textContent=total;
+  document.getElementById('ov-answered').textContent=answered;
+  document.getElementById('ov-pct').textContent=pct+'% complete';
+}
+
+function updateOverview(){
+  const data=JSON.parse(localStorage.getItem('clarity-answers')||'{}');
+  if(data['_saved']){
+    const d=new Date(data['_saved']);
+    document.getElementById('ov-saved').textContent=d.toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'});
+  }
+  if(data['_started']){
+    const d=new Date(data['_started']);
+    document.getElementById('ov-started').textContent=d.toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'});
+  }
+}
+
+// ── CHAR HINTS ──
+function updateHint(ta){
+  const len=ta.value.length;
+  const key=ta.dataset.key;
+  const hint=document.getElementById('hint-'+key);
+  if(hint&&len>0)hint.textContent=len+' chars';
+  if(ta.value.trim().length>10)ta.classList.add('has-content');
+  else ta.classList.remove('has-content');
+}
+
+// ── AUTOSAVE ──
+let autosaveTimer=null;
+function scheduleAutosave(){
+  markUnsaved();
+  if(autosaveTimer)clearTimeout(autosaveTimer);
+  autosaveTimer=setTimeout(saveAll,8000);
+}
+
+// ── INIT ──
+function init(){
+  const theme=localStorage.getItem('clarity-theme')||'dark';
+  document.documentElement.setAttribute('data-theme',theme);
+  document.getElementById('theme-icon').textContent=theme==='dark'?'☀':'☾';
+
+  const data=JSON.parse(localStorage.getItem('clarity-answers')||'{}');
+  document.querySelectorAll('.answer-area').forEach(ta=>{
+    const val=data[ta.dataset.key]||'';
+    ta.value=val;
+    updateHint(ta);
+    ta.addEventListener('input',()=>{updateHint(ta);scheduleAutosave();});
+  });
+
+  updateProgress();
+  updateOverview();
+
+  // keyboard save
+  document.addEventListener('keydown',e=>{
+    if((e.metaKey||e.ctrlKey)&&e.key==='s'){e.preventDefault();saveAll();}
+  });
+
+  // warn on leave if unsaved
+  window.addEventListener('beforeunload',e=>{
+    if(unsaved){e.preventDefault();e.returnValue='';}
+  });
+}
+
+init();
+</script>
+</body>
+</html>

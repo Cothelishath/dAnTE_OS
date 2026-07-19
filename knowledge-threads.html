@@ -1,0 +1,701 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@300;400&display=swap" rel="stylesheet">
+<title>Knowledge Threads — dAnTE</title>
+<style>
+:root{
+  --bg:#080808;--bg2:#0f0f0f;--bg3:#161616;--bg4:#1e1e1e;
+  --border:#1e1e1e;--border2:#2a2a2a;--border3:#363636;
+  --gold:#c9a84c;--gold-dim:#7a5f28;--gold-glow:rgba(201,168,76,0.08);
+  --text:#ddd8ce;--text-dim:#777;--text-muted:#404040;
+  --green:#4caf7d;--green-bg:rgba(76,175,125,0.1);
+  --red:#c0392b;--blue:#4a8cc9;--purple:#8b6bff;--orange:#ffa050;
+  --radius:5px;
+}
+.light{
+  --bg:#f2ede6;--bg2:#eae4dc;--bg3:#e0d9d0;--bg4:#d6cfc5;
+  --border:#d8d1c8;--border2:#c8c1b7;--border3:#b8b0a5;
+  --gold:#8a6020;--gold-dim:#b8902a;--gold-glow:rgba(138,96,32,0.07);
+  --text:#1a1714;--text-dim:#666;--text-muted:#aaa;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;-webkit-tap-highlight-color:transparent}
+body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;font-size:13px;line-height:1.5;display:flex;flex-direction:column;min-height:100vh}
+::-webkit-scrollbar{width:3px}::-webkit-scrollbar-thumb{background:var(--border3);border-radius:2px}
+
+header{flex-shrink:0;background:var(--bg);border-bottom:1px solid var(--border);padding:12px 16px;display:flex;align-items:center;gap:10px;position:sticky;top:0;z-index:50}
+.logo{display:flex;flex-direction:column;gap:0;margin-right:auto}
+.logo-brand{font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:.22em;color:var(--gold);text-transform:uppercase}
+.logo-title{font-family:'Cormorant Garamond',serif;font-size:20px;font-weight:300;color:var(--text);letter-spacing:.04em;line-height:1.1}
+.logo-title em{color:var(--gold);font-style:italic}
+.hbtn{background:none;border:1px solid var(--border2);border-radius:var(--radius);color:var(--text-dim);font-family:'Inter',sans-serif;font-size:11px;padding:6px 11px;cursor:pointer;transition:all .18s;white-space:nowrap}
+.hbtn:hover{border-color:var(--gold);color:var(--gold)}
+.hbtn-gold{border-color:var(--gold);color:var(--gold)}
+.hbtn-gold:hover{background:var(--gold-glow)}
+
+/* TRACK SELECTOR */
+.track-bar{flex-shrink:0;display:flex;gap:0;background:var(--bg2);border-bottom:1px solid var(--border);padding:0 16px;overflow-x:auto}
+.track-tab{padding:10px 14px;font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--text-muted);cursor:pointer;border-bottom:2px solid transparent;transition:all .18s;white-space:nowrap;flex-shrink:0;display:flex;align-items:center;gap:6px}
+.track-tab:hover{color:var(--text-dim)}
+.track-tab.active{border-bottom-color:var(--gold);color:var(--gold)}
+.track-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0}
+
+/* PROGRESS */
+.prog-bar-wrap{flex-shrink:0;padding:0 16px 12px;background:var(--bg);border-bottom:1px solid var(--border)}
+.prog-meta{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:6px;padding-top:10px}
+.prog-label{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--text-muted);letter-spacing:.1em;text-transform:uppercase}
+.prog-count{font-family:'Cormorant Garamond',serif;font-size:18px}
+.prog-track{height:3px;background:var(--border2);border-radius:2px;overflow:hidden}
+.prog-fill{height:100%;border-radius:2px;transition:width .4s ease}
+
+main{flex:1;padding:20px 16px 80px;max-width:720px;width:100%;margin:0 auto}
+
+/* TRACK INTRO */
+.track-intro{background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:16px 18px;margin-bottom:24px}
+.track-intro-title{font-family:'Cormorant Garamond',serif;font-size:22px;font-weight:300;color:var(--text);margin-bottom:6px;letter-spacing:.04em}
+.track-intro-body{font-size:12px;color:var(--text-dim);line-height:1.8;font-style:italic}
+
+/* PHASE */
+.phase{margin-bottom:28px}
+.phase-header{display:flex;align-items:center;gap:12px;margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid var(--border)}
+.phase-num{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--gold);letter-spacing:.15em;background:var(--gold-glow);border:1px solid var(--gold-dim);border-radius:3px;padding:3px 8px;flex-shrink:0}
+.phase-title{font-family:'Cormorant Garamond',serif;font-size:18px;font-weight:300;color:var(--text);letter-spacing:.04em}
+.phase-prog{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--text-muted);margin-left:auto;flex-shrink:0}
+.phase-prog span{color:var(--gold)}
+
+/* TOPIC */
+.topic{background:var(--bg2);border:1px solid var(--border);border-radius:8px;margin-bottom:8px;overflow:hidden;transition:border-color .18s}
+.topic:hover{border-color:var(--border2)}
+.topic.done{opacity:.6}
+.topic.done .topic-title{text-decoration:line-through;color:var(--text-dim)}
+.topic-header{display:flex;align-items:flex-start;gap:10px;padding:12px 14px;cursor:pointer}
+.topic-check{width:20px;height:20px;border:1px solid var(--border3);border-radius:4px;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:11px;color:transparent;transition:all .15s;margin-top:1px;cursor:pointer}
+.topic.done .topic-check{background:var(--gold-dim);border-color:var(--gold-dim);color:var(--gold)}
+.topic.done .topic-check::after{content:'✓'}
+.topic-main{flex:1;min-width:0}
+.topic-num{font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--text-muted);letter-spacing:.1em;margin-bottom:2px}
+.topic-title{font-size:13px;color:var(--text);font-weight:500;line-height:1.4;margin-bottom:3px}
+.topic-why{font-size:11px;color:var(--text-muted);font-style:italic;line-height:1.5}
+.topic-expand-btn{background:none;border:none;color:var(--text-muted);cursor:pointer;font-size:11px;padding:4px 6px;transition:all .15s;flex-shrink:0;margin-top:1px}
+.topic-expand-btn:hover,.topic.expanded .topic-expand-btn{color:var(--gold)}
+.topic-detail{display:none;padding:0 14px 14px 44px;border-top:1px solid var(--border)}
+.topic.expanded .topic-detail{display:block}
+.detail-section{margin-top:12px}
+.detail-label{font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--text-muted);letter-spacing:.15em;text-transform:uppercase;margin-bottom:6px}
+.detail-text{font-size:12px;color:var(--text-dim);line-height:1.7}
+.outcome-list{list-style:none;display:flex;flex-direction:column;gap:4px}
+.outcome-list li{font-size:12px;color:var(--text-dim);line-height:1.5;padding-left:14px;position:relative}
+.outcome-list li::before{content:'◆';position:absolute;left:0;color:var(--gold);font-size:8px;top:3px}
+.done-output{margin-top:12px;background:var(--bg4);border:1px solid var(--border2);border-radius:5px;padding:10px 12px}
+.done-output-label{font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--gold);letter-spacing:.12em;text-transform:uppercase;margin-bottom:5px}
+.done-output-text{font-size:11px;color:var(--text-dim);line-height:1.6;font-style:italic}
+.resource-list{display:flex;flex-direction:column;gap:5px}
+.resource-item{display:flex;align-items:flex-start;gap:8px;padding:6px 9px;background:var(--bg3);border-radius:4px;border:1px solid var(--border)}
+.resource-type{font-family:'JetBrains Mono',monospace;font-size:9px;padding:2px 6px;border-radius:3px;flex-shrink:0;letter-spacing:.06em;margin-top:1px}
+.rt-video{background:rgba(192,57,43,.15);color:var(--red)}
+.rt-book{background:rgba(74,140,201,.15);color:var(--blue)}
+.rt-practice{background:var(--green-bg);color:var(--green)}
+.rt-article{background:rgba(139,107,255,.12);color:var(--purple)}
+.rt-podcast{background:rgba(255,160,80,.12);color:var(--orange)}
+.resource-text{font-size:11px;color:var(--text-dim);line-height:1.5}
+.topic-notes-input{width:100%;background:var(--bg3);border:1px solid var(--border2);border-radius:var(--radius);color:var(--text);font-family:'Inter',sans-serif;font-size:11px;padding:8px 10px;outline:none;resize:vertical;min-height:56px;line-height:1.5;margin-top:12px}
+.topic-notes-input:focus{border-color:var(--gold-dim)}
+.topic-notes-input::placeholder{color:var(--text-muted)}
+.next-up-banner{background:var(--gold-glow);border:1px solid var(--gold-dim);border-radius:8px;padding:12px 16px;margin-bottom:20px;display:flex;align-items:center;gap:12px;cursor:pointer}
+.next-up-label{font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--gold);letter-spacing:.15em;text-transform:uppercase;margin-bottom:3px}
+.next-up-title{font-size:13px;color:var(--text);font-weight:500}
+
+.toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%) translateY(6px);background:var(--bg3);border:1px solid var(--gold-dim);color:var(--gold);font-family:'JetBrains Mono',monospace;font-size:11px;padding:9px 18px;border-radius:20px;z-index:400;opacity:0;transition:all .25s;pointer-events:none;white-space:nowrap}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">
+    <div class="logo-brand">dAnTE</div>
+    <div class="logo-title">Knowledge <em>Threads</em></div>
+  </div>
+  <button class="hbtn" onclick="toggleTheme()">☀︎</button>
+  <button class="hbtn" onclick="exportData()">⬇</button>
+  <button class="hbtn" onclick="importData()">⬆</button>
+  <button class="hbtn hbtn-gold" onclick="saveData()">Save</button>
+</header>
+
+<div class="track-bar" id="trackBar"></div>
+
+<div class="prog-bar-wrap">
+  <div class="prog-meta">
+    <div class="prog-label" id="progLabel">Progress</div>
+    <div class="prog-count" id="progCount">0 / 0</div>
+  </div>
+  <div class="prog-track"><div class="prog-fill" id="progFill" style="width:0%"></div></div>
+</div>
+
+<main id="mainContent"></main>
+
+<div class="toast" id="toast"></div>
+<input type="file" id="importFile" accept=".json" style="display:none" onchange="handleImport(event)">
+
+<script>
+function uid(){return Date.now().toString(36)+Math.random().toString(36).slice(2,6)}
+
+const TRACKS=[
+{
+  id:'personal', label:'Personal Dev', color:'#4caf7d',
+  title:'Personal Development',
+  intro:'This thread moves from self-knowledge to self-mastery. You cannot build anything lasting externally that you have not first built internally. Start with who you are, then move to how you operate, then to how you grow.',
+  phases:[
+    {
+      id:'pd1', phase:'Phase I', title:'Self-Knowledge',
+      topics:[
+        {id:'pd_1',num:'1.1',title:'Values clarification — what you actually live by',
+         why:'Every decision you make is an expression of a value. The question is whether those values are chosen or inherited. Until you name them they run you without your consent.',
+         what:'Values are not aspirations. They are the principles that already govern your behaviour — revealed by your decisions under pressure, not by what you say you believe when things are comfortable. The exercise is to look at the last 90 days of your life — how you spent time, money, attention, and energy — and identify what those patterns reveal about what you actually value. Then ask whether those values are ones you would consciously choose.',
+         outcomes:['List your top 7 values with a one-sentence definition of each','Identify one value you live by that you did not consciously choose','State one tension between two values you hold simultaneously'],
+         done:'You have a written values list derived from observation of your own behaviour — not from aspiration — and you can explain the difference between what you say you value and what you demonstrably value.',
+         resources:[{type:'book',text:'The Values Factor — John Demartini. The methodology for identifying real values.'},{type:'practice',text:'Audit the last 90 days: time, money, attention. What did you actually prioritise? That is your value system.'}]},
+        {id:'pd_2',num:'1.2',title:'Strengths and natural wiring — what you are built for',
+         why:'You cannot optimise what you cannot measure. Knowing your natural strengths tells you where to invest effort and where to stop fighting your own nature.',
+         what:'Strengths are not just things you are good at — they are things you are good at that also energise you when you do them. Something can be a skill without being a strength. The distinction matters because skills that drain you are not sustainable. Your natural wiring — the way you process information, make decisions, and engage with the world — is not a defect or an asset until you understand it.',
+         outcomes:['Complete StrengthsFinder or a comparable assessment','Name your top 3 genuine strengths — good at AND energising','Identify one area you have been developing that fights your natural wiring'],
+         done:'You can describe your natural wiring in one paragraph that someone who knows you well would immediately recognise as accurate.',
+         resources:[{type:'book',text:'StrengthsFinder 2.0 — Tom Rath. Includes access code for the assessment.'},{type:'book',text:'Now, Discover Your Strengths — Marcus Buckingham'}]},
+        {id:'pd_3',num:'1.3',title:'Shadow and blind spots — what you do not see about yourself',
+         why:'The parts of yourself you are unaware of run your decisions and your relationships more than the parts you are aware of. This is not comfortable work but it is necessary.',
+         what:'A blind spot is a pattern in your behaviour that others can see but you cannot — until it is named. Common blind spots: how you come across when under stress, how your communication style lands on others, the assumptions you make that you treat as facts, the defence mechanisms you use that you call something else. The work here is not self-criticism — it is honest inventory. You cannot correct what you cannot see.',
+         outcomes:['Ask two people who know you well: what is one thing I do that I seem unaware of?','Identify one recurring conflict pattern in your life and trace it to a blind spot','Write one paragraph on how you behave when under pressure — sourced from observation, not ideal self-image'],
+         done:'You have at least one blind spot named, sourced from external feedback, and you have written what it costs you.',
+         resources:[{type:'book',text:'Insight — Tasha Eurich. The research on self-awareness and why most people overestimate theirs.'},{type:'practice',text:'Ask for honest feedback from two people. Write what you hear without defending it.'}]},
+        {id:'pd_4',num:'1.4',title:'Identity — who you are beyond your roles and achievements',
+         why:'If your identity is entirely tied to what you do or what you achieve, a season of failure or transition will destabilise you completely. Grounded identity is the foundation of resilience.',
+         what:'Roles are things you do — engineer, director, partner. Identity is who you are when the roles are stripped away. The work is to distinguish between the two and to build a stable sense of self that can hold through seasons of change. For a man of faith, this connects directly to the theological understanding of who you are as a son — which is prior to and more fundamental than any role you play.',
+         outcomes:['Write a one-page identity statement that is not a list of roles or achievements','State the source of your sense of worth — where does it come from when things go badly?','Identify one place where your identity is currently over-invested in an outcome or role'],
+         done:'You can describe who you are in a way that would still be true if you lost every title, relationship, and achievement you currently hold.',
+         resources:[{type:'book',text:'The Return of the Prodigal Son — Henri Nouwen. On identity as beloved.'},{type:'book',text:'Man\'s Search for Meaning — Viktor Frankl. On identity that holds through extreme circumstance.'}]},
+      ]
+    },
+    {
+      id:'pd2', phase:'Phase II', title:'Self-Mastery',
+      topics:[
+        {id:'pd_5',num:'2.1',title:'Habits — how they form and how to direct them',
+         why:'Your life is largely the sum of your habits. Understanding the mechanism gives you the ability to change outcomes without relying on willpower.',
+         what:'A habit has three components: cue, routine, reward. The cue triggers the behaviour automatically. The routine is the behaviour itself. The reward is what the brain is actually seeking. Changing a habit means keeping the cue and the reward but replacing the routine. Building a new habit means attaching it to an existing cue. The environment is more powerful than intention — design your environment before relying on discipline.',
+         outcomes:['Map one current habit to its cue, routine, and reward','Apply the habit loop to install one new behaviour','Identify one environmental change that makes a desired habit easier'],
+         done:'You have one new habit that has run for 30 consecutive days, and you can explain exactly which cue triggers it.',
+         resources:[{type:'book',text:'Atomic Habits — James Clear. The most practical book on habit architecture.'},{type:'book',text:'The Power of Habit — Charles Duhigg. For understanding the science behind the loop.'}]},
+        {id:'pd_6',num:'2.2',title:'Energy management — the real resource',
+         why:'Time is fixed. Energy is renewable and manageable. The person who manages energy produces more in four focused hours than someone managing only time produces in ten depleted ones.',
+         what:'Energy has four dimensions: physical (sleep, movement, nutrition), emotional (relationships, unprocessed feelings, psychological safety), mental (focus, cognitive load, decision fatigue), and spiritual (meaning, purpose, alignment). Each can be renewed and each can be depleted. The insight is that managing all four is what produces sustainable high output — not simply working more hours.',
+         outcomes:['Identify your peak energy window in the day and protect it for output work','Identify your primary energy drain that is within your control to change','Build one recovery practice for each dimension — physical, emotional, mental, spiritual'],
+         done:'You have a written energy management plan — when you work, when you recover, and what specifically renews each dimension for you.',
+         resources:[{type:'book',text:'The Power of Full Engagement — Jim Loehr and Tony Schwartz. The framework for energy as the primary resource.'},{type:'book',text:'Why We Sleep — Matthew Walker. On sleep as the foundation of all other energy.'}]},
+        {id:'pd_7',num:'2.3',title:'Decision-making — how to choose well under uncertainty',
+         why:'Most of the quality of your life comes from the quality of your decisions. Improving your decision-making process improves everything downstream.',
+         what:'Good decisions are not always correct outcomes — uncertainty is irreducible. Good decisions are correct processes: gathering relevant information, identifying the real question being asked, recognising your biases, considering second-order consequences, and deciding with appropriate speed. The most common decision failures: deciding too quickly on low-information, deciding too slowly on sufficient information, and optimising for how the decision looks rather than what it produces.',
+         outcomes:['Name your primary decision-making failure pattern','Apply a second-order thinking test to your next significant decision','State the difference between a good decision and a lucky outcome'],
+         done:'You can describe your decision-making process for a recent significant decision and identify one specific error in that process.',
+         resources:[{type:'book',text:'Thinking, Fast and Slow — Daniel Kahneman. The definitive work on how decisions actually get made.'},{type:'book',text:'Decisive — Chip and Dan Heath. Practical framework for better decisions.'}]},
+        {id:'pd_8',num:'2.4',title:'Focus and deep work — how to produce at your highest level',
+         why:'Shallow work is infinitely replicable. Deep work is rare, valuable, and increasingly difficult to do in a distracted world. Learning to do it is a competitive advantage.',
+         what:'Deep work is the ability to focus without distraction on a cognitively demanding task. It produces the output that matters — the design, the analysis, the writing, the strategic thinking. It requires protected time, a trained attention span, and a clear single task. Most people never do it because the conditions for it require deliberate architecture. Shallow work fills the space when deep work is not protected.',
+         outcomes:['Define your deep work task for the next week','Create one structural condition that protects a deep work block','Track focus duration across 5 sessions — how long before the first distraction?'],
+         done:'You can sustain 90 minutes of uninterrupted focus on a single demanding task, and you have the environmental conditions that make this possible.',
+         resources:[{type:'book',text:'Deep Work — Cal Newport. The case for and methodology of focused work.'},{type:'book',text:'Flow — Mihaly Csikszentmihalyi. On the psychology of optimal experience and total absorption.'}]},
+        {id:'pd_9',num:'2.5',title:'Rest, recovery, and the middle gear',
+         why:'You identified that you have two modes: full output and binge avoidance. The middle gear — genuine rest that restores — is what makes sustained output possible without burnout.',
+         what:'Genuine rest is not the absence of work. It is activity that actively restores capacity. For different people this looks completely different — for some it is physical movement, for others creative activity, for others solitude or social connection. The work of this topic is not to rest more — it is to identify what actually restores you and to build it in deliberately. Rest that is not planned does not happen or happens as avoidance.',
+         outcomes:['Identify two activities that genuinely restore you — tested, not assumed','Schedule one deliberate rest block per week and protect it','Describe the difference between what restoration feels like and what avoidance feels like — your own phenomenology'],
+         done:'You can write one paragraph on what rest actually means for you, sourced from experience not theory, and you have a weekly rest block that runs consistently.',
+         resources:[{type:'book',text:'Rest — Alex Soojung-Kim Pang. On deliberate rest as a productive practice.'},{type:'book',text:'Digital Minimalism — Cal Newport. On reclaiming attention from avoidance behaviours.'}]},
+      ]
+    },
+    {
+      id:'pd3', phase:'Phase III', title:'Self-Direction',
+      topics:[
+        {id:'pd_10',num:'3.1',title:'Vision — the long arc',
+         why:'Without a clear vision you make decisions based on what is immediately available rather than what is ultimately meaningful. Vision is the frame that makes present choices legible.',
+         what:'A vision is not a goal — it is a picture of who you are becoming and what your life looks like when it is fully expressed. It is specific enough to generate decisions but not so rigid that it cannot accommodate growth. The ten-year image you described — orchestrating from a home office, chart ambient in the background, drawings on the table, making things move — is a vision. The work is to elaborate it, inhabit it, and let it govern what you say yes and no to.',
+         outcomes:['Write a one-page vision — the day, the work, the relationships, the home, the inner state','Identify one current commitment that is misaligned with the vision','State one thing the vision requires you to start and one thing it requires you to stop'],
+         done:'You have a written vision specific enough that someone else could read it and know what choices you would make in service of it.',
+         resources:[{type:'book',text:'The 7 Habits of Highly Effective People — Stephen Covey. Begin with the end in mind.'},{type:'practice',text:'Write the vision. The dAnTE tools already have space for this. Fill it.'}]},
+        {id:'pd_11',num:'3.2',title:'Goal architecture — translating vision into action',
+         why:'Vision without structure is fantasy. Structure without vision is busyness. Goal architecture is the bridge.',
+         what:'Goals are milestones on the path to the vision. They need three things to be effective: they must be specific enough that done is unambiguous, they must have a timeframe, and they must be connected upward to a value or vision rather than floating free. The common error is setting goals based on what seems achievable rather than what the vision requires. Both are necessary — stretch goals and realistic execution plans — but they operate at different layers.',
+         outcomes:['Set one 90-day goal that is directly traceable to your 10-year vision','Break it into monthly milestones and weekly actions','Review progress weekly and adjust — not the goal, the plan'],
+         done:'You have one active 90-day goal with a written execution plan, weekly check-in time scheduled, and a clear done definition.',
+         resources:[{type:'book',text:'The 12 Week Year — Brian Moran. On compressing annual goals into 12-week execution cycles.'}]},
+        {id:'pd_12',num:'3.3',title:'Learning how to learn — the meta-skill',
+         why:'Every skill you want to acquire runs through the same bottleneck: how effectively you learn. Improving the process improves the output of every other track in this curriculum.',
+         what:'Learning has distinct stages: acquisition (exposure to new information), encoding (processing it into understanding), retention (making it stick), and application (using it in the real world). Most people spend almost all their study time in acquisition and almost none in encoding and application — which is why they consume a lot and retain little. The most effective learners use retrieval practice, spaced repetition, and deliberate application. They also work from confusion toward clarity rather than avoiding confusion.',
+         outcomes:['Describe your current learning process and identify its weakest stage','Apply retrieval practice to the last thing you studied — close the notes and write what you know','Design a spaced repetition schedule for one topic currently in progress'],
+         done:'You can describe a learning process that covers acquisition, encoding, retention, and application — and you are using it on at least one active topic.',
+         resources:[{type:'book',text:'Make It Stick — Peter Brown. The science of successful learning.'},{type:'book',text:'Ultralearning — Scott Young. On rapid skill acquisition through intense, structured self-study.'}]},
+      ]
+    },
+  ]
+},
+{
+  id:'finance', label:'Finance', color:'#c9a84c',
+  title:'Financial Literacy',
+  intro:'This thread moves from understanding money to managing it to growing it. The sequence matters — managing comes before growing, and both require understanding first. Do not skip phases.',
+  phases:[
+    {
+      id:'fl1', phase:'Phase I', title:'Understanding Money',
+      topics:[
+        {id:'fl_1',num:'1.1',title:'What money is and what it is for',
+         why:'Most financial problems are symptoms of an unexamined relationship with money. The relationship must be examined before the mechanics make sense.',
+         what:'Money is a tool for storing and transferring value. It is not security, identity, or love — though it gets used for all three. Your relationship with money was largely formed by age 12 from what you observed, experienced, and were told. Most people operate from that early programming without examining it. The first work is to understand your current beliefs about money — what it means to you, what you fear about it, what you hope it will solve.',
+         outcomes:['Write your earliest memory of money and what it taught you','Identify one money belief you hold that is worth examining','State what money is for in your life — specific and honest'],
+         done:'You have a written one-page money philosophy — what it is, what it is for, and what you want your relationship with it to look like.',
+         resources:[{type:'book',text:'Your Money or Your Life — Vicki Robin. On transforming your relationship with money before managing it.'},{type:'book',text:'The Psychology of Money — Morgan Housel. On how behaviour determines financial outcomes more than knowledge.'}]},
+        {id:'fl_2',num:'1.2',title:'Income, expenses, assets, liabilities — the four pillars',
+         why:'Every financial statement in the world is built from these four things. Until they are clear the rest is noise.',
+         what:'Income is money that comes in. Expenses are money that goes out. Assets are things that put money in your pocket — they generate income or appreciate in value. Liabilities are things that take money out of your pocket — they cost you ongoing resources. The central insight from Robert Kiyosaki that survives scrutiny: the wealthy acquire assets. The non-wealthy acquire liabilities they think are assets (a car, a financed luxury item). Your financial position is the relationship between these four numbers.',
+         outcomes:['List all current sources of income and their amounts','List all monthly expenses in categories','Identify one thing you own that is a liability you treat as an asset'],
+         done:'You have a personal financial statement — income, expenses, assets, liabilities — written and accurate.',
+         resources:[{type:'book',text:'Rich Dad Poor Dad — Robert Kiyosaki. For the assets vs liabilities distinction.'},{type:'practice',text:'Build the statement. One page. Actual numbers. No estimating.'}]},
+        {id:'fl_3',num:'1.3',title:'Budgeting — telling money where to go',
+         why:'Without a budget, money goes where it wants. A budget is not a restriction — it is a plan. Plans can be adjusted. Chaos cannot.',
+         what:'A budget allocates income across categories before it arrives — not after it disappears. The zero-based budget is the most effective starting point: every naira of income is assigned a job. The categories: giving, savings, fixed expenses (rent, utilities), variable necessities (food, transport), and discretionary. The goal is not austerity — it is intention. You decide where the money goes instead of wondering where it went.',
+         outcomes:['Build a complete monthly budget with every income source and expense category','Hold the budget for one full month without exceptions','Identify where money was going before the budget that surprises you'],
+         done:'You have completed one full month on a written budget and you know exactly where every naira went.',
+         resources:[{type:'book',text:'The Total Money Makeover — Dave Ramsey. Practical and direct.'},{type:'practice',text:'Build the budget before the month begins. Track every transaction against it.'}]},
+        {id:'fl_4',num:'1.4',title:'The emergency fund — the first financial foundation',
+         why:'Without an emergency fund, any unexpected expense destroys whatever financial progress you have made. It is not optional — it is the prerequisite for everything else.',
+         what:'An emergency fund is 3–6 months of living expenses held in a liquid, accessible account — not invested, not spent, not touched except for genuine emergencies. Its purpose is not to grow. Its purpose is to prevent a crisis from becoming a catastrophe. The mental freedom that comes from having this in place changes how you make every other financial decision — you stop making choices from scarcity and fear.',
+         outcomes:['Calculate your monthly living expense number','Set a target emergency fund amount — start with 1 month, build to 3','Open a dedicated account and begin building it'],
+         done:'You have a dedicated emergency fund account with at least one month of expenses in it and a plan to reach three months.',
+         resources:[{type:'book',text:'The Total Money Makeover — Dave Ramsey. His baby steps framework starts here.'}]},
+      ]
+    },
+    {
+      id:'fl2', phase:'Phase II', title:'Growing Wealth',
+      topics:[
+        {id:'fl_5',num:'2.1',title:'Compound interest — the eighth wonder',
+         why:'Understanding compound interest changes your relationship with time. It makes patience a financial strategy rather than a virtue.',
+         what:'Compound interest is interest earned on interest already earned. The longer the time horizon, the more dramatic the effect. A sum growing at 15% per annum doubles in approximately 5 years, quadruples in 10, and multiplies 16 times in 20 years — without adding another naira. The implication: starting early matters more than starting with a large amount. The second implication: high-interest debt is compound interest working against you with the same exponential force.',
+         outcomes:['Calculate the future value of a fixed monthly investment over 10 and 20 years','Identify one high-interest liability where compound interest is currently working against you','State why time in the market matters more than timing the market'],
+         done:'You have used a compound interest calculator to model your own financial future under different savings rates and time horizons.',
+         resources:[{type:'book',text:'The Quickening tool — your own compound growth tracker. Use it.'},{type:'practice',text:'Model three scenarios: saving ₦10k/month, ₦25k/month, ₦50k/month over 20 years at 12% annual return. What does each produce?'}]},
+        {id:'fl_6',num:'2.2',title:'Investment vehicles — what exists and how each works',
+         why:'You cannot choose intelligently between options you do not understand. This topic surveys the landscape before asking you to commit to any direction.',
+         what:'The main categories: savings accounts (low return, high liquidity), fixed income / bonds (predictable return, moderate liquidity), equities / stocks (variable return, higher risk, higher long-term reward), real estate (capital appreciation plus rental income, low liquidity), business ownership (highest risk, highest potential reward). In Nigeria specifically: treasury bills, Nigerian stocks via NGX, real estate, dollar-denominated investments (Eurobonds, diaspora bonds), and fintech investment products (Cowrywise, Piggyvest, etc).',
+         outcomes:['Define each vehicle in one sentence — what it is and what it offers','Identify one vehicle appropriate for your current financial position','State the difference between risk tolerance and risk capacity'],
+         done:'You can explain five investment vehicles to someone with no financial background, including the risks and returns of each.',
+         resources:[{type:'book',text:'The Little Book of Common Sense Investing — John Bogle. On index investing as a default strategy.'},{type:'book',text:'Rich Dad\'s Guide to Investing — Kiyosaki. For the asset-building mindset.'},{type:'article',text:'Research: Cowrywise, Piggyvest, and Stanbic IBTC investment options in Nigeria. Understand what each offers before committing.'}]},
+        {id:'fl_7',num:'2.3',title:'Multiple income streams — building beyond the salary',
+         why:'A single income stream is fragile. Multiple streams create resilience and accelerate wealth-building. This is the financial architecture of the dAnTE vision.',
+         what:'Income streams fall into three types: active (you trade time for money — salary, freelance), portfolio (money from investments — dividends, interest, capital gains), and passive (systems that generate income with minimal ongoing input — royalties, digital products, rental income). The progression is: active income funds the building of portfolio and passive income. The goal is not to eliminate active income immediately but to build toward a position where it is optional. Your current streams — CGSL, Dante Craft, trading — are all active. The next phase is building the first passive or portfolio element.',
+         outcomes:['Map your current income streams and categorise each','Identify the most realistic next income stream to build given current resources','State what the dAnTE five-year income picture looks like across all streams'],
+         done:'You have a written income architecture plan — current streams, target streams, and the sequence for building toward financial independence.',
+         resources:[{type:'book',text:'The Millionaire Fastlane — MJ DeMarco. On building systems that generate income at scale.'},{type:'book',text:'I Will Teach You to Be Rich — Ramit Sethi. Practical income optimisation.'}]},
+      ]
+    },
+  ]
+},
+{
+  id:'business', label:'Business', color:'#ffa050',
+  title:'Business & Entrepreneurship',
+  intro:'This thread runs from the fundamentals of how businesses work to how to build and scale one. It is specifically oriented toward Dante Craft and dAnTE Inc. as the vehicles.',
+  phases:[
+    {
+      id:'biz1', phase:'Phase I', title:'How Businesses Work',
+      topics:[
+        {id:'biz_1',num:'1.1',title:'Value creation — what a business actually does',
+         why:'Everything in business is downstream of value creation. If you are not clear on the value you create, nothing else — pricing, marketing, operations — can be properly calibrated.',
+         what:'A business exists to solve a problem for a specific group of people better than the alternatives available to them. The value is the solution. The business model is how that value is delivered and paid for. The most common startup error is building something without first confirming that someone values it enough to pay for it. Value is not what you think it is — it is what the customer demonstrates by their willingness to pay.',
+         outcomes:['State the specific problem Dante Craft solves and for whom','Identify the alternatives your clients have and why they would choose Dante Craft instead','Write the value proposition in one sentence'],
+         done:'You can explain what Dante Craft does, who it does it for, and why clients choose it — in language a non-engineer would understand.',
+         resources:[{type:'book',text:'Value Proposition Design — Osterwalder et al. The most practical framework for defining value.'},{type:'book',text:'The Personal MBA — Josh Kaufman. The fundamentals of how every business works.'}]},
+        {id:'biz_2',num:'1.2',title:'Business models — how value becomes revenue',
+         why:'The same service delivered through different business models produces radically different financial outcomes. You need to understand which model you are running.',
+         what:'A business model defines how you create, deliver, and capture value. Common models: project-based (one-off payment per engagement — current Dante Craft model), retainer (recurring payment for ongoing service), productised service (fixed scope, fixed price, scalable), product (one-to-many — build once, sell many times). Each has different revenue predictability, scalability, and margin profiles. Dante Craft is currently project-based. The question is what the next model layer could be.',
+         outcomes:['Identify Dante Craft\'s current business model and its strengths and weaknesses','Name one alternative model that could complement it','State what would need to be true for a retainer model to work in civil engineering'],
+         done:'You have a written business model description for Dante Craft — how it currently creates, delivers, and captures value — and one idea for evolution.',
+         resources:[{type:'book',text:'Business Model Generation — Osterwalder. The Business Model Canvas framework.'},{type:'book',text:'The E-Myth Revisited — Michael Gerber. On building a business rather than just doing a job.'}]},
+        {id:'biz_3',num:'1.3',title:'Finance for founders — reading and running the numbers',
+         why:'You cannot run a business you cannot measure. The numbers tell you the truth about the business even when your feelings say otherwise.',
+         what:'Three documents every founder must understand: the Profit & Loss (P&L) shows revenue minus expenses over a period — did you make money? The Balance Sheet shows assets, liabilities, and equity at a point in time — what does the business own and owe? The Cash Flow Statement shows money in and out over time — do you have enough cash to operate? A business can be profitable on paper and still run out of cash. Cash is what keeps the doors open.',
+         outcomes:['Build a simple P&L for Dante Craft for the last quarter','Identify the difference between revenue and profit — and between profit and cash','State the single biggest financial risk in Dante Craft right now'],
+         done:'You have a simple financial model for Dante Craft — even a spreadsheet — that shows revenue, costs, and cash position month by month.',
+         resources:[{type:'book',text:'Accounting Made Simple — Mike Piper. For non-accountants.'},{type:'book',text:'Profit First — Mike Michalowicz. On managing cash flow from the first naira.'}]},
+        {id:'biz_4',num:'1.4',title:'Sales and business development — getting and keeping clients',
+         why:'No clients, no business. Sales is not a personality trait — it is a learnable process. Most engineers underinvest in this and wonder why the pipeline is thin.',
+         what:'Business development for a professional services firm has three phases: awareness (people know you exist and what you do), trust (they believe you can deliver), and conversion (they hire you). Awareness comes from reputation, referrals, and visibility. Trust comes from demonstrated competence and testimonials. Conversion comes from a clear proposal and a confident ask. The pipeline must be actively worked even when you are busy on a project — the time to find the next client is before you need them.',
+         outcomes:['Map Dante Craft\'s current business development process — where does each client come from?','Identify the weakest stage in the pipeline and what would strengthen it','Write a simple outreach message for a cold prospect'],
+         done:'You have a written business development plan for Dante Craft — who you are targeting, how you will reach them, and what you will say.',
+         resources:[{type:'book',text:'Never Eat Alone — Keith Ferrazzi. On relationship-based business development.'},{type:'book',text:'SPIN Selling — Neil Rackham. The research-backed approach to consultative selling.'}]},
+      ]
+    },
+    {
+      id:'biz2', phase:'Phase II', title:'Building and Scaling',
+      topics:[
+        {id:'biz_5',num:'2.1',title:'Operations — building systems so the business runs without you',
+         why:'The goal of Dante Craft is eventually to be an asset that generates income whether or not you are physically present. That requires systems, not heroics.',
+         what:'An operational system is a documented process that produces consistent results regardless of who executes it. It starts with writing down how things are done — every repeatable task becomes a checklist or procedure. Then that procedure is tested and refined. Then it can be delegated. The sequence: do it, document it, delegate it, improve it. Without documentation, the business is entirely dependent on the knowledge in your head — which makes it fragile and unscalable.',
+         outcomes:['Identify the three most repetitive tasks in Dante Craft','Document one of them as a step-by-step process someone else could follow','Identify one task currently in your head that needs to be written down'],
+         done:'You have at least one Dante Craft process documented well enough that a competent person with no prior knowledge of your business could execute it.',
+         resources:[{type:'book',text:'The E-Myth Revisited — Michael Gerber. The foundational text on systemising a business.'},{type:'book',text:'Work the System — Sam Carpenter. On systems thinking applied to business operations.'}]},
+        {id:'biz_6',num:'2.2',title:'Leadership and team — working through others',
+         why:'You have three co-directors. The quality of that working relationship will determine more about Dante Craft\'s trajectory than any single project.',
+         what:'Leadership in a small professional firm is primarily about clarity and trust. Clarity: everyone knows what the vision is, what their role is, and what success looks like. Trust: people believe decisions are made fairly and in service of the whole. The common failure in co-founded businesses is unspoken assumptions about roles, rewards, and decision-making authority. These assumptions become resentments. The antidote is explicit conversation about all three — early and repeatedly.',
+         outcomes:['Define each co-director\'s primary role and area of authority','Identify one unspoken assumption in the Dante Craft partnership that needs to be spoken','Write a decision-making protocol for Dante Craft — who decides what'],
+         done:'You have had an explicit conversation with your co-directors about roles, authority, and expectations — and it is written down.',
+         resources:[{type:'book',text:'The Five Dysfunctions of a Team — Patrick Lencioni. On what kills team effectiveness.'},{type:'book',text:'Radical Candor — Kim Scott. On clear, caring communication within teams.'}]},
+        {id:'biz_7',num:'2.3',title:'The conglomerate vision — dAnTE Inc. as a system of systems',
+         why:'Dante Craft is one subsidiary. The vision is much larger. Thinking about the whole architecture now — even in rough outline — prevents decisions that optimise for one part at the cost of the whole.',
+         what:'A conglomerate holds multiple businesses that operate semi-independently but share resources, leadership, capital, and strategic direction. The holding company — dAnTE Inc. — sits above the subsidiaries and allocates capital and talent across them. The discipline required is thinking simultaneously at the subsidiary level (what does this business need to succeed?) and the holding company level (how does this subsidiary serve the overall mission?). The subsidiaries you have identified — civil engineering, energy, waste management, hospitality, education — each require different expertise and capital profiles but share a common value system.',
+         outcomes:['Write a one-paragraph description of each dAnTE subsidiary and its purpose','Identify the sequencing — which subsidiary comes after Dante Craft and why?','State what dAnTE Inc. stands for that is common across all subsidiaries'],
+         done:'You have a one-page dAnTE Inc. architecture — the holding company, the subsidiaries, the sequencing, and the common thread that runs through all of them.',
+         resources:[{type:'book',text:'The Bezos Letters — Steve Anderson. On the principles behind building a multi-decade enterprise.'},{type:'book',text:'Built to Last — Jim Collins. On the habits of visionary companies.'}]},
+      ]
+    },
+  ]
+},
+{
+  id:'relationship', label:'Relationship', color:'#dc6496',
+  title:'Relationships',
+  intro:'This thread covers how to show up well — in partnership, in friendship, in family. It begins with self-awareness in relationship and builds toward sustained intimacy and connection.',
+  phases:[
+    {
+      id:'rel1', phase:'Phase I', title:'Understanding Yourself in Relationship',
+      topics:[
+        {id:'rel_1',num:'1.1',title:'Attachment styles — how you connect and why',
+         why:'Your attachment style is the most predictive factor in how you behave in intimate relationships. It was formed before you had language and it runs below conscious awareness until it is named.',
+         what:'Attachment theory identifies four styles: secure (comfortable with closeness and independence), anxious (craves closeness, fears abandonment), avoidant (values independence, uncomfortable with too much closeness), and disorganised (mixture of the other styles, often associated with early relational trauma). Most people are not purely one style. The insight is not to categorise yourself and stop — it is to understand the patterns so you can make conscious choices rather than automatic reactions.',
+         outcomes:['Identify your primary attachment style through research and honest self-assessment','State one behaviour in your relationship that is driven by attachment patterns rather than conscious choice','Explain how your style interacts with T\'s style'],
+         done:'You can describe your attachment patterns with specific examples from your relationship and one practice that moves you toward more secure behaviour.',
+         resources:[{type:'book',text:'Attached — Amir Levine and Rachel Heller. The most accessible introduction to attachment theory.'},{type:'book',text:'Hold Me Tight — Sue Johnson. On emotionally focused conversation in relationship.'}]},
+        {id:'rel_2',num:'1.2',title:'Love languages — how you give and receive',
+         why:'People in genuine love can still make each other feel unloved — because they are expressing love in their language, not their partner\'s.',
+         what:'The five love languages: words of affirmation, quality time, physical touch, acts of service, and receiving gifts. Each person has a primary language — the mode through which they most feel loved — and a secondary. The mismatch happens when you give love in your primary language and your partner receives in a different one. The work is to learn your partner\'s language and speak it intentionally, even when it does not come naturally.',
+         outcomes:['Identify your primary and secondary love language','Identify T\'s primary and secondary love language — and verify it with her','State one specific action this week that expresses love in her language, not yours'],
+         done:'You have had a direct conversation with T about love languages and you have one new weekly practice that speaks her language.',
+         resources:[{type:'book',text:'The Five Love Languages — Gary Chapman. The foundational text.'}]},
+        {id:'rel_3',num:'1.3',title:'Communication patterns — how you talk and how you are heard',
+         why:'Most relationship conflict is not about the subject of the argument. It is about the communication pattern underneath it — the way things are said and what that triggers.',
+         what:'The Gottman Institute identifies four patterns that predict relationship failure: criticism (attacking the person rather than the behaviour), contempt (communicating superiority or disrespect), defensiveness (refusing to take responsibility), and stonewalling (withdrawing from the conversation). You identified conflict avoidance as one of your patterns — carrying things silently until they become something larger. The antidote is not confrontation — it is gentle, direct expression of the actual concern, early, before it accumulates.',
+         outcomes:['Identify your primary communication pattern under stress','Practice raising one concern directly rather than absorbing it','Identify one topic that has been carried silently that needs to be spoken'],
+         done:'You can describe your communication pattern under conflict with specific examples and one practice that interrupts the pattern early.',
+         resources:[{type:'book',text:'The Seven Principles for Making Marriage Work — John Gottman. The most research-grounded book on relationship health.'},{type:'book',text:'Nonviolent Communication — Marshall Rosenberg. On expressing needs without blame or criticism.'}]},
+      ]
+    },
+    {
+      id:'rel2', phase:'Phase II', title:'Building Lasting Connection',
+      topics:[
+        {id:'rel_4',num:'2.1',title:'Repair — what to do after conflict',
+         why:'All relationships have conflict. The predictor of relationship health is not the absence of conflict — it is the speed and quality of repair after it.',
+         what:'Repair is the process of restoring connection after a rupture. It requires: acknowledgement (I can see that what happened hurt you), responsibility (my part in it, without defending the rest), and re-connection (a deliberate act of warmth that says we are okay). The common error is treating the absence of further conflict as repair — it is not. Repair is active. It requires the person who caused the hurt to initiate even when they feel they had a point.',
+         outcomes:['Identify your current repair pattern after conflict','Initiate one repair conversation this week — starting with acknowledgement, not defence','State what repair looks like for T — what she needs to feel restored'],
+         done:'You have had one repair conversation that did not begin with self-defence, and you can describe what changed in the dynamic as a result.',
+         resources:[{type:'book',text:'The Seven Principles for Making Marriage Work — John Gottman. Chapters on repair.'},{type:'book',text:'Hold Me Tight — Sue Johnson. On reconnecting after emotional distance.'}]},
+        {id:'rel_5',num:'2.2',title:'Initiation — leading rather than responding',
+         why:'You identified waiting to reply rather than initiating as a growth edge. This is about the discipline of moving toward rather than waiting to be approached.',
+         what:'Initiation in relationship is choosing to reach toward your partner without being prompted. It is a morning message that is a reach, not a check-in. It is planning something specific for them rather than waiting to be asked. It is raising a conversation rather than waiting for the topic to come up. This is not about grand gestures — it is about the frequency and quality of small, chosen movements toward the person you are with.',
+         outcomes:['Initiate contact in the morning without waiting for her to reach out first — for 7 consecutive days','Plan one thing for T this month that is chosen and prepared, not reactive','Identify one conversation you have been waiting for her to start and start it yourself'],
+         done:'You have initiated morning contact every day for 7 days and you can describe one thing you planned for T that came entirely from you.',
+         resources:[{type:'book',text:'The Seven Principles for Making Marriage Work — Gottman. On turning toward.'},{type:'practice',text:'For 14 days: initiate first. Track it. Note how the dynamic shifts.'}]},
+        {id:'rel_6',num:'2.3',title:'Shared life — building something together',
+         why:'The healthiest long-term relationships are not just two people who love each other — they are two people building something together. Shared direction is the deepest form of intimacy.',
+         what:'Shared life is built from shared values, shared dreams, shared rituals, and shared history. Values you have explored. Dreams require explicit conversation — what does she want her life to look like? Rituals are the small repeated practices that anchor connection — a specific way you greet each other, a regular time that belongs to you both, a language and set of references that are only yours. History is accumulated through time and is irreplaceable.',
+         outcomes:['Have one explicit conversation with T about her life dreams — listen more than speak','Establish one weekly ritual that belongs only to you both','Write down three things that are only yours — references, language, experiences — and name one more you want to build'],
+         done:'You have had a genuine conversation about T\'s vision for her life and you have started one repeating ritual together.',
+         resources:[{type:'book',text:'The Seven Principles for Making Marriage Work — Gottman. On building shared meaning.'},{type:'book',text:'The Meaning of Marriage — Timothy Keller. On covenantal partnership.'}]},
+      ]
+    },
+  ]
+},
+{
+  id:'faith', label:'Faith', color:'#a0c864',
+  title:'Faith',
+  intro:'Faith is the ground beneath everything else — not a department. This thread is not theology for its own sake. It is structured engagement with what you believe and how it shapes how you live.',
+  phases:[
+    {
+      id:'faith1', phase:'Phase I', title:'Foundation',
+      topics:[
+        {id:'faith_1',num:'1.1',title:'What you actually believe — starting with honesty',
+         why:'Inherited belief and examined belief are different things. You cannot build on a foundation you have not inspected.',
+         what:'This is not about doubting your faith — it is about owning it. What do you believe, in your own words, and why? What parts of your faith are things you have genuinely wrestled with and arrived at? What parts are things you hold by habit without having personally engaged them? The examined life applies to faith as much as anything else. Faith that has been tested is stronger than faith that has never been questioned.',
+         outcomes:['Write your core beliefs in your own words — not borrowed language','Identify one area of your faith where you have genuine questions','State what your faith does in your life — specifically, not generally'],
+         done:'You have a written faith statement in your own words that a stranger could read and understand what you believe and why it matters to you.',
+         resources:[{type:'book',text:'The Reason for God — Timothy Keller. On faith that engages rather than avoids hard questions.'},{type:'book',text:'Mere Christianity — C.S. Lewis. The intellectual case for Christian faith.'}]},
+        {id:'faith_2',num:'1.2',title:'Prayer as conversation — not performance',
+         why:'You have a 4AM prayer block. The question is what fills it. Prayer as a religious obligation produces very different outcomes than prayer as genuine conversation.',
+         what:'Prayer is communication between a person and God. The quality of that communication depends on honesty, presence, and expectation. The most common failure in prayer is speaking at God rather than with God — producing a monologue of requests rather than a genuine exchange. Contemplative prayer traditions across Christianity emphasise listening as much as speaking. The 4AM block is an asset — the question is whether it is used for transformation or for religious maintenance.',
+         outcomes:['Describe what your 4AM prayer block currently looks like in practice','Identify the ratio of speaking to listening in your current prayer life','Spend one full prayer session with no requests — only listening and gratitude'],
+         done:'You can describe your prayer practice in a way that reveals genuine relationship rather than religious routine.',
+         resources:[{type:'book',text:'Prayer — Timothy Keller. On what prayer is and how to do it.'},{type:'book',text:'With — Skye Jethani. On the difference between using God and being with God.'}]},
+        {id:'faith_3',num:'1.3',title:'Scripture — reading with understanding, not obligation',
+         why:'Bible study as a daily tick-box produces different outcomes than reading with genuine attention and application. The goal is transformation, not information.',
+         what:'Effective scripture engagement has three movements: observation (what does the text actually say?), interpretation (what did it mean to its original audience?), and application (what does it mean for my life right now?). Most people skip the first two and go directly to application — which produces misapplication. The discipline is slowing down enough to ask what the text is actually saying before asking what it means for you.',
+         outcomes:['Apply the observation-interpretation-application framework to one passage','Identify one scripture that is currently actively relevant to your season — and write why','Read one book of the Bible in one sitting for narrative context'],
+         done:'You can take any passage of scripture through all three movements and arrive at a specific, personal application.',
+         resources:[{type:'book',text:'How to Read the Bible for All Its Worth — Gordon Fee and Douglas Stuart. The methodology.'},{type:'book',text:'The Bible Project — thebibleproject.com. Free, excellent theological context for every book.'}]},
+        {id:'faith_4',num:'1.4',title:'Faith and work — how they integrate',
+         why:'For faith to be ground rather than department, it must inform how you work, build, trade, lead, and relate — not just what you do on Sunday.',
+         what:'The theology of work holds that work is not a necessary evil — it is a calling. The creation mandate to cultivate and build is not suspended by faith — it is given meaning by it. This means the quality of your engineering work, the honesty of your business dealings, the care you give to the people you lead — all of these are expressions of faith as much as prayer is. The question is whether you experience them that way.',
+         outcomes:['Write one paragraph on what it means to work as an act of faith','Identify one place in your work life where your faith is not yet integrated with your practice','State what excellence in your work looks like as an expression of who you are before God'],
+         done:'You have a written theology of work — what you believe about why you build and what that means for how you build.',
+         resources:[{type:'book',text:'Every Good Endeavour — Timothy Keller. The most thorough treatment of faith and work.'},{type:'book',text:'God at Work — Gene Veith. On vocation as calling.'}]},
+      ]
+    },
+  ]
+},
+{
+  id:'prompt', label:'Prompt Eng.', color:'#8b6bff',
+  title:'Prompt Engineering',
+  intro:'This thread moves from understanding how language models work to writing prompts that produce reliably excellent output to building products and services on top of that capability. The goal is a monetisable skill.',
+  phases:[
+    {
+      id:'pe1', phase:'Phase I', title:'Foundations',
+      topics:[
+        {id:'pe_1',num:'1.1',title:'How language models work — the minimum you need to know',
+         why:'You cannot engineer what you do not understand. A working mental model of what an LLM is and is not prevents the most common prompting errors.',
+         what:'A large language model is a probability engine. It predicts the most likely next token given all the tokens that came before it — including your prompt. It is not reasoning in the human sense. It is pattern matching at scale. This has a specific implication: the model is extremely sensitive to the framing, structure, and specificity of the input. A well-framed prompt pulls from better patterns. A poorly framed prompt pulls from worse ones. Understanding this changes how you write prompts.',
+         outcomes:['Explain how an LLM generates output in plain language','State why the model is sensitive to prompt framing and structure','Identify one common prompt error that makes sense once you understand how the model works'],
+         done:'You can explain to a non-technical person what a language model is, how it works in general terms, and why prompt quality matters.',
+         resources:[{type:'article',text:'Anthropic\'s documentation — model overviews. docs.anthropic.com'},{type:'video',text:'3Blue1Brown: "But what is GPT?" — YouTube. The clearest visual explanation of transformer models.'},{type:'article',text:'Andrej Karpathy: "The Unreasonable Effectiveness of Recurrent Neural Networks" — for deeper grounding.'}]},
+        {id:'pe_2',num:'1.2',title:'Anatomy of a good prompt — the components',
+         why:'Most bad prompts fail for the same reasons. Understanding the components of a good prompt is the fastest way to improve output quality.',
+         what:'A well-structured prompt has: a role or persona (who the model should behave as), context (the background the model needs), the task (what you want — specific, not vague), constraints (what to avoid, what format to use, what tone), and examples (showing rather than telling what good output looks like). Most prompts have the task and nothing else. Adding the other four components typically produces dramatically better results. The single biggest lever: examples. One good example is worth a paragraph of description.',
+         outcomes:['Write one prompt using all five components and compare the output to a basic prompt for the same task','Identify which component is most often missing from your current prompts','Produce one output using a few-shot example that you could not produce with a zero-shot prompt'],
+         done:'You can write a fully structured prompt for any task and explain why each component is included.',
+         resources:[{type:'article',text:'Anthropic Prompt Engineering Guide — docs.anthropic.com/en/docs/build-with-claude/prompt-engineering/overview'},{type:'practice',text:'Take one task you currently use AI for. Write the basic prompt. Then write a fully structured prompt. Compare the outputs side by side.'}]},
+        {id:'pe_3',num:'1.3',title:'Chain of thought and reasoning prompts',
+         why:'For complex tasks, telling the model to think step by step before answering produces dramatically better results. Understanding why enables you to use it strategically.',
+         what:'Chain of thought prompting asks the model to work through a problem before giving the final answer. Phrases like "think through this step by step before responding" or "first reason about the problem, then give your answer" activate a reasoning pattern that improves accuracy on analytical tasks significantly. The mechanism: by generating intermediate steps, the model stays on a more productive path through the probability space. For simple tasks it adds no value. For complex reasoning, analysis, or code, it often makes the difference between a usable and unusable output.',
+         outcomes:['Apply chain of thought prompting to one complex analytical task','Compare the output to the same task without chain of thought','State which task types benefit from it and which do not'],
+         done:'You have 5 examples of chain of thought prompts you have used and a personal guideline for when to apply it.',
+         resources:[{type:'article',text:'"Chain-of-Thought Prompting Elicits Reasoning in Large Language Models" — Wei et al. The original paper. Google Scholar.'},{type:'practice',text:'Use chain of thought on 5 complex tasks this week. Document the difference.'}]},
+        {id:'pe_4',num:'1.4',title:'Prompt patterns — reusable structures for common tasks',
+         why:'Building a personal library of prompt patterns makes you faster and more consistent. You stop rewriting from scratch every time.',
+         what:'A prompt pattern is a reusable template for a class of task — document analysis, brainstorming, editing, code generation, research synthesis, persona creation. Each has a structure that works reliably. Building your library means: identifying the tasks you do repeatedly, engineering a prompt for each that produces consistently good output, saving it, and refining it over time. This is the craft layer of prompt engineering — where skill becomes leverage.',
+         outcomes:['Identify your 5 most repeated AI tasks','Build a prompt template for each — tested, refined, saved','Apply one template in a real work context this week'],
+         done:'You have a personal prompt library with at least 5 tested templates covering your most common use cases.',
+         resources:[{type:'article',text:'Prompt Engineering Guide — promptingguide.ai. Comprehensive catalogue of patterns.'},{type:'practice',text:'Build the library. Start with 5. Add one new template per week.'}]},
+      ]
+    },
+    {
+      id:'pe2', phase:'Phase II', title:'Monetisation',
+      topics:[
+        {id:'pe_5',num:'2.1',title:'The freelance prompt engineer — what the market pays for',
+         why:'Before building a freelance practice you need to know what clients actually need and are willing to pay for — which is often different from what you would assume.',
+         what:'The current market for prompt engineering services: AI workflow design (helping businesses use LLMs for internal processes), prompt optimisation (improving existing AI integrations), content pipeline development (building automated content production workflows), AI tool training (helping teams use AI tools effectively), and custom GPT/Claude system design. The highest-value engagements are typically AI workflow design and custom system design — these require both technical understanding and business intelligence. Your background gives you an edge: you understand systems, you communicate precisely, and you have domain expertise in engineering and project management.',
+         outcomes:['List 5 services a prompt engineer can offer with realistic price ranges','Identify which services align with your strengths','Write one service offering as it would appear in a proposal or profile'],
+         done:'You have a one-page freelance service menu — what you offer, who it is for, and what it costs.',
+         resources:[{type:'article',text:'Research: "prompt engineer freelance" on Upwork and Fiverr. Understand what is selling and at what rates.'},{type:'article',text:'LinkedIn: search prompt engineering roles and freelance contracts. Read the job descriptions.'}]},
+        {id:'pe_6',num:'2.2',title:'Building AI-powered products — from prompt to product',
+         why:'A product is a system that delivers value at scale without your ongoing time input. This is the income leverage that freelancing alone cannot provide.',
+         what:'An AI-powered product uses LLMs as the engine and wraps them in a user experience. Simple products: a specialised writing tool for a specific industry, a document analysis tool, a custom AI assistant with domain-specific knowledge. More complex: an API-based service that automates a specific workflow. Your existing HTML tools are a starting point — the Anthropic API can power AI features inside them. The skill stack: prompt engineering plus basic web development (which you already have) plus product thinking.',
+         outcomes:['Identify one problem in your professional network that an AI tool could solve','Sketch the simplest version of that tool — what would it do and for whom?','Build a proof of concept using the Anthropic API inside an HTML tool'],
+         done:'You have one working AI-powered proof of concept — a tool that uses the Anthropic API to deliver a specific, useful output.',
+         resources:[{type:'article',text:'Anthropic API documentation — docs.anthropic.com. Start with the Messages API.'},{type:'practice',text:'Build one AI-powered feature into an existing HTML tool. The simplest possible version first.'}]},
+        {id:'pe_7',num:'2.3',title:'Consulting — turning expertise into engagements',
+         why:'You noted that you would do extremely well in consultations. Consulting is the highest-margin form of monetising expertise. Understanding how to package and sell it is the skill.',
+         what:'A consulting engagement typically has: a defined problem, a defined deliverable, a fixed fee and timeline. The value of consulting is not your time — it is the quality of the insight and the result. Positioning matters: a prompt engineer who can also think strategically about business AI adoption is worth significantly more than one who can only write prompts. Your background in engineering and project management is a genuine differentiator in the AI space — most prompt engineers have no domain expertise.',
+         outcomes:['Write a consulting engagement description for one service you could offer today','Identify 3 organisations in your network that could benefit from AI workflow design','Prepare a 20-minute consultation framework — how you would structure a first conversation with a prospective client'],
+         done:'You have one consulting offer ready to present and one warm lead identified.',
+         resources:[{type:'book',text:'The Consulting Bible — Alan Weiss. On positioning, pricing, and delivering consulting.'},{type:'book',text:'Built to Sell — John Warrillow. On productising expert services.'}]},
+      ]
+    },
+  ]
+},
+{
+  id:'health', label:'Health', color:'#4a8cc9',
+  title:'Health',
+  intro:'This thread covers physical health as a foundation for everything else. Not aesthetics — function, energy, and longevity. A strong body enables everything the mind wants to do.',
+  phases:[
+    {
+      id:'h1', phase:'Phase I', title:'Foundation',
+      topics:[
+        {id:'h_1',num:'1.1',title:'The physiology of exercise — why it works',
+         why:'Understanding why exercise produces the effects it does makes the practice more meaningful and the commitment more durable.',
+         what:'Exercise produces adaptations at multiple levels: cardiovascular (stronger heart, more efficient oxygen delivery), muscular (increased strength and hypertrophy through progressive overload), hormonal (release of endorphins, testosterone, growth hormone), and neurological (increased BDNF which supports brain function and mood). The minimum effective dose for health outcomes — not aesthetics — is 150 minutes of moderate activity per week. Strength training specifically preserves muscle mass, which is one of the strongest predictors of longevity.',
+         outcomes:['State what happens physiologically during and after resistance training','Explain why consistency over months matters more than intensity in any single session','Identify the minimum effective dose of exercise for your current health goals'],
+         done:'You can explain why exercise matters — not just that it does — and you have a training plan that reflects that understanding.',
+         resources:[{type:'book',text:'Outlive — Peter Attia. The most comprehensive current book on exercise for longevity.'},{type:'book',text:'The Body — Bill Bryson. On how the human body works — accessible and thorough.'}]},
+        {id:'h_2',num:'1.2',title:'Progressive overload — how to actually get stronger',
+         why:'Without progressive overload, exercise maintains fitness but does not build it. You need to understand this to make your workouts produce results over time.',
+         what:'Progressive overload is the principle that the body adapts to a stimulus and must be progressively challenged to continue adapting. If you do 20 push-ups every day indefinitely, you maintain your current capacity. If you add one rep per week or reduce rest time or add resistance, you continue to grow. The application to your current goal of 30 reps: that is a progressive overload target. Once reached, the next target must be set — 40 reps, or adding weight, or a harder variation.',
+         outcomes:['Apply progressive overload to your current push-up, squat, and crunch programme','Set the target after 30 — what does the next progression look like?','Track your numbers weekly — without tracking there is no progression'],
+         done:'You have a tracking sheet showing weekly progression in your three exercises and a plan for what comes after 30 reps.',
+         resources:[{type:'practice',text:'Track every workout. Date, exercise, reps, sets. Review weekly.'},{type:'video',text:'Jeff Nippard: "Progressive Overload Explained" — YouTube. Science-based and clear.'}]},
+        {id:'h_3',num:'1.3',title:'Sleep — the non-negotiable foundation',
+         why:'Sleep is not the absence of wakefulness — it is an active biological process that determines the quality of everything else. Without it, no other health intervention produces its full benefit.',
+         what:'During sleep the brain consolidates memory, the body repairs muscle tissue, the immune system is maintained, and hormonal regulation occurs. 7–9 hours is the evidence-based range for adults. Below 6 hours is associated with significant cognitive impairment, increased cortisol, decreased testosterone, and elevated risk of chronic disease. The 4AM wake time means sleep onset must be by approximately 9–10PM to achieve adequate duration. This is a design constraint, not a suggestion.',
+         outcomes:['Calculate your required sleep onset time given your 4AM wake target','Identify the single biggest factor currently reducing your sleep quality','Build one wind-down practice that begins 60 minutes before sleep target'],
+         done:'You have a consistent sleep onset time that gives you 7+ hours before the 4AM alarm, supported by a wind-down routine.',
+         resources:[{type:'book',text:'Why We Sleep — Matthew Walker. The definitive book on sleep science.'}]},
+        {id:'h_4',num:'1.4',title:'Nutrition basics — food as fuel and information',
+         why:'You do not need a complicated diet. You need a functional one — enough to fuel your training, sustain your energy, and not actively undermine your health.',
+         what:'The fundamentals: protein is the most important macronutrient for body composition and satiety — target approximately 1.6–2.2g per kg of bodyweight for someone training. Carbohydrates are primary fuel for intense exercise. Fats support hormonal function. Hydration is consistently underestimated — most people perform significantly better well-hydrated. The single most impactful nutritional change for most people: eating more protein and more vegetables, and eating less ultra-processed food. Not a diet — a default.',
+         outcomes:['Calculate your approximate daily protein target based on your bodyweight','Identify one ultra-processed food you eat regularly that you could replace','Drink the recommended water intake for your bodyweight for 7 consecutive days'],
+         done:'You have a simple, sustainable nutritional default — not a diet, a baseline — that you have followed for 2 weeks.',
+         resources:[{type:'book',text:'Outlive — Peter Attia. Chapters on nutrition. Evidence-based and not ideological.'},{type:'practice',text:'Track what you eat for 7 days without changing it. Awareness before adjustment.'}]},
+      ]
+    },
+  ]
+},
+];
+
+// ── STATE ─────────────────────────────────────────────────
+let currentTrack='personal';
+let progress={};
+let expanded={};
+let isDark=true;
+
+function initProgress(){
+  TRACKS.forEach(tr=>tr.phases.forEach(ph=>ph.topics.forEach(t=>{
+    if(!progress[t.id]) progress[t.id]={done:false,notes:''};
+  })));
+}
+
+// ── RENDER ────────────────────────────────────────────────
+function renderTrackBar(){
+  const bar=document.getElementById('trackBar');
+  bar.innerHTML='';
+  TRACKS.forEach(tr=>{
+    const tab=document.createElement('div');
+    tab.className='track-tab'+(currentTrack===tr.id?' active':'');
+    tab.innerHTML=`<div class="track-dot" style="background:${tr.color}"></div>${tr.label}`;
+    tab.onclick=()=>{currentTrack=tr.id;renderTrackBar();renderMain();};
+    bar.appendChild(tab);
+  });
+}
+
+function renderMain(){
+  const track=TRACKS.find(t=>t.id===currentTrack);
+  if(!track) return;
+  const main=document.getElementById('mainContent');
+  main.innerHTML='';
+
+  // Progress
+  const allTopics=track.phases.flatMap(ph=>ph.topics);
+  const done=allTopics.filter(t=>progress[t.id]&&progress[t.id].done).length;
+  const total=allTopics.length;
+  document.getElementById('progLabel').textContent=track.label+' Progress';
+  document.getElementById('progCount').textContent=done+' / '+total;
+  document.getElementById('progCount').style.color=track.color;
+  document.getElementById('progFill').style.background=track.color;
+  document.getElementById('progFill').style.width=(total?Math.round(done/total*100):0)+'%';
+
+  // Intro
+  const intro=document.createElement('div');
+  intro.className='track-intro';
+  intro.innerHTML=`<div class="track-intro-title" style="color:${track.color}">${track.title}</div><div class="track-intro-body">${track.intro}</div>`;
+  main.appendChild(intro);
+
+  // Next up
+  let nextTopic=null;
+  for(const ph of track.phases) for(const t of ph.topics) if(!progress[t.id]||!progress[t.id].done){nextTopic=t;break;}
+  if(nextTopic){
+    const banner=document.createElement('div');
+    banner.className='next-up-banner';
+    banner.style.borderColor=track.color.replace(')',', 0.4)').replace('rgb','rgba');
+    banner.innerHTML=`<div><div class="next-up-label" style="color:${track.color}">Up next</div><div class="next-up-title">${nextTopic.num} — ${nextTopic.title}</div></div><div style="font-size:20px;color:${track.color};margin-left:auto">→</div>`;
+    banner.onclick=()=>{expanded[nextTopic.id]=true;renderMain();setTimeout(()=>{const el=document.getElementById('topic-'+nextTopic.id);if(el)el.scrollIntoView({behavior:'smooth',block:'center'});},100);};
+    main.appendChild(banner);
+  }
+
+  // Phases
+  track.phases.forEach(ph=>{
+    const phDone=ph.topics.filter(t=>progress[t.id]&&progress[t.id].done).length;
+    const phSection=document.createElement('div');
+    phSection.className='phase';
+    phSection.innerHTML=`<div class="phase-header">
+      <div class="phase-num" style="color:${track.color};background:${track.color}1a;border-color:${track.color}55">${ph.phase}</div>
+      <div class="phase-title">${ph.title}</div>
+      <div class="phase-prog"><span style="color:${track.color}">${phDone}</span> / ${ph.topics.length}</div>
+    </div>`;
+    ph.topics.forEach(t=>{
+      const p=progress[t.id]||{done:false,notes:''};
+      const isExp=!!expanded[t.id];
+      const card=document.createElement('div');
+      card.className='topic'+(p.done?' done':'')+(isExp?' expanded':'');
+      card.id='topic-'+t.id;
+      const resources=t.resources||[];
+      card.innerHTML=`
+        <div class="topic-header">
+          <div class="topic-check" onclick="toggleDone(event,'${t.id}','${track.color}')"></div>
+          <div class="topic-main">
+            <div class="topic-num">${t.num}</div>
+            <div class="topic-title">${t.title}</div>
+            <div class="topic-why">${t.why}</div>
+          </div>
+          <button class="topic-expand-btn" onclick="toggleExpand(event,'${t.id}')">${isExp?'▲':'▼'}</button>
+        </div>
+        <div class="topic-detail">
+          <div class="detail-section"><div class="detail-label">The concept</div><div class="detail-text">${t.what}</div></div>
+          <div class="detail-section"><div class="detail-label">Outcomes — what mastery looks like</div><ul class="outcome-list">${(t.outcomes||[]).map(o=>`<li>${o}</li>`).join('')}</ul></div>
+          <div class="done-output"><div class="done-output-label">Done looks like</div><div class="done-output-text">${t.done}</div></div>
+          ${resources.length?`<div class="detail-section"><div class="detail-label">Resources</div><div class="resource-list">${resources.map(r=>`<div class="resource-item"><div class="resource-type rt-${r.type}">${r.type}</div><div class="resource-text">${r.text}</div></div>`).join('')}</div></div>`:''}
+          <textarea class="topic-notes-input" placeholder="Write what you understood, questions raised, what you want to remember..." onchange="saveNote('${t.id}',this.value)">${p.notes||''}</textarea>
+        </div>`;
+      if(p.done) card.querySelector('.topic-check').style.background=track.color.replace(')',', 0.4)').replace('rgb','rgba');
+      phSection.appendChild(card);
+    });
+    main.appendChild(phSection);
+  });
+}
+
+function toggleDone(e,id,color){
+  e.stopPropagation();
+  if(!progress[id]) progress[id]={done:false,notes:''};
+  progress[id].done=!progress[id].done;
+  renderMain(); saveData();
+}
+function toggleExpand(e,id){
+  e.stopPropagation();
+  expanded[id]=!expanded[id];
+  renderMain();
+}
+function saveNote(id,val){
+  if(!progress[id]) progress[id]={done:false,notes:''};
+  progress[id].notes=val; saveData();
+}
+
+// ── PERSISTENCE ───────────────────────────────────────────
+function saveData(){
+  localStorage.setItem('knowledgeThreads',JSON.stringify({progress,expanded,currentTrack}));
+  showToast('Saved');
+}
+function loadData(){
+  const raw=localStorage.getItem('knowledgeThreads');
+  if(raw){try{const d=JSON.parse(raw);if(d.progress)progress=d.progress;if(d.expanded)expanded=d.expanded;if(d.currentTrack)currentTrack=d.currentTrack;}catch(e){}}
+}
+function exportData(){
+  const blob=new Blob([JSON.stringify({progress,expanded},null,2)],{type:'application/json'});
+  const a=document.createElement('a');a.href=URL.createObjectURL(blob);
+  a.download='knowledge-threads.json';a.click();showToast('Exported');
+}
+function importData(){document.getElementById('importFile').click()}
+function handleImport(e){
+  const file=e.target.files[0];if(!file)return;
+  const r=new FileReader();
+  r.onload=ev=>{try{const d=JSON.parse(ev.target.result);if(d.progress)progress=d.progress;if(d.expanded)expanded=d.expanded;renderMain();showToast('Imported');}catch(err){showToast('Import failed')}};
+  r.readAsText(file);e.target.value='';
+}
+function toggleTheme(){
+  isDark=!isDark;document.body.classList.toggle('light',!isDark);
+  localStorage.setItem('ktTheme',isDark?'dark':'light');
+}
+function showToast(msg){
+  const t=document.getElementById('toast');t.textContent=msg;
+  t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2200);
+}
+
+const th=localStorage.getItem('ktTheme');
+if(th==='light'){isDark=false;document.body.classList.add('light')}
+loadData();
+initProgress();
+renderTrackBar();
+renderMain();
+</script>
+</body>
+</html>

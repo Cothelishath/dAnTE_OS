@@ -1,0 +1,546 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Business & Entrepreneurship Curriculum</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400;1,500&family=DM+Mono:wght@300;400;500&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+:root[data-theme="dark"]{
+  --bg:#09090b;--bg2:#111114;--bg3:#18181c;--bg4:#222228;
+  --border:rgba(255,255,255,0.06);--border-gold:rgba(201,168,76,0.22);
+  --text:#e8e3d8;--muted:#666;--soft:#999;
+  --gold:#c9a84c;--gold-dim:rgba(201,168,76,0.08);--gold-mid:rgba(201,168,76,0.18);
+  --found:#7abfaa;--dev:#bf7a9a;--integ:#9aaa7a;--adv:#7a9abf;
+}
+:root[data-theme="light"]{
+  --bg:#f4f1eb;--bg2:#edeae2;--bg3:#e4e0d6;--bg4:#d8d3c8;
+  --border:rgba(0,0,0,0.07);--border-gold:rgba(140,100,20,0.22);
+  --text:#141210;--muted:#aaa;--soft:#666;
+  --gold:#8a6820;--gold-dim:rgba(138,104,32,0.07);--gold-mid:rgba(138,104,32,0.15);
+  --found:#2a6a5a;--dev:#6a2a4a;--integ:#4a6a2a;--adv:#2a4a6a;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{background:var(--bg);color:var(--text);font-family:'Jost',sans-serif;font-weight:300;line-height:1.7;min-height:100vh;transition:background 0.3s,color 0.3s;}
+header{border-bottom:1px solid var(--border);padding:0 48px;display:flex;align-items:center;justify-content:space-between;height:60px;position:sticky;top:0;background:var(--bg);z-index:100;}
+.wordmark{font-family:'Cormorant Garamond',serif;font-size:1.2rem;font-style:italic;color:var(--gold);letter-spacing:0.03em;}
+.wordmark span{color:var(--text);font-style:normal;font-weight:300;font-size:0.95rem;}
+.header-right{display:flex;align-items:center;gap:12px;}
+.theme-btn{background:var(--bg3);border:1px solid var(--border);color:var(--muted);font-size:0.75rem;width:30px;height:30px;border-radius:50%;cursor:pointer;transition:all 0.2s;display:flex;align-items:center;justify-content:center;}
+.theme-btn:hover{border-color:var(--gold);color:var(--gold);}
+.progress-label{font-family:'DM Mono',monospace;font-size:0.55rem;letter-spacing:0.1em;text-transform:uppercase;color:var(--muted);}
+.nav-strip{display:flex;gap:0;border-bottom:1px solid var(--border);background:var(--bg2);overflow-x:auto;scrollbar-width:none;padding:0 48px;}
+.nav-strip::-webkit-scrollbar{display:none;}
+.nav-btn{padding:14px 18px;background:none;border:none;border-bottom:2px solid transparent;color:var(--muted);font-family:'DM Mono',monospace;font-size:0.52rem;letter-spacing:0.1em;text-transform:uppercase;cursor:pointer;white-space:nowrap;transition:all 0.2s;}
+.nav-btn:hover{color:var(--soft);}
+.nav-btn.active{color:var(--gold);border-bottom-color:var(--gold);}
+main{max-width:900px;margin:0 auto;padding:48px 48px 100px;}
+.tab-panel{display:none;}
+.tab-panel.active{display:block;animation:rise 0.3s ease both;}
+@keyframes rise{from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:translateY(0);}}
+.section-eyebrow{font-family:'DM Mono',monospace;font-size:0.52rem;letter-spacing:0.16em;text-transform:uppercase;color:var(--gold);margin-bottom:12px;}
+.section-title{font-family:'Cormorant Garamond',serif;font-size:2.4rem;font-weight:400;line-height:1.2;color:var(--text);margin-bottom:20px;}
+.section-body{font-size:0.95rem;color:var(--soft);max-width:640px;line-height:1.8;}
+.gold-rule{height:1px;background:linear-gradient(90deg,var(--gold) 0%,transparent 60%);opacity:0.2;margin:36px 0;}
+.tier-grid{display:grid;gap:16px;margin-bottom:48px;}
+.tier-card{background:var(--bg2);border:1px solid var(--border);border-radius:4px;padding:24px 28px;position:relative;overflow:hidden;}
+.tier-card::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;}
+.tier-found::before{background:var(--found);}
+.tier-dev::before{background:var(--dev);}
+.tier-integ::before{background:var(--integ);}
+.tier-adv::before{background:var(--adv);}
+.tier-label{font-family:'DM Mono',monospace;font-size:0.5rem;letter-spacing:0.14em;text-transform:uppercase;margin-bottom:8px;}
+.tier-found .tier-label{color:var(--found);}
+.tier-dev .tier-label{color:var(--dev);}
+.tier-integ .tier-label{color:var(--integ);}
+.tier-adv .tier-label{color:var(--adv);}
+.tier-name{font-family:'Cormorant Garamond',serif;font-size:1.3rem;font-weight:500;color:var(--text);margin-bottom:6px;}
+.tier-desc{font-size:0.85rem;color:var(--soft);line-height:1.7;}
+.tier-pillars{display:flex;flex-wrap:wrap;gap:6px;margin-top:14px;}
+.tier-pill{font-family:'DM Mono',monospace;font-size:0.5rem;letter-spacing:0.08em;text-transform:uppercase;padding:3px 10px;border-radius:20px;border:1px solid var(--border);color:var(--muted);}
+.method-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:20px;}
+.method-card{background:var(--bg2);border:1px solid var(--border);border-radius:4px;padding:20px 22px;}
+.method-num{font-family:'DM Mono',monospace;font-size:0.55rem;color:var(--gold);letter-spacing:0.1em;margin-bottom:8px;}
+.method-title{font-family:'Cormorant Garamond',serif;font-size:1.1rem;color:var(--text);margin-bottom:6px;}
+.method-desc{font-size:0.82rem;color:var(--soft);line-height:1.7;}
+.pillar-list{display:flex;flex-direction:column;gap:6px;}
+.pillar-item{background:var(--bg2);border:1px solid var(--border);border-radius:4px;overflow:hidden;transition:border-color 0.2s;}
+.pillar-item:hover{border-color:var(--border-gold);}
+.pillar-header{display:grid;grid-template-columns:40px 1fr auto;align-items:center;padding:16px 20px;cursor:pointer;gap:12px;}
+.pillar-num{font-family:'DM Mono',monospace;font-size:0.55rem;color:var(--muted);letter-spacing:0.08em;}
+.pillar-meta{display:flex;flex-direction:column;gap:3px;}
+.pillar-name{font-family:'Cormorant Garamond',serif;font-size:1.1rem;font-weight:500;color:var(--text);}
+.pillar-tier-tag{font-family:'DM Mono',monospace;font-size:0.48rem;letter-spacing:0.1em;text-transform:uppercase;}
+.pillar-status{display:flex;align-items:center;gap:8px;}
+.status-dot{width:8px;height:8px;border-radius:50%;border:1.5px solid var(--border);flex-shrink:0;cursor:pointer;transition:all 0.2s;}
+.status-dot.active{background:var(--gold);border-color:var(--gold);}
+.pillar-toggle{font-family:'DM Mono',monospace;font-size:0.7rem;color:var(--muted);transition:transform 0.2s;margin-left:8px;}
+.pillar-item.open .pillar-toggle{transform:rotate(180deg);}
+.pillar-body{display:none;padding:0 20px 24px;border-top:1px solid var(--border);}
+.pillar-item.open .pillar-body{display:block;}
+.pillar-why{font-size:0.88rem;color:var(--soft);line-height:1.8;margin:16px 0 20px;font-style:italic;padding-left:12px;border-left:2px solid var(--border-gold);}
+.resource-section{margin-bottom:20px;}
+.resource-label{font-family:'DM Mono',monospace;font-size:0.5rem;letter-spacing:0.12em;text-transform:uppercase;color:var(--muted);margin-bottom:10px;}
+.resource-item{display:flex;gap:12px;padding:10px 14px;background:var(--bg3);border-radius:3px;margin-bottom:6px;}
+.resource-icon{font-size:0.9rem;flex-shrink:0;margin-top:2px;}
+.resource-type{font-family:'DM Mono',monospace;font-size:0.48rem;letter-spacing:0.08em;text-transform:uppercase;color:var(--muted);margin-bottom:2px;}
+.resource-title{font-size:0.88rem;color:var(--text);font-weight:400;margin-bottom:2px;}
+.resource-author{font-family:'DM Mono',monospace;font-size:0.5rem;letter-spacing:0.08em;color:var(--muted);}
+.resource-note{font-size:0.8rem;color:var(--soft);margin-top:4px;line-height:1.6;}
+.practice-list{list-style:none;display:flex;flex-direction:column;gap:6px;}
+.practice-list li{font-size:0.85rem;color:var(--soft);padding:8px 12px;background:var(--bg3);border-radius:3px;line-height:1.6;}
+.practice-list li::before{content:'→ ';color:var(--gold);font-family:'DM Mono',monospace;font-size:0.75rem;}
+.bring-back{background:var(--gold-dim);border:1px solid var(--border-gold);border-radius:3px;padding:12px 16px;margin-top:16px;}
+.bring-back-label{font-family:'DM Mono',monospace;font-size:0.5rem;letter-spacing:0.12em;text-transform:uppercase;color:var(--gold);margin-bottom:8px;}
+.bring-back p{font-size:0.82rem;color:var(--soft);line-height:1.7;}
+.progress-overview{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:32px;}
+.prog-card{background:var(--bg2);border:1px solid var(--border);border-radius:4px;padding:20px;text-align:center;}
+.prog-val{font-family:'Cormorant Garamond',serif;font-size:2.2rem;font-weight:500;color:var(--gold);}
+.prog-label{font-family:'DM Mono',monospace;font-size:0.5rem;letter-spacing:0.1em;text-transform:uppercase;color:var(--muted);margin-top:4px;}
+.prog-bar-wrap{margin-bottom:32px;}
+.prog-bar-label{display:flex;justify-content:space-between;font-family:'DM Mono',monospace;font-size:0.52rem;letter-spacing:0.08em;text-transform:uppercase;color:var(--muted);margin-bottom:8px;}
+.prog-bar{height:4px;background:var(--bg4);border-radius:2px;overflow:hidden;}
+.prog-bar-fill{height:100%;background:var(--gold);border-radius:2px;transition:width 0.4s ease;}
+.notes-area{width:100%;min-height:200px;background:var(--bg2);border:1px solid var(--border);border-radius:4px;padding:16px 20px;color:var(--text);font-family:'Cormorant Garamond',serif;font-size:1rem;line-height:1.8;resize:vertical;outline:none;transition:border-color 0.2s;}
+.notes-area:focus{border-color:var(--border-gold);}
+.notes-area::placeholder{color:var(--muted);font-style:italic;}
+.save-notes-btn{margin-top:10px;padding:7px 18px;background:var(--gold-dim);border:1px solid var(--border-gold);border-radius:3px;color:var(--gold);font-family:'DM Mono',monospace;font-size:0.55rem;letter-spacing:0.08em;text-transform:uppercase;cursor:pointer;transition:all 0.2s;}
+.save-notes-btn:hover{background:var(--gold);color:#000;}
+@media(max-width:640px){
+  header,.nav-strip,main{padding-left:20px;padding-right:20px;}
+  .method-grid{grid-template-columns:1fr;}
+  .progress-overview{grid-template-columns:1fr 1fr;}
+}
+</style>
+</head>
+<body>
+<header>
+  <div class="wordmark">Business & Entrepreneurship <span>/ A Curriculum</span></div>
+  <div class="header-right">
+    <span class="progress-label" id="progress-label">0 of 12 started</span>
+    <button class="theme-btn" onclick="toggleTheme()"><span id="theme-icon">☀</span></button>
+  </div>
+</header>
+<nav class="nav-strip">
+  <button class="nav-btn active" onclick="switchTab('overview',this)">Overview</button>
+  <button class="nav-btn" onclick="switchTab('pillars',this)">The 12 Pillars</button>
+  <button class="nav-btn" onclick="switchTab('progress',this)">Progress & Notes</button>
+</nav>
+<main>
+
+<div class="tab-panel active" id="tab-overview">
+  <div style="margin-bottom:48px;">
+    <div class="section-eyebrow">The work</div>
+    <div class="section-title">From an idea<br>to a company that operates.</div>
+    <div class="section-body">Most people who build nothing are not lazy — they are lost. They have the intention and often the capability, but not the sequence. This curriculum provides the sequence: what to understand first, what to build next, and how to think about the long horizon of building something that lasts. It is designed for anyone serious about entrepreneurship — whether starting from zero or from a registered but dormant entity. Start at Pillar 01. Do not skip ahead.</div>
+  </div>
+  <div class="gold-rule"></div>
+  <div class="section-eyebrow" style="margin-bottom:16px;">Four tiers</div>
+  <div class="tier-grid">
+    <div class="tier-card tier-found">
+      <div class="tier-label">Tier I — Foundation</div>
+      <div class="tier-name">Understanding what you're building.</div>
+      <div class="tier-desc">Before tactics, tools, or funding — you must understand what a business fundamentally is, how it is legally constituted, what the first steps of activation look like, and how to define your value proposition with precision. These four pillars are non-negotiable before anything else.</div>
+      <div class="tier-pillars">
+        <span class="tier-pill">What a Business Actually Is</span>
+        <span class="tier-pill">Legal Structure & Compliance</span>
+        <span class="tier-pill">First Steps — Activation</span>
+        <span class="tier-pill">Business Model & Value Proposition</span>
+      </div>
+    </div>
+    <div class="tier-card tier-dev">
+      <div class="tier-label">Tier II — Development</div>
+      <div class="tier-name">Building the internal structure.</div>
+      <div class="tier-desc">Once the business exists and the model is clear, the work shifts to building what makes it run — systems, financial discipline, the ability to sell, and the brand that makes people trust you before they meet you.</div>
+      <div class="tier-pillars">
+        <span class="tier-pill">Systems & Operations</span>
+        <span class="tier-pill">Business Finance & Accounting</span>
+        <span class="tier-pill">Sales & Business Development</span>
+        <span class="tier-pill">Marketing & Brand</span>
+      </div>
+    </div>
+    <div class="tier-card tier-integ">
+      <div class="tier-label">Tier III — Growth</div>
+      <div class="tier-name">Building with and through others.</div>
+      <div class="tier-desc">No business of significance is built alone. Teams, governance, and strategy are the pillars that take a one-person operation toward something that can outlast any individual — and compete with intention rather than by accident.</div>
+      <div class="tier-pillars">
+        <span class="tier-pill">Teams & Collaboration</span>
+        <span class="tier-pill">Corporate Governance</span>
+        <span class="tier-pill">Strategy & Competitive Positioning</span>
+      </div>
+    </div>
+    <div class="tier-card tier-adv">
+      <div class="tier-label">Tier IV — Vision</div>
+      <div class="tier-name">Building beyond a single company.</div>
+      <div class="tier-desc">For those whose vision extends beyond one business — the holding company model, multi-entity structures, and the long-horizon thinking required to build something that compounds across decades.</div>
+      <div class="tier-pillars">
+        <span class="tier-pill">Building at Scale — The Long Horizon</span>
+      </div>
+    </div>
+  </div>
+  <div class="gold-rule"></div>
+  <div class="section-eyebrow" style="margin-bottom:16px;">How this works</div>
+  <div class="method-grid">
+    <div class="method-card">
+      <div class="method-num">01</div>
+      <div class="method-title">One pillar at a time</div>
+      <div class="method-desc">You advance when something has changed — not when you finish the material. The test is always behavioural: has this pillar changed how you think, decide, or act? If not, go deeper before moving forward.</div>
+    </div>
+    <div class="method-card">
+      <div class="method-num">02</div>
+      <div class="method-title">Mixed resources</div>
+      <div class="method-desc">Books, podcasts, videos, courses, frameworks, and tools. Each pillar uses the format that matches how its content is best absorbed. Some things need to be read slowly. Some need to be heard. Some need to be built.</div>
+    </div>
+    <div class="method-card">
+      <div class="method-num">03</div>
+      <div class="method-title">Apply immediately</div>
+      <div class="method-desc">Every pillar has practice questions that connect directly to your real business situation. The learning is only real when it changes a decision you make with real stakes. Theory without application is just reading.</div>
+    </div>
+    <div class="method-card">
+      <div class="method-num">04</div>
+      <div class="method-title">The sequence matters</div>
+      <div class="method-desc">The pillars are ordered deliberately. Legal before operations. Operations before sales. Sales before teams. Teams before governance. Skipping ahead produces businesses with fundamental gaps that become expensive later.</div>
+    </div>
+  </div>
+</div>
+
+<div class="tab-panel" id="tab-pillars">
+  <div class="section-eyebrow" style="margin-bottom:6px;">All 12 pillars</div>
+  <div style="font-size:0.85rem;color:var(--muted);margin-bottom:28px;">Click to expand. Mark as started when you begin. Start at 01.</div>
+  <div class="pillar-list" id="pillar-list"></div>
+</div>
+
+<div class="tab-panel" id="tab-progress">
+  <div class="section-eyebrow" style="margin-bottom:20px;">Where you are</div>
+  <div class="progress-overview">
+    <div class="prog-card"><div class="prog-val" id="prog-started">0</div><div class="prog-label">Started</div></div>
+    <div class="prog-card"><div class="prog-val" id="prog-remaining">12</div><div class="prog-label">Remaining</div></div>
+    <div class="prog-card"><div class="prog-val">12</div><div class="prog-label">Total Pillars</div></div>
+  </div>
+  <div class="prog-bar-wrap">
+    <div class="prog-bar-label"><span>Overall progress</span><span id="prog-pct">0%</span></div>
+    <div class="prog-bar"><div class="prog-bar-fill" id="prog-fill" style="width:0%"></div></div>
+  </div>
+  <div class="section-eyebrow" style="margin-bottom:12px;">Running notes</div>
+  <div style="font-size:0.82rem;color:var(--muted);margin-bottom:10px;">What's moving. What you're learning. What you're building.</div>
+  <textarea class="notes-area" id="notes-area" placeholder="Document the build as it happens..."></textarea>
+  <button class="save-notes-btn" onclick="saveNotes()">Save Notes</button>
+</div>
+
+</main>
+<script>
+const PILLARS = [
+  {
+    id:'bs1',num:'01',tier:'foundation',tierLabel:'Tier I — Foundation',
+    name:'What a Business Actually Is',
+    why:'Most people start with tactics — a logo, a name, a social media page — before they understand what a business fundamentally is. A business is a system that creates and delivers value to a specific group of people in exchange for money, consistently and profitably. Every other question in this curriculum flows from that definition.',
+    resources:[
+      {icon:'📖',type:'Book',title:'The E-Myth Revisited',author:'Michael E. Gerber',note:'The most important book for anyone technically skilled who is starting a business. The distinction between the technician, the manager, and the entrepreneur — and why most businesses fail because the technician is running everything. Read this first.'},
+      {icon:'📖',type:'Book',title:'Zero to One',author:'Peter Thiel',note:'What makes a business genuinely valuable versus merely competitive. The question "what do you know that most people don\'t?" applied to your own venture.'},
+      {icon:'▶️',type:'Video',title:'What is a Business Model?',author:'Harvard Business Review — YouTube',note:'10 minutes. The business model canvas concept explained clearly. You will use this tool in Pillar 4 — this video is the preparation.'},
+      {icon:'🎙️',type:'Podcast',title:'How I Built This',author:'Guy Raz — NPR',note:'Listen to three episodes of founders in your industry or adjacent industries. What was the first thing they actually sold? How did they know there was a market? Study the sequencing.'},
+      {icon:'⚙️',type:'Framework',title:'The Value Creation Test',author:'Core business thinking',note:'For any business idea, answer three questions: Who has this problem? How badly do they have it? What are they currently doing about it? If you can\'t answer all three specifically, the business idea is not yet defined.'},
+    ],
+    practice:[
+      'What specific problem does your business solve — not the service it provides, the problem it solves?',
+      'Who is experiencing this problem right now and paying someone else to solve it? That is your market.',
+      'What would your business need to look like to take its first paid engagement in the next 90 days?',
+    ],
+    bringBack:'What does your business actually do — in one sentence, without jargon? Who is the first customer and what would they pay for? What is the single most important thing that needs to be true before you can serve that first customer?',
+  },
+  {
+    id:'bs2',num:'02',tier:'foundation',tierLabel:'Tier I — Foundation',
+    name:'Legal Structure & Compliance',
+    why:'A business without legal structure is a personal liability. Understanding how your business is constituted — what protections it provides, what obligations come with it, what must be maintained — is not administrative overhead. It is foundational protection for everything you build.',
+    resources:[
+      {icon:'📖',type:'Book',title:'Legal Guide for Starting & Running a Small Business',author:'Fred Steingold — Nolo Press',note:'Clear, accessible, and thorough. Covers business structures, contracts, intellectual property, and compliance. Get the most recent edition. Supplement with local legal guidance for your jurisdiction.'},
+      {icon:'▶️',type:'Video',title:'Business Structures Explained',author:'Nolo — YouTube',note:'Sole proprietorship, partnership, LLC, corporation — what each means, what each protects, and what each costs. Know the differences before choosing your structure.'},
+      {icon:'🎙️',type:'Podcast',title:'Small Business Legal Podcast',author:'Various — search on Spotify',note:'Find a legal podcast relevant to your country or jurisdiction. Compliance requirements vary significantly by location — get local, current information.'},
+      {icon:'⚙️',type:'Action',title:'One-hour consultation with a business lawyer',author:'Practical step',note:'Before anything else: one hour with a qualified business lawyer in your jurisdiction. Ask specifically about registration requirements, tax obligations, and what contracts you need before taking a client. This hour costs less than one compliance mistake.'},
+      {icon:'⚙️',type:'Framework',title:'The Compliance Checklist',author:'Your jurisdiction',note:'List every legal obligation your registered business has: annual filings, tax registrations, sector-specific licences, employment obligations if you hire. Know the deadlines. Build them into your calendar before you need them.'},
+    ],
+    practice:[
+      'List every legal obligation your business currently has — registered or not. Which are met? Which are not?',
+      'What does a basic client services contract need to contain for your industry? Research the standard terms.',
+      'What would it cost you — financially and reputationally — to operate without the right legal structure?',
+    ],
+    bringBack:'What is your business\'s current legal standing? What obligations are outstanding and what does it cost to rectify them? What do you need in place legally before taking a first paying client?',
+  },
+  {
+    id:'bs3',num:'03',tier:'foundation',tierLabel:'Tier I — Foundation',
+    name:'First Steps — Activation',
+    why:'Knowing what a business is and understanding its legal obligations are preparation. This pillar is activation — the specific, concrete steps that move a business from existing on paper to existing in practice. A business that is not operational is not a business. It is an intention.',
+    resources:[
+      {icon:'📖',type:'Book',title:'Built to Sell',author:'John Warrillow',note:'How to build a business that doesn\'t depend entirely on you from the start. The habits you build in the first 90 days determine the structure you have in five years. Build with exit-readiness in mind from day one — even if you never exit.'},
+      {icon:'📖',type:'Book',title:'The $100 Startup',author:'Chris Guillebeau',note:'On starting lean — finding the overlap between what you love, what you\'re good at, and what people will pay for. Particularly useful for service businesses in their earliest stages.'},
+      {icon:'▶️',type:'Video',title:'How to Start a Business in 30 Days',author:'Various — YouTube',note:'Search for a start-up checklist video relevant to your country. The point is not 30 days — it is having a concrete, ordered list of the activation steps in front of you.'},
+      {icon:'⚙️',type:'Framework',title:'The One-Page Business Plan',author:'Jim Horan',note:'Vision, mission, objectives, strategies, action plans — one page. Not a 40-page document. A single page that forces clarity. Complete this before the end of this pillar and bring it back.'},
+      {icon:'🎙️',type:'Podcast',title:'Entrepreneurs on Fire — First 100 Days',author:'John Lee Dumas',note:'Episodes specifically on the mechanics of the first three months: getting the legal structure right, opening accounts, finding the first client. Filter for service businesses similar to yours.'},
+    ],
+    practice:[
+      'List the specific activation steps your business needs: bank account, professional email, tax registration, first client conversation. Give each a deadline.',
+      'Write a one-page description of your business: what it does, its target clients, its differentiator, its fee structure.',
+      'Identify three potential first clients — specific people or organisations, not categories. What would you offer each?',
+    ],
+    bringBack:'What has actually been done to activate your business this week — not planned, done? What is the single biggest obstacle to your business taking its first paid engagement in the next 60 days? What would remove that obstacle?',
+  },
+  {
+    id:'bs4',num:'04',tier:'foundation',tierLabel:'Tier I — Foundation',
+    name:'Business Model & Value Proposition',
+    why:'A business model is the logic by which a company creates, delivers, and captures value. Your value proposition is the specific reason a client would choose you over every alternative. These two things must be clear before you spend money on anything. Most businesses that fail never got these right — or got them right too late.',
+    resources:[
+      {icon:'📖',type:'Book',title:'Business Model Generation',author:'Alexander Osterwalder',note:'The book that created the Business Model Canvas. Read chapters 1 and 2, then build the canvas for your business. Nine boxes. Every one filled. This is the output of this pillar.'},
+      {icon:'📖',type:'Book',title:'Value Proposition Design',author:'Alexander Osterwalder',note:'The companion book. Goes deeper into the customer-value fit — what customers are trying to do, what pains they experience, what gains they want. Use it to stress-test your value proposition.'},
+      {icon:'▶️',type:'Video',title:'Business Model Canvas Explained',author:'Strategyzer — YouTube',note:'The official explanation from the creators. 20 minutes. Watch before building your canvas. Then build.'},
+      {icon:'💻',type:'Tool',title:'Strategyzer Canvas — free online',author:'strategyzer.com',note:'Build digitally at strategyzer.com. Free. The act of filling it in forces the clarity the book alone doesn\'t.'},
+      {icon:'🎙️',type:'Podcast',title:'Masters of Scale',author:'Reid Hoffman',note:'Reid Hoffman on how great businesses find and refine their value proposition. Episodes on finding product-market fit are directly applicable regardless of your industry.'},
+    ],
+    practice:[
+      'Complete the Business Model Canvas for your business. Every box filled. No box left as "TBD."',
+      'Write your value proposition in one sentence: "We help [who] to [do what] by [how], unlike [alternatives]."',
+      'What would make a client choose you over a larger, more established competitor? Name it specifically — not generally.',
+    ],
+    bringBack:'What does the completed canvas reveal about your business? Where are the weakest boxes — the ones you couldn\'t fill confidently? What is the value proposition in one sentence, and does it actually differentiate you?',
+  },
+  {
+    id:'bs5',num:'05',tier:'development',tierLabel:'Tier II — Development',
+    name:'Systems & Operations',
+    why:'A business without systems is a job. Every time a client is served, it should happen through a repeatable process that produces consistent quality without requiring you to reinvent it each time. Systems are how you scale. They are also how you maintain quality without being personally present for every decision.',
+    resources:[
+      {icon:'📖',type:'Book',title:'Work the System',author:'Sam Carpenter',note:'The core argument: most businesses fail not because of bad luck or bad markets but because they have no systems. The owner is always firefighting instead of building. This book changes how you see every operational problem.'},
+      {icon:'📖',type:'Book',title:'Traction',author:'Gino Wickman',note:'The Entrepreneurial Operating System (EOS). A complete framework for running a business on clear processes, measurable goals, and genuine accountability. Read after Work the System.'},
+      {icon:'▶️',type:'Video',title:'How to Build SOPs for Your Business',author:'Process Street — YouTube',note:'Standard Operating Procedures. Every repeated task in your business should have one. Watch the explainer, then write your first three SOPs: client onboarding, service delivery, invoicing.'},
+      {icon:'💻',type:'Tool',title:'Notion or Trello — free',author:'Project management',note:'Pick one. Set it up before your first project. The habit of running through a system matters more than which system you choose. Consistency of use is the point.'},
+      {icon:'🎙️',type:'Podcast',title:'Online Marketing Made Easy',author:'Amy Porterfield',note:'Strong on the systems side of running a service business — particularly client onboarding, delivery workflows, and scalable processes. Filter for episodes on operational efficiency.'},
+    ],
+    practice:[
+      'Map your business\'s complete client journey from first contact to final payment. Every step. Every handoff. Every document.',
+      'Write your first SOP: the client onboarding process. What happens between "they said yes" and "work begins"?',
+      'What would break first if your business ran two client projects simultaneously right now?',
+    ],
+    bringBack:'What are the three most critical systems your business needs before it takes its first project? What does the project management setup look like right now? What would it take to serve five clients simultaneously without your quality dropping?',
+  },
+  {
+    id:'bs6',num:'06',tier:'development',tierLabel:'Tier II — Development',
+    name:'Business Finance & Accounting',
+    why:'A business\'s financial health is visible in its numbers — but only if you are tracking them. Every business needs basic financial infrastructure from the first transaction: a way to invoice, a way to track expenses, and a way to see profit and loss clearly. Financial blindness is one of the most common causes of business failure in otherwise viable companies.',
+    resources:[
+      {icon:'📖',type:'Book',title:'Profit First',author:'Mike Michalowicz',note:'A system for managing business cash flow that ensures profitability from the first transaction. Counterintuitive — income minus profit equals expenses, not income minus expenses equals profit. Highly effective for early-stage businesses.'},
+      {icon:'📖',type:'Book',title:'Financial Intelligence for Entrepreneurs',author:'Karen Berman & Joe Knight',note:'Written specifically for founders who are not accountants. How to read a P&L, balance sheet, and cash flow statement. Practical, jargon-light, and essential.'},
+      {icon:'💻',type:'Tool',title:'Wave Accounting — free',author:'waveapps.com',note:'Free accounting software handling invoicing, expense tracking, and basic financial reporting. Set it up before your first transaction. The discipline of tracking from day one is worth more than the most sophisticated software started late.'},
+      {icon:'▶️',type:'Video',title:'How to Read a Profit and Loss Statement',author:'Accounting Stuff — YouTube',note:'The P&L, balance sheet, and cash flow statement are the three financial documents every founder must be able to read. Start with the P&L. 15 minutes.'},
+      {icon:'⚙️',type:'Framework',title:'Profit First Allocation Accounts',author:'Mike Michalowicz',note:'Separate accounts for: income, profit, owner\'s pay, taxes, operating expenses. Revenue flows in and is immediately allocated by percentage. Enforces financial discipline structurally rather than by willpower.'},
+    ],
+    practice:[
+      'Set up a bookkeeping system — even a spreadsheet — with income, expenses, and profit tracked by month.',
+      'Price three hypothetical projects at different scales. Show your working: how did you arrive at each number?',
+      'What is your business\'s break-even — the revenue it needs to cover its basic operating costs each month?',
+    ],
+    bringBack:'What is the bookkeeping setup and is it tracking from the first transaction? What is the fee structure and how was it determined? What would the business need to earn in the next 12 months to be financially viable as a standalone operation?',
+  },
+  {
+    id:'bs7',num:'07',tier:'development',tierLabel:'Tier II — Development',
+    name:'Sales & Business Development',
+    why:'A business without sales is a hobby. Sales is the disciplined pursuit of conversations with people who have a problem you can solve. Business development is the long game: relationships, reputation, and pipeline built deliberately over time. Neither happens by accident, and neither can be outsourced entirely — especially in the early years.',
+    resources:[
+      {icon:'📖',type:'Book',title:'Never Split the Difference',author:'Chris Voss',note:'Negotiation by a former FBI hostage negotiator. The most practical book on persuasion, listening, and reaching agreement available. Apply it to every client conversation, not just formal negotiations.'},
+      {icon:'📖',type:'Book',title:'Win Without Pitching Manifesto',author:'Blair Enns',note:'Short. Available free online. The argument that experts should not compete on price and should not pitch for free. The posture every professional services business should build from day one.'},
+      {icon:'▶️',type:'Video',title:'How to Sell Professional Services',author:'Blair Enns — YouTube or 2Bobs podcast',note:'Enns is the clearest thinker on selling expertise. His framework for positioning, pricing, and closing for professional services firms is directly applicable regardless of industry.'},
+      {icon:'🎙️',type:'Podcast',title:'2Bobs',author:'David Baker & Blair Enns',note:'On business development for expertise-based firms. Every episode applies to any professional services business. Start with episodes on pricing and on saying no to the wrong clients.'},
+      {icon:'⚙️',type:'Framework',title:'The Simple Pipeline Tracker',author:'Standard sales practice',note:'Name, relationship type, potential scope, next action, status. Start with ten real names — people you know who have the problem you solve. The pipeline is not a spreadsheet exercise. It is a living document of real conversations.'},
+    ],
+    practice:[
+      'Build a pipeline of ten names — real people, real potential, real next actions.',
+      'Write a one-paragraph introduction of your business you could send to a warm contact. Make it about their problem, not your service.',
+      'What objections will potential clients have to hiring you — and what is the honest answer to each?',
+    ],
+    bringBack:'What does the pipeline look like right now — how many live conversations are happening? What is the biggest obstacle to business development in this season? What is the next specific sales action and when will it happen?',
+  },
+  {
+    id:'bs8',num:'08',tier:'development',tierLabel:'Tier II — Development',
+    name:'Marketing & Brand',
+    why:'Marketing is not advertising. Marketing is everything a potential client experiences about your business before they decide to engage you — your reputation, how you present yourself, the quality of your documents, how you speak about what you do. Brand is the feeling a client has when they think of you. Both are built deliberately or by accident.',
+    resources:[
+      {icon:'📖',type:'Book',title:'This is Marketing',author:'Seth Godin',note:'The clearest thinking on what marketing actually is — finding and serving people who want what you have, not interrupting everyone with what you offer. Read this before spending money on any advertising.'},
+      {icon:'📖',type:'Book',title:'Building a StoryBrand',author:'Donald Miller',note:'How to talk about your business in a way that connects with clients. The client is the hero. You are the guide. Apply this framework to every piece of marketing you produce — website, proposals, social media.'},
+      {icon:'▶️',type:'Video',title:'StoryBrand Framework Explained',author:'Donald Miller — YouTube',note:'The one-liner framework: "We help [who] who want [goal] by [method] so they can [result]." 20 minutes. Build yours before moving on.'},
+      {icon:'🎙️',type:'Podcast',title:'Marketing School',author:'Neil Patel & Eric Siu',note:'Short daily episodes on marketing tactics. Focus on B2B and professional services episodes. Particularly useful for content strategy and LinkedIn presence.'},
+      {icon:'⚙️',type:'Framework',title:'The Content Calendar — One Piece Per Week',author:'Standard content practice',note:'One piece of professional content per week on LinkedIn or your primary platform. Not long — consistent. A project insight, an industry observation, a question. Consistency over volume. A year of weekly posts is 52 pieces of credibility.'},
+    ],
+    practice:[
+      'Write the StoryBrand one-liner for your business: "We help [who] who want [goal] by [method] so they can [result]."',
+      'What does a potential client find when they search for your business online? What should they find?',
+      'What three pieces of content could you produce in the next month that would demonstrate expertise and build credibility?',
+    ],
+    bringBack:'What is your business\'s current marketing footprint — what exists? What does your professional presence look like from the outside? What is the single most impactful marketing action your business could take in the next 30 days?',
+  },
+  {
+    id:'bs9',num:'09',tier:'integration',tierLabel:'Tier III — Growth',
+    name:'Teams & Collaboration',
+    why:'No business of significance is built alone. But building a team before the systems exist, before the model is proven, before the revenue is stable — is one of the most common and expensive mistakes founders make. This pillar teaches you how to think about people: when to bring them in, how to choose them, how to lead them, and how to build a culture that makes them want to do their best work.',
+    resources:[
+      {icon:'📖',type:'Book',title:'Who',author:'Geoff Smart & Randy Street',note:'The most rigorous approach to hiring. The A method: scorecard, source, select, sell. Read this before you hire anyone. The cost of a bad hire at an early stage is disproportionate to everything else.'},
+      {icon:'📖',type:'Book',title:'The Five Dysfunctions of a Team',author:'Patrick Lencioni',note:'What breaks teams: absence of trust, fear of conflict, lack of commitment, avoidance of accountability, inattention to results. A model for understanding team dynamics before you have a team to fix.'},
+      {icon:'▶️',type:'Video',title:'How to Build a Great Team',author:'Simon Sinek — YouTube',note:'Sinek on trust, safety, and why teams perform. The culture a leader creates — intentionally or not — determines what the team is capable of. Watch before your first hire.'},
+      {icon:'🎙️',type:'Podcast',title:'Masters of Scale — Culture Episodes',author:'Reid Hoffman',note:'How great companies build culture deliberately from the earliest days. Culture is not what you put on a poster — it is what you reward and what you tolerate. Build it from day one.'},
+      {icon:'⚙️',type:'Framework',title:'The RACI Matrix',author:'Standard project management',note:'Responsible, Accountable, Consulted, Informed. For every key task or decision, know who plays which role. Prevents the two most common team failures: overlap (everyone thinks someone else is responsible) and gaps (no one is).'},
+    ],
+    practice:[
+      'What is the first role your business would need to hire — and what revenue level would justify it?',
+      'Write a job description for that first hire: what would the role be, what would success look like in 90 days?',
+      'What is the culture of your business — what behaviour does it reward, what does it not tolerate? Write it down before you have people to see it.',
+    ],
+    bringBack:'What kind of leader do you want to be as your business grows — and what would that require of you today? What does the culture of your business look like in practice — not as a value statement, as daily behaviour? What is the first team addition your business actually needs?',
+  },
+  {
+    id:'bs10',num:'10',tier:'integration',tierLabel:'Tier III — Growth',
+    name:'Corporate Governance',
+    why:'Corporate governance is the system by which a company is directed and controlled. For a small company it may seem premature — but the habits of good governance built early protect you personally, protect the business legally, and make the company more attractive to partners, investors, and serious clients who evaluate governance as a signal of professionalism.',
+    resources:[
+      {icon:'📖',type:'Book',title:'The Founder\'s Dilemmas',author:'Noam Wasserman',note:'Research on how founding decisions — equity splits, governance structures, co-founder relationships — determine company outcomes years later. Read before bringing in any partners or additional shareholders.'},
+      {icon:'📖',type:'Book',title:'Corporate Governance Essentials',author:'Institute of Directors publications',note:'The IoD publishes governance guides for companies of all sizes. Find the edition relevant to your country. Download the SME governance guide specifically.'},
+      {icon:'▶️',type:'Video',title:'Corporate Governance for Small Businesses',author:'Various — YouTube',note:'Board responsibilities, director duties, shareholder rights — explained accessibly. Know the basics before you need them in a difficult situation.'},
+      {icon:'🎙️',type:'Podcast',title:'Startup Legal Minds',author:'Various — search on Spotify',note:'On the legal and governance side of building a company — equity, founder agreements, investor terms. Listen before any equity conversation, not after.'},
+      {icon:'⚙️',type:'Framework',title:'The Governance Calendar',author:'Standard corporate practice',note:'Annual general meeting, director review, financial year-end filings — know when your governance obligations fall due and build them into your calendar. Compliance is a discipline, not a reaction.'},
+    ],
+    practice:[
+      'What decisions in your business require a formal resolution versus an operational decision you can make alone?',
+      'Write a simple governance document for your business: who decides what, how conflicts are resolved, how profits are distributed.',
+      'If you were to bring in a business partner tomorrow, what would you need to agree on in writing before they started?',
+    ],
+    bringBack:'What is your business\'s current governance structure — who are the directors, what are the share percentages, what decisions have been formally documented? What governance gaps need to be closed before your business takes a significant contract or brings in a partner?',
+  },
+  {
+    id:'bs11',num:'11',tier:'integration',tierLabel:'Tier III — Growth',
+    name:'Strategy & Competitive Positioning',
+    why:'Strategy is the set of choices that determine where you will compete, how you will win, and what you will not do. Every business makes these choices — most make them by accident. A company with a clear strategy makes better decisions faster, attracts better clients and people, and builds something genuinely defensible rather than just busy.',
+    resources:[
+      {icon:'📖',type:'Book',title:'Good Strategy / Bad Strategy',author:'Richard Rumelt',note:'The clearest book on what strategy actually is versus what people call strategy. The kernel: diagnosis, guiding policy, coherent actions. Read this and you will never look at a mission statement the same way again.'},
+      {icon:'📖',type:'Book',title:'Playing to Win',author:'A.G. Lafley & Roger Martin',note:'Strategy as integrated choices: winning aspiration, where to play, how to win, capabilities required, management systems. A framework that works for companies of any size.'},
+      {icon:'▶️',type:'Video',title:'What is Competitive Advantage?',author:'Harvard Business Review — YouTube',note:'Michael Porter\'s competitive advantage framework explained accessibly. Cost leadership, differentiation, or focus — where does your business sit and why? 15 minutes.'},
+      {icon:'🎙️',type:'Podcast',title:'Acquired',author:'Ben Gilbert & David Rosenthal',note:'Deep dives into how great companies made their strategic choices. Study the reasoning and sequencing, not just the outcomes. Every episode is a masterclass in competitive thinking.'},
+      {icon:'⚙️',type:'Framework',title:'Porter\'s Five Forces',author:'Michael Porter',note:'Analyse your industry through five forces: competitor rivalry, supplier power, buyer power, threat of substitutes, threat of new entrants. Brings the competitive landscape into sharp focus. Do this for your industry before setting prices or targeting clients.'},
+    ],
+    practice:[
+      'Complete the Playing to Win strategy framework: winning aspiration, where to play, how to win.',
+      'What is your single most important competitive advantage — the one thing that makes you the right choice for the right client?',
+      'What will you NOT do — the services you will decline, the clients you will not serve, the markets you will not enter? Strategy is also exclusion.',
+    ],
+    bringBack:'What is your business\'s strategy in one paragraph — where it competes, how it wins, and what it will not do? What is the biggest strategic gap between where the company is now and where it needs to be in three years? What does your competitive positioning allow you to charge, and is that reflected in your current pricing?',
+  },
+  {
+    id:'bs12',num:'12',tier:'advanced',tierLabel:'Tier IV — Vision',
+    name:'Building at Scale — The Long Horizon',
+    why:'For those whose vision extends beyond a single business — the holding company model, multi-entity structures, and the long-horizon thinking required to build something that compounds across decades. This pillar is not about getting big fast. It is about building with the discipline and sequencing that allows greatness to compound over time.',
+    resources:[
+      {icon:'📖',type:'Book',title:'The Outsiders',author:'William Thorndike',note:'Eight unconventional CEOs who built extraordinary companies. The common thread: disciplined capital allocation — deciding where to deploy resources across opportunities. This is the core skill of anyone building across multiple businesses.'},
+      {icon:'📖',type:'Book',title:'Good to Great',author:'Jim Collins',note:'What separates companies that make the leap to sustained greatness from those that don\'t. The flywheel, the hedgehog concept, level 5 leadership. Collins\' research is among the most rigorous available on what building enduring companies actually requires.'},
+      {icon:'📖',type:'Book',title:'Poor Charlie\'s Almanack',author:'Charlie Munger',note:'Mental models, capital allocation discipline, and long-term thinking from the man who built Berkshire Hathaway alongside Warren Buffett. The multidisciplinary approach to business and investment thinking.'},
+      {icon:'🎙️',type:'Podcast',title:'Acquired — Berkshire Hathaway Episode',author:'Ben Gilbert & David Rosenthal',note:'The most thorough available analysis of how Berkshire Hathaway was built as a multi-business holding company. Long. Worth every minute for understanding the holding company model at its finest expression.'},
+      {icon:'▶️',type:'Video',title:'How Conglomerates Are Built',author:'Various — YouTube',note:'Search for documentary content on African conglomerates and global holding company structures. Dangote, Naspers, Berkshire. Study the sequencing: what came first, what made the next step possible, how capital flowed between entities.'},
+    ],
+    practice:[
+      'If your current business were to serve as the foundation for three additional businesses, what would they be and why does your current business make them possible?',
+      'What does disciplined capital allocation mean for a multi-business vision — how do you decide which entity gets resources at each stage?',
+      'Write the investment thesis for your next business: why this sector, why now, what the entry strategy is, what your current business gives you that makes it possible.',
+    ],
+    bringBack:'What would it mean to build something that outlasts you — an institution rather than a business? What does the 20-year version of what you\'re building look like in concrete terms? What needs to be true of your current business before the next entity can be responsibly launched?',
+  },
+];
+
+const TIER_COLORS={foundation:'var(--found)',development:'var(--dev)',integration:'var(--integ)',advanced:'var(--adv)'};
+let started=JSON.parse(localStorage.getItem('bs-started')||'[]');
+const TOTAL=12;
+
+function toggleTheme(){
+  const dark=document.documentElement.getAttribute('data-theme')==='dark';
+  document.documentElement.setAttribute('data-theme',dark?'light':'dark');
+  document.getElementById('theme-icon').textContent=dark?'☾':'☀';
+  localStorage.setItem('bs-theme',dark?'light':'dark');
+}
+function switchTab(name,btn){
+  document.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
+  document.getElementById('tab-'+name).classList.add('active');
+  btn.classList.add('active');
+  if(name==='progress')updateProgress();
+}
+function togglePillar(el){el.classList.toggle('open');}
+function toggleStarted(id,dot){
+  const idx=started.indexOf(id);
+  if(idx>-1){started.splice(idx,1);}else{started.push(id);}
+  localStorage.setItem('bs-started',JSON.stringify(started));
+  dot.classList.toggle('active',started.includes(id));
+  updateProgressLabel();updateProgress();
+}
+function updateProgressLabel(){document.getElementById('progress-label').textContent=started.length+' of '+TOTAL+' started';}
+function updateProgress(){
+  const s=started.length;
+  document.getElementById('prog-started').textContent=s;
+  document.getElementById('prog-remaining').textContent=TOTAL-s;
+  const pct=Math.round((s/TOTAL)*100);
+  document.getElementById('prog-pct').textContent=pct+'%';
+  document.getElementById('prog-fill').style.width=pct+'%';
+}
+function saveNotes(){
+  localStorage.setItem('bs-notes',document.getElementById('notes-area').value);
+  const btn=document.querySelector('.save-notes-btn');
+  btn.textContent='Saved.';setTimeout(()=>btn.textContent='Save Notes',2000);
+}
+function buildPillars(){
+  const list=document.getElementById('pillar-list');
+  PILLARS.forEach(p=>{
+    const isStarted=started.includes(p.id);
+    const tc=TIER_COLORS[p.tier];
+    const el=document.createElement('div');
+    el.className='pillar-item';
+    el.innerHTML=`
+      <div class="pillar-header" onclick="togglePillar(this.closest('.pillar-item'))">
+        <div class="pillar-num">${p.num}</div>
+        <div class="pillar-meta">
+          <div class="pillar-name">${p.name}</div>
+          <div class="pillar-tier-tag" style="color:${tc};">${p.tierLabel}</div>
+        </div>
+        <div class="pillar-status">
+          <div class="status-dot${isStarted?' active':''}" title="Mark as started" onclick="event.stopPropagation();toggleStarted('${p.id}',this)"></div>
+          <span class="pillar-toggle">▾</span>
+        </div>
+      </div>
+      <div class="pillar-body">
+        <div class="pillar-why">${p.why}</div>
+        <div class="resource-section">
+          <div class="resource-label">Resources</div>
+          ${p.resources.map(r=>`
+            <div class="resource-item">
+              <div class="resource-icon">${r.icon}</div>
+              <div class="resource-info">
+                <div class="resource-type">${r.type}</div>
+                <div class="resource-title">${r.title}</div>
+                <div class="resource-author">${r.author}</div>
+                <div class="resource-note">${r.note}</div>
+              </div>
+            </div>`).join('')}
+        </div>
+        <div class="resource-section">
+          <div class="resource-label">Practice</div>
+          <ul class="practice-list">${p.practice.map(pr=>`<li>${pr}</li>`).join('')}</ul>
+        </div>
+        <div class="bring-back">
+          <div class="bring-back-label">Reflection questions</div>
+          <p>${p.bringBack}</p>
+        </div>
+      </div>`;
+    list.appendChild(el);
+  });
+}
+function init(){
+  const theme=localStorage.getItem('bs-theme')||'dark';
+  document.documentElement.setAttribute('data-theme',theme);
+  document.getElementById('theme-icon').textContent=theme==='dark'?'☀':'☾';
+  document.getElementById('notes-area').value=localStorage.getItem('bs-notes')||'';
+  buildPillars();updateProgressLabel();updateProgress();
+}
+init();
+</script>
+</body>
+</html>

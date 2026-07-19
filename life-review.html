@@ -1,0 +1,1147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@300;400&display=swap" rel="stylesheet">
+<title>Life Review — dAnTE</title>
+<style>
+:root{
+  --bg:#0a0a0a;--bg2:#111;--bg3:#181818;--bg4:#1e1e1e;
+  --border:#1e1e1e;--border2:#2a2a2a;--border3:#363636;
+  --gold:#c9a84c;--gold-dim:#7a5f28;--gold-glow:rgba(201,168,76,0.08);
+  --text:#ddd8ce;--text-dim:#777;--text-muted:#404040;
+  --red:#c0392b;--green:#4caf7d;--radius:5px;
+}
+.light{
+  --bg:#f2ede6;--bg2:#eae4dc;--bg3:#e0d9d0;--bg4:#d6cfc5;
+  --border:#d8d1c8;--border2:#c8c1b7;--border3:#b8b0a5;
+  --gold:#8a6020;--gold-dim:#b8902a;--gold-glow:rgba(138,96,32,0.07);
+  --text:#1a1714;--text-dim:#666;--text-muted:#aaa;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;-webkit-tap-highlight-color:transparent}
+body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;font-size:13px;line-height:1.5;display:flex;flex-direction:column;min-height:100vh}
+::-webkit-scrollbar{width:3px}::-webkit-scrollbar-thumb{background:var(--border3);border-radius:2px}
+
+header{flex-shrink:0;background:var(--bg);border-bottom:1px solid var(--border);padding:11px 16px;display:flex;align-items:center;gap:8px;position:sticky;top:0;z-index:50}
+.logo{display:flex;flex-direction:column;gap:0;margin-right:auto}
+.logo-brand{font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:.22em;color:var(--gold);text-transform:uppercase}
+.logo-title{font-family:'Cormorant Garamond',serif;font-size:19px;font-weight:300;color:var(--text);letter-spacing:.04em;line-height:1.1}
+.logo-title em{color:var(--gold);font-style:italic}
+.hbtn{background:none;border:1px solid var(--border2);border-radius:var(--radius);color:var(--text-dim);font-family:'Inter',sans-serif;font-size:11px;padding:5px 10px;cursor:pointer;transition:all .18s;white-space:nowrap}
+.hbtn:hover{border-color:var(--gold);color:var(--gold)}
+
+.tab-bar{flex-shrink:0;display:flex;background:var(--bg2);border-bottom:1px solid var(--border);padding:0 16px;gap:0;overflow-x:auto}
+.tab{padding:9px 13px;font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.09em;text-transform:uppercase;color:var(--text-muted);cursor:pointer;border-bottom:2px solid transparent;transition:all .18s;white-space:nowrap;flex-shrink:0}
+.tab:hover{color:var(--text-dim)}
+.tab.active{color:var(--gold);border-bottom-color:var(--gold)}
+
+main{flex:1;padding:14px 16px 60px;max-width:680px;width:100%;margin:0 auto}
+.page{display:none}
+.page.active{display:block}
+
+.section-label{font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--text-muted);letter-spacing:.14em;text-transform:uppercase;margin-bottom:6px;display:block}
+.page-head{margin-bottom:16px}
+.page-title{font-family:'Cormorant Garamond',serif;font-size:19px;font-weight:300;color:var(--text);letter-spacing:.03em}
+.page-sub{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--text-muted);margin-top:3px}
+.page-note{font-size:11px;color:var(--text-muted);font-style:italic;margin-top:8px;border-left:2px solid var(--border2);padding-left:10px;line-height:1.6}
+
+.card{background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:13px;margin-bottom:9px}
+.card:hover{border-color:var(--border2)}
+.empty-note{font-size:11px;color:var(--text-muted);font-style:italic;padding:10px 2px}
+
+.dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;display:inline-block}
+
+.btn{background:var(--gold-glow);border:1px solid var(--gold-dim);border-radius:var(--radius);color:var(--gold);font-family:'JetBrains Mono',monospace;font-size:10px;padding:8px 14px;cursor:pointer;letter-spacing:.06em;transition:all .18s}
+.btn:hover{background:var(--gold);color:#000}
+.btn-main{background:var(--green);border:none;color:#fff;font-family:'Cormorant Garamond',serif;font-size:15px;font-weight:600;padding:10px 18px;letter-spacing:.03em;border-radius:var(--radius);cursor:pointer;transition:all .18s}
+.btn-main:hover{opacity:.9}
+.btn-row{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+.action-row{display:flex;gap:12px;margin-top:10px;flex-wrap:wrap}
+.action-btn{font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--text-muted);background:none;border:none;cursor:pointer;letter-spacing:.08em;text-transform:uppercase;padding:2px 0}
+.action-btn:hover{color:var(--gold)}
+.action-btn.red:hover{color:var(--red)}
+
+.inp,.sel,textarea.inp{width:100%;background:var(--bg3);border:1px solid var(--border2);border-radius:var(--radius);color:var(--text);font-family:'Inter',sans-serif;font-size:12px;padding:8px 11px;outline:none;transition:border-color .18s}
+.inp:focus,.sel:focus,textarea.inp:focus{border-color:var(--gold-dim)}
+.inp::placeholder{color:var(--text-muted)}
+textarea.inp{resize:vertical;min-height:64px;line-height:1.5}
+.field{margin-bottom:11px}
+.field-label{font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--text-muted);letter-spacing:.1em;text-transform:uppercase;margin-bottom:5px;display:block}
+.field-row{display:flex;gap:8px}
+.field-row .field{flex:1}
+
+/* rating scale */
+.rate-row{display:flex;gap:4px;flex-wrap:wrap}
+.rate-btn{width:26px;height:26px;border:1px solid var(--border2);border-radius:4px;background:var(--bg3);color:var(--text-dim);font-family:'JetBrains Mono',monospace;font-size:11px;cursor:pointer;transition:all .15s;display:flex;align-items:center;justify-content:center}
+.rate-btn:hover{border-color:var(--gold-dim)}
+.rate-btn.sel{background:var(--gold-dim);border-color:var(--gold-dim);color:#000;font-weight:600}
+
+/* choice pills */
+.choice-row{display:flex;gap:6px;flex-wrap:wrap}
+.choice-pill{border:1px solid var(--border2);border-radius:20px;background:var(--bg3);color:var(--text-dim);font-size:11px;padding:6px 13px;cursor:pointer;transition:all .15s}
+.choice-pill:hover{border-color:var(--gold-dim)}
+.choice-pill.sel{background:var(--gold-glow);border-color:var(--gold);color:var(--gold)}
+
+/* checklist */
+.chk-row{display:flex;align-items:center;gap:8px;margin-bottom:5px}
+.chk-box{width:17px;height:17px;border:1px solid var(--border3);border-radius:4px;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:10px;color:transparent;cursor:pointer;transition:all .15s}
+.chk-box.on{background:var(--gold-dim);border-color:var(--gold-dim);color:var(--gold)}
+.chk-box.on::after{content:'✓'}
+
+/* question block (collapsible, category grouped) */
+.cat-group{margin-bottom:14px}
+.cat-group-head{display:flex;align-items:center;gap:8px;padding:8px 0;border-bottom:1px solid var(--border);margin-bottom:9px}
+.cat-group-title{font-family:'Cormorant Garamond',serif;font-size:15px;font-weight:600;color:var(--text)}
+.cat-group-avg{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--text-muted);margin-left:auto}
+.q-block{background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:12px 13px;margin-bottom:8px}
+.q-prompt{font-size:13px;color:var(--text);margin-bottom:9px;line-height:1.5}
+.q-notes{margin-top:8px}
+
+/* goal cards */
+.goal-card{background:var(--bg2);border:1px solid var(--border);border-radius:8px;margin-bottom:9px;overflow:hidden}
+.goal-card.status-done{opacity:.5}
+.goal-head{display:flex;align-items:flex-start;gap:9px;padding:11px 12px;cursor:pointer}
+.goal-head:hover{background:var(--gold-glow)}
+.goal-title{font-size:13px;font-weight:500;color:var(--text);flex:1;min-width:0}
+.goal-card.status-done .goal-title{text-decoration:line-through;color:var(--text-muted)}
+.goal-meta{display:flex;gap:7px;align-items:center;flex-wrap:wrap;margin-top:4px}
+.goal-tag{font-family:'JetBrains Mono',monospace;font-size:8px;letter-spacing:.06em;text-transform:uppercase;border:1px solid var(--border2);border-radius:3px;padding:1px 5px;color:var(--text-muted)}
+.goal-tag.priority-high{color:var(--red);border-color:var(--red)}
+.goal-tag.priority-med{color:var(--gold);border-color:var(--gold-dim)}
+.goal-chevron{font-size:9px;color:var(--text-muted);flex-shrink:0;transition:transform .2s}
+.goal-card.expanded .goal-chevron{transform:rotate(180deg);color:var(--gold)}
+.goal-body{display:none;padding:0 12px 13px;border-top:1px solid var(--border)}
+.goal-card.expanded .goal-body{display:block;padding-top:11px}
+.progress-wrap{height:4px;background:var(--border2);border-radius:2px;overflow:hidden;margin-top:8px}
+.progress-bar{height:100%;background:var(--gold);border-radius:2px;transition:width .4s}
+.subtask-row{display:flex;align-items:center;gap:8px;padding:5px 0}
+.subtask-text{flex:1;font-size:12px;color:var(--text)}
+.subtask-row.done .subtask-text{text-decoration:line-through;color:var(--text-muted)}
+
+/* category manager */
+.cat-row{display:flex;align-items:center;gap:8px;padding:8px 10px;background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);margin-bottom:6px}
+.cat-name{flex:1;font-size:12px;color:var(--text);outline:none}
+.color-swatch{width:16px;height:16px;border-radius:50%;flex-shrink:0;cursor:pointer;border:1px solid var(--border3)}
+
+/* dashboard */
+.dash-stat{display:flex;justify-content:space-between;align-items:center;padding:9px 0;border-bottom:1px solid var(--border)}
+.dash-stat:last-child{border-bottom:none}
+.dash-stat-label{font-size:12px;color:var(--text-dim)}
+.dash-stat-val{font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--gold)}
+.snapshot-row{display:flex;align-items:center;gap:9px;padding:7px 0}
+.snapshot-bar-wrap{flex:1;height:6px;background:var(--border2);border-radius:3px;overflow:hidden}
+.snapshot-bar{height:100%;border-radius:3px}
+.snapshot-val{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--text-muted);width:30px;text-align:right;flex-shrink:0}
+
+/* trend spark */
+.spark-wrap{margin-top:8px}
+svg.spark{width:100%;height:56px;display:block}
+
+/* insights */
+.insight-box{background:var(--bg3);border-left:2px solid var(--gold-dim);border-radius:4px;padding:10px 12px;margin-top:10px;font-size:12px;line-height:1.6;color:var(--text-dim)}
+.insight-goal-sugg{display:flex;align-items:center;gap:8px;margin-top:6px;padding:6px 0}
+
+/* modal */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.6);display:none;align-items:flex-start;justify-content:center;z-index:100;padding:40px 16px;overflow-y:auto}
+.modal-overlay.show{display:flex}
+.modal-box{background:var(--bg2);border:1px solid var(--border2);border-radius:10px;padding:18px;max-width:480px;width:100%}
+.modal-title{font-family:'Cormorant Garamond',serif;font-size:17px;color:var(--text);margin-bottom:12px}
+
+.toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%) translateY(10px);background:var(--gold);color:#000;font-family:'JetBrains Mono',monospace;font-size:11px;padding:9px 18px;border-radius:20px;opacity:0;pointer-events:none;transition:all .25s;z-index:200}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
+@media print{
+  header,.tab-bar,.btn-row,.action-row,.hbtn{display:none!important}
+  body{background:#fff;color:#111}
+  main{max-width:100%}
+}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">
+    <div class="logo-brand">dAnTE</div>
+    <div class="logo-title">Life <em>Review</em></div>
+  </div>
+  <button class="hbtn" onclick="toggleTheme()">◐</button>
+  <button class="hbtn" onclick="exportJSON()">Export</button>
+  <button class="hbtn" onclick="document.getElementById('importFile').click()">Import</button>
+</header>
+<input type="file" id="importFile" accept=".json" style="display:none" onchange="handleImport(event)">
+
+<div class="tab-bar">
+  <div class="tab active" onclick="switchTab('dashboard')">Dashboard</div>
+  <div class="tab" onclick="switchTab('monthly')">Monthly</div>
+  <div class="tab" onclick="switchTab('weekly')">Weekly</div>
+  <div class="tab" onclick="switchTab('goals')">Goals</div>
+  <div class="tab" onclick="switchTab('history')">History</div>
+  <div class="tab" onclick="switchTab('templates')">Templates</div>
+  <div class="tab" onclick="switchTab('settings')">Settings</div>
+</div>
+
+<main>
+  <div class="page active" id="page-dashboard"></div>
+  <div class="page" id="page-monthly"></div>
+  <div class="page" id="page-weekly"></div>
+  <div class="page" id="page-goals"></div>
+  <div class="page" id="page-history"></div>
+  <div class="page" id="page-templates"></div>
+  <div class="page" id="page-settings"></div>
+</main>
+
+<div class="modal-overlay" id="goalModalOverlay">
+  <div class="modal-box" id="goalModalBox"></div>
+</div>
+
+<div id="toast" class="toast"></div>
+
+<script>
+// ── HELPERS ───────────────────────────────────────────────
+function uid(){return Math.random().toString(36).slice(2,9)}
+function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}
+function pad(n){return String(n).padStart(2,'0')}
+function dateKey(d){return d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate())}
+function monthKey(d){return d.getFullYear()+'-'+pad(d.getMonth()+1)}
+function todayKey(){return dateKey(new Date())}
+function todayMonthKey(){return monthKey(new Date())}
+const MONTHS=['January','February','March','April','May','June','July','August','September','October','November','December'];
+function monthLabel(mk){const [y,m]=mk.split('-');return MONTHS[parseInt(m)-1]+' '+y}
+function showToast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2000)}
+
+// ── DEFAULT DATA ──────────────────────────────────────────
+const DEFAULT_CATEGORIES=[
+  {id:'health',name:'Health',color:'#4caf7d'},
+  {id:'career',name:'Career',color:'#c9a84c'},
+  {id:'relationships',name:'Relationships',color:'#c0567a'},
+  {id:'finance',name:'Finance',color:'#5b8fc9'},
+  {id:'growth',name:'Personal Growth',color:'#a678d1'},
+  {id:'recreation',name:'Recreation',color:'#d18a4c'},
+  {id:'home',name:'Home',color:'#7a9a9e'},
+  {id:'faith',name:'Faith',color:'#b8902a'},
+  {id:'mental',name:'Mental & Emotional',color:'#7a8fd1'},
+  {id:'community',name:'Community & Social',color:'#d15b8f'},
+  {id:'creativity',name:'Creativity',color:'#5bc9a0'},
+  {id:'contribution',name:'Contribution & Legacy',color:'#c97a4c'}
+];
+
+// Generates a consistent 7-question set per category — rating, reflection,
+// a win, a setback, a progress check, a habit checklist, and a next action.
+// Kept as a generator (rather than 84 hand-written questions) so it's easy
+// to extend per category later from the Templates tab.
+function genCategoryQuestions(cat){
+  const n=cat.name.toLowerCase();
+  return [
+    {id:uid(),categoryId:cat.id,type:'rating',prompt:`Rate your ${n} this month (1–10).`,required:true},
+    {id:uid(),categoryId:cat.id,type:'longtext',prompt:`What went well in ${n} this month, and what didn't?`,required:false},
+    {id:uid(),categoryId:cat.id,type:'shorttext',prompt:`One specific highlight or win in ${n} this month.`,required:false},
+    {id:uid(),categoryId:cat.id,type:'shorttext',prompt:`One specific challenge or setback in ${n} this month.`,required:false},
+    {id:uid(),categoryId:cat.id,type:'choice',prompt:`Did you make progress toward your ${n} goals this month?`,options:['Yes','No','Partially'],required:false},
+    {id:uid(),categoryId:cat.id,type:'checklist',prompt:`Which habits or practices did you keep up with in ${n} this month?`,options:['','',''],required:false},
+    {id:uid(),categoryId:cat.id,type:'shorttext',prompt:`One concrete action for ${n} next month.`,required:false}
+  ];
+}
+function defaultMonthlyTemplate(){
+  return DEFAULT_CATEGORIES.flatMap(cat=>genCategoryQuestions(cat));
+}
+function defaultWeeklyTemplate(){
+  return [
+    {id:uid(),categoryId:null,type:'rating',prompt:'Rate this week overall (1–10).',required:true},
+    {id:uid(),categoryId:null,type:'shorttext',prompt:'One win this week.',required:false},
+    {id:uid(),categoryId:null,type:'shorttext',prompt:'One thing to improve next week.',required:false},
+    {id:uid(),categoryId:null,type:'checklist',prompt:'Top 3 tasks for next week.',options:['','',''],required:false}
+  ];
+}
+
+// ── STATE ─────────────────────────────────────────────────
+let state={
+  categories:JSON.parse(JSON.stringify(DEFAULT_CATEGORIES)),
+  templates:{monthly:defaultMonthlyTemplate(),weekly:defaultWeeklyTemplate()},
+  reviews:[],   // {id,type,periodKey,date,answers:{questionId:{value,notes}},summary,insights,linkedGoals:[]}
+  goals:[]      // {id,title,description,categoryId,priority,startDate,endDate,recurrence,subtasks:[{id,text,done}],progressTarget,progressValue,status}
+};
+let isDark=true;
+let expandedGoals={};
+
+function loadData(){
+  const s=localStorage.getItem('lifeReviewState');
+  if(s){try{
+    const d=JSON.parse(s);
+    if(d.categories) state.categories=d.categories;
+    if(d.templates) state.templates=d.templates;
+    if(d.reviews) state.reviews=d.reviews;
+    if(d.goals) state.goals=d.goals;
+  }catch(e){}}
+  const th=localStorage.getItem('lifeReviewTheme');
+  if(th==='light'){isDark=false;document.body.classList.add('light')}
+}
+function autosave(){localStorage.setItem('lifeReviewState',JSON.stringify(state))}
+function toggleTheme(){
+  isDark=!isDark;document.body.classList.toggle('light',!isDark);
+  localStorage.setItem('lifeReviewTheme',isDark?'dark':'light');
+}
+function catById(id){return state.categories.find(c=>c.id===id)}
+
+// ── EXPORT / IMPORT ───────────────────────────────────────
+function exportJSON(){
+  const blob=new Blob([JSON.stringify(state,null,2)],{type:'application/json'});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');
+  a.href=url;a.download='life-review-export-'+todayKey()+'.json';a.click();
+  URL.revokeObjectURL(url);
+  showToast('Exported');
+}
+function handleImport(e){
+  const file=e.target.files[0];if(!file)return;
+  const r=new FileReader();
+  r.onload=ev=>{try{
+    const d=JSON.parse(ev.target.result);
+    if(d.categories) state.categories=d.categories;
+    if(d.templates) state.templates=d.templates;
+    if(d.reviews) state.reviews=d.reviews;
+    if(d.goals) state.goals=d.goals;
+    renderAll();showToast('Imported');
+  }catch(err){showToast('Import failed')}};
+  r.readAsText(file);e.target.value='';
+}
+function resetAll(){
+  if(!confirm('Reset all data? This clears reviews, goals, and custom templates.')) return;
+  state={categories:JSON.parse(JSON.stringify(DEFAULT_CATEGORIES)),templates:{monthly:defaultMonthlyTemplate(),weekly:defaultWeeklyTemplate()},reviews:[],goals:[]};
+  autosave();renderAll();showToast('Reset');
+}
+
+// ── TAB SWITCH ────────────────────────────────────────────
+function switchTab(tab){
+  const TABS=['dashboard','monthly','weekly','goals','history','templates','settings'];
+  document.querySelectorAll('.tab').forEach((t,i)=>t.classList.toggle('active',TABS[i]===tab));
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.getElementById('page-'+tab).classList.add('active');
+  if(tab==='dashboard') renderDashboard();
+  if(tab==='monthly') renderMonthly();
+  if(tab==='weekly') renderWeekly();
+  if(tab==='goals') renderGoals();
+  if(tab==='history') renderHistory();
+  if(tab==='templates') renderTemplates();
+  if(tab==='settings') renderSettings();
+}
+function renderAll(){renderDashboard()}
+
+// ── RATING / ANSWER HELPERS ───────────────────────────────
+function ensureReview(type,periodKey){
+  let rev=state.reviews.find(r=>r.type===type&&r.periodKey===periodKey);
+  if(!rev){
+    rev={id:uid(),type,periodKey,date:todayKey(),answers:{},summary:'',insights:null,linkedGoals:[],submitted:false};
+    state.reviews.push(rev);
+  }
+  return rev;
+}
+function catAverage(categoryId,upToDate){
+  // average of rating-type answers for a category across monthly reviews
+  const template=state.templates.monthly;
+  const ratingQIds=template.filter(q=>q.categoryId===categoryId&&q.type==='rating').map(q=>q.id);
+  let sum=0,n=0;
+  state.reviews.filter(r=>r.type==='monthly'&&r.submitted&&(!upToDate||r.periodKey<=upToDate)).forEach(r=>{
+    ratingQIds.forEach(qid=>{
+      const a=r.answers[qid];
+      if(a&&a.value!==undefined&&a.value!==null&&a.value!==''){sum+=Number(a.value);n++}
+    });
+  });
+  return n?sum/n:null;
+}
+function latestMonthlyReview(){
+  const done=state.reviews.filter(r=>r.type==='monthly'&&r.submitted).sort((a,b)=>a.periodKey<b.periodKey?1:-1);
+  return done[0]||null;
+}
+
+// ── DASHBOARD ─────────────────────────────────────────────
+function renderDashboard(){
+  const c=document.getElementById('page-dashboard');
+  c.innerHTML='';
+  const head=document.createElement('div');
+  head.className='page-head';
+  head.innerHTML=`<div class="page-title">Dashboard</div><div class="page-sub">${formatTodayLong()}</div>`;
+  c.appendChild(head);
+
+  // quick actions
+  const quick=document.createElement('div');
+  quick.className='btn-row';
+  quick.innerHTML=`<button class="btn-main" onclick="switchTab('weekly')" style="flex:1">Start Weekly Check-In →</button>`;
+  c.appendChild(quick);
+  const quick2=document.createElement('div');
+  quick2.className='btn-row';
+  quick2.innerHTML=`<button class="btn" onclick="switchTab('monthly')">Open Monthly Review</button>`;
+  c.appendChild(quick2);
+
+  // stats card: overdue / upcoming goals
+  const today=todayKey();
+  const overdue=state.goals.filter(g=>g.status!=='done'&&g.endDate&&g.endDate<today);
+  const upcoming=state.goals.filter(g=>g.status!=='done'&&g.endDate&&g.endDate>=today).sort((a,b)=>a.endDate<b.endDate?-1:1).slice(0,3);
+  const active=state.goals.filter(g=>g.status!=='done');
+
+  const statsCard=document.createElement('div');
+  statsCard.className='card';
+  statsCard.innerHTML=`<span class="section-label">Goals</span>
+    <div class="dash-stat"><div class="dash-stat-label">Active</div><div class="dash-stat-val">${active.length}</div></div>
+    <div class="dash-stat"><div class="dash-stat-label">Overdue</div><div class="dash-stat-val" style="color:${overdue.length?'var(--red)':'var(--text-muted)'}">${overdue.length}</div></div>`;
+  c.appendChild(statsCard);
+
+  if(upcoming.length){
+    const upCard=document.createElement('div');
+    upCard.className='card';
+    upCard.innerHTML='<span class="section-label">Upcoming</span>';
+    upcoming.forEach(g=>{
+      const cat=catById(g.categoryId);
+      const row=document.createElement('div');
+      row.className='dash-stat';
+      row.innerHTML=`<div class="dash-stat-label"><span class="dot" style="background:${cat?cat.color:'#666'};margin-right:6px"></span>${esc(g.title)}</div><div class="dash-stat-val">${g.endDate||''}</div>`;
+      upCard.appendChild(row);
+    });
+    c.appendChild(upCard);
+  }
+
+  // latest monthly snapshot
+  const latest=latestMonthlyReview();
+  const snapCard=document.createElement('div');
+  snapCard.className='card';
+  if(!latest){
+    snapCard.innerHTML='<span class="section-label">Latest Monthly Snapshot</span><div class="empty-note">No completed monthly review yet.</div>';
+  } else {
+    snapCard.innerHTML=`<span class="section-label">Latest Monthly Snapshot — ${monthLabel(latest.periodKey)}</span>`;
+    state.categories.forEach(cat=>{
+      const avg=catAverage(cat.id,latest.periodKey);
+      if(avg===null) return;
+      const pct=avg*10;
+      const row=document.createElement('div');
+      row.className='snapshot-row';
+      row.innerHTML=`<div class="dot" style="background:${cat.color}"></div>
+        <div style="font-size:11px;color:var(--text-dim);width:100px;flex-shrink:0">${esc(cat.name)}</div>
+        <div class="snapshot-bar-wrap"><div class="snapshot-bar" style="width:${pct}%;background:${cat.color}"></div></div>
+        <div class="snapshot-val">${avg.toFixed(1)}</div>`;
+      snapCard.appendChild(row);
+    });
+  }
+  c.appendChild(snapCard);
+}
+function formatTodayLong(){
+  const d=new Date();
+  const DAY_NAMES=['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+  return DAY_NAMES[d.getDay()]+', '+MONTHS[d.getMonth()]+' '+d.getDate()+' '+d.getFullYear();
+}
+
+// ── QUESTION RENDERING (shared by monthly + weekly) ───────
+function renderAnswerControl(q,answer,onUpdate){
+  const wrap=document.createElement('div');
+  const val=answer&&answer.value!==undefined?answer.value:(q.type==='checklist'?[]:'');
+  if(q.type==='rating'){
+    const row=document.createElement('div');row.className='rate-row';
+    for(let i=1;i<=10;i++){
+      const b=document.createElement('button');
+      b.className='rate-btn'+(Number(val)===i?' sel':'');
+      b.textContent=i;
+      b.onclick=()=>{onUpdate(i);renderAnswerControlRefresh(wrap,q,{value:i,notes:answer?answer.notes:''},onUpdate)};
+      row.appendChild(b);
+    }
+    wrap.appendChild(row);
+  } else if(q.type==='choice'){
+    const row=document.createElement('div');row.className='choice-row';
+    (q.options||[]).forEach(opt=>{
+      const p=document.createElement('div');
+      p.className='choice-pill'+(val===opt?' sel':'');
+      p.textContent=opt;
+      p.onclick=()=>{onUpdate(opt);renderAnswerControlRefresh(wrap,q,{value:opt,notes:answer?answer.notes:''},onUpdate)};
+      row.appendChild(p);
+    });
+    wrap.appendChild(row);
+  } else if(q.type==='shorttext'){
+    const inp=document.createElement('input');
+    inp.className='inp';inp.value=val||'';inp.placeholder='Your answer...';
+    inp.oninput=()=>onUpdate(inp.value);
+    wrap.appendChild(inp);
+  } else if(q.type==='longtext'){
+    const ta=document.createElement('textarea');
+    ta.className='inp';ta.value=val||'';ta.placeholder='Your answer...';
+    ta.oninput=()=>onUpdate(ta.value);
+    wrap.appendChild(ta);
+  } else if(q.type==='date'){
+    const inp=document.createElement('input');
+    inp.type='date';inp.className='inp';inp.value=val||'';
+    inp.oninput=()=>onUpdate(inp.value);
+    wrap.appendChild(inp);
+  } else if(q.type==='checklist'){
+    const items=Array.isArray(val)&&val.length?val:(q.options||['','','']).map(t=>({text:t,done:false}));
+    const normalized=items.map(it=>typeof it==='string'?{text:it,done:false}:it);
+    normalized.forEach((it,idx)=>{
+      const row=document.createElement('div');row.className='chk-row';
+      const box=document.createElement('div');
+      box.className='chk-box'+(it.done?' on':'');
+      box.onclick=()=>{it.done=!it.done;onUpdate(normalized);box.classList.toggle('on',it.done)};
+      const inp=document.createElement('input');
+      inp.className='inp';inp.style.padding='6px 9px';inp.value=it.text||'';inp.placeholder='Item '+(idx+1);
+      inp.oninput=()=>{it.text=inp.value;onUpdate(normalized)};
+      row.appendChild(box);row.appendChild(inp);
+      wrap.appendChild(row);
+    });
+  } else if(q.type==='file'){
+    const inp=document.createElement('input');
+    inp.type='file';inp.accept='image/*';inp.className='inp';
+    const preview=document.createElement('div');
+    if(val){preview.innerHTML=`<img src="${val}" style="max-width:100%;border-radius:6px;margin-top:8px;display:block">`}
+    inp.onchange=()=>{
+      const f=inp.files[0];if(!f)return;
+      const r=new FileReader();
+      r.onload=ev=>{onUpdate(ev.target.result);preview.innerHTML=`<img src="${ev.target.result}" style="max-width:100%;border-radius:6px;margin-top:8px;display:block">`};
+      r.readAsDataURL(f);
+    };
+    wrap.appendChild(inp);wrap.appendChild(preview);
+  }
+  return wrap;
+}
+function renderAnswerControlRefresh(wrap,q,answer,onUpdate){
+  const fresh=renderAnswerControl(q,answer,onUpdate);
+  wrap.replaceWith(fresh);
+}
+
+function renderReviewForm(container,type,periodKey,template,rev){
+  container.innerHTML='';
+  const byCat={};
+  template.forEach(q=>{
+    const key=q.categoryId||'_none';
+    if(!byCat[key]) byCat[key]=[];
+    byCat[key].push(q);
+  });
+  Object.keys(byCat).forEach(catKey=>{
+    const cat=catKey==='_none'?null:catById(catKey);
+    const group=document.createElement('div');
+    group.className='cat-group';
+    const gh=document.createElement('div');
+    gh.className='cat-group-head';
+    gh.innerHTML=cat?`<div class="dot" style="background:${cat.color}"></div><div class="cat-group-title">${esc(cat.name)}</div>`:`<div class="cat-group-title">General</div>`;
+    group.appendChild(gh);
+    byCat[catKey].forEach(q=>{
+      const qb=document.createElement('div');
+      qb.className='q-block';
+      const label=document.createElement('div');
+      label.className='q-prompt';
+      label.textContent=q.prompt+(q.required?' *':'');
+      qb.appendChild(label);
+      const answer=rev.answers[q.id]||{value:q.type==='checklist'?[]:'',notes:''};
+      const ctrl=renderAnswerControl(q,answer,(newVal)=>{
+        rev.answers[q.id]={value:newVal,notes:rev.answers[q.id]?rev.answers[q.id].notes:''};
+        autosave();
+      });
+      qb.appendChild(ctrl);
+      group.appendChild(qb);
+    });
+    container.appendChild(group);
+  });
+}
+
+// ── MONTHLY REVIEW ────────────────────────────────────────
+let monthlyViewKey=todayMonthKey();
+function renderMonthly(){
+  const c=document.getElementById('page-monthly');
+  c.innerHTML='';
+  const rev=ensureReview('monthly',monthlyViewKey);
+
+  const head=document.createElement('div');
+  head.className='page-head';
+  head.innerHTML=`<div class="page-title">Monthly Review</div>
+    <div class="page-sub">${monthLabel(monthlyViewKey)}${rev.submitted?' · submitted':''}</div>`;
+  c.appendChild(head);
+
+  const nav=document.createElement('div');
+  nav.className='btn-row';
+  nav.innerHTML=`<button class="btn" onclick="shiftMonth(-1)">← Prev</button><button class="btn" onclick="shiftMonth(1)">Next →</button>`;
+  c.appendChild(nav);
+
+  const formWrap=document.createElement('div');
+  formWrap.style.marginTop='14px';
+  c.appendChild(formWrap);
+  renderReviewForm(formWrap,'monthly',monthlyViewKey,state.templates.monthly,rev);
+
+  const actions=document.createElement('div');
+  actions.className='btn-row';
+  actions.innerHTML=`
+    <button class="btn-main" onclick="submitReview('monthly','${monthlyViewKey}')">${rev.submitted?'Update':'Submit'} Review</button>
+    <button class="btn" onclick="generateInsights('${rev.id}')">Generate Insights</button>
+    <button class="btn" onclick="printReview('${rev.id}')">Export PDF</button>`;
+  c.appendChild(actions);
+
+  if(rev.insights){
+    const ib=document.createElement('div');
+    ib.className='insight-box';
+    ib.innerHTML=renderInsightsHTML(rev);
+    c.appendChild(ib);
+  }
+}
+function shiftMonth(delta){
+  const [y,m]=monthlyViewKey.split('-').map(Number);
+  const d=new Date(y,m-1+delta,1);
+  monthlyViewKey=monthKey(d);
+  renderMonthly();
+}
+function submitReview(type,periodKey){
+  const rev=ensureReview(type,periodKey);
+  rev.submitted=true;
+  autosave();
+  showToast('Review saved');
+  if(type==='monthly') renderMonthly(); else renderWeekly();
+}
+
+// ── WEEKLY CHECK-IN ────────────────────────────────────────
+function isoWeekKey(d){
+  const mon=new Date(d);
+  mon.setDate(d.getDate()-((d.getDay()+6)%7));
+  return dateKey(mon);
+}
+let weeklyViewKey=isoWeekKey(new Date());
+function renderWeekly(){
+  const c=document.getElementById('page-weekly');
+  c.innerHTML='';
+  const rev=ensureReview('weekly',weeklyViewKey);
+  const wStart=new Date(weeklyViewKey+'T12:00:00');
+  const wEnd=new Date(wStart);wEnd.setDate(wStart.getDate()+6);
+
+  const head=document.createElement('div');
+  head.className='page-head';
+  head.innerHTML=`<div class="page-title">Weekly Check-In</div>
+    <div class="page-sub">${MONTHS[wStart.getMonth()].slice(0,3)} ${wStart.getDate()} – ${MONTHS[wEnd.getMonth()].slice(0,3)} ${wEnd.getDate()}${rev.submitted?' · submitted':''}</div>`;
+  c.appendChild(head);
+
+  const nav=document.createElement('div');
+  nav.className='btn-row';
+  nav.innerHTML=`<button class="btn" onclick="shiftWeek(-1)">← Prev</button><button class="btn" onclick="shiftWeek(1)">Next →</button>`;
+  c.appendChild(nav);
+
+  const formWrap=document.createElement('div');
+  formWrap.style.marginTop='14px';
+  c.appendChild(formWrap);
+  renderReviewForm(formWrap,'weekly',weeklyViewKey,state.templates.weekly,rev);
+
+  const actions=document.createElement('div');
+  actions.className='btn-row';
+  actions.innerHTML=`<button class="btn-main" onclick="submitReview('weekly','${weeklyViewKey}')">${rev.submitted?'Update':'Save'} Check-In</button>`;
+  c.appendChild(actions);
+}
+function shiftWeek(delta){
+  const d=new Date(weeklyViewKey+'T12:00:00');
+  d.setDate(d.getDate()+delta*7);
+  weeklyViewKey=isoWeekKey(d);
+  renderWeekly();
+}
+
+// ── INSIGHTS (on-demand, local heuristic — no live AI call) ─
+function generateInsights(revId){
+  const rev=state.reviews.find(r=>r.id===revId);
+  if(!rev) return;
+  const lines=[];
+  const suggestions=[];
+  const scored=[];
+  state.categories.forEach(cat=>{
+    const now=catAverage(cat.id,rev.periodKey);
+    if(now===null) return;
+    // previous month for comparison
+    const [y,m]=rev.periodKey.split('-').map(Number);
+    const prevKey=monthKey(new Date(y,m-2,1));
+    const prev=catAverage(cat.id,prevKey);
+    scored.push({cat,now,prev});
+  });
+  scored.sort((a,b)=>a.now-b.now);
+  if(scored.length){
+    const lowest=scored[0];
+    lines.push(esc(lowest.cat.name)+' is your lowest-rated area this month at '+lowest.now.toFixed(1)+'/10.');
+    suggestions.push({title:'Improve '+lowest.cat.name.toLowerCase(),categoryId:lowest.cat.id});
+    const highest=scored[scored.length-1];
+    if(highest.cat.id!==lowest.cat.id) lines.push(esc(highest.cat.name)+' is your strongest area at '+highest.now.toFixed(1)+'/10.');
+    scored.forEach(s=>{
+      if(s.prev!==null){
+        const delta=s.now-s.prev;
+        if(Math.abs(delta)>=1){
+          lines.push(esc(s.cat.name)+(delta>0?' improved by ':' dropped by ')+Math.abs(delta).toFixed(1)+' points month over month.');
+          if(delta<=-1) suggestions.push({title:'Address the drop in '+s.cat.name.toLowerCase(),categoryId:s.cat.id});
+        }
+      }
+    });
+  }
+  rev.insights={lines,suggestions:suggestions.slice(0,3),generatedAt:todayKey()};
+  autosave();
+  renderMonthly();
+  showToast('Insights generated');
+}
+function renderInsightsHTML(rev){
+  if(!rev.insights) return '';
+  let html='<div class="section-label" style="margin-bottom:6px">Insights</div>';
+  rev.insights.lines.forEach(l=>{html+='<div style="margin-bottom:4px">'+l+'</div>'});
+  (rev.insights.suggestions||[]).forEach(s=>{
+    html+=`<div class="insight-goal-sugg"><span style="flex:1">→ Suggested goal: ${esc(s.title)}</span>
+      <button class="action-btn" onclick="convertSuggestionToGoal('${rev.id}','${esc(s.title)}','${s.categoryId}')">Add as goal</button></div>`;
+  });
+  return html;
+}
+function convertSuggestionToGoal(revId,title,categoryId){
+  const g={id:uid(),title,description:'Suggested from monthly review insight.',categoryId,priority:'med',startDate:todayKey(),endDate:'',recurrence:'none',subtasks:[],progressTarget:null,progressValue:0,status:'active',linkedReviewId:revId};
+  state.goals.push(g);
+  autosave();
+  showToast('Goal added');
+}
+
+// ── PRINT / PDF EXPORT ─────────────────────────────────────
+function printReview(revId){
+  const rev=state.reviews.find(r=>r.id===revId);
+  if(!rev) return;
+  const template=rev.type==='monthly'?state.templates.monthly:state.templates.weekly;
+  const w=window.open('','_blank');
+  let body='<h1 style="font-family:Georgia,serif">'+(rev.type==='monthly'?'Monthly Review — '+monthLabel(rev.periodKey):'Weekly Check-In — '+rev.periodKey)+'</h1>';
+  template.forEach(q=>{
+    const a=rev.answers[q.id];
+    let val=a?a.value:'';
+    if(Array.isArray(val)) val=val.map(v=>(v.done?'[x] ':'[ ] ')+(v.text||'')).join('<br>');
+    body+='<p><strong>'+esc(q.prompt)+'</strong><br>'+esc(String(val||'—'))+'</p>';
+  });
+  if(rev.insights){
+    body+='<h3>Insights</h3>';
+    rev.insights.lines.forEach(l=>body+='<p>'+l+'</p>');
+  }
+  w.document.write('<html><head><title>Review Export</title></head><body style="font-family:Georgia,serif;max-width:640px;margin:40px auto;color:#111">'+body+'</body></html>');
+  w.document.close();
+  w.print();
+}
+
+// ── GOALS ─────────────────────────────────────────────────
+function renderGoals(){
+  const c=document.getElementById('page-goals');
+  c.innerHTML='';
+  const head=document.createElement('div');
+  head.className='page-head';
+  head.innerHTML='<div class="page-title">Goals & Targets</div><div class="page-sub">'+state.goals.filter(g=>g.status!=='done').length+' active</div>';
+  c.appendChild(head);
+
+  const addBtn=document.createElement('div');
+  addBtn.className='btn-row';
+  addBtn.innerHTML='<button class="btn-main" onclick="openGoalModal()">+ New Goal</button>';
+  c.appendChild(addBtn);
+
+  const list=document.createElement('div');
+  list.style.marginTop='12px';
+  if(!state.goals.length){
+    list.innerHTML='<div class="empty-note">No goals yet. Create one, or convert a suggestion from a monthly review.</div>';
+  } else {
+    const sorted=[...state.goals].sort((a,b)=>(a.status==='done')-(b.status==='done'));
+    sorted.forEach(g=>{
+      const cat=catById(g.categoryId);
+      const card=document.createElement('div');
+      card.className='goal-card status-'+g.status+(expandedGoals[g.id]?' expanded':'');
+      const pct=g.progressTarget?Math.min(100,Math.round((g.progressValue||0)/g.progressTarget*100)):(g.status==='done'?100:0);
+      card.innerHTML=`
+        <div class="goal-head" onclick="toggleGoalExpand('${g.id}')">
+          <div class="dot" style="background:${cat?cat.color:'#666'};margin-top:3px"></div>
+          <div style="flex:1;min-width:0">
+            <div class="goal-title">${esc(g.title)}</div>
+            <div class="goal-meta">
+              ${cat?`<span class="goal-tag">${esc(cat.name)}</span>`:''}
+              <span class="goal-tag priority-${g.priority}">${g.priority}</span>
+              ${g.endDate?`<span class="goal-tag">due ${g.endDate}</span>`:''}
+            </div>
+            <div class="progress-wrap"><div class="progress-bar" style="width:${pct}%"></div></div>
+          </div>
+          <div class="goal-chevron">▾</div>
+        </div>
+        <div class="goal-body">
+          <div style="font-size:12px;color:var(--text-dim);margin-bottom:8px">${esc(g.description||'')}</div>
+          ${(g.subtasks||[]).map(st=>`
+            <div class="subtask-row${st.done?' done':''}">
+              <div class="chk-box${st.done?' on':''}" onclick="toggleSubtask('${g.id}','${st.id}')"></div>
+              <div class="subtask-text">${esc(st.text)}</div>
+            </div>`).join('')}
+          <div class="btn-row">
+            <button class="btn" onclick="openGoalModal('${g.id}')">Edit</button>
+            <button class="btn" onclick="toggleGoalDone('${g.id}')">${g.status==='done'?'Reopen':'Mark done'}</button>
+            <button class="action-btn red" onclick="deleteGoal('${g.id}')">Delete</button>
+          </div>
+        </div>`;
+      list.appendChild(card);
+    });
+  }
+  c.appendChild(list);
+}
+function toggleGoalExpand(id){expandedGoals[id]=!expandedGoals[id];renderGoals()}
+function toggleGoalDone(id){
+  const g=state.goals.find(x=>x.id===id);if(!g)return;
+  g.status=g.status==='done'?'active':'done';
+  autosave();renderGoals();
+}
+function toggleSubtask(gid,stid){
+  const g=state.goals.find(x=>x.id===gid);if(!g)return;
+  const st=(g.subtasks||[]).find(x=>x.id===stid);if(!st)return;
+  st.done=!st.done;autosave();renderGoals();
+}
+function deleteGoal(id){
+  if(!confirm('Delete this goal?'))return;
+  state.goals=state.goals.filter(g=>g.id!==id);
+  autosave();renderGoals();
+}
+function openGoalModal(id){
+  const g=id?state.goals.find(x=>x.id===id):{id:uid(),title:'',description:'',categoryId:state.categories[0].id,priority:'med',startDate:todayKey(),endDate:'',recurrence:'none',subtasks:[],progressTarget:null,progressValue:0,status:'active'};
+  const isNew=!id;
+  const box=document.getElementById('goalModalBox');
+  box.innerHTML=`
+    <div class="modal-title">${isNew?'New Goal':'Edit Goal'}</div>
+    <div class="field"><span class="field-label">Title</span><input class="inp" id="gm-title" value="${esc(g.title)}" placeholder="Goal title..."></div>
+    <div class="field"><span class="field-label">Description</span><textarea class="inp" id="gm-desc" placeholder="Details...">${esc(g.description||'')}</textarea></div>
+    <div class="field-row">
+      <div class="field"><span class="field-label">Category</span>
+        <select class="sel" id="gm-cat">${state.categories.map(c=>`<option value="${c.id}" ${c.id===g.categoryId?'selected':''}>${esc(c.name)}</option>`).join('')}</select>
+      </div>
+      <div class="field"><span class="field-label">Priority</span>
+        <select class="sel" id="gm-priority">
+          <option value="low" ${g.priority==='low'?'selected':''}>Low</option>
+          <option value="med" ${g.priority==='med'?'selected':''}>Medium</option>
+          <option value="high" ${g.priority==='high'?'selected':''}>High</option>
+        </select>
+      </div>
+    </div>
+    <div class="field-row">
+      <div class="field"><span class="field-label">Start date</span><input type="date" class="inp" id="gm-start" value="${g.startDate||''}"></div>
+      <div class="field"><span class="field-label">Target date</span><input type="date" class="inp" id="gm-end" value="${g.endDate||''}"></div>
+    </div>
+    <div class="field"><span class="field-label">Recurrence</span>
+      <select class="sel" id="gm-recur">
+        <option value="none" ${g.recurrence==='none'?'selected':''}>None</option>
+        <option value="daily" ${g.recurrence==='daily'?'selected':''}>Daily</option>
+        <option value="weekly" ${g.recurrence==='weekly'?'selected':''}>Weekly</option>
+        <option value="monthly" ${g.recurrence==='monthly'?'selected':''}>Monthly</option>
+      </select>
+    </div>
+    <div class="field-row">
+      <div class="field"><span class="field-label">Progress target (optional)</span><input type="number" class="inp" id="gm-target" value="${g.progressTarget||''}" placeholder="e.g. 20"></div>
+      <div class="field"><span class="field-label">Progress so far</span><input type="number" class="inp" id="gm-value" value="${g.progressValue||0}"></div>
+    </div>
+    <div class="field"><span class="field-label">Subtasks</span><div id="gm-subtasks"></div>
+      <div class="btn-row"><input class="inp" id="gm-subtask-inp" placeholder="Add subtask..." style="flex:1" onkeydown="if(event.key==='Enter'){event.preventDefault();addModalSubtask()}"><button class="btn" onclick="addModalSubtask()">+</button></div>
+    </div>
+    <div class="btn-row">
+      <button class="btn-main" onclick="saveGoalModal('${g.id}',${isNew})">Save Goal</button>
+      <button class="btn" onclick="closeGoalModal()">Cancel</button>
+    </div>`;
+  window._goalModalSubtasks=(g.subtasks||[]).map(s=>({...s}));
+  renderModalSubtasks();
+  document.getElementById('goalModalOverlay').classList.add('show');
+}
+function renderModalSubtasks(){
+  const el=document.getElementById('gm-subtasks');if(!el)return;
+  el.innerHTML='';
+  (window._goalModalSubtasks||[]).forEach(st=>{
+    const row=document.createElement('div');row.className='subtask-row';
+    row.innerHTML=`<div class="chk-box${st.done?' on':''}" onclick="toggleModalSubtask('${st.id}')"></div><div class="subtask-text">${esc(st.text)}</div><button class="task-del" style="color:var(--text-muted);background:none;border:none;cursor:pointer" onclick="removeModalSubtask('${st.id}')">✕</button>`;
+    el.appendChild(row);
+  });
+}
+function addModalSubtask(){
+  const inp=document.getElementById('gm-subtask-inp');
+  const text=inp.value.trim();if(!text)return;
+  window._goalModalSubtasks.push({id:uid(),text,done:false});
+  inp.value='';renderModalSubtasks();
+}
+function toggleModalSubtask(id){
+  const st=window._goalModalSubtasks.find(x=>x.id===id);if(st){st.done=!st.done;renderModalSubtasks()}
+}
+function removeModalSubtask(id){
+  window._goalModalSubtasks=window._goalModalSubtasks.filter(x=>x.id!==id);renderModalSubtasks();
+}
+function closeGoalModal(){document.getElementById('goalModalOverlay').classList.remove('show')}
+function saveGoalModal(id,isNew){
+  const title=document.getElementById('gm-title').value.trim();
+  if(!title){showToast('Title required');return}
+  const data={
+    id,title,
+    description:document.getElementById('gm-desc').value.trim(),
+    categoryId:document.getElementById('gm-cat').value,
+    priority:document.getElementById('gm-priority').value,
+    startDate:document.getElementById('gm-start').value,
+    endDate:document.getElementById('gm-end').value,
+    recurrence:document.getElementById('gm-recur').value,
+    progressTarget:parseFloat(document.getElementById('gm-target').value)||null,
+    progressValue:parseFloat(document.getElementById('gm-value').value)||0,
+    subtasks:window._goalModalSubtasks||[],
+    status: isNew?'active':(state.goals.find(g=>g.id===id)||{}).status||'active'
+  };
+  if(isNew){state.goals.push(data)}
+  else{
+    const idx=state.goals.findIndex(g=>g.id===id);
+    if(idx>-1) state.goals[idx]={...state.goals[idx],...data};
+  }
+  autosave();closeGoalModal();renderGoals();showToast('Goal saved');
+}
+
+// ── HISTORY & TRENDS ───────────────────────────────────────
+let historyFilterCat='all';
+function renderHistory(){
+  const c=document.getElementById('page-history');
+  c.innerHTML='';
+  const head=document.createElement('div');
+  head.className='page-head';
+  head.innerHTML='<div class="page-title">History & Trends</div><div class="page-sub">Reviews and rating trends over time</div>';
+  c.appendChild(head);
+
+  // filter
+  const filterRow=document.createElement('div');
+  filterRow.className='choice-row';
+  filterRow.style.marginBottom='14px';
+  filterRow.innerHTML='<div class="choice-pill'+(historyFilterCat==='all'?' sel':'')+'" onclick="setHistoryFilter(\'all\')">All</div>'+
+    state.categories.map(cat=>`<div class="choice-pill${historyFilterCat===cat.id?' sel':''}" onclick="setHistoryFilter('${cat.id}')">${esc(cat.name)}</div>`).join('');
+  c.appendChild(filterRow);
+
+  // trend chart per category (rating averages by month)
+  const monthlyDone=state.reviews.filter(r=>r.type==='monthly'&&r.submitted).sort((a,b)=>a.periodKey<b.periodKey?-1:1);
+  const cats=historyFilterCat==='all'?state.categories:state.categories.filter(c=>c.id===historyFilterCat);
+  if(monthlyDone.length>=1){
+    cats.forEach(cat=>{
+      const points=monthlyDone.map(r=>{
+        const template=state.templates.monthly;
+        const qids=template.filter(q=>q.categoryId===cat.id&&q.type==='rating').map(q=>q.id);
+        let sum=0,n=0;
+        qids.forEach(qid=>{const a=r.answers[qid];if(a&&a.value!==''&&a.value!==undefined){sum+=Number(a.value);n++}});
+        return n?sum/n:null;
+      }).filter(v=>v!==null);
+      if(!points.length) return;
+      const card=document.createElement('div');
+      card.className='card';
+      card.innerHTML=`<div style="display:flex;align-items:center;gap:7px"><div class="dot" style="background:${cat.color}"></div><span style="font-size:12px;font-weight:500">${esc(cat.name)}</span></div>`;
+      const sparkWrap=document.createElement('div');
+      sparkWrap.className='spark-wrap';
+      sparkWrap.innerHTML=sparkSVG(points,cat.color);
+      card.appendChild(sparkWrap);
+      c.appendChild(card);
+    });
+  }
+
+  // review list
+  const listHead=document.createElement('div');
+  listHead.className='section-label';
+  listHead.style.marginTop='16px';
+  listHead.textContent='All reviews';
+  c.appendChild(listHead);
+
+  const submitted=state.reviews.filter(r=>r.submitted).sort((a,b)=>a.periodKey<b.periodKey?1:-1);
+  if(!submitted.length){
+    c.appendChild(Object.assign(document.createElement('div'),{className:'empty-note',textContent:'No submitted reviews yet.'}));
+  }
+  submitted.forEach(r=>{
+    const row=document.createElement('div');
+    row.className='card';
+    row.innerHTML=`<div style="display:flex;justify-content:space-between;align-items:center">
+      <div><span style="font-size:12px;font-weight:500">${r.type==='monthly'?'Monthly — '+monthLabel(r.periodKey):'Weekly — '+r.periodKey}</span></div>
+      <button class="action-btn" onclick="printReview('${r.id}')">Export</button>
+    </div>`;
+    c.appendChild(row);
+  });
+}
+function setHistoryFilter(id){historyFilterCat=id;renderHistory()}
+function sparkSVG(points,color){
+  const w=300,h=50,pad=4;
+  const min=0,max=10;
+  const step=points.length>1?(w-pad*2)/(points.length-1):0;
+  const coords=points.map((v,i)=>{
+    const x=pad+i*step;
+    const y=h-pad-((v-min)/(max-min))*(h-pad*2);
+    return x+','+y;
+  }).join(' ');
+  const dots=points.map((v,i)=>{
+    const x=pad+i*step;
+    const y=h-pad-((v-min)/(max-min))*(h-pad*2);
+    return `<circle cx="${x}" cy="${y}" r="2.5" fill="${color}"></circle>`;
+  }).join('');
+  return `<svg class="spark" viewBox="0 0 ${w} ${h}" preserveAspectRatio="none"><polyline points="${coords}" fill="none" stroke="${color}" stroke-width="1.5"></polyline>${dots}</svg>`;
+}
+
+// ── TEMPLATES & CATEGORIES ─────────────────────────────────
+let templateEditType='monthly';
+function renderTemplates(){
+  const c=document.getElementById('page-templates');
+  c.innerHTML='';
+  const head=document.createElement('div');
+  head.className='page-head';
+  head.innerHTML='<div class="page-title">Templates & Categories</div><div class="page-sub">Edit questions and life categories</div>';
+  c.appendChild(head);
+
+  // categories manager
+  const catSec=document.createElement('div');
+  catSec.innerHTML='<span class="section-label">Categories</span>';
+  const catList=document.createElement('div');
+  catList.id='catList';
+  catSec.appendChild(catList);
+  const addCatRow=document.createElement('div');
+  addCatRow.className='btn-row';
+  addCatRow.innerHTML='<input class="inp" id="newCatName" placeholder="New category..." style="flex:1"><button class="btn" onclick="addCategory()">+</button>';
+  catSec.appendChild(addCatRow);
+  c.appendChild(catSec);
+  renderCategoryList();
+
+  // template question editor
+  const tplSec=document.createElement('div');
+  tplSec.style.marginTop='20px';
+  tplSec.innerHTML='<span class="section-label">Questions</span>';
+  const subtabs=document.createElement('div');
+  subtabs.className='choice-row';
+  subtabs.style.marginBottom='10px';
+  subtabs.innerHTML=`<div class="choice-pill${templateEditType==='monthly'?' sel':''}" onclick="setTemplateEditType('monthly')">Monthly</div>
+    <div class="choice-pill${templateEditType==='weekly'?' sel':''}" onclick="setTemplateEditType('weekly')">Weekly</div>`;
+  tplSec.appendChild(subtabs);
+  const qList=document.createElement('div');
+  qList.id='tplQList';
+  tplSec.appendChild(qList);
+  const addQBtn=document.createElement('div');
+  addQBtn.className='btn-row';
+  addQBtn.innerHTML='<button class="btn" onclick="addTemplateQuestion()">+ Add question</button>';
+  tplSec.appendChild(addQBtn);
+  c.appendChild(tplSec);
+  renderTemplateQuestions();
+}
+function renderCategoryList(){
+  const el=document.getElementById('catList');if(!el)return;
+  el.innerHTML='';
+  state.categories.forEach((cat,idx)=>{
+    const row=document.createElement('div');
+    row.className='cat-row';
+    row.innerHTML=`<input type="color" class="color-swatch" value="${cat.color}" onchange="updateCatColor('${cat.id}',this.value)">
+      <div class="cat-name" contenteditable="true" onblur="updateCatName('${cat.id}',this.innerText)">${esc(cat.name)}</div>
+      <button class="action-btn" onclick="moveCategory('${cat.id}',-1)" ${idx===0?'style="opacity:.3"':''}>↑</button>
+      <button class="action-btn" onclick="moveCategory('${cat.id}',1)" ${idx===state.categories.length-1?'style="opacity:.3"':''}>↓</button>
+      <button class="action-btn red" onclick="deleteCategory('${cat.id}')">✕</button>`;
+    el.appendChild(row);
+  });
+}
+function moveCategory(id,dir){
+  const idx=state.categories.findIndex(c=>c.id===id);
+  const newIdx=idx+dir;
+  if(newIdx<0||newIdx>=state.categories.length)return;
+  [state.categories[idx],state.categories[newIdx]]=[state.categories[newIdx],state.categories[idx]];
+  autosave();renderCategoryList();
+}
+function addCategory(){
+  const inp=document.getElementById('newCatName');
+  const name=inp.value.trim();if(!name)return;
+  const newCat={id:uid(),name,color:'#c9a84c'};
+  state.categories.push(newCat);
+  // give the new category its own 7-question monthly set too
+  state.templates.monthly.push(...genCategoryQuestions(newCat));
+  inp.value='';autosave();renderCategoryList();renderTemplateQuestions();
+  showToast('Category added with 7 starter questions');
+}
+function updateCatName(id,name){
+  const cat=catById(id);if(cat){cat.name=name.trim();autosave()}
+}
+function updateCatColor(id,color){
+  const cat=catById(id);if(cat){cat.color=color;autosave()}
+}
+function deleteCategory(id){
+  if(!confirm('Delete this category? Its questions will be removed from the monthly template; goals linked to it will show as uncategorized.'))return;
+  state.categories=state.categories.filter(c=>c.id!==id);
+  state.templates.monthly=state.templates.monthly.filter(q=>q.categoryId!==id);
+  autosave();renderCategoryList();renderTemplateQuestions();
+}
+function setTemplateEditType(t){templateEditType=t;renderTemplates()}
+function renderTemplateQuestions(){
+  const el=document.getElementById('tplQList');if(!el)return;
+  el.innerHTML='';
+  const list=state.templates[templateEditType];
+  list.forEach((q,idx)=>{
+    const row=document.createElement('div');
+    row.className='card';
+    row.innerHTML=`
+      <div class="field-row">
+        <div class="field" style="flex:2"><span class="field-label">Prompt</span><input class="inp" value="${esc(q.prompt)}" onchange="updateTplQ('${q.id}','prompt',this.value)"></div>
+        <div class="field"><span class="field-label">Type</span>
+          <select class="sel" onchange="updateTplQ('${q.id}','type',this.value)">
+            ${['rating','choice','shorttext','longtext','checklist','date','file'].map(t=>`<option value="${t}" ${q.type===t?'selected':''}>${t}</option>`).join('')}
+          </select>
+        </div>
+      </div>
+      <div class="field-row">
+        <div class="field"><span class="field-label">Category</span>
+          <select class="sel" onchange="updateTplQ('${q.id}','categoryId',this.value)">
+            <option value="" ${!q.categoryId?'selected':''}>General</option>
+            ${state.categories.map(c=>`<option value="${c.id}" ${q.categoryId===c.id?'selected':''}>${esc(c.name)}</option>`).join('')}
+          </select>
+        </div>
+        <div class="field"><span class="field-label">Required</span>
+          <select class="sel" onchange="updateTplQ('${q.id}','required',this.value==='yes')">
+            <option value="no" ${!q.required?'selected':''}>No</option>
+            <option value="yes" ${q.required?'selected':''}>Yes</option>
+          </select>
+        </div>
+      </div>
+      ${q.type==='choice'?`<div class="field"><span class="field-label">Options (comma separated)</span><input class="inp" value="${esc((q.options||[]).join(', '))}" onchange="updateTplQOptions('${q.id}',this.value)"></div>`:''}
+      <div class="action-row">
+        <button class="action-btn" onclick="moveTplQ('${q.id}',-1)">↑ Move up</button>
+        <button class="action-btn" onclick="moveTplQ('${q.id}',1)">↓ Move down</button>
+        <button class="action-btn red" onclick="deleteTplQ('${q.id}')">Delete</button>
+      </div>`;
+    el.appendChild(row);
+  });
+}
+function updateTplQ(id,field,val){
+  const q=state.templates[templateEditType].find(x=>x.id===id);if(!q)return;
+  q[field]=val;
+  autosave();
+  if(field==='type') renderTemplateQuestions();
+}
+function updateTplQOptions(id,val){
+  const q=state.templates[templateEditType].find(x=>x.id===id);if(!q)return;
+  q.options=val.split(',').map(s=>s.trim()).filter(Boolean);
+  autosave();
+}
+function moveTplQ(id,dir){
+  const list=state.templates[templateEditType];
+  const idx=list.findIndex(x=>x.id===id);
+  const newIdx=idx+dir;
+  if(newIdx<0||newIdx>=list.length)return;
+  [list[idx],list[newIdx]]=[list[newIdx],list[idx]];
+  autosave();renderTemplateQuestions();
+}
+function deleteTplQ(id){
+  state.templates[templateEditType]=state.templates[templateEditType].filter(x=>x.id!==id);
+  autosave();renderTemplateQuestions();
+}
+function addTemplateQuestion(){
+  state.templates[templateEditType].push({id:uid(),categoryId:templateEditType==='monthly'?state.categories[0].id:null,type:'shorttext',prompt:'New question',required:false});
+  autosave();renderTemplateQuestions();
+}
+
+// ── SETTINGS ──────────────────────────────────────────────
+function renderSettings(){
+  const c=document.getElementById('page-settings');
+  c.innerHTML='';
+  const head=document.createElement('div');
+  head.className='page-head';
+  head.innerHTML='<div class="page-title">Settings</div><div class="page-sub">Data, theme, and privacy</div>';
+  c.appendChild(head);
+
+  const card=document.createElement('div');
+  card.className='card';
+  card.innerHTML=`<span class="section-label">Data</span>
+    <div class="page-note">Everything here is stored locally in this browser. Nothing is sent anywhere.</div>
+    <div class="btn-row">
+      <button class="btn" onclick="exportJSON()">Export JSON</button>
+      <button class="btn" onclick="document.getElementById('importFile').click()">Import JSON</button>
+      <button class="action-btn red" onclick="resetAll()">Reset all data</button>
+    </div>`;
+  c.appendChild(card);
+
+  const card2=document.createElement('div');
+  card2.className='card';
+  card2.innerHTML=`<span class="section-label">Appearance</span>
+    <div class="btn-row"><button class="btn" onclick="toggleTheme()">Toggle dark / light</button></div>`;
+  c.appendChild(card2);
+}
+
+// ── INIT ─────────────────────────────────────────────────
+loadData();
+renderAll();
+</script>
+</body>
+</html>

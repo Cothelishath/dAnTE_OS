@@ -1,0 +1,466 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>V75(1s) Reversal Setup — dAnTE</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0b0b0c; --bg2:#131315; --panel:#17181a; --panel2:#1d1e21;
+    --line:#2a2b2f; --line2:#35363b;
+    --text:#e9e7e1; --text-dim:#9a988f; --text-faint:#68665f;
+    --gold:#c9a45c; --gold-bright:#e8c785; --gold-dim:#6b5c3a;
+    --green:#6bab84; --red:#c0645a;
+    --radius:10px;
+  }
+  *{box-sizing:border-box;}
+  body{ margin:0; background:var(--bg); color:var(--text); font-family:'Inter',sans-serif; line-height:1.55; }
+  h1,h2,h3{ font-family:'Cormorant Garamond',serif; font-weight:600; margin:0; }
+  .mono{ font-family:'JetBrains Mono',monospace; }
+  header{ padding:32px 20px 16px; max-width:760px; margin:0 auto; }
+  .eyebrow{ font-family:'JetBrains Mono',monospace; font-size:.65rem; letter-spacing:.15em; color:var(--gold); text-transform:uppercase; margin-bottom:6px; }
+  h1{ font-size:1.75rem; }
+  header p{ color:var(--text-dim); font-size:.88rem; margin-top:8px; }
+  .container{ max-width:760px; margin:0 auto; padding:0 20px 80px; }
+
+  .rule-box{
+    background:linear-gradient(135deg, rgba(201,164,92,.1), rgba(201,164,92,.02));
+    border:1px solid var(--gold-dim); border-radius:var(--radius); padding:18px 20px; margin-bottom:24px;
+  }
+  .rule-box .rule-label{ font-family:'JetBrains Mono',monospace; font-size:.62rem; letter-spacing:.12em; text-transform:uppercase; color:var(--gold); margin-bottom:6px; }
+  .rule-box .rule-text{ font-size:1.05rem; font-family:'Cormorant Garamond',serif; font-style:italic; color:var(--gold-bright); }
+
+  .step{ border:1px solid var(--line); border-radius:var(--radius); margin-bottom:12px; background:var(--panel); overflow:hidden; }
+  .step-head{ padding:14px 18px; cursor:pointer; display:flex; align-items:center; gap:10px; user-select:none; }
+  .step-head:hover{ background:var(--panel2); }
+  .step-num{ font-family:'JetBrains Mono',monospace; font-size:.7rem; color:var(--gold); border:1px solid var(--gold-dim); border-radius:4px; padding:2px 7px; flex-shrink:0; }
+  .step-title{ font-size:1.05rem; flex:1; }
+  .step-flag{ font-family:'JetBrains Mono',monospace; font-size:.6rem; color:var(--red); border:1px solid var(--red); border-radius:3px; padding:1px 6px; }
+  .chevron{ color:var(--text-faint); font-size:.75rem; transition:.2s; }
+  .step.open .chevron{ transform:rotate(90deg); }
+  .step-body{ display:none; padding:2px 18px 16px; border-top:1px solid var(--line); }
+  .step.open .step-body{ display:block; }
+
+  .item{ display:flex; align-items:flex-start; gap:10px; padding:8px 0; border-bottom:1px solid var(--line); }
+  .item:last-child{ border-bottom:none; }
+  .item-check{ width:16px; height:16px; border:1px solid var(--line2); border-radius:4px; flex-shrink:0; margin-top:2px; cursor:pointer; display:flex; align-items:center; justify-content:center; font-size:10px; color:transparent; }
+  .item-check.on{ background:var(--gold-dim); border-color:var(--gold-dim); color:var(--gold-bright); }
+  .item-text{ font-size:.88rem; color:var(--text); flex:1; }
+  .item-note{ font-size:.76rem; color:var(--text-faint); font-style:italic; margin-top:2px; }
+  .warn{ background:rgba(192,100,90,.08); border:1px solid var(--red); border-radius:6px; padding:10px 12px; font-size:.82rem; color:var(--text); margin:10px 0; }
+  .warn b{ color:var(--red); }
+
+  .oq-item{ background:var(--panel2); border:1px solid var(--line); border-radius:8px; padding:12px 14px; margin-bottom:10px; }
+  .oq-q{ font-size:.9rem; color:var(--gold-bright); margin-bottom:6px; }
+  .oq-instruction{ font-size:.78rem; color:var(--text-dim); }
+  .oq-log{ margin-top:10px; }
+  .oq-log-row{ display:grid; grid-template-columns:90px 1fr 1fr auto; gap:6px; margin-bottom:6px; }
+  .oq-log-row input, .oq-log-row select{ background:var(--bg2); border:1px solid var(--line); color:var(--text); border-radius:5px; padding:5px 7px; font-size:.76rem; font-family:'Inter',sans-serif; }
+  .del-btn{ background:none; border:none; color:var(--text-faint); cursor:pointer; font-size:.8rem; }
+  .del-btn:hover{ color:var(--red); }
+  .add-row-btn{ font-family:'JetBrains Mono',monospace; font-size:.7rem; color:var(--gold); background:none; border:1px dashed var(--gold-dim); border-radius:5px; padding:6px 10px; cursor:pointer; margin-top:4px; }
+
+  .log-entry{ background:var(--panel2); border:1px solid var(--line); border-radius:8px; padding:14px 16px; margin-bottom:12px; }
+  .log-grid{ display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-bottom:8px; }
+  .log-grid.full{ grid-template-columns:1fr; }
+  .log-field label{ font-family:'JetBrains Mono',monospace; font-size:.62rem; color:var(--text-faint); text-transform:uppercase; letter-spacing:.06em; display:block; margin-bottom:3px; }
+  .log-field input, .log-field select, .log-field textarea{
+    width:100%; background:var(--bg2); border:1px solid var(--line); color:var(--text);
+    border-radius:5px; padding:7px 9px; font-size:.82rem; font-family:'Inter',sans-serif;
+  }
+  .log-field textarea{ resize:vertical; min-height:44px; }
+  .log-entry-top{ display:flex; justify-content:space-between; align-items:center; margin-bottom:8px; }
+  .log-entry-title{ font-family:'JetBrains Mono',monospace; font-size:.72rem; color:var(--gold); }
+  .add-log-btn{ background:var(--gold-dim); color:var(--gold-bright); border:none; border-radius:6px; padding:10px 16px; font-size:.82rem; cursor:pointer; width:100%; margin-top:6px; font-family:'Inter',sans-serif; }
+  .add-log-btn:hover{ background:var(--gold); color:#000; }
+
+  .stats-row{ display:flex; gap:10px; margin-bottom:16px; flex-wrap:wrap; }
+  .stat{ background:var(--panel); border:1px solid var(--line); border-radius:8px; padding:10px 16px; flex:1; min-width:90px; text-align:center; }
+  .stat-n{ font-family:'JetBrains Mono',monospace; font-size:1.3rem; color:var(--gold-bright); }
+  .stat-l{ font-size:.66rem; color:var(--text-faint); text-transform:uppercase; letter-spacing:.06em; margin-top:2px; }
+
+  .top-actions{ display:flex; gap:8px; margin-bottom:20px; flex-wrap:wrap; }
+  .icon-btn{ background:var(--panel); border:1px solid var(--line); color:var(--text-dim); border-radius:8px; padding:8px 14px; cursor:pointer; font-size:.78rem; }
+  .icon-btn:hover{ border-color:var(--gold-dim); color:var(--text); }
+
+  section.block{ margin-bottom:28px; }
+  .block-title{ font-size:1.3rem; margin-bottom:12px; }
+  .block-sub{ font-size:.78rem; color:var(--text-faint); margin-bottom:14px; }
+
+  .lib-item{ display:flex; align-items:center; gap:10px; padding:9px 12px; background:var(--panel); border:1px solid var(--line); border-radius:7px; margin-bottom:7px; }
+  .lib-item-name{ flex:1; font-size:.86rem; }
+  .lib-item-tag{ font-family:'JetBrains Mono',monospace; font-size:.6rem; color:var(--text-faint); }
+  .lib-add-row{ display:flex; gap:8px; margin-top:10px; }
+  .lib-add-row input{ flex:1; background:var(--bg2); border:1px solid var(--line); color:var(--text); border-radius:6px; padding:8px 10px; font-size:.84rem; }
+  .lib-add-row button{ background:var(--gold-dim); color:var(--gold-bright); border:none; border-radius:6px; padding:8px 14px; font-size:.8rem; cursor:pointer; }
+
+  .pattern-slot{ margin:10px 0; padding:10px 12px; background:var(--bg2); border:1px dashed var(--gold-dim); border-radius:7px; }
+  .pattern-slot label{ font-family:'JetBrains Mono',monospace; font-size:.62rem; color:var(--gold); text-transform:uppercase; letter-spacing:.05em; display:block; margin-bottom:5px; }
+  .pattern-slot select, .pattern-slot input{ width:100%; background:var(--panel); border:1px solid var(--line); color:var(--text); border-radius:5px; padding:7px 9px; font-size:.82rem; }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="eyebrow">dAnTE · Trading</div>
+  <h1>V75(1s) Reversal Setup</h1>
+  <p>Strategy guide + live test checklist — built from the 16 Jul 2026 journal entry. Check off what's confirmed as you test; the open questions section is where the setup actually gets refined.</p>
+</header>
+
+<div class="container">
+
+  <div class="top-actions">
+    <button class="icon-btn" id="exportBtn">Export</button>
+    <button class="icon-btn" id="importBtn">Import</button>
+    <input type="file" id="importFile" accept=".json" style="display:none;">
+    <button class="icon-btn" id="resetBtn" style="border-color:#c0645a;color:#c0645a;">Reset checklist ticks</button>
+  </div>
+
+  <div class="rule-box">
+    <div class="rule-label">The rule this whole setup rests on</div>
+    <div class="rule-text">The zone tells you where to look. The candle pattern tells you when. A valid zone is never, by itself, a signal.</div>
+  </div>
+
+  <div class="stats-row">
+    <div class="stat"><div class="stat-n" id="statTotal">0</div><div class="stat-l">Logged tests</div></div>
+    <div class="stat"><div class="stat-n" id="statWin">0</div><div class="stat-l">Wins</div></div>
+    <div class="stat"><div class="stat-n" id="statLoss">0</div><div class="stat-l">Losses</div></div>
+    <div class="stat"><div class="stat-n" id="statBE">0</div><div class="stat-l">Breakeven</div></div>
+  </div>
+
+  <section class="block">
+    <div class="block-title">Reversal Pattern Library</div>
+    <div class="block-sub">Named patterns you've confirmed, reused across the steps below wherever a pattern needs identifying — not just this one inverted-pin set. Add new ones as you confirm them.</div>
+    <div id="libContainer"></div>
+    <div class="lib-add-row">
+      <input type="text" id="newPatternInput" placeholder="Name a newly confirmed pattern...">
+      <button id="addPatternBtn">+ Add</button>
+    </div>
+  </section>
+
+  <section class="block">
+    <div class="block-title">Setup Checklist</div>
+    <div class="block-sub">Six steps, top-down. Steps 1–3 find the zone. Step 4 is the one that actually cost the losing trade — don't skip the flag.</div>
+    <div id="stepsContainer"></div>
+  </section>
+
+  <section class="block">
+    <div class="block-title">Open Questions — being tested, not yet answered</div>
+    <div class="block-sub">Don't resolve these by feel. Log each occurrence and let the data answer it.</div>
+    <div id="oqContainer"></div>
+  </section>
+
+  <section class="block">
+    <div class="block-title">Test Log</div>
+    <div class="block-sub">One entry per occurrence. Screenshot reference, not embed — keep the actual images in your gallery, note the filename here.</div>
+    <div id="logContainer"></div>
+    <button class="add-log-btn" id="addLogBtn">+ Log a new test</button>
+  </section>
+
+</div>
+
+<script>
+const STEPS = [
+  { title:"Daily bias", flag:null, items:[
+    "Confirm HH/HL structure over the past few months → bullish bias (or LL/LH → bearish)",
+    "Note where price sits positionally relative to the overall trend",
+    "Bias set — bullish: favour long setups, deprioritise counter-trend shorts (or reverse)",
+  ]},
+  { title:"8H/4H — mark the POI zone", flag:null,
+    patternSlot:{ id:"poi-pattern", label:"Reversal pattern marking this POI (from library below)" },
+    items:[
+    "Zone marked: high of the identified pattern to lowest tip of the candle set",
+    "Break of structure (BoS) present after the pattern? — log yes/no in Open Questions, don't assume it's required",
+  ]},
+  { title:"1H — operating block & return", flag:null,
+    patternSlot:{ id:"ob-pattern", label:"Pattern mitigated at this block, if any (optional — not a requirement)" },
+    items:[
+    "Operating block identified: last bearish candle before the expansion leg",
+    "Break of structure present at the operating block — currently suspected as more pertinent than mitigation itself, worth weighting accordingly",
+    "IDM taps logged as price retraces toward the 8H/4H zone (count them)",
+    "Price has returned into the marked zone — do NOT enter yet, this is not the signal",
+  ]},
+  { title:"Entry trigger — the fix from the loss", flag:"critical",
+    patternSlot:{ id:"entry-pattern", label:"Reversal pattern confirmed for this entry (from library below)" },
+    items:[
+    "A valid, clearly identified reversal pattern has printed inside the zone — not necessarily the original 3-candle set, but it must be named",
+    "Break of structure confirms the reversal",
+    "ALL of the above present — a 'valid-looking zone' alone is not an entry signal",
+  ]},
+  { title:"Micro-structure scalp", flag:null,
+    extraField:{ id:"scalp-timeframe", label:"Timeframe this occurred on (identify, don't assume)", placeholder:"e.g. 15M, 30M, 5M, 1M..." },
+    items:[
+    "L1 → H1 → L2 (first BoS) confirmed",
+    "Short-term low swept during the L2 retrace",
+    "Second BoS: price puts in H3",
+    "a → L3 leg is a clean, one-directional run (consecutive same-direction candles) — this is the a–c alignment check, c = L3 itself",
+    "Momentum break of a prior tip confirms L3 as valid inducement",
+    "Price retraces into the last bearish candle at L4 → entry, SL = candle low, target = candle high side",
+  ]},
+  { title:"Targets — keep these separate in the log", flag:null, items:[
+    "If trading as ENTRY PATTERN (part of HTF delivery): TP = high of HTF structure",
+    "If trading as STANDALONE SCALP: TP = H4 only",
+    "Tag every logged test with which of the two it was — conflating them corrupts both win rates",
+  ]},
+];
+
+const OPEN_QUESTIONS = [
+  { id:"bos-required", q:"Is the 8H/4H break of structure a REQUIREMENT for the OB to be valid, or just confluence?",
+    instruction:"Log the next several occurrences with BoS present vs absent, and compare outcomes." },
+];
+
+const STORAGE_KEY = "v75ReversalSetup_v1";
+
+function loadState(){
+  try{ const raw = localStorage.getItem(STORAGE_KEY); if(raw) return JSON.parse(raw); }catch(e){}
+  return { checks:{}, oqLogs:{}, tests:[], patternLibrary:[], stepChoices:{}, stepFields:{} };
+}
+function saveState(){ try{ localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); }catch(e){} }
+let state = loadState();
+OPEN_QUESTIONS.forEach(oq=>{ if(!state.oqLogs[oq.id]) state.oqLogs[oq.id] = []; });
+if(!state.patternLibrary) state.patternLibrary = [];
+if(!state.patternLibrary.length){
+  state.patternLibrary.push({ id:"pin-engulf", name:"Inverted Pin Bar + Engulfing" });
+}
+if(!state.stepChoices) state.stepChoices = {};
+if(!state.stepFields) state.stepFields = {};
+
+function renderLibrary(){
+  const c = document.getElementById("libContainer");
+  c.innerHTML = "";
+  if(!state.patternLibrary.length){
+    c.innerHTML = '<div class="oq-instruction">No patterns named yet — add the first one below.</div>';
+    return;
+  }
+  state.patternLibrary.forEach(p=>{
+    const el = document.createElement("div");
+    el.className = "lib-item";
+    el.innerHTML = `<div class="lib-item-name">${p.name}</div><div class="lib-item-tag mono">${p.id}</div><button class="del-btn" data-id="${p.id}">✕</button>`;
+    el.querySelector(".del-btn").addEventListener("click", ()=>{
+      if(!confirm(`Remove "${p.name}" from the library? Steps referencing it will show as unset.`)) return;
+      state.patternLibrary = state.patternLibrary.filter(x=>x.id!==p.id);
+      saveState(); renderLibrary(); renderSteps();
+    });
+    c.appendChild(el);
+  });
+}
+document.getElementById("addPatternBtn").addEventListener("click", ()=>{
+  const inp = document.getElementById("newPatternInput");
+  const name = inp.value.trim();
+  if(!name) return;
+  state.patternLibrary.push({ id:"p-"+Date.now(), name });
+  inp.value = "";
+  saveState(); renderLibrary(); renderSteps();
+});
+
+let openSteps = new Set();
+
+function renderSteps(){
+  const c = document.getElementById("stepsContainer");
+  c.innerHTML = "";
+  STEPS.forEach((step, si)=>{
+    const el = document.createElement("div");
+    el.className = "step" + (openSteps.has(si) ? " open" : "");
+    const head = document.createElement("div");
+    head.className = "step-head";
+    head.innerHTML = `<div class="step-num">${si+1}</div><div class="step-title">${step.title}</div>${step.flag?'<div class="step-flag">critical</div>':''}<div class="chevron">▶</div>`;
+    head.addEventListener("click", ()=>{ openSteps.has(si) ? openSteps.delete(si) : openSteps.add(si); el.classList.toggle("open"); });
+    el.appendChild(head);
+
+    const body = document.createElement("div");
+    body.className = "step-body";
+    if(step.flag === "critical"){
+      body.innerHTML += `<div class="warn"><b>This is where the losing trade went wrong.</b> Being "in a valid zone" is not a signal — a named, confirmed pattern must print before entry.</div>`;
+    }
+    if(step.patternSlot){
+      const slot = document.createElement("div");
+      slot.className = "pattern-slot";
+      const opts = state.patternLibrary.map(p=>`<option value="${p.id}" ${state.stepChoices[step.patternSlot.id]===p.id?'selected':''}>${p.name}</option>`).join("");
+      slot.innerHTML = `<label>${step.patternSlot.label}</label><select data-slot="${step.patternSlot.id}"><option value="">— not set —</option>${opts}</select>`;
+      slot.querySelector("select").addEventListener("change",(e)=>{
+        state.stepChoices[step.patternSlot.id] = e.target.value;
+        saveState();
+      });
+      body.appendChild(slot);
+    }
+    if(step.extraField){
+      const field = document.createElement("div");
+      field.className = "pattern-slot";
+      field.innerHTML = `<label>${step.extraField.label}</label><input type="text" placeholder="${step.extraField.placeholder}" data-field="${step.extraField.id}" value="${state.stepFields[step.extraField.id]||''}">`;
+      field.querySelector("input").addEventListener("input",(e)=>{
+        state.stepFields[step.extraField.id] = e.target.value;
+        saveState();
+      });
+      body.appendChild(field);
+    }
+    step.items.forEach((text, ii)=>{
+      const key = si+"-"+ii;
+      const checked = !!state.checks[key];
+      const row = document.createElement("div");
+      row.className = "item";
+      row.innerHTML = `<div class="item-check ${checked?'on':''}" data-key="${key}">${checked?'✓':''}</div><div class="item-text">${text}</div>`;
+      row.querySelector(".item-check").addEventListener("click", (e)=>{
+        state.checks[key] = !state.checks[key];
+        saveState();
+        renderSteps();
+      });
+      body.appendChild(row);
+    });
+    el.appendChild(body);
+    c.appendChild(el);
+  });
+}
+
+function renderOQ(){
+  const c = document.getElementById("oqContainer");
+  c.innerHTML = "";
+  OPEN_QUESTIONS.forEach(oq=>{
+    const el = document.createElement("div");
+    el.className = "oq-item";
+    const logs = state.oqLogs[oq.id] || [];
+    el.innerHTML = `
+      <div class="oq-q">${oq.q}</div>
+      <div class="oq-instruction">${oq.instruction}</div>
+      <div class="oq-log" data-oq="${oq.id}"></div>
+      <button class="add-row-btn" data-oq="${oq.id}">+ Log occurrence</button>
+    `;
+    const logDiv = el.querySelector(".oq-log");
+    logs.forEach((row,ri)=>{
+      const r = document.createElement("div");
+      r.className = "oq-log-row";
+      r.innerHTML = `
+        <input type="date" value="${row.date||''}" data-field="date">
+        <select data-field="present"><option value="yes" ${row.present==='yes'?'selected':''}>BoS: yes</option><option value="no" ${row.present==='no'?'selected':''}>BoS: no</option></select>
+        <select data-field="outcome"><option value="win" ${row.outcome==='win'?'selected':''}>Win</option><option value="loss" ${row.outcome==='loss'?'selected':''}>Loss</option><option value="be" ${row.outcome==='be'?'selected':''}>Breakeven</option></select>
+        <button class="del-btn" data-oq="${oq.id}" data-ri="${ri}">✕</button>
+      `;
+      r.querySelectorAll("input,select").forEach(inp=>{
+        inp.addEventListener("change", ()=>{
+          state.oqLogs[oq.id][ri][inp.dataset.field] = inp.value;
+          saveState();
+        });
+      });
+      r.querySelector(".del-btn").addEventListener("click", ()=>{
+        state.oqLogs[oq.id].splice(ri,1);
+        saveState(); renderOQ();
+      });
+      logDiv.appendChild(r);
+    });
+    c.appendChild(el);
+  });
+  c.querySelectorAll(".add-row-btn").forEach(btn=>{
+    btn.addEventListener("click", ()=>{
+      const id = btn.dataset.oq;
+      state.oqLogs[id].push({date:"", present:"yes", outcome:"win"});
+      saveState(); renderOQ();
+    });
+  });
+}
+
+function renderLog(){
+  const c = document.getElementById("logContainer");
+  c.innerHTML = "";
+  state.tests.slice().reverse().forEach((t, ridx)=>{
+    const i = state.tests.length - 1 - ridx;
+    const el = document.createElement("div");
+    el.className = "log-entry";
+    el.innerHTML = `
+      <div class="log-entry-top">
+        <div class="log-entry-title">Test #${i+1}</div>
+        <button class="del-btn" data-i="${i}">✕ delete</button>
+      </div>
+      <div class="log-grid">
+        <div class="log-field"><label>Date</label><input type="date" data-field="date" value="${t.date||''}"></div>
+        <div class="log-field"><label>Setup type</label>
+          <select data-field="type">
+            <option value="entry-pattern" ${t.type==='entry-pattern'?'selected':''}>Entry pattern (HTF TP)</option>
+            <option value="scalp" ${t.type==='scalp'?'selected':''}>Standalone scalp (H4 TP)</option>
+          </select>
+        </div>
+        <div class="log-field"><label>Outcome</label>
+          <select data-field="outcome">
+            <option value="win" ${t.outcome==='win'?'selected':''}>Win</option>
+            <option value="loss" ${t.outcome==='loss'?'selected':''}>Loss</option>
+            <option value="be" ${t.outcome==='be'?'selected':''}>Breakeven</option>
+          </select>
+        </div>
+        <div class="log-field"><label>Screenshot ref (filename/date, not embedded)</label><input type="text" data-field="screenshot" placeholder="e.g. IMG_20260716_1H.jpg" value="${t.screenshot||''}"></div>
+      </div>
+      <div class="log-grid full">
+        <div class="log-field"><label>What held up as expected</label><textarea data-field="held" placeholder="Which parameters printed exactly as the guide describes...">${t.held||''}</textarea></div>
+      </div>
+      <div class="log-grid full">
+        <div class="log-field"><label>What needed adjusting / expanding</label><textarea data-field="expanded" placeholder="Anything that didn't quite match, or a rule that needs refining...">${t.expanded||''}</textarea></div>
+      </div>
+    `;
+    el.querySelectorAll("input,select,textarea").forEach(inp=>{
+      inp.addEventListener("input", ()=>{
+        state.tests[i][inp.dataset.field] = inp.value;
+        saveState();
+        updateStats();
+      });
+    });
+    el.querySelector(".del-btn").addEventListener("click", ()=>{
+      state.tests.splice(i,1);
+      saveState(); renderLog(); updateStats();
+    });
+    c.appendChild(el);
+  });
+}
+
+function updateStats(){
+  const t = state.tests;
+  document.getElementById("statTotal").textContent = t.length;
+  document.getElementById("statWin").textContent = t.filter(x=>x.outcome==='win').length;
+  document.getElementById("statLoss").textContent = t.filter(x=>x.outcome==='loss').length;
+  document.getElementById("statBE").textContent = t.filter(x=>x.outcome==='be').length;
+}
+
+document.getElementById("addLogBtn").addEventListener("click", ()=>{
+  state.tests.push({ date:"", type:"entry-pattern", outcome:"win", screenshot:"", held:"", expanded:"" });
+  saveState(); renderLog(); updateStats();
+});
+
+document.getElementById("resetBtn").addEventListener("click", ()=>{
+  if(!confirm("Clear all checklist ticks? Test log and open-question logs are kept.")) return;
+  state.checks = {};
+  saveState(); renderSteps();
+});
+
+document.getElementById("exportBtn").addEventListener("click", ()=>{
+  const blob = new Blob([JSON.stringify(state,null,2)], {type:"application/json"});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url; a.download = "v75-reversal-setup-progress.json";
+  a.click(); URL.revokeObjectURL(url);
+});
+document.getElementById("importBtn").addEventListener("click", ()=> document.getElementById("importFile").click());
+document.getElementById("importFile").addEventListener("change",(e)=>{
+  const file = e.target.files[0]; if(!file) return;
+  const reader = new FileReader();
+  reader.onload = (evt)=>{
+    try{
+      const imported = JSON.parse(evt.target.result);
+      state = imported;
+      OPEN_QUESTIONS.forEach(oq=>{ if(!state.oqLogs[oq.id]) state.oqLogs[oq.id] = []; });
+      if(!state.tests) state.tests = [];
+      if(!state.patternLibrary) state.patternLibrary = [];
+      if(!state.patternLibrary.length) state.patternLibrary.push({ id:"pin-engulf", name:"Inverted Pin Bar + Engulfing" });
+      if(!state.stepChoices) state.stepChoices = {};
+      if(!state.stepFields) state.stepFields = {};
+      saveState(); renderLibrary(); renderSteps(); renderOQ(); renderLog(); updateStats();
+    }catch(err){ alert("Couldn't parse that file."); }
+  };
+  reader.readAsText(file);
+});
+
+renderLibrary();
+renderSteps();
+renderOQ();
+renderLog();
+updateStats();
+</script>
+</body>
+</html>

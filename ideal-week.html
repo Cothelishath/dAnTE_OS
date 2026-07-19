@@ -1,0 +1,908 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ideal Week — dAnTE</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300&family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@300;400&display=swap');
+:root{
+  --bg:#0a0a0a;--bg2:#111;--bg3:#181818;--bg4:#1f1f1f;
+  --border:#222;--border2:#2e2e2e;--border3:#3a3a3a;
+  --gold:#c9a84c;--gold-dim:#7a5f28;--gold-glow:rgba(201,168,76,0.07);
+  --text:#e2ddd4;--text-dim:#777;--text-muted:#444;
+  --red:#a0392b;--radius:4px;
+}
+.light{
+  --bg:#f0ece4;--bg2:#e8e3da;--bg3:#ddd8ce;--bg4:#d4cec3;
+  --border:#ccc8be;--border2:#bab5aa;--border3:#aaa49a;
+  --gold:#8a6020;--gold-dim:#b8902a;--gold-glow:rgba(138,96,32,0.07);
+  --text:#1a1714;--text-dim:#666;--text-muted:#999;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;overflow:hidden}
+body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;font-size:13px;display:flex;flex-direction:column}
+
+/* HEADER */
+header{flex-shrink:0;background:var(--bg);border-bottom:1px solid var(--border);padding:10px 20px;display:flex;align-items:center;gap:10px;z-index:50;flex-wrap:wrap}
+.brand{font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.2em;color:var(--gold);text-transform:uppercase}
+.page-title{font-family:'Cormorant Garamond',serif;font-size:20px;font-weight:300;color:var(--text);letter-spacing:.04em;margin-right:auto}
+.page-title em{color:var(--gold);font-style:italic}
+.btn{display:inline-flex;align-items:center;gap:5px;padding:6px 12px;border-radius:var(--radius);border:1px solid var(--border2);background:transparent;color:var(--text-dim);font-family:'Inter',sans-serif;font-size:11px;cursor:pointer;transition:all .18s;white-space:nowrap}
+.btn:hover{border-color:var(--gold);color:var(--gold)}
+.btn-gold{border-color:var(--gold);color:var(--gold)}
+.btn-gold:hover{background:var(--gold-glow)}
+.btn-sm{padding:4px 9px;font-size:11px}
+.btn-red{border-color:var(--red);color:var(--red)}
+.theme-btn{background:var(--bg3);border:1px solid var(--border);border-radius:20px;padding:4px 10px;font-size:12px;cursor:pointer;color:var(--text-dim)}
+.theme-btn:hover{border-color:var(--gold);color:var(--gold)}
+
+/* LAYOUT */
+.app-body{flex:1;display:flex;overflow:hidden}
+
+/* SIDEBAR */
+.sidebar{width:300px;flex-shrink:0;background:var(--bg2);border-right:1px solid var(--border);display:flex;flex-direction:column;overflow:hidden;transition:width .25s}
+.sidebar.collapsed{width:0;border-right:none}
+.sidebar-inner{width:300px;flex:1;display:flex;flex-direction:column;overflow:hidden}
+.sidebar-header{flex-shrink:0;padding:12px 16px 10px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
+.sidebar-title{font-family:'Cormorant Garamond',serif;font-size:16px;font-weight:300;color:var(--text);letter-spacing:.04em}
+.sidebar-scroll{flex:1;overflow-y:auto;padding:12px}
+.sidebar-scroll::-webkit-scrollbar{width:3px}
+.sidebar-scroll::-webkit-scrollbar-thumb{background:var(--border3)}
+.guide-section{margin-bottom:14px;background:var(--bg3);border:1px solid var(--border);border-radius:5px;overflow:hidden}
+.guide-sec-header{display:flex;align-items:center;justify-content:space-between;padding:10px 12px;cursor:pointer;user-select:none}
+.guide-sec-header:hover{background:var(--gold-glow)}
+.guide-sec-title{font-family:'Cormorant Garamond',serif;font-size:14px;color:var(--text);letter-spacing:.03em;outline:none;flex:1}
+.guide-sec-actions{display:flex;gap:4px;opacity:0;transition:opacity .15s;flex-shrink:0}
+.guide-section:hover .guide-sec-actions{opacity:1}
+.guide-sec-btn{background:none;border:none;color:var(--text-muted);cursor:pointer;font-size:11px;padding:2px 5px;border-radius:3px;transition:all .15s}
+.guide-sec-btn:hover{color:var(--gold);background:var(--gold-glow)}
+.guide-sec-btn.del:hover{color:var(--red)}
+.guide-items{padding:0 12px 10px;display:flex;flex-direction:column;gap:5px}
+.guide-item{display:flex;align-items:flex-start;gap:8px;padding:6px 8px;border-radius:3px;border:1px solid transparent}
+.guide-item:hover{background:var(--bg4);border-color:var(--border)}
+.guide-bullet{color:var(--gold);font-size:10px;margin-top:4px;flex-shrink:0}
+.guide-text{flex:1;font-size:12px;color:var(--text-dim);line-height:1.5;outline:none}
+.guide-text:focus{color:var(--text)}
+.guide-del{background:none;border:none;color:transparent;cursor:pointer;font-size:10px;padding:2px 4px;border-radius:2px;transition:all .15s;flex-shrink:0}
+.guide-item:hover .guide-del{color:var(--text-muted)}
+.guide-item:hover .guide-del:hover{color:var(--red)}
+.add-guide-row{padding:8px 12px;border-top:1px solid var(--border)}
+.add-guide-input{width:100%;background:var(--bg4);border:1px solid var(--border);border-radius:3px;color:var(--text);font-family:'Inter',sans-serif;font-size:11px;padding:5px 9px;outline:none}
+.add-guide-input:focus{border-color:var(--gold-dim)}
+.add-guide-input::placeholder{color:var(--text-muted)}
+.add-section-row{padding:8px 12px 12px;display:flex;flex-direction:column;gap:6px}
+.add-section-input{width:100%;background:var(--bg3);border:1px solid var(--border);border-radius:3px;color:var(--text);font-family:'Inter',sans-serif;font-size:11px;padding:6px 10px;outline:none}
+.add-section-input:focus{border-color:var(--gold-dim)}
+.add-section-input::placeholder{color:var(--text-muted)}
+
+/* SIDEBAR TOGGLE */
+.sidebar-toggle{flex-shrink:0;width:22px;background:var(--bg2);border-right:1px solid var(--border);display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--text-muted);font-size:10px;transition:all .18s;writing-mode:vertical-rl}
+.sidebar-toggle:hover{color:var(--gold);background:var(--gold-glow)}
+
+/* GRID AREA */
+.grid-area{flex:1;display:flex;flex-direction:column;overflow:hidden}
+.grid-toolbar{flex-shrink:0;padding:7px 14px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:7px;flex-wrap:wrap;background:var(--bg)}
+.toolbar-label{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--text-muted);letter-spacing:.12em;text-transform:uppercase;margin-right:2px}
+.area-pill{display:inline-flex;align-items:center;gap:5px;padding:3px 10px;border-radius:12px;border:1px solid var(--border2);cursor:pointer;font-size:11px;color:var(--text-dim);transition:all .15s;background:transparent}
+.area-pill:hover{border-color:var(--gold-dim);color:var(--gold)}
+.area-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.grid-scroll{flex:1;overflow:auto}
+.grid-scroll::-webkit-scrollbar{height:4px;width:4px}
+.grid-scroll::-webkit-scrollbar-thumb{background:var(--border3)}
+
+/* TIMETABLE */
+.timetable{border-collapse:collapse;min-width:max-content}
+.timetable th,.timetable td{border:1px solid var(--border);padding:0}
+.th-corner{background:var(--bg2);width:72px;min-width:72px;position:sticky;left:0;top:0;z-index:30}
+.th-time{background:var(--bg2);position:sticky;top:0;z-index:20;text-align:center;padding:0;min-width:80px;width:80px}
+.th-time-inner{padding:6px 4px;border-bottom:1px solid var(--border)}
+.th-time-main{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--gold);letter-spacing:.05em;display:block}
+.th-time-sub{font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--text-muted);display:block;margin-top:1px}
+.th-day{background:var(--bg2);position:sticky;left:0;z-index:10;min-width:72px;width:72px;padding:0}
+.th-day-inner{padding:8px 10px;display:flex;flex-direction:column;gap:2px}
+.th-day-name{font-family:'Cormorant Garamond',serif;font-size:14px;font-weight:400;color:var(--text);letter-spacing:.04em}
+.th-day-short{font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--text-muted);text-transform:uppercase;letter-spacing:.1em}
+.sched-cell{min-width:80px;width:80px;height:52px;vertical-align:top;cursor:pointer;position:relative;transition:background .12s}
+.cell-hover-hint{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;opacity:0;transition:opacity .15s;pointer-events:none;font-size:16px;color:var(--text-muted)}
+.sched-cell:hover .cell-hover-hint{opacity:1}
+.cell-inner{position:absolute;inset:0;display:flex;flex-direction:column;gap:2px;padding:4px 5px;overflow:hidden}
+.chip-primary{border-radius:2px;padding:2px 5px;font-size:10px;font-weight:500;line-height:1.3;color:#fff;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex-shrink:0;max-width:100%}
+.chip-bg{border-radius:2px;padding:1px 5px;font-size:9px;line-height:1.3;opacity:.7;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex-shrink:0;font-style:italic;max-width:100%}
+
+/* MODAL */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.78);z-index:200;display:flex;align-items:center;justify-content:center;padding:20px;backdrop-filter:blur(6px)}
+.modal-overlay.hidden{display:none}
+.modal{background:var(--bg2);border:1px solid var(--border2);border-radius:8px;padding:22px;width:100%;max-width:500px;display:flex;flex-direction:column;gap:13px;max-height:90vh;overflow-y:auto}
+.modal-title{font-family:'Cormorant Garamond',serif;font-size:20px;font-weight:300;color:var(--text)}
+.modal-subtitle{font-size:11px;color:var(--text-muted);margin-top:-8px}
+.field-label{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--text-muted);letter-spacing:.12em;text-transform:uppercase;margin-bottom:4px}
+.modal-input{width:100%;background:var(--bg3);border:1px solid var(--border2);border-radius:var(--radius);color:var(--text);font-family:'Inter',sans-serif;font-size:12px;padding:8px 12px;outline:none;transition:border-color .18s}
+.modal-input:focus{border-color:var(--gold)}
+.modal-input::placeholder{color:var(--text-muted)}
+.modal-actions{display:flex;gap:10px;justify-content:space-between;flex-wrap:wrap;margin-top:4px}
+.merge-controls{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.merge-label{font-size:11px;color:var(--text-dim)}
+.num-input{width:60px;background:var(--bg3);border:1px solid var(--border2);border-radius:var(--radius);color:var(--text);font-family:'JetBrains Mono',monospace;font-size:12px;padding:7px 10px;outline:none;text-align:center}
+.num-input:focus{border-color:var(--gold)}
+.day-checkboxes{display:flex;flex-wrap:wrap;gap:6px}
+.day-cb-label{display:flex;align-items:center;gap:4px;cursor:pointer;font-size:11px;color:var(--text-dim);padding:3px 8px;border-radius:3px;border:1px solid var(--border2);transition:all .15s}
+.day-cb-label input{display:none}
+.day-cb-label.checked{border-color:var(--gold);color:var(--gold);background:var(--gold-glow)}
+.area-swatches{display:flex;flex-wrap:wrap;gap:6px}
+.area-swatch{padding:4px 10px;border-radius:3px;border:2px solid transparent;cursor:pointer;font-size:11px;font-weight:500;transition:all .15s}
+.area-swatch.selected{border-color:#fff!important}
+.section-divider{height:1px;background:var(--border);margin:2px 0}
+.bg-row{display:flex;gap:8px;align-items:center}
+.bg-row .modal-input{flex:1}
+.remove-bg{background:none;border:none;color:var(--text-muted);cursor:pointer;font-size:14px;padding:4px;transition:color .15s}
+.remove-bg:hover{color:var(--red)}
+
+/* SETTINGS MODAL extras */
+.settings-row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.settings-row .field-label{margin-bottom:0;white-space:nowrap}
+.time-select{background:var(--bg3);border:1px solid var(--border2);border-radius:var(--radius);color:var(--text);font-family:'JetBrains Mono',monospace;font-size:12px;padding:7px 10px;outline:none;cursor:pointer;min-width:80px}
+.time-select:focus{border-color:var(--gold)}
+
+/* AREA MANAGER */
+.area-row{display:flex;align-items:center;gap:8px;padding:7px 10px;border-radius:var(--radius);border:1px solid var(--border);background:var(--bg3);margin-bottom:7px}
+.area-color-btn{width:28px;height:28px;border-radius:3px;border:2px solid var(--border2);cursor:pointer;flex-shrink:0;padding:0;transition:border-color .15s}
+.area-color-btn:hover{border-color:var(--gold)}
+.area-name-inp{flex:1;background:transparent;border:none;color:var(--text);font-family:'Inter',sans-serif;font-size:12px;outline:none;padding:2px 4px;border-radius:3px}
+.area-name-inp:focus{background:var(--bg4)}
+.area-del-btn{background:none;border:none;color:var(--text-muted);cursor:pointer;font-size:12px;padding:3px 6px;border-radius:3px;transition:all .15s;flex-shrink:0}
+.area-del-btn:hover{color:var(--red);background:rgba(160,57,43,.1)}
+
+/* TOAST */
+.toast{position:fixed;bottom:20px;right:20px;background:var(--bg3);border:1px solid var(--gold-dim);color:var(--gold);font-family:'JetBrains Mono',monospace;font-size:11px;padding:8px 16px;border-radius:var(--radius);z-index:400;opacity:0;transform:translateY(6px);transition:all .25s;pointer-events:none}
+.toast.show{opacity:1;transform:translateY(0)}
+
+/* LEGEND */
+.legend{display:flex;align-items:center;gap:10px;flex-wrap:wrap;font-size:10px;color:var(--text-muted);padding:6px 14px;border-top:1px solid var(--border);background:var(--bg);flex-shrink:0}
+.legend-item{display:flex;align-items:center;gap:4px}
+.legend-dot{width:8px;height:8px;border-radius:1px;flex-shrink:0}
+
+@media(max-width:700px){
+  .sidebar{width:260px}.sidebar-inner{width:260px}
+  header{padding:8px 12px;gap:8px}
+}
+</style>
+</head>
+<body>
+<header>
+  <span class="brand">dAnTE</span>
+  <span class="page-title">Ideal <em>Week</em></span>
+  <button class="theme-btn" onclick="toggleTheme()">☀︎</button>
+  <button class="btn" onclick="openSettings()">⚙ Settings</button>
+  <button class="btn" onclick="openAreaManager()">◈ Areas</button>
+  <button class="btn" onclick="clearAll()">Clear</button>
+  <button class="btn" onclick="importData()">⬆ Import</button>
+  <button class="btn" onclick="exportData()">⬇ Export</button>
+  <button class="btn btn-gold" onclick="saveData()">Save</button>
+</header>
+
+<div class="app-body">
+  <div class="sidebar" id="sidebar">
+    <div class="sidebar-inner">
+      <div class="sidebar-header">
+        <div class="sidebar-title">Guidelines &amp; Principles</div>
+        <button class="btn btn-sm" onclick="addSection()">+ Section</button>
+      </div>
+      <div class="sidebar-scroll" id="guideContent"></div>
+    </div>
+  </div>
+  <div class="sidebar-toggle" id="sidebarToggle" onclick="toggleSidebar()">◀</div>
+
+  <div class="grid-area">
+    <div class="grid-toolbar" id="toolbar"></div>
+    <div class="grid-scroll">
+      <table class="timetable" id="timetable"></table>
+    </div>
+    <div class="legend" id="legend"></div>
+  </div>
+</div>
+
+<!-- CELL MODAL -->
+<div class="modal-overlay hidden" id="cellModal">
+  <div class="modal">
+    <div class="modal-title" id="cellModalTitle">Edit Block</div>
+    <div class="modal-subtitle" id="cellModalSub"></div>
+    <div><div class="field-label">Primary activity</div>
+      <input class="modal-input" id="cellPrimary" placeholder="What are you doing?"></div>
+    <div><div class="field-label">Life area</div>
+      <div class="area-swatches" id="cellAreaSwatches"></div></div>
+    <div class="section-divider"></div>
+    <div>
+      <div class="field-label" style="margin-bottom:8px">Background activities
+        <span style="font-size:9px;color:var(--text-muted);text-transform:none;letter-spacing:0"> — podcast, sermon, music running underneath</span>
+      </div>
+      <div id="bgRows" style="display:flex;flex-direction:column;gap:6px;margin-bottom:8px"></div>
+      <button class="btn btn-sm" onclick="addBgRow()">+ Background</button>
+    </div>
+    <div class="section-divider"></div>
+    <div><div class="field-label">Span across time (→)</div>
+      <div class="merge-controls">
+        <span class="merge-label">Span</span>
+        <input class="num-input" id="mergeRight" type="number" min="1" value="1">
+        <span class="merge-label">slots × 30 min</span>
+      </div>
+    </div>
+    <div><div class="field-label">Apply to days (↓)</div>
+      <div class="day-checkboxes" id="dayCheckboxes"></div></div>
+    <div class="modal-actions">
+      <button class="btn btn-red" onclick="clearCell()">Clear block</button>
+      <div style="display:flex;gap:8px">
+        <button class="btn" onclick="closeCellModal()">Cancel</button>
+        <button class="btn btn-gold" onclick="saveCellModal()">Apply</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- SETTINGS MODAL -->
+<div class="modal-overlay hidden" id="settingsModal">
+  <div class="modal">
+    <div class="modal-title">Schedule Settings</div>
+    <div>
+      <div class="field-label" style="margin-bottom:8px">Day boundaries</div>
+      <div class="settings-row">
+        <div class="field-label">Wake</div>
+        <select class="time-select" id="setWake"></select>
+        <div class="field-label" style="margin-left:8px">Sleep</div>
+        <select class="time-select" id="setSleep"></select>
+      </div>
+      <div style="margin-top:8px;font-size:11px;color:var(--text-muted)">Changing times clears all blocks in removed columns. Blocks outside the new range will be lost.</div>
+    </div>
+    <div class="modal-actions">
+      <div></div>
+      <div style="display:flex;gap:8px">
+        <button class="btn" onclick="closeSettings()">Cancel</button>
+        <button class="btn btn-gold" onclick="applySettings()">Apply</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- AREA MANAGER MODAL -->
+<div class="modal-overlay hidden" id="areaModal">
+  <div class="modal">
+    <div class="modal-title">Manage Areas</div>
+    <div id="areaManagerList"></div>
+    <div style="display:flex;gap:8px;padding-top:4px">
+      <input class="modal-input" id="newAreaName" placeholder="New area name..." style="flex:1">
+      <input type="color" id="newAreaColor" value="#888888" style="width:44px;height:36px;border:1px solid var(--border2);border-radius:var(--radius);cursor:pointer;background:var(--bg3);padding:2px">
+      <button class="btn btn-gold" onclick="addArea()">+ Add</button>
+    </div>
+    <div class="modal-actions">
+      <div></div>
+      <button class="btn btn-gold" onclick="closeAreaManager()">Done</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+<input type="file" id="importFile" accept=".json" style="display:none" onchange="handleImport(event)">
+
+<script>
+// ── CONSTANTS ─────────────────────────────────────────────
+const DAYS=['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'];
+const DAY_SHORT=['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
+
+// ── MUTABLE STATE ─────────────────────────────────────────
+let wakeHour=4, sleepHour=22; // 22 = 10pm end (last slot ends here)
+let SLOTS=[]; // rebuilt from wake/sleep
+let SLOT_COUNT=0;
+
+let areas=[
+  {id:'none',   label:'None',         color:'#333'},
+  {id:'faith',  label:'Faith',        color:'#8b6bff'},
+  {id:'health', label:'Health',       color:'#4caf7d'},
+  {id:'work',   label:'Work / Site',  color:'#4a8cc9'},
+  {id:'craft',  label:'Dante Craft',  color:'#c9a84c'},
+  {id:'trading',label:'Trading',      color:'#ffa050'},
+  {id:'relationship',label:'Relationship',color:'#dc6496'},
+  {id:'rest',   label:'Rest',         color:'#64b4c8'},
+  {id:'personal',label:'Personal Dev',color:'#a0c864'},
+];
+
+let cells=[];      // cells[day][slot]
+let guidelines=[];
+let selectedArea='none';
+let isDark=true;
+let sidebarOpen=true;
+let editDay=null, editSlot=null;
+
+// ── SLOT BUILDER ──────────────────────────────────────────
+function buildSlots(){
+  SLOTS=[];
+  for(let h=wakeHour;h<sleepHour;h++){
+    SLOTS.push({hour:h,min:0});
+    SLOTS.push({hour:h,min:30});
+  }
+  SLOT_COUNT=SLOTS.length;
+}
+
+function uid(){return Math.random().toString(36).slice(2,9)}
+function fmt(h,m){return `${String(h).padStart(2,'0')}:${m===0?'00':'30'}`}
+function slotLabel(i){
+  const s=SLOTS[i];
+  const nh=s.min===30?s.hour+1:s.hour, nm=s.min===30?0:30;
+  return `${fmt(s.hour,s.min)}–${fmt(nh,nm)}`;
+}
+
+function emptyCell(){return {primary:'',area:'none',bg:[],colSpan:1,rowDays:null}}
+
+function initCells(){
+  cells=[];
+  for(let d=0;d<7;d++){
+    cells.push([]);
+    for(let s=0;s<SLOT_COUNT;s++) cells[d].push(emptyCell());
+  }
+}
+
+// Extend or trim cells when slot count changes
+function resizeCells(oldCount, newCount){
+  for(let d=0;d<7;d++){
+    if(newCount>oldCount){
+      for(let s=oldCount;s<newCount;s++) cells[d].push(emptyCell());
+    } else {
+      cells[d]=cells[d].slice(0,newCount);
+      // Fix any colSpans that now extend beyond bounds
+      for(let s=0;s<newCount;s++){
+        const c=cells[d][s];
+        if(c.colSpan>1) c.colSpan=Math.min(c.colSpan,newCount-s);
+      }
+    }
+  }
+}
+
+// Compute skipped slots from colSpans (never stored in state)
+function computeSkips(d){
+  const skips=new Set();
+  for(let s=0;s<SLOT_COUNT;s++){
+    if(skips.has(s)) continue;
+    const span=cells[d][s].colSpan||1;
+    for(let k=s+1;k<s+span&&k<SLOT_COUNT;k++) skips.add(k);
+  }
+  return skips;
+}
+
+// ── DYNAMIC AREA STYLES ───────────────────────────────────
+function injectAreaStyles(){
+  let el=document.getElementById('dynamicAreaStyles');
+  if(!el){el=document.createElement('style');el.id='dynamicAreaStyles';document.head.appendChild(el)}
+  let css='';
+  areas.forEach(a=>{
+    if(a.id==='none') return;
+    const r=parseInt(a.color.slice(1,3),16),g=parseInt(a.color.slice(3,5),16),b=parseInt(a.color.slice(5,7),16);
+    css+=`.fill-${a.id}{background:rgba(${r},${g},${b},0.18)!important}`;
+    css+=`.chip-${a.id}{background:${a.color}!important}`;
+  });
+  css+=`.fill-none{background:rgba(255,255,255,0.03)}`;
+  el.textContent=css;
+}
+
+// ── DEFAULTS ──────────────────────────────────────────────
+function slotFor(h,m){
+  // Find slot index for a given hour:min relative to wakeHour
+  const idx=(h-wakeHour)*2+(m===30?1:0);
+  return (idx>=0&&idx<SLOT_COUNT)?idx:-1;
+}
+
+function setBlock(dayIdx,slotIdx,cfg){
+  if(slotIdx<0||slotIdx>=SLOT_COUNT) return;
+  const {primary,area,colSpan,bg,rowDays}=cfg;
+  const days=rowDays||[dayIdx];
+  const span=Math.min(colSpan||1,SLOT_COUNT-slotIdx);
+  days.forEach(d=>{
+    if(d<0||d>6) return;
+    for(let s=slotIdx;s<slotIdx+span&&s<SLOT_COUNT;s++) cells[d][s]=emptyCell();
+    cells[d][slotIdx]={primary,area,bg:bg||[],colSpan:span,rowDays:days};
+  });
+}
+
+function applyDefaults(){
+  const s=slotFor; // shorthand
+  setBlock(0,s(4,0),{primary:'Prayer — 4AM block',area:'faith',colSpan:2,rowDays:[0,1,2,3,4,5,6]});
+  setBlock(0,s(5,0),{primary:'Workout',area:'health',colSpan:2,bg:['Sermon / podcast'],rowDays:[0,2,4]});
+  setBlock(1,s(5,0),{primary:'Workout',area:'health',colSpan:2,bg:['Sermon / podcast'],rowDays:[1,3]});
+  setBlock(0,s(6,0),{primary:'Morning routine',area:'personal',colSpan:1,rowDays:[0,1,2,3,4,5,6]});
+  setBlock(0,s(6,30),{primary:'Bible study',area:'faith',colSpan:1,rowDays:[0,1,2,3,4,5,6]});
+  setBlock(0,s(7,0),{primary:'CGSL — Site / Office',area:'work',colSpan:20,bg:['Commute learning'],rowDays:[0,1,2,3,4]});
+  setBlock(5,s(7,0),{primary:'Trading session — V75-1s',area:'trading',colSpan:4,bg:['Chart review'],rowDays:[5]});
+  setBlock(6,s(7,0),{primary:'Dante Craft — admin, calls, planning',area:'craft',colSpan:6,rowDays:[6]});
+  setBlock(0,s(17,0),{primary:'Break / transition',area:'rest',colSpan:1,rowDays:[0,1,2,3,4]});
+  setBlock(0,s(17,30),{primary:'Study — AutoCAD / IOSH / P6',area:'personal',colSpan:3,rowDays:[0,1,2,3,4]});
+  setBlock(5,s(17,30),{primary:'Dante Craft — project work',area:'craft',colSpan:4,rowDays:[5]});
+  setBlock(0,s(19,0),{primary:'Evening call',area:'relationship',colSpan:1,rowDays:[0,1,2,3,4]});
+  setBlock(0,s(19,30),{primary:'Trading review / journal',area:'trading',colSpan:1,rowDays:[0,1,2,3,4]});
+  setBlock(5,s(19,30),{primary:'Personal Dev / reading',area:'personal',colSpan:2,rowDays:[5]});
+  setBlock(6,s(19,0),{primary:'Evening — relationship / rest',area:'relationship',colSpan:2,rowDays:[6]});
+  setBlock(0,s(20,0),{primary:'Wind-down — reading / reflection',area:'rest',colSpan:2,rowDays:[0,1,2,3,4,5,6]});
+  setBlock(0,s(21,0),{primary:'Sleep prep — off screens',area:'rest',colSpan:2,rowDays:[0,1,2,3,4,5,6]});
+
+  guidelines=[
+    {id:uid(),title:'The First Principle',items:[
+      {id:uid(),text:'This schedule serves you. You do not serve it.'},
+      {id:uid(),text:'It exists to remove decision fatigue — not to become a cage.'},
+      {id:uid(),text:'Use it as a compass bearing, not a court order.'},
+    ]},
+    {id:uid(),title:'On Engagement',items:[
+      {id:uid(),text:'Start the block. Starting is the only obligation.'},
+      {id:uid(),text:'If you miss a block, pick up at the next one. No debt carried forward.'},
+      {id:uid(),text:'A partial session done beats a perfect session skipped.'},
+    ]},
+    {id:uid(),title:'On Rest',items:[
+      {id:uid(),text:'Rest blocks are not earned. They are built in. Take them.'},
+      {id:uid(),text:'Wind-down is not optional. What you do in the last hour shapes the next morning.'},
+      {id:uid(),text:'Avoidance is not rest. Know the difference.'},
+    ]},
+    {id:uid(),title:'On Focus',items:[
+      {id:uid(),text:'Background activities (podcasts, sermons) are for physical work only — not output work.'},
+      {id:uid(),text:'Output work demands a clear foreground. Protect it.'},
+      {id:uid(),text:'One primary task per block. Stacked does not mean scattered.'},
+    ]},
+    {id:uid(),title:'On Trading',items:[
+      {id:uid(),text:'No session without pre-session prep. Levels marked before charts watched.'},
+      {id:uid(),text:'Ruleset is the anchor. If setup does not fit the ruleset, there is no trade.'},
+      {id:uid(),text:'Journal updated after every session — win, loss, or no trade.'},
+    ]},
+  ];
+}
+
+// ── RENDER TABLE ──────────────────────────────────────────
+function renderTable(){
+  const table=document.getElementById('timetable');
+  table.innerHTML='';
+  const thead=table.createTHead();
+  const hr=thead.insertRow();
+  const corner=document.createElement('th');
+  corner.className='th-corner'; hr.appendChild(corner);
+  for(let s=0;s<SLOT_COUNT;s++){
+    const sl=SLOTS[s];
+    const nh=sl.min===30?sl.hour+1:sl.hour, nm=sl.min===30?0:30;
+    const th=document.createElement('th');
+    th.className='th-time';
+    th.innerHTML=`<div class="th-time-inner">
+      <span class="th-time-main">${fmt(sl.hour,sl.min)}</span>
+      <span class="th-time-sub">–${fmt(nh,nm)}</span></div>`;
+    hr.appendChild(th);
+  }
+  const tbody=table.createTBody();
+  for(let d=0;d<7;d++){
+    const skips=computeSkips(d);
+    const tr=tbody.insertRow();
+    const td0=document.createElement('td');
+    td0.className='th-day';
+    td0.innerHTML=`<div class="th-day-inner">
+      <div class="th-day-name">${DAYS[d]}</div>
+      <div class="th-day-short">${DAY_SHORT[d]}</div></div>`;
+    tr.appendChild(td0);
+    for(let s=0;s<SLOT_COUNT;s++){
+      if(skips.has(s)) continue;
+      const cell=cells[d][s];
+      const td=document.createElement('td');
+      td.className='sched-cell'; td.dataset.day=d; td.dataset.slot=s;
+      const span=cell.colSpan||1;
+      if(span>1) td.colSpan=span;
+      const area=cell.area||'none';
+      td.classList.add('fill-'+area);
+      const inner=document.createElement('div');
+      inner.className='cell-inner';
+      if(cell.primary){
+        const chip=document.createElement('div');
+        chip.className='chip-primary chip-'+area;
+        chip.textContent=cell.primary; chip.title=cell.primary;
+        inner.appendChild(chip);
+      }
+      (cell.bg||[]).forEach(bgTxt=>{
+        if(!bgTxt.trim()) return;
+        const bg=document.createElement('div');
+        bg.className='chip-bg'; bg.textContent='↳ '+bgTxt; bg.title=bgTxt;
+        inner.appendChild(bg);
+      });
+      if(!cell.primary){
+        const hint=document.createElement('div');
+        hint.className='cell-hover-hint'; hint.textContent='+';
+        inner.appendChild(hint);
+      }
+      td.appendChild(inner);
+      td.addEventListener('click',()=>openCellModal(d,s));
+      tr.appendChild(td);
+    }
+  }
+}
+
+// ── TOOLBAR / LEGEND ──────────────────────────────────────
+function buildToolbar(){
+  const bar=document.getElementById('toolbar');
+  bar.innerHTML=`<span class="toolbar-label">Area</span>`;
+  areas.forEach(a=>{
+    const pill=document.createElement('div');
+    pill.className='area-pill'+(selectedArea===a.id?' active':'');
+    pill.style.borderColor=selectedArea===a.id?a.color:'';
+    pill.style.color=selectedArea===a.id?a.color:'';
+    pill.innerHTML=`<div class="area-dot" style="background:${a.color}"></div>${a.label}`;
+    pill.addEventListener('click',()=>{selectedArea=a.id;buildToolbar()});
+    bar.appendChild(pill);
+  });
+}
+
+function buildLegend(){
+  const leg=document.getElementById('legend');
+  leg.innerHTML='<span style="margin-right:4px;font-family:JetBrains Mono,monospace;font-size:10px;letter-spacing:.1em">AREAS:</span>';
+  areas.filter(a=>a.id!=='none').forEach(a=>{
+    const item=document.createElement('div');
+    item.className='legend-item';
+    item.innerHTML=`<div class="legend-dot" style="background:${a.color}"></div><span>${a.label}</span>`;
+    leg.appendChild(item);
+  });
+}
+
+// ── CELL MODAL ────────────────────────────────────────────
+function openCellModal(d,s){
+  // If slot is inside a span, walk back to anchor
+  const skips=computeSkips(d);
+  if(skips.has(s)){
+    for(let k=s-1;k>=0;k--){
+      if((cells[d][k].colSpan||1)+k>s){s=k;break}
+    }
+  }
+  editDay=d; editSlot=s;
+  const cell=cells[d][s];
+  document.getElementById('cellModalTitle').textContent=`${DAYS[d]} · ${slotLabel(s)}`;
+  document.getElementById('cellModalSub').textContent='Edit activity for this block';
+  document.getElementById('cellPrimary').value=cell.primary||'';
+  document.getElementById('mergeRight').value=cell.colSpan||1;
+  document.getElementById('mergeRight').max=SLOT_COUNT-s;
+
+  const sw=document.getElementById('cellAreaSwatches');
+  sw.innerHTML='';
+  areas.forEach(a=>{
+    const div=document.createElement('div');
+    div.className='area-swatch'+((cell.area||'none')===a.id?' selected':'');
+    div.dataset.area=a.id;
+    div.style.background=a.color;
+    div.style.color=isLightColor(a.color)?'#000':'#fff';
+    div.textContent=a.label;
+    div.addEventListener('click',()=>{
+      sw.querySelectorAll('.area-swatch').forEach(x=>x.classList.remove('selected'));
+      div.classList.add('selected');
+    });
+    sw.appendChild(div);
+  });
+
+  const bgCont=document.getElementById('bgRows');
+  bgCont.innerHTML='';
+  (cell.bg||[]).forEach(b=>addBgRow(b));
+
+  const dcont=document.getElementById('dayCheckboxes');
+  dcont.innerHTML='';
+  DAYS.forEach((day,i)=>{
+    const checked=(cell.rowDays&&cell.rowDays.includes(i))||(!cell.rowDays&&i===d);
+    const lbl=document.createElement('label');
+    lbl.className='day-cb-label'+(checked?' checked':'');
+    const cb=document.createElement('input');
+    cb.type='checkbox'; cb.value=i; cb.checked=checked;
+    cb.addEventListener('change',()=>lbl.classList.toggle('checked',cb.checked));
+    lbl.appendChild(cb);
+    lbl.appendChild(document.createTextNode(DAY_SHORT[i]));
+    dcont.appendChild(lbl);
+  });
+
+  document.getElementById('cellModal').classList.remove('hidden');
+  document.getElementById('cellPrimary').focus();
+}
+
+function isLightColor(hex){
+  const r=parseInt(hex.slice(1,3),16),g=parseInt(hex.slice(3,5),16),b=parseInt(hex.slice(5,7),16);
+  return (r*299+g*587+b*114)/1000>140;
+}
+
+function addBgRow(val=''){
+  const cont=document.getElementById('bgRows');
+  const row=document.createElement('div'); row.className='bg-row';
+  const inp=document.createElement('input');
+  inp.className='modal-input'; inp.placeholder='Background activity...'; inp.value=val;
+  const rm=document.createElement('button');
+  rm.className='remove-bg'; rm.textContent='✕';
+  rm.addEventListener('click',()=>cont.removeChild(row));
+  row.appendChild(inp); row.appendChild(rm); cont.appendChild(row);
+}
+
+function saveCellModal(){
+  const primary=document.getElementById('cellPrimary').value.trim();
+  const areaEl=document.querySelector('#cellAreaSwatches .area-swatch.selected');
+  const area=areaEl?areaEl.dataset.area:'none';
+  const colSpan=Math.max(1,Math.min(parseInt(document.getElementById('mergeRight').value)||1,SLOT_COUNT-editSlot));
+  const bg=[...document.getElementById('bgRows').querySelectorAll('input')].map(i=>i.value.trim()).filter(Boolean);
+  const checkedDays=[...document.getElementById('dayCheckboxes').querySelectorAll('input:checked')].map(i=>parseInt(i.value));
+  const rowDays=checkedDays.length?checkedDays:[editDay];
+
+  // Clear old data from all previously affected days
+  const oldCell=cells[editDay][editSlot];
+  const oldRowDays=oldCell.rowDays||[editDay];
+  const oldSpan=oldCell.colSpan||1;
+  oldRowDays.forEach(d=>{
+    for(let s=editSlot;s<editSlot+oldSpan&&s<SLOT_COUNT;s++) cells[d][s]=emptyCell();
+  });
+  // Also clear any other days that reference this slot via rowDays
+  for(let d=0;d<7;d++){
+    const c=cells[d][editSlot];
+    if(c.rowDays&&c.rowDays.includes(editDay)){
+      const sp=c.colSpan||1;
+      for(let s=editSlot;s<editSlot+sp&&s<SLOT_COUNT;s++) cells[d][s]=emptyCell();
+    }
+  }
+  // Write new data
+  rowDays.forEach(d=>{
+    if(d<0||d>6) return;
+    cells[d][editSlot]={primary,area,bg,colSpan,rowDays};
+    for(let s=editSlot+1;s<editSlot+colSpan&&s<SLOT_COUNT;s++) cells[d][s]=emptyCell();
+  });
+
+  closeCellModal(); renderTable(); saveData();
+}
+
+function clearCell(){
+  const oldCell=cells[editDay][editSlot];
+  const oldRowDays=oldCell.rowDays||[editDay];
+  const oldSpan=oldCell.colSpan||1;
+  oldRowDays.forEach(d=>{
+    for(let s=editSlot;s<editSlot+oldSpan&&s<SLOT_COUNT;s++) cells[d][s]=emptyCell();
+  });
+  closeCellModal(); renderTable(); saveData();
+}
+
+function closeCellModal(){document.getElementById('cellModal').classList.add('hidden')}
+document.getElementById('cellModal').addEventListener('click',e=>{
+  if(e.target===document.getElementById('cellModal')) closeCellModal();
+});
+
+// ── SETTINGS MODAL ────────────────────────────────────────
+function openSettings(){
+  const wsel=document.getElementById('setWake');
+  const ssel=document.getElementById('setSleep');
+  wsel.innerHTML=''; ssel.innerHTML='';
+  for(let h=0;h<24;h++){
+    const label=`${String(h).padStart(2,'0')}:00`;
+    wsel.innerHTML+=`<option value="${h}"${h===wakeHour?' selected':''}>${label}</option>`;
+    ssel.innerHTML+=`<option value="${h}"${h===sleepHour?' selected':''}>${label}</option>`;
+  }
+  document.getElementById('settingsModal').classList.remove('hidden');
+}
+function closeSettings(){document.getElementById('settingsModal').classList.add('hidden')}
+function applySettings(){
+  const newWake=parseInt(document.getElementById('setWake').value);
+  const newSleep=parseInt(document.getElementById('setSleep').value);
+  if(newSleep<=newWake){showToast('Sleep must be after wake');return}
+  const oldCount=SLOT_COUNT;
+  wakeHour=newWake; sleepHour=newSleep;
+  buildSlots();
+  resizeCells(oldCount,SLOT_COUNT);
+  closeSettings(); renderTable(); buildToolbar(); buildLegend(); saveData();
+}
+document.getElementById('settingsModal').addEventListener('click',e=>{
+  if(e.target===document.getElementById('settingsModal')) closeSettings();
+});
+
+// ── AREA MANAGER ──────────────────────────────────────────
+function openAreaManager(){
+  renderAreaManager();
+  document.getElementById('areaModal').classList.remove('hidden');
+}
+function closeAreaManager(){
+  document.getElementById('areaModal').classList.add('hidden');
+  injectAreaStyles(); buildToolbar(); buildLegend(); renderTable(); saveData();
+}
+function renderAreaManager(){
+  const list=document.getElementById('areaManagerList');
+  list.innerHTML='';
+  areas.filter(a=>a.id!=='none').forEach(a=>{
+    const row=document.createElement('div'); row.className='area-row';
+    // Colour picker
+    const colorBtn=document.createElement('input');
+    colorBtn.type='color'; colorBtn.value=a.color;
+    colorBtn.className='area-color-btn';
+    colorBtn.addEventListener('input',e=>{a.color=e.target.value;injectAreaStyles()});
+    // Name input
+    const nameInp=document.createElement('input');
+    nameInp.className='area-name-inp'; nameInp.value=a.label;
+    nameInp.addEventListener('change',e=>{a.label=e.target.value.trim()||a.label});
+    // Delete
+    const delBtn=document.createElement('button');
+    delBtn.className='area-del-btn'; delBtn.textContent='✕';
+    delBtn.addEventListener('click',()=>{
+      if(areas.filter(x=>x.id!=='none').length<=1){showToast('Need at least one area');return}
+      areas=areas.filter(x=>x.id!==a.id);
+      // Reset any cells using this area
+      for(let d=0;d<7;d++) for(let s=0;s<SLOT_COUNT;s++) if(cells[d][s].area===a.id) cells[d][s].area='none';
+      renderAreaManager();
+    });
+    row.appendChild(colorBtn); row.appendChild(nameInp); row.appendChild(delBtn);
+    list.appendChild(row);
+  });
+}
+function addArea(){
+  const name=document.getElementById('newAreaName').value.trim();
+  const color=document.getElementById('newAreaColor').value;
+  if(!name){showToast('Enter a name');return}
+  const id='area_'+uid();
+  areas.push({id,label:name,color});
+  document.getElementById('newAreaName').value='';
+  document.getElementById('newAreaColor').value='#888888';
+  renderAreaManager(); injectAreaStyles();
+}
+document.getElementById('areaModal').addEventListener('click',e=>{
+  if(e.target===document.getElementById('areaModal')) closeAreaManager();
+});
+
+// ── GUIDELINES ────────────────────────────────────────────
+function renderGuidelines(){
+  const cont=document.getElementById('guideContent');
+  cont.innerHTML='';
+  guidelines.forEach(sec=>{
+    const div=document.createElement('div'); div.className='guide-section';
+    div.innerHTML=`
+      <div class="guide-sec-header" onclick="toggleSection('${sec.id}')">
+        <div class="guide-sec-title" contenteditable="true" onclick="event.stopPropagation()" onblur="renameSec('${sec.id}',this.innerText)">${sec.title}</div>
+        <div class="guide-sec-actions">
+          <button class="guide-sec-btn del" onclick="event.stopPropagation();deleteSec('${sec.id}')">✕</button>
+        </div>
+      </div>
+      <div class="guide-items" id="gi-${sec.id}"></div>
+      <div class="add-guide-row">
+        <input class="add-guide-input" id="gadd-${sec.id}" placeholder="Add a rule or principle..." onkeydown="if(event.key==='Enter')addGuideItem('${sec.id}')">
+      </div>`;
+    cont.appendChild(div);
+    renderGuideItems(sec.id);
+  });
+  const addRow=document.createElement('div'); addRow.className='add-section-row';
+  addRow.innerHTML=`<input class="add-section-input" id="newSecInput" placeholder="New section title..." onkeydown="if(event.key==='Enter')addSection()">
+  <button class="btn btn-sm btn-gold" onclick="addSection()" style="width:100%">+ Add Section</button>`;
+  cont.appendChild(addRow);
+}
+function renderGuideItems(secId){
+  const sec=guidelines.find(s=>s.id===secId); if(!sec) return;
+  const cont=document.getElementById('gi-'+secId); if(!cont) return;
+  cont.innerHTML='';
+  sec.items.forEach(item=>{
+    const div=document.createElement('div'); div.className='guide-item';
+    div.innerHTML=`<div class="guide-bullet">◆</div>
+      <div class="guide-text" contenteditable="true" onblur="updateGuideItem('${secId}','${item.id}',this.innerText)">${item.text}</div>
+      <button class="guide-del" onclick="deleteGuideItem('${secId}','${item.id}')">✕</button>`;
+    cont.appendChild(div);
+  });
+}
+function addGuideItem(secId){
+  const inp=document.getElementById('gadd-'+secId);
+  const text=inp.value.trim(); if(!text) return;
+  const sec=guidelines.find(s=>s.id===secId); if(!sec) return;
+  sec.items.push({id:uid(),text}); inp.value='';
+  renderGuideItems(secId); saveData();
+}
+function updateGuideItem(secId,itemId,text){
+  const sec=guidelines.find(s=>s.id===secId); if(!sec) return;
+  const item=sec.items.find(i=>i.id===itemId);
+  if(item){item.text=text.trim();saveData()}
+}
+function deleteGuideItem(secId,itemId){
+  const sec=guidelines.find(s=>s.id===secId); if(!sec) return;
+  sec.items=sec.items.filter(i=>i.id!==itemId);
+  renderGuideItems(secId); saveData();
+}
+function addSection(){
+  const inp=document.getElementById('newSecInput');
+  const title=(inp?inp.value.trim():'')||'New Section';
+  guidelines.push({id:uid(),title,items:[]});
+  renderGuidelines(); saveData();
+}
+function renameSec(secId,text){
+  const sec=guidelines.find(s=>s.id===secId);
+  if(sec){sec.title=text.trim();saveData()}
+}
+function deleteSec(secId){
+  guidelines=guidelines.filter(s=>s.id!==secId);
+  renderGuidelines(); saveData();
+}
+function toggleSection(secId){
+  const el=document.getElementById('gi-'+secId);
+  if(el) el.style.display=el.style.display==='none'?'':'none';
+}
+
+// ── SIDEBAR ───────────────────────────────────────────────
+function toggleSidebar(){
+  sidebarOpen=!sidebarOpen;
+  document.getElementById('sidebar').classList.toggle('collapsed',!sidebarOpen);
+  document.getElementById('sidebarToggle').textContent=sidebarOpen?'◀':'▶';
+}
+
+// ── PERSISTENCE ───────────────────────────────────────────
+function cleanCells(raw){
+  return raw.map(row=>row.map(c=>{const {_skip,...r}=c;return{...emptyCell(),...r}}));
+}
+function saveData(){
+  const data={wakeHour,sleepHour,areas,cells:cells.map(row=>row.map(c=>{const{_skip,...r}=c;return r})),guidelines};
+  localStorage.setItem('idealWeekV3',JSON.stringify(data));
+  showToast('Saved');
+}
+function loadData(){
+  const raw=localStorage.getItem('idealWeekV3');
+  if(raw){
+    try{
+      const d=JSON.parse(raw);
+      if(typeof d.wakeHour==='number') wakeHour=d.wakeHour;
+      if(typeof d.sleepHour==='number') sleepHour=d.sleepHour;
+      if(d.areas&&d.areas.length) areas=d.areas;
+      buildSlots();
+      if(d.cells&&d.cells.length===7){
+        cells=cleanCells(d.cells);
+        // Ensure each row has exactly SLOT_COUNT entries
+        for(let dd=0;dd<7;dd++){
+          while(cells[dd].length<SLOT_COUNT) cells[dd].push(emptyCell());
+          cells[dd]=cells[dd].slice(0,SLOT_COUNT);
+        }
+      }
+      if(d.guidelines) guidelines=d.guidelines;
+      return true;
+    }catch(e){}
+  }
+  return false;
+}
+function exportData(){
+  const data={wakeHour,sleepHour,areas,cells:cells.map(row=>row.map(c=>{const{_skip,...r}=c;return r})),guidelines};
+  const blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'});
+  const a=document.createElement('a'); a.href=URL.createObjectURL(blob);
+  a.download='ideal-week.json'; a.click(); showToast('Exported');
+}
+function importData(){document.getElementById('importFile').click()}
+function handleImport(e){
+  const file=e.target.files[0]; if(!file) return;
+  const r=new FileReader();
+  r.onload=ev=>{
+    try{
+      const d=JSON.parse(ev.target.result);
+      if(typeof d.wakeHour==='number') wakeHour=d.wakeHour;
+      if(typeof d.sleepHour==='number') sleepHour=d.sleepHour;
+      if(d.areas&&d.areas.length) areas=d.areas;
+      buildSlots(); initCells();
+      if(d.cells&&d.cells.length===7) cells=cleanCells(d.cells);
+      if(d.guidelines) guidelines=d.guidelines;
+      injectAreaStyles(); renderTable(); buildToolbar(); buildLegend(); renderGuidelines();
+      showToast('Imported');
+    }catch(err){showToast('Import failed')}
+  };
+  r.readAsText(file); e.target.value='';
+}
+function clearAll(){
+  if(!confirm('Clear all blocks?')) return;
+  initCells(); renderTable(); saveData();
+}
+function toggleTheme(){
+  isDark=!isDark;
+  document.body.classList.toggle('light',!isDark);
+  localStorage.setItem('idealWeekTheme',isDark?'dark':'light');
+}
+function showToast(msg){
+  const t=document.getElementById('toast'); t.textContent=msg;
+  t.classList.add('show'); setTimeout(()=>t.classList.remove('show'),2200);
+}
+document.addEventListener('keydown',e=>{if(e.key==='Escape'){closeCellModal();closeSettings();closeAreaManager()}});
+
+// ── INIT ─────────────────────────────────────────────────
+const themeStored=localStorage.getItem('idealWeekTheme');
+if(themeStored==='light'){isDark=false;document.body.classList.add('light')}
+
+buildSlots();
+initCells();
+const loaded=loadData();
+if(!loaded){buildSlots();initCells();applyDefaults()}
+
+injectAreaStyles();
+buildToolbar();
+buildLegend();
+renderTable();
+renderGuidelines();
+</script>
+</body>
+</html>

@@ -1,0 +1,499 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Personal Development Curriculum</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400;1,500&family=DM+Mono:wght@300;400;500&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+:root[data-theme="dark"]{
+  --bg:#09090b;--bg2:#111114;--bg3:#18181c;--bg4:#222228;
+  --border:rgba(255,255,255,0.06);--border-gold:rgba(201,168,76,0.22);
+  --text:#e8e3d8;--muted:#666;--soft:#999;
+  --gold:#c9a84c;--gold-dim:rgba(201,168,76,0.08);--gold-mid:rgba(201,168,76,0.18);
+  --found:#7a9fbf;--dev:#9abf7a;--integ:#bf9a7a;
+}
+:root[data-theme="light"]{
+  --bg:#f4f1eb;--bg2:#edeae2;--bg3:#e4e0d6;--bg4:#d8d3c8;
+  --border:rgba(0,0,0,0.07);--border-gold:rgba(140,100,20,0.22);
+  --text:#141210;--muted:#aaa;--soft:#666;
+  --gold:#8a6820;--gold-dim:rgba(138,104,32,0.07);--gold-mid:rgba(138,104,32,0.15);
+  --found:#2a5a7a;--dev:#3a6a2a;--integ:#7a4a2a;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{background:var(--bg);color:var(--text);font-family:'Jost',sans-serif;font-weight:300;line-height:1.7;min-height:100vh;transition:background 0.3s,color 0.3s;}
+header{border-bottom:1px solid var(--border);padding:0 48px;display:flex;align-items:center;justify-content:space-between;height:60px;position:sticky;top:0;background:var(--bg);z-index:100;}
+.wordmark{font-family:'Cormorant Garamond',serif;font-size:1.2rem;font-style:italic;color:var(--gold);letter-spacing:0.03em;}
+.wordmark span{color:var(--text);font-style:normal;font-weight:300;font-size:0.95rem;}
+.header-right{display:flex;align-items:center;gap:12px;}
+.theme-btn{background:var(--bg3);border:1px solid var(--border);color:var(--muted);font-size:0.75rem;width:30px;height:30px;border-radius:50%;cursor:pointer;transition:all 0.2s;display:flex;align-items:center;justify-content:center;}
+.theme-btn:hover{border-color:var(--gold);color:var(--gold);}
+.progress-label{font-family:'DM Mono',monospace;font-size:0.55rem;letter-spacing:0.1em;text-transform:uppercase;color:var(--muted);}
+.nav-strip{display:flex;gap:0;border-bottom:1px solid var(--border);background:var(--bg2);overflow-x:auto;scrollbar-width:none;padding:0 48px;}
+.nav-strip::-webkit-scrollbar{display:none;}
+.nav-btn{padding:14px 18px;background:none;border:none;border-bottom:2px solid transparent;color:var(--muted);font-family:'DM Mono',monospace;font-size:0.52rem;letter-spacing:0.1em;text-transform:uppercase;cursor:pointer;white-space:nowrap;transition:all 0.2s;}
+.nav-btn:hover{color:var(--soft);}
+.nav-btn.active{color:var(--gold);border-bottom-color:var(--gold);}
+main{max-width:900px;margin:0 auto;padding:48px 48px 100px;}
+.tab-panel{display:none;}
+.tab-panel.active{display:block;animation:rise 0.3s ease both;}
+@keyframes rise{from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:translateY(0);}}
+.section-eyebrow{font-family:'DM Mono',monospace;font-size:0.52rem;letter-spacing:0.16em;text-transform:uppercase;color:var(--gold);margin-bottom:12px;}
+.section-title{font-family:'Cormorant Garamond',serif;font-size:2.4rem;font-weight:400;line-height:1.2;color:var(--text);margin-bottom:20px;}
+.section-body{font-size:0.95rem;color:var(--soft);max-width:640px;line-height:1.8;}
+.gold-rule{height:1px;background:linear-gradient(90deg,var(--gold) 0%,transparent 60%);opacity:0.2;margin:36px 0;}
+.tier-grid{display:grid;gap:16px;margin-bottom:48px;}
+.tier-card{background:var(--bg2);border:1px solid var(--border);border-radius:4px;padding:24px 28px;position:relative;overflow:hidden;}
+.tier-card::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;}
+.tier-found::before{background:var(--found);}
+.tier-dev::before{background:var(--dev);}
+.tier-integ::before{background:var(--integ);}
+.tier-label{font-family:'DM Mono',monospace;font-size:0.5rem;letter-spacing:0.14em;text-transform:uppercase;margin-bottom:8px;}
+.tier-found .tier-label{color:var(--found);}
+.tier-dev .tier-label{color:var(--dev);}
+.tier-integ .tier-label{color:var(--integ);}
+.tier-name{font-family:'Cormorant Garamond',serif;font-size:1.3rem;font-weight:500;color:var(--text);margin-bottom:6px;}
+.tier-desc{font-size:0.85rem;color:var(--soft);line-height:1.7;}
+.tier-pillars{display:flex;flex-wrap:wrap;gap:6px;margin-top:14px;}
+.tier-pill{font-family:'DM Mono',monospace;font-size:0.5rem;letter-spacing:0.08em;text-transform:uppercase;padding:3px 10px;border-radius:20px;border:1px solid var(--border);color:var(--muted);}
+.method-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:20px;}
+.method-card{background:var(--bg2);border:1px solid var(--border);border-radius:4px;padding:20px 22px;}
+.method-num{font-family:'DM Mono',monospace;font-size:0.55rem;color:var(--gold);letter-spacing:0.1em;margin-bottom:8px;}
+.method-title{font-family:'Cormorant Garamond',serif;font-size:1.1rem;color:var(--text);margin-bottom:6px;}
+.method-desc{font-size:0.82rem;color:var(--soft);line-height:1.7;}
+.pillar-list{display:flex;flex-direction:column;gap:6px;margin-bottom:32px;}
+.pillar-item{background:var(--bg2);border:1px solid var(--border);border-radius:4px;overflow:hidden;transition:border-color 0.2s;}
+.pillar-item:hover{border-color:var(--border-gold);}
+.pillar-header{display:grid;grid-template-columns:40px 1fr auto;align-items:center;padding:16px 20px;cursor:pointer;gap:12px;}
+.pillar-num{font-family:'DM Mono',monospace;font-size:0.55rem;color:var(--muted);letter-spacing:0.08em;}
+.pillar-meta{display:flex;flex-direction:column;gap:3px;}
+.pillar-name{font-family:'Cormorant Garamond',serif;font-size:1.1rem;font-weight:500;color:var(--text);}
+.pillar-tier-tag{font-family:'DM Mono',monospace;font-size:0.48rem;letter-spacing:0.1em;text-transform:uppercase;display:inline-block;}
+.pillar-status{display:flex;align-items:center;gap:8px;}
+.status-dot{width:8px;height:8px;border-radius:50%;border:1.5px solid var(--border);flex-shrink:0;cursor:pointer;transition:all 0.2s;}
+.status-dot.active{background:var(--gold);border-color:var(--gold);}
+.pillar-toggle{font-family:'DM Mono',monospace;font-size:0.7rem;color:var(--muted);transition:transform 0.2s;margin-left:8px;}
+.pillar-item.open .pillar-toggle{transform:rotate(180deg);}
+.pillar-body{display:none;padding:0 20px 24px;border-top:1px solid var(--border);}
+.pillar-item.open .pillar-body{display:block;}
+.pillar-why{font-size:0.88rem;color:var(--soft);line-height:1.8;margin:16px 0 20px;font-style:italic;padding-left:12px;border-left:2px solid var(--border-gold);}
+.resource-section{margin-bottom:20px;}
+.resource-label{font-family:'DM Mono',monospace;font-size:0.5rem;letter-spacing:0.12em;text-transform:uppercase;color:var(--muted);margin-bottom:10px;}
+.resource-item{display:flex;gap:12px;padding:10px 14px;background:var(--bg3);border-radius:3px;margin-bottom:6px;}
+.resource-icon{font-size:0.9rem;flex-shrink:0;margin-top:2px;}
+.resource-info{}
+.resource-title{font-size:0.88rem;color:var(--text);font-weight:400;margin-bottom:2px;}
+.resource-type{font-family:'DM Mono',monospace;font-size:0.48rem;letter-spacing:0.08em;text-transform:uppercase;color:var(--muted);margin-bottom:2px;}
+.resource-author{font-family:'DM Mono',monospace;font-size:0.5rem;letter-spacing:0.08em;color:var(--muted);}
+.resource-note{font-size:0.8rem;color:var(--soft);margin-top:4px;line-height:1.6;}
+.practice-list{list-style:none;display:flex;flex-direction:column;gap:6px;}
+.practice-list li{font-size:0.85rem;color:var(--soft);padding:8px 12px;background:var(--bg3);border-radius:3px;line-height:1.6;}
+.practice-list li::before{content:'→ ';color:var(--gold);font-family:'DM Mono',monospace;font-size:0.75rem;}
+.bring-back{background:var(--gold-dim);border:1px solid var(--border-gold);border-radius:3px;padding:12px 16px;margin-top:16px;}
+.bring-back-label{font-family:'DM Mono',monospace;font-size:0.5rem;letter-spacing:0.12em;text-transform:uppercase;color:var(--gold);margin-bottom:8px;}
+.bring-back p{font-size:0.82rem;color:var(--soft);line-height:1.7;}
+.progress-overview{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:32px;}
+.prog-card{background:var(--bg2);border:1px solid var(--border);border-radius:4px;padding:20px;text-align:center;}
+.prog-val{font-family:'Cormorant Garamond',serif;font-size:2.2rem;font-weight:500;color:var(--gold);}
+.prog-label{font-family:'DM Mono',monospace;font-size:0.5rem;letter-spacing:0.1em;text-transform:uppercase;color:var(--muted);margin-top:4px;}
+.prog-bar-wrap{margin-bottom:32px;}
+.prog-bar-label{display:flex;justify-content:space-between;font-family:'DM Mono',monospace;font-size:0.52rem;letter-spacing:0.08em;text-transform:uppercase;color:var(--muted);margin-bottom:8px;}
+.prog-bar{height:4px;background:var(--bg4);border-radius:2px;overflow:hidden;}
+.prog-bar-fill{height:100%;background:var(--gold);border-radius:2px;transition:width 0.4s ease;}
+.notes-area{width:100%;min-height:200px;background:var(--bg2);border:1px solid var(--border);border-radius:4px;padding:16px 20px;color:var(--text);font-family:'Cormorant Garamond',serif;font-size:1rem;line-height:1.8;resize:vertical;outline:none;transition:border-color 0.2s;}
+.notes-area:focus{border-color:var(--border-gold);}
+.notes-area::placeholder{color:var(--muted);font-style:italic;}
+.save-notes-btn{margin-top:10px;padding:7px 18px;background:var(--gold-dim);border:1px solid var(--border-gold);border-radius:3px;color:var(--gold);font-family:'DM Mono',monospace;font-size:0.55rem;letter-spacing:0.08em;text-transform:uppercase;cursor:pointer;transition:all 0.2s;}
+.save-notes-btn:hover{background:var(--gold);color:#000;}
+@media(max-width:640px){
+  header,.nav-strip,main{padding-left:20px;padding-right:20px;}
+  .method-grid{grid-template-columns:1fr;}
+  .progress-overview{grid-template-columns:1fr 1fr;}
+}
+</style>
+</head>
+<body>
+<header>
+  <div class="wordmark">Personal Development <span>/ Paul Bassey</span></div>
+  <div class="header-right">
+    <span class="progress-label" id="progress-label">0 of 10 started</span>
+    <button class="theme-btn" onclick="toggleTheme()"><span id="theme-icon">☀</span></button>
+  </div>
+</header>
+<nav class="nav-strip">
+  <button class="nav-btn active" onclick="switchTab('overview',this)">Overview</button>
+  <button class="nav-btn" onclick="switchTab('pillars',this)">The 10 Pillars</button>
+  <button class="nav-btn" onclick="switchTab('progress',this)">Progress & Notes</button>
+</nav>
+<main>
+
+<div class="tab-panel active" id="tab-overview">
+  <div style="margin-bottom:48px;">
+    <div class="section-eyebrow">The work</div>
+    <div class="section-title">Becoming the man<br>the vision requires.</div>
+    <div class="section-body">Intelligence without discipline is potential without output. You already know how to learn. This curriculum builds the engine underneath — the self-discipline, consistency, and learning architecture that turns what you're capable of into what you actually produce. Thirty minutes daily, early evening. Bring it back. Apply it the same day.</div>
+  </div>
+  <div class="gold-rule"></div>
+  <div class="section-eyebrow" style="margin-bottom:16px;">Three tiers</div>
+  <div class="tier-grid">
+    <div class="tier-card tier-found">
+      <div class="tier-label">Tier I — Foundation</div>
+      <div class="tier-name">The inner architecture.</div>
+      <div class="tier-desc">Self-discipline, consistency, and learning how to learn. These are not skills you add on — they are the structure everything else is built on. You go deep here before anything else opens.</div>
+      <div class="tier-pillars">
+        <span class="tier-pill">Self-Discipline</span>
+        <span class="tier-pill">Consistency & Habit</span>
+        <span class="tier-pill">Learning How to Learn</span>
+        <span class="tier-pill">Identity & Self-Knowledge</span>
+      </div>
+    </div>
+    <div class="tier-card tier-dev">
+      <div class="tier-label">Tier II — Development</div>
+      <div class="tier-name">The outer expression.</div>
+      <div class="tier-desc">Once the inner architecture is moving, these pillars build your capacity to produce, think, decide, and communicate at the level the vision requires.</div>
+      <div class="tier-pillars">
+        <span class="tier-pill">Deep Work & Focus</span>
+        <span class="tier-pill">Decision Making</span>
+        <span class="tier-pill">Communication & Expression</span>
+        <span class="tier-pill">Physical Discipline</span>
+      </div>
+    </div>
+    <div class="tier-card tier-integ">
+      <div class="tier-label">Tier III — Integration</div>
+      <div class="tier-name">The long game.</div>
+      <div class="tier-desc">These are not studied — they are lived. Resilience and legacy thinking are the product of everything above them, practised over time until they become who you are.</div>
+      <div class="tier-pillars">
+        <span class="tier-pill">Resilience & Failure</span>
+        <span class="tier-pill">Purpose & Legacy</span>
+      </div>
+    </div>
+  </div>
+  <div class="gold-rule"></div>
+  <div class="section-eyebrow" style="margin-bottom:16px;">How this works</div>
+  <div class="method-grid">
+    <div class="method-card">
+      <div class="method-num">01</div>
+      <div class="method-title">30 minutes, early evening</div>
+      <div class="method-desc">6:00–6:30PM on your timetable. Before the financial literacy block. Protect it the same way you protect prayer — it is the preparation for everything else.</div>
+    </div>
+    <div class="method-card">
+      <div class="method-num">02</div>
+      <div class="method-title">Mixed resources</div>
+      <div class="method-desc">Books, podcasts, videos, courses, frameworks. Matched to how the pillar is best absorbed. Not everything needs to be read. Some things need to be heard or watched or practised.</div>
+    </div>
+    <div class="method-card">
+      <div class="method-num">03</div>
+      <div class="method-title">One pillar until it moves</div>
+      <div class="method-desc">You don't advance because you finished the material. You advance because something has changed in how you think or act. The test is always behavioural, not content-based.</div>
+    </div>
+    <div class="method-card">
+      <div class="method-num">04</div>
+      <div class="method-title">Bring it back</div>
+      <div class="method-desc">Each pillar has a specific question to bring back here. That conversation is where the material gets tested against your actual life — and where the real learning happens.</div>
+    </div>
+  </div>
+</div>
+
+<div class="tab-panel" id="tab-pillars">
+  <div class="section-eyebrow" style="margin-bottom:6px;">All 10 pillars</div>
+  <div style="font-size:0.85rem;color:var(--muted);margin-bottom:28px;">Click to expand. Mark as started when you begin.</div>
+  <div class="pillar-list" id="pillar-list"></div>
+</div>
+
+<div class="tab-panel" id="tab-progress">
+  <div class="section-eyebrow" style="margin-bottom:20px;">Where you are</div>
+  <div class="progress-overview">
+    <div class="prog-card"><div class="prog-val" id="prog-started">0</div><div class="prog-label">Started</div></div>
+    <div class="prog-card"><div class="prog-val" id="prog-remaining">10</div><div class="prog-label">Remaining</div></div>
+    <div class="prog-card"><div class="prog-val">30m</div><div class="prog-label">Daily target</div></div>
+  </div>
+  <div class="prog-bar-wrap">
+    <div class="prog-bar-label"><span>Overall progress</span><span id="prog-pct">0%</span></div>
+    <div class="prog-bar"><div class="prog-bar-fill" id="prog-fill" style="width:0%"></div></div>
+  </div>
+  <div class="section-eyebrow" style="margin-bottom:12px;">Running notes</div>
+  <div style="font-size:0.82rem;color:var(--muted);margin-bottom:10px;">What's shifting. What's hard. What you're discovering.</div>
+  <textarea class="notes-area" id="notes-area" placeholder="What is this curriculum teaching you so far..."></textarea>
+  <button class="save-notes-btn" onclick="saveNotes()">Save Notes</button>
+</div>
+
+</main>
+<script>
+const PILLARS = [
+  {
+    id:'pd1',num:'01',tier:'foundation',tierLabel:'Tier I — Foundation',
+    name:'Self-Discipline',
+    why:'Discipline is not motivation. Motivation is unreliable — it comes and goes with your mood and your circumstances. Discipline is the decision made in advance, carried out regardless of how you feel. You have identified that you are too easily flexible with yourself. This pillar is the direct response to that.',
+    resources:[
+      {icon:'📖',type:'Book',title:'Discipline Equals Freedom',author:'Jocko Willink',note:'Not subtle. Not soft. The core argument: discipline is not the enemy of freedom, it is the only path to it. Read in short bursts. Let it sit.'},
+      {icon:'📖',type:'Book',title:'The War of Art',author:'Steven Pressfield',note:'On resistance — the force that keeps you from doing the work. The most honest book about why intelligent people don\'t produce what they\'re capable of.'},
+      {icon:'🎙️',type:'Podcast',title:'Jocko Podcast',author:'Jocko Willink',note:'Episodes 1, 100, and 200 as entry points. Long-form but dense. Good for commutes and site days.'},
+      {icon:'▶️',type:'Video',title:'David Goggins — Best Motivational Speech',author:'YouTube',note:'Not motivation — confrontation. Goggins forces the question: what are you actually made of versus what you tell yourself you are. Watch once, take notes.'},
+      {icon:'⚙️',type:'Framework',title:'The 5-Second Rule',author:'Mel Robbins',note:'Deceptively simple. When you know you should do something and feel resistance — count 5-4-3-2-1 and move. Interrupts the hesitation loop. Practise it today, not later.'},
+    ],
+    practice:[
+      'Identify the one thing you most consistently avoid doing that you know you should. Do it first tomorrow.',
+      'Remove one comfort that is making discipline easier to avoid. Name it. Remove it for one week.',
+      'At the end of each day: did you do what you said you would do? Yes or no. No narrative.',
+    ],
+    bringBack:'Where specifically does your discipline break down — what time of day, what conditions, what emotional state? What is the resistance protecting you from? What would one week of full discipline look like — and are you willing to run that experiment?',
+  },
+  {
+    id:'pd2',num:'02',tier:'foundation',tierLabel:'Tier I — Foundation',
+    name:'Consistency & Habit',
+    why:'You don\'t rise to your goals. You fall to your systems. Consistency is not about willpower — it is about architecture. Building the right systems so that the right behaviours happen automatically, without requiring a decision every time.',
+    resources:[
+      {icon:'📖',type:'Book',title:'Atomic Habits',author:'James Clear',note:'The most practical book on habit formation available. The 1% better concept, habit stacking, environment design — read it as an engineering problem, not a self-help one.'},
+      {icon:'📖',type:'Book',title:'The Power of Habit',author:'Charles Duhigg',note:'The science underneath the practice. Understand the cue-routine-reward loop and you can redesign any habit you have.'},
+      {icon:'🎙️',type:'Podcast',title:'Huberman Lab — Habits & Dopamine',author:'Andrew Huberman',note:'Episodes on habit formation and dopamine regulation. Dense neuroscience made accessible. Particularly useful for understanding why you reward yourself before the work.'},
+      {icon:'⚙️',type:'Framework',title:'Habit Tracker — Daily',author:'James Clear method',note:'Paper or digital — track one habit per day with a simple X. The goal is not to break the chain. Start with the morning routine. One mark per day. No exceptions.'},
+      {icon:'▶️',type:'Video',title:'The Science of Making & Breaking Habits',author:'Andrew Huberman — YouTube',note:'90-minute lecture. Watch in two sittings. Take one page of notes. Apply one thing immediately.'},
+    ],
+    practice:[
+      'Pick one habit you want to build. Define it precisely — not "exercise more" but "20 minutes of movement at 5AM."',
+      'Design the environment: what needs to be true the night before for the habit to happen in the morning?',
+      'Track for 30 days. Bring the data back here — not the feelings, the data.',
+    ],
+    bringBack:'Which habits are currently running your life that you didn\'t consciously choose? What is the one habit that, if built and held, would make everything else easier? What has your consistency looked like over the last 30 days — honestly?',
+  },
+  {
+    id:'pd3',num:'03',tier:'foundation',tierLabel:'Tier I — Foundation',
+    name:'Learning How to Learn',
+    why:'You said it clearly — you learn from everything but you don\'t know how to study. Intelligence carried you through exams. But the work ahead — engineering mastery, trading, building a company, leading a relationship — requires deliberate learning, not passive absorption. This pillar builds the engine.',
+    resources:[
+      {icon:'💻',type:'Course',title:'Learning How to Learn',author:'Barbara Oakley — Coursera (free)',note:'The single best introduction to how the brain actually learns. Four weeks, a few hours per week. Do not skip this. It will change how you approach every other pillar in every curriculum.'},
+      {icon:'📖',type:'Book',title:'Make It Stick',author:'Brown, Roediger & McDaniel',note:'The science of effective learning. Spaced repetition, retrieval practice, interleaving — the techniques that actually work versus the ones that feel like learning but don\'t stick.'},
+      {icon:'📖',type:'Book',title:'Ultralearning',author:'Scott Young',note:'How to learn hard things fast and deeply. The chapter on directness — learning the thing by doing the thing — is essential for your AutoCAD and trading development.'},
+      {icon:'▶️',type:'Video',title:'How to Study Effectively — The Feynman Technique',author:'YouTube — various',note:'The Feynman Technique: learn something, then explain it simply without notes. If you can\'t explain it simply, you don\'t know it yet. Apply this to everything in all three curricula.'},
+      {icon:'⚙️',type:'Framework',title:'Spaced Repetition — Anki',author:'Free software',note:'Download Anki. Use it for anything you need to retain — trading concepts, engineering principles, financial terms. Review takes 10 minutes a day. Retention is dramatic.'},
+    ],
+    practice:[
+      'After every 30-minute learning session: write three things you learned in your own words without looking at the material.',
+      'Teach one concept from this week\'s reading back to me in our next conversation.',
+      'Apply the Feynman Technique to one thing you\'ve "known" for years — explain it simply and find where the gaps are.',
+    ],
+    bringBack:'What is the difference between how you learn passively and how you will now study deliberately? Where have you been fooling yourself that you knew something you only recognised? What one technique from this pillar will you apply to AutoCAD, Primavera, and trading?',
+  },
+  {
+    id:'pd4',num:'04',tier:'foundation',tierLabel:'Tier I — Foundation',
+    name:'Identity & Self-Knowledge',
+    why:'You cannot build on a foundation you haven\'t examined. This pillar is about knowing who you actually are — your values, your patterns, your defaults under pressure — so that growth is deliberate rather than accidental. The Discovery Bank is your primary tool here.',
+    resources:[
+      {icon:'📖',type:'Book',title:'Man\'s Search for Meaning',author:'Viktor Frankl',note:'Written in a concentration camp. The argument: meaning is chosen, not found. Everything else — suffering, circumstances, other people — cannot take that from you. Read slowly.'},
+      {icon:'📖',type:'Book',title:'The Gifts of Imperfection',author:'Brené Brown',note:'On wholehearted living — engaging with life from a place of worthiness rather than from what you must prove or protect. Confronting for high achievers.'},
+      {icon:'🎙️',type:'Podcast',title:'The Tim Ferriss Show — Self-Knowledge Episodes',author:'Tim Ferriss',note:'Episodes with Naval Ravikant, Jim Collins, and Maria Popova specifically. Long-form conversations about identity, values, and deliberate living.'},
+      {icon:'⚙️',type:'Framework',title:'The Discovery Bank',author:'Built for you',note:'Your primary instrument for this pillar. Work through the Self & Character domain deliberately. Write responses. Bring them back here.'},
+      {icon:'📖',type:'Book',title:'Meditations',author:'Marcus Aurelius',note:'A Roman emperor\'s private journal. Not written to be published. Honest, disciplined, and relentlessly practical. Read one entry per day alongside the pillar material.'},
+    ],
+    practice:[
+      'Answer three questions from the Discovery Bank — Self & Character domain — and write full responses, not one-liners.',
+      'Identify your top three values without looking at a list. Write what each one actually requires of you.',
+      'Where is who you are and who you want to be furthest apart right now? Name it precisely.',
+    ],
+    bringBack:'What have you learned about yourself from the Discovery Bank that surprised you? What pattern keeps showing up that you\'ve been explaining away? What does the man you\'re becoming need to believe about himself that the current version doesn\'t fully believe yet?',
+  },
+  {
+    id:'pd5',num:'05',tier:'development',tierLabel:'Tier II — Development',
+    name:'Deep Work & Focus',
+    why:'You are building a company, learning multiple technical skills, trading, and developing yourself — all simultaneously. None of these will compound without the ability to focus deeply, for sustained periods, without distraction. Shallow work is everywhere. Deep work is the competitive advantage.',
+    resources:[
+      {icon:'📖',type:'Book',title:'Deep Work',author:'Cal Newport',note:'The foundational text. The argument: the ability to focus without distraction is becoming rare and valuable at the same time. Build the capacity deliberately or be outcompeted by those who do.'},
+      {icon:'📖',type:'Book',title:'Digital Minimalism',author:'Cal Newport',note:'The companion to Deep Work. The phone is the primary enemy of focus. This book gives you a philosophy, not just tips.'},
+      {icon:'▶️',type:'Video',title:'How to Focus — the Huberman Protocol',author:'Andrew Huberman — YouTube',note:'The neuroscience of focus: visual attention, breathing, and eliminating distraction. 20-minute video. Apply the protocol the same day.'},
+      {icon:'⚙️',type:'Framework',title:'Time Blocking',author:'Cal Newport method',note:'Every hour of your workday planned in advance on paper. Not as a constraint — as a commitment to what matters. Start with the home day timetable you already have.'},
+      {icon:'🎙️',type:'Podcast',title:'Deep Questions with Cal Newport',author:'Cal Newport',note:'Episodes on focus, digital distraction, and building a deep work practice. Good for the commute or site travel.'},
+    ],
+    practice:[
+      'One 90-minute deep work session per day — phone in another room, one task, no switching.',
+      'Track interruptions for three days: what breaks your focus most often and why?',
+      'Design your deep work environment: what needs to be true in your space for focus to be possible?',
+    ],
+    bringBack:'What is your current capacity for sustained focus — how long before the mind wanders or you reach for the phone? What are you allowing to interrupt work that you should be protecting? What would one month of daily deep work sessions produce that you currently don\'t have?',
+  },
+  {
+    id:'pd6',num:'06',tier:'development',tierLabel:'Tier II — Development',
+    name:'Decision Making',
+    why:'The quality of your life is the sum of your decisions. Most people make decisions emotionally and justify them rationally afterward. This pillar is about learning to think clearly, avoid cognitive traps, and make decisions you can defend — especially under pressure.',
+    resources:[
+      {icon:'📖',type:'Book',title:'Thinking, Fast and Slow',author:'Daniel Kahneman',note:'The definitive book on how the mind actually works versus how we think it works. System 1 and System 2 thinking. Dense but essential. Read one chapter at a time.'},
+      {icon:'📖',type:'Book',title:'The Great Mental Models Vol. 1',author:'Shane Parrish',note:'First principles thinking, inversion, Occam\'s razor — the frameworks that clarify decisions. Practical. Read with a notebook.'},
+      {icon:'🎙️',type:'Podcast',title:'The Knowledge Project',author:'Shane Parrish — Farnam Street',note:'Every episode is a masterclass in clear thinking. Start with the Annie Duke episode on decision quality.'},
+      {icon:'▶️',type:'Video',title:'How to Make Good Decisions',author:'Veritasium — YouTube',note:'On expected value, cognitive bias, and why smart people make bad decisions. 20 minutes. Watch before any major decision in the next month.'},
+      {icon:'⚙️',type:'Framework',title:'The 10-10-10 Rule',author:'Suzy Welch',note:'Before any significant decision: how will I feel about this in 10 minutes, 10 months, 10 years? Simple. Powerful. Apply it to trading entries, financial decisions, relationship choices.'},
+    ],
+    practice:[
+      'After every significant decision this week: write the reasoning before you know the outcome.',
+      'Identify one decision you\'ve been avoiding. Apply first principles — strip it back to what is actually true.',
+      'Where are you making emotional decisions and calling them rational? Name one this week.',
+    ],
+    bringBack:'What cognitive bias shows up most often in your decisions — in trading, in relationships, in planning? What decision have you been avoiding and what is the avoidance really about? What would better decision-making have changed in the last six months?',
+  },
+  {
+    id:'pd7',num:'07',tier:'development',tierLabel:'Tier II — Development',
+    name:'Communication & Expression',
+    why:'You think in fine detail and broad systems simultaneously. But thinking it is not enough — a man who cannot articulate his vision cannot lead, cannot sell, cannot inspire, cannot be known. This pillar builds the gap between what you think and what you express.',
+    resources:[
+      {icon:'📖',type:'Book',title:'Several Short Sentences About Writing',author:'Verlyn Klinkenborg',note:'Not about writing essays — about thinking clearly enough to express precisely. The discipline of the short sentence is the discipline of the clear thought.'},
+      {icon:'📖',type:'Book',title:'Talk Like TED',author:'Carmine Gallo',note:'The nine principles behind the world\'s best talks. Applicable to every conversation, presentation, and pitch you will ever give.'},
+      {icon:'▶️',type:'Video',title:'The Art of Communicating',author:'TED Talks — various',note:'Watch five TED talks in your field and one outside it. Study structure, not just content. How do they open? How do they land the point? What do they leave out?'},
+      {icon:'🎙️',type:'Podcast',title:'Acquired',author:'Ben Gilbert & David Rosenthal',note:'Long-form business storytelling. Study how they take complex company histories and make them compelling. This is communication as craft.'},
+      {icon:'⚙️',type:'Framework',title:'Daily Writing Practice',author:'Morning pages method',note:'Already in your timetable. The output/journaling block is also this. Write to think. Not to produce — to clarify. Ten minutes minimum, daily.'},
+    ],
+    practice:[
+      'Write one paragraph per day about something you\'re learning. No bullet points. Full sentences.',
+      'Explain one complex idea — from trading, engineering, or faith — to an imaginary person who knows nothing about it.',
+      'Record yourself speaking for two minutes about something you care about. Listen back. What do you notice?',
+    ],
+    bringBack:'Where does the gap between what you think and what you express feel largest? What is the thing you most want to be able to articulate — about your vision, your faith, yourself — that you haven\'t found the words for yet?',
+  },
+  {
+    id:'pd8',num:'08',tier:'development',tierLabel:'Tier II — Development',
+    name:'Physical Discipline',
+    why:'The body is infrastructure. What you do with it determines your energy, your clarity, your emotional regulation, and your capacity for everything else in this curriculum. You already have a workout block. This pillar is about understanding why it matters beyond appearance — and protecting it accordingly.',
+    resources:[
+      {icon:'📖',type:'Book',title:'Can\'t Hurt Me',author:'David Goggins',note:'Not a fitness book — a book about what the body is actually capable of when the mind stops negotiating. The 40% rule: when you think you\'re done, you\'re at 40%.'},
+      {icon:'▶️',type:'Video / Series',title:'Peter Attia — Outlive Concepts',author:'YouTube',note:'On longevity, exercise science, and what physical investment actually buys you over a lifetime. Not extreme — principled and research-based.'},
+      {icon:'🎙️',type:'Podcast',title:'Huberman Lab — Exercise & Brain Function',author:'Andrew Huberman',note:'The episode on resistance training and cognitive performance specifically. The science of why physical discipline makes you smarter and more emotionally stable.'},
+      {icon:'⚙️',type:'Framework',title:'Non-Negotiable Movement Protocol',author:'Your own design',note:'Define it clearly: what is the minimum physical standard for any day, including site days? Not aspirational — minimum viable. Then hold it without negotiation.'},
+    ],
+    practice:[
+      'Define your minimum viable workout for a site day, an office day, and a home day. Different standard, same commitment.',
+      'Track energy levels for two weeks alongside workout compliance. What does the data show?',
+      'What physical goal — beyond aesthetics — would make the most difference to your capacity in the next six months?',
+    ],
+    bringBack:'What is the honest state of your physical discipline right now — not the aspiration, the practice? Where does the body\'s maintenance fall off first when pressure increases — and what does that cost you?',
+  },
+  {
+    id:'pd9',num:'09',tier:'integration',tierLabel:'Tier III — Integration',
+    name:'Resilience & Failure',
+    why:'You will fail. The question is not whether — it\'s what you do with it. Resilience is not the absence of being knocked down. It is the speed and quality of the recovery. This pillar is about building a relationship with failure that doesn\'t define you but does teach you.',
+    resources:[
+      {icon:'📖',type:'Book',title:'Antifragile',author:'Nassim Nicholas Taleb',note:'Some things break under stress. Some things merely survive it. Some things get stronger because of it. The goal is to be the third category. Dense but transformative.'},
+      {icon:'📖',type:'Book',title:'Mindset',author:'Carol Dweck',note:'Fixed versus growth mindset. The research is clear: how you interpret failure determines whether it destroys or develops you. Essential for trading, learning, and building.'},
+      {icon:'🎙️',type:'Podcast',title:'How I Built This',author:'Guy Raz — NPR',note:'Every episode is a founder\'s story — and every story includes near-total failure before the success. Normalises the cost of building something real.'},
+      {icon:'▶️',type:'Video',title:'Embrace the Struggle',author:'Various — YouTube search',note:'Search: "embrace failure" alongside names like Sara Blakely, Howard Schultz, or Steve Jobs. Curated stories of failure as curriculum, not catastrophe.'},
+      {icon:'⚙️',type:'Framework',title:'The After-Action Review',author:'Military origin',note:'After any failure or setback: What happened? What should have happened? What accounts for the gap? What do I do differently? Four questions. Write them. Don\'t just think them.'},
+    ],
+    practice:[
+      'Write an after-action review of one recent failure — trading, discipline, relationship, work. Four questions. Full answers.',
+      'Identify the failure you\'ve been most ashamed of. What did it actually teach you — not the polished version, the real one?',
+      'What would you do differently in the next hard season if you had prepared for it in this one?',
+    ],
+    bringBack:'What is your current relationship with failure — do you learn from it, hide from it, or perform recovery without really processing it? What has been your most instructive failure — and have you fully extracted what it had to teach?',
+  },
+  {
+    id:'pd10',num:'10',tier:'integration',tierLabel:'Tier III — Integration',
+    name:'Purpose & Legacy',
+    why:'Everything in this curriculum points here. Self-discipline without purpose is just suffering. Consistency without direction is just motion. This pillar is about knowing clearly what you are building toward — and letting that knowing pull the daily work forward even when nothing else does.',
+    resources:[
+      {icon:'📖',type:'Book',title:'Start With Why',author:'Simon Sinek',note:'Why precedes what and how. When the why is clear enough, the how becomes survivable. Apply this to dAnTE Inc., to your faith, to your relationships.'},
+      {icon:'📖',type:'Book',title:'The Almanack of Naval Ravikant',author:'Eric Jorgenson (free online)',note:'On wealth, happiness, and building a life of meaning on your own terms. Read slowly. Return to it. Free at navalmanack.com'},
+      {icon:'▶️',type:'Video',title:'How to Build a Life — Arthur Brooks series',author:'The Atlantic — YouTube',note:'On meaning, purpose, and the second half of life. Counterintuitive and grounded. Watch the full series.'},
+      {icon:'🎙️',type:'Podcast',title:'The Tim Ferriss Show — Ep. with Jim Collins',author:'Tim Ferriss',note:'Jim Collins on building enduring greatness. The flywheel concept. Fate versus free will in the life of a builder. One of the best conversations available.'},
+      {icon:'⚙️',type:'Framework',title:'The Personal Mission Statement',author:'Stephen Covey method',note:'From 7 Habits — begin with the end in mind. Write a draft of your personal mission statement. Not your company\'s — yours. What is the Paul Bassey standard for a life well lived?'},
+    ],
+    practice:[
+      'Write your personal mission statement — first draft. No more than three sentences. Bring it back.',
+      'What would you be building if you knew the outcome was guaranteed — and why aren\'t you building it that way now?',
+      'What does the trail of lives awakened actually mean in your daily choices — name one thing it requires of you today?',
+    ],
+    bringBack:'What is your why — not your company\'s, yours? Is it clear enough to pull you forward on the days when nothing else will? What does legacy mean to you — not as a concept, as a daily posture?',
+  },
+];
+
+const TIER_COLORS={foundation:'var(--found)',development:'var(--dev)',integration:'var(--integ)'};
+let started=JSON.parse(localStorage.getItem('pd-started')||'[]');
+const TOTAL=10;
+
+function toggleTheme(){
+  const dark=document.documentElement.getAttribute('data-theme')==='dark';
+  document.documentElement.setAttribute('data-theme',dark?'light':'dark');
+  document.getElementById('theme-icon').textContent=dark?'☾':'☀';
+  localStorage.setItem('pd-theme',dark?'light':'dark');
+}
+function switchTab(name,btn){
+  document.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
+  document.getElementById('tab-'+name).classList.add('active');
+  btn.classList.add('active');
+  if(name==='progress')updateProgress();
+}
+function togglePillar(el){el.classList.toggle('open');}
+function toggleStarted(id,dot){
+  const idx=started.indexOf(id);
+  if(idx>-1){started.splice(idx,1);}else{started.push(id);}
+  localStorage.setItem('pd-started',JSON.stringify(started));
+  dot.classList.toggle('active',started.includes(id));
+  updateProgressLabel();updateProgress();
+}
+function updateProgressLabel(){document.getElementById('progress-label').textContent=started.length+' of '+TOTAL+' started';}
+function updateProgress(){
+  const s=started.length;
+  document.getElementById('prog-started').textContent=s;
+  document.getElementById('prog-remaining').textContent=TOTAL-s;
+  const pct=Math.round((s/TOTAL)*100);
+  document.getElementById('prog-pct').textContent=pct+'%';
+  document.getElementById('prog-fill').style.width=pct+'%';
+}
+function saveNotes(){
+  localStorage.setItem('pd-notes',document.getElementById('notes-area').value);
+  const btn=document.querySelector('.save-notes-btn');
+  btn.textContent='Saved.';setTimeout(()=>btn.textContent='Save Notes',2000);
+}
+function buildPillars(){
+  const list=document.getElementById('pillar-list');
+  PILLARS.forEach(p=>{
+    const isStarted=started.includes(p.id);
+    const tc=TIER_COLORS[p.tier];
+    const el=document.createElement('div');
+    el.className='pillar-item';
+    el.innerHTML=`
+      <div class="pillar-header" onclick="togglePillar(this.closest('.pillar-item'))">
+        <div class="pillar-num">${p.num}</div>
+        <div class="pillar-meta">
+          <div class="pillar-name">${p.name}</div>
+          <div class="pillar-tier-tag" style="color:${tc};">${p.tierLabel}</div>
+        </div>
+        <div class="pillar-status">
+          <div class="status-dot${isStarted?' active':''}" title="Mark as started" onclick="event.stopPropagation();toggleStarted('${p.id}',this)"></div>
+          <span class="pillar-toggle">▾</span>
+        </div>
+      </div>
+      <div class="pillar-body">
+        <div class="pillar-why">${p.why}</div>
+        <div class="resource-section">
+          <div class="resource-label">Resources</div>
+          ${p.resources.map(r=>`
+            <div class="resource-item">
+              <div class="resource-icon">${r.icon}</div>
+              <div class="resource-info">
+                <div class="resource-type">${r.type}</div>
+                <div class="resource-title">${r.title}</div>
+                <div class="resource-author">${r.author}</div>
+                <div class="resource-note">${r.note}</div>
+              </div>
+            </div>`).join('')}
+        </div>
+        <div class="resource-section">
+          <div class="resource-label">Practice</div>
+          <ul class="practice-list">${p.practice.map(pr=>`<li>${pr}</li>`).join('')}</ul>
+        </div>
+        <div class="bring-back">
+          <div class="bring-back-label">Bring back to Claude</div>
+          <p>${p.bringBack}</p>
+        </div>
+      </div>`;
+    list.appendChild(el);
+  });
+}
+function init(){
+  const theme=localStorage.getItem('pd-theme')||'dark';
+  document.documentElement.setAttribute('data-theme',theme);
+  document.getElementById('theme-icon').textContent=theme==='dark'?'☀':'☾';
+  document.getElementById('notes-area').value=localStorage.getItem('pd-notes')||'';
+  buildPillars();updateProgressLabel();updateProgress();
+}
+init();
+</script>
+</body>
+</html>

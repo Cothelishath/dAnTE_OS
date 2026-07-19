@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Q2 Review — April Close / May Setup</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0e0e0f;--surface:#161618;--surface2:#1e1e21;
+  --border:#2a2a2e;--border-gold:rgba(201,169,110,0.3);
+  --gold:#c9a96e;--gold-dim:#7a6040;
+  --text:#e8e6e0;--text-mid:#8a8880;--text-dim:#4a4845;
+  --green:#7eb8a4;--red:#e07e7e;--purple:#a07ec9;
+  --done:rgba(126,184,164,0.12);--miss:rgba(224,126,126,0.08);--roll:rgba(201,169,110,0.08);
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{background:var(--bg);color:var(--text);font-family:'DM Mono',monospace;font-size:13px;line-height:1.6;min-height:100vh;}
+body.light{--bg:#f5f2ec;--surface:#edeae2;--surface2:#e4e0d6;--border:#d0ccc0;--text:#1a1916;--text-mid:#6b6860;--text-dim:#b0aca4;}
+
+.header{padding:48px 44px 36px;border-bottom:1px solid var(--border);position:relative;overflow:hidden;}
+.header::before{content:'';position:absolute;top:-80px;right:-80px;width:400px;height:400px;border-radius:50%;background:radial-gradient(circle,rgba(201,169,110,0.06) 0%,transparent 70%);pointer-events:none;}
+.h-eye{font-size:10px;letter-spacing:0.3em;text-transform:uppercase;color:var(--gold-dim);margin-bottom:12px;}
+.h-title{font-family:'Cormorant Garamond',serif;font-size:clamp(36px,5vw,56px);font-weight:300;line-height:1.1;margin-bottom:8px;}
+.h-title em{font-style:italic;color:var(--gold);}
+.h-sub{font-size:10px;color:var(--text-mid);letter-spacing:0.15em;}
+.h-controls{position:absolute;top:48px;right:44px;display:flex;gap:8px;}
+.ctrl{background:var(--surface2);border:1px solid var(--border);color:var(--text-mid);padding:6px 14px;cursor:pointer;font-family:'DM Mono',monospace;font-size:10px;letter-spacing:0.1em;transition:all 0.2s;}
+.ctrl:hover{border-color:var(--border-gold);color:var(--gold);}
+
+/* SCORE BANNER */
+.score-banner{display:grid;grid-template-columns:repeat(4,1fr);gap:2px;border-bottom:1px solid var(--border);}
+.sb-item{padding:24px 28px;background:var(--surface);}
+.sb-label{font-size:9px;letter-spacing:0.25em;text-transform:uppercase;color:var(--text-dim);margin-bottom:6px;}
+.sb-val{font-family:'Cormorant Garamond',serif;font-size:38px;font-weight:300;line-height:1;}
+.sb-sub{font-size:9px;color:var(--text-dim);margin-top:4px;}
+.col-done{color:var(--green);}
+.col-miss{color:var(--red);}
+.col-roll{color:var(--gold);}
+.col-mid{color:var(--text-mid);}
+
+/* BODY */
+.body{max-width:900px;margin:0 auto;padding:44px 44px 80px;}
+
+.section{margin-bottom:44px;}
+.sec-head{display:flex;align-items:center;gap:14px;margin-bottom:20px;padding-bottom:10px;border-bottom:1px solid var(--border);}
+.sec-line{width:28px;height:1px;background:var(--gold);}
+.sec-title{font-size:9px;letter-spacing:0.3em;text-transform:uppercase;color:var(--gold-dim);}
+
+/* APRIL GOALS TABLE */
+.goals-table{display:flex;flex-direction:column;gap:6px;}
+.goal-row{display:grid;grid-template-columns:24px 1fr 90px 100px;gap:12px;padding:12px 16px;border:1px solid var(--border);border-radius:2px;align-items:start;transition:border-color 0.2s;}
+.goal-row:hover{border-color:var(--border-gold);}
+.goal-row.done{background:var(--done);border-color:rgba(126,184,164,0.2);}
+.goal-row.missed{background:var(--miss);border-color:rgba(224,126,126,0.15);}
+.goal-row.rolled{background:var(--roll);border-color:rgba(201,169,110,0.15);}
+.gr-num{font-size:9px;color:var(--text-dim);padding-top:2px;}
+.gr-content{}
+.gr-title{font-size:12px;color:var(--text);margin-bottom:3px;font-weight:500;}
+.gr-note{font-size:10px;color:var(--text-mid);line-height:1.55;}
+.gr-status{text-align:right;}
+.status-badge{display:inline-block;font-size:8px;letter-spacing:0.18em;text-transform:uppercase;padding:3px 8px;border-radius:2px;font-weight:500;}
+.status-done{background:rgba(126,184,164,0.15);color:var(--green);border:1px solid rgba(126,184,164,0.3);}
+.status-missed{background:rgba(224,126,126,0.12);color:var(--red);border:1px solid rgba(224,126,126,0.25);}
+.status-rolled{background:rgba(201,169,110,0.1);color:var(--gold);border:1px solid rgba(201,169,110,0.25);}
+.status-partial{background:rgba(160,126,201,0.1);color:var(--purple);border:1px solid rgba(160,126,201,0.25);}
+.gr-verdict{font-size:9px;color:var(--text-dim);margin-top:4px;font-style:italic;}
+
+/* HONEST TAKE */
+.honest-block{background:var(--surface);border:1px solid var(--border-gold);border-radius:3px;padding:22px 26px;margin-bottom:32px;}
+.hb-label{font-size:9px;letter-spacing:0.28em;text-transform:uppercase;color:var(--gold-dim);margin-bottom:12px;}
+.hb-text{font-family:'Cormorant Garamond',serif;font-style:italic;font-size:16px;color:var(--text-mid);line-height:1.8;}
+.hb-text strong{font-style:normal;color:var(--text);font-weight:500;}
+
+/* MAY PRIORITIES */
+.may-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.may-card{background:var(--surface);border:1px solid var(--border);border-radius:3px;padding:18px 20px;position:relative;overflow:hidden;transition:border-color 0.2s;}
+.may-card::before{content:'';position:absolute;left:0;top:0;bottom:0;width:2px;background:var(--green);}
+.may-card:hover{border-color:rgba(126,184,164,0.3);}
+.mc-priority{font-size:8px;letter-spacing:0.22em;text-transform:uppercase;color:var(--green);margin-bottom:6px;opacity:0.7;}
+.mc-title{font-size:12px;color:var(--text);font-weight:500;margin-bottom:6px;line-height:1.3;}
+.mc-desc{font-size:10px;color:var(--text-mid);line-height:1.65;}
+.mc-rolled{font-size:9px;color:var(--gold);margin-top:6px;padding-top:6px;border-top:1px solid var(--border);}
+
+/* COMMITMENTS */
+.commit-list{display:flex;flex-direction:column;gap:8px;}
+.commit-item{display:flex;gap:14px;padding:12px 16px;background:var(--surface);border:1px solid var(--border);border-radius:2px;}
+.ci-num{font-size:9px;color:var(--gold-dim);width:20px;flex-shrink:0;padding-top:2px;}
+.ci-text{font-size:11px;color:var(--text-mid);line-height:1.65;flex:1;}
+.ci-text strong{color:var(--text);}
+
+/* TRADING NOTE */
+.trading-note{background:var(--surface);border:1px solid var(--border);border-radius:3px;padding:20px 24px;}
+.tn-label{font-size:9px;letter-spacing:0.28em;text-transform:uppercase;color:var(--gold-dim);margin-bottom:10px;}
+.tn-item{display:flex;gap:12px;padding:8px 0;border-bottom:1px solid var(--border);font-size:11px;}
+.tn-item:last-child{border-bottom:none;}
+.tn-key{color:var(--text-dim);width:120px;flex-shrink:0;}
+.tn-val{color:var(--text-mid);}
+
+/* FOOTNOTE */
+.footnote{font-family:'Cormorant Garamond',serif;font-style:italic;font-size:15px;color:var(--text-dim);text-align:center;padding:32px 0;border-top:1px solid var(--border);margin-top:44px;}
+
+@media(max-width:600px){
+  .header{padding:32px 20px 24px;}.h-controls{display:none;}
+  .body{padding:24px 20px 60px;}
+  .score-banner{grid-template-columns:1fr 1fr;}
+  .may-grid{grid-template-columns:1fr;}
+  .goal-row{grid-template-columns:1fr;}
+  .gr-num,.gr-status,.gr-verdict{display:none;}
+}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="h-eye">Q2 2026 · Monthly Review</div>
+  <div class="h-title">April <em>Close-Out</em><br>May <em>Setup</em></div>
+  <div class="h-sub">Paul Bassey · dAnTE · 27 April 2026</div>
+  <div class="h-controls">
+    <button class="ctrl" onclick="document.body.classList.toggle('light')">☀ / ☾</button>
+    <button class="ctrl" onclick="window.print()">Print</button>
+  </div>
+</div>
+
+<!-- SCORE BANNER -->
+<div class="score-banner">
+  <div class="sb-item"><div class="sb-label">Done</div><div class="sb-val col-done">2</div><div class="sb-sub">of 7 April goals</div></div>
+  <div class="sb-item"><div class="sb-label">Rolled to May</div><div class="sb-val col-roll">4</div><div class="sb-sub">legitimate carry-forwards</div></div>
+  <div class="sb-item"><div class="sb-label">Missed</div><div class="sb-val col-miss">1</div><div class="sb-sub">books — reset target</div></div>
+  <div class="sb-item"><div class="sb-label">Context</div><div class="sb-val col-mid">Move</div><div class="sb-sub">April was consumed by the apartment</div></div>
+</div>
+
+<div class="body">
+
+  <!-- HONEST TAKE -->
+  <div class="honest-block">
+    <div class="hb-label">Honest Assessment</div>
+    <div class="hb-text">April was not a lost month. It was a month with one dominant task — moving into and establishing the apartment — and that task was completed. <strong>The move is done. You are home.</strong> The goals that didn't land were not failures of character. They were resource allocation — the same hours cannot be spent in two places. The real question is whether the rollover goals get handled in May, or whether April's pattern repeats. That question is answered by how May starts, not by how April ended.</div>
+  </div>
+
+  <!-- APRIL GOALS REVIEW -->
+  <div class="section">
+    <div class="sec-head"><div class="sec-line"></div><div class="sec-title">April Goals — Close-Out</div></div>
+    <div class="goals-table">
+
+      <div class="goal-row done">
+        <div class="gr-num">01</div>
+        <div class="gr-content">
+          <div class="gr-title">Complete the Move</div>
+          <div class="gr-note">Apartment secured, first night done, place livable. Keys received, cleaned, prayed in. Furniture purchased.</div>
+        </div>
+        <div class="gr-status"><span class="status-badge status-done">Done ✓</span><div class="gr-verdict">Full completion.</div></div>
+        <div></div>
+      </div>
+
+      <div class="goal-row done">
+        <div class="gr-num">02</div>
+        <div class="gr-content">
+          <div class="gr-title">Identity Papers & Values Excavation</div>
+          <div class="gr-note">Four anchors, values index, principles, vision, mission, legacy, self-knowledge. Living HTML document built and v1 complete.</div>
+        </div>
+        <div class="gr-status"><span class="status-badge status-done">Done ✓</span><div class="gr-verdict">Full completion.</div></div>
+        <div></div>
+      </div>
+
+      <div class="goal-row rolled">
+        <div class="gr-num">03</div>
+        <div class="gr-content">
+          <div class="gr-title">Founding Documents — Dante Craft & dAnTE Inc.</div>
+          <div class="gr-note">Not started. Web presence and brand identity work progressed significantly — logos, three pages built — but the formal founding documents were not drafted.</div>
+        </div>
+        <div class="gr-status"><span class="status-badge status-rolled">Rolled →</span><div class="gr-verdict">May priority 1.</div></div>
+        <div></div>
+      </div>
+
+      <div class="goal-row rolled">
+        <div class="gr-num">04</div>
+        <div class="gr-content">
+          <div class="gr-title">4AM Anchor — Morning Routine</div>
+          <div class="gr-note">Inconsistent. Moving disrupted the routine significantly. Prayer remained the most protected element but the full routine — workout, meditation, output — was not held consistently.</div>
+        </div>
+        <div class="gr-status"><span class="status-badge status-rolled">Rolled →</span><div class="gr-verdict">May non-negotiable.</div></div>
+        <div></div>
+      </div>
+
+      <div class="goal-row rolled">
+        <div class="gr-num">05</div>
+        <div class="gr-content">
+          <div class="gr-title">Trading Discipline & Live Log</div>
+          <div class="gr-note">Not executed. No studious month at the charts — acknowledged honestly. Moving consumed the attention the market requires.</div>
+        </div>
+        <div class="gr-status"><span class="status-badge status-rolled">Rolled →</span><div class="gr-verdict">May priority 2.</div></div>
+        <div></div>
+      </div>
+
+      <div class="goal-row missed">
+        <div class="gr-num">06</div>
+        <div class="gr-content">
+          <div class="gr-title">3 Books Completed</div>
+          <div class="gr-note">Target was 3 books in April. Not achieved. Reading was not prioritised during the move. Reset to May target of ≥5 books — the Q2 total target remains reachable if May and June deliver.</div>
+        </div>
+        <div class="gr-status"><span class="status-badge status-missed">Missed</span><div class="gr-verdict">Reset — May picks up.</div></div>
+        <div></div>
+      </div>
+
+      <div class="goal-row rolled">
+        <div class="gr-num">07</div>
+        <div class="gr-content">
+          <div class="gr-title">Identity Papers — Passport</div>
+          <div class="gr-note">Not processed. Identity papers work was completed (the document) but the physical passport application was not initiated. Requires documents and application visit.</div>
+        </div>
+        <div class="gr-status"><span class="status-badge status-rolled">Rolled →</span><div class="gr-verdict">May — schedule it.</div></div>
+        <div></div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- MAY PRIORITIES -->
+  <div class="section">
+    <div class="sec-head"><div class="sec-line"></div><div class="sec-title">May Priorities — What Gets Done This Month</div></div>
+    <div class="may-grid">
+
+      <div class="may-card">
+        <div class="mc-priority">Priority 1 — Rolled from April</div>
+        <div class="mc-title">Founding Documents — Dante Craft & dAnTE Inc.</div>
+        <div class="mc-desc">First drafts of both founding documents built this session. May task: review, refine, and have them signed/formalised. Company profile, stated objects, structure, values.</div>
+        <div class="mc-rolled">↑ Carried from April. Must land this month.</div>
+      </div>
+
+      <div class="may-card">
+        <div class="mc-priority">Priority 2 — Rolled from April</div>
+        <div class="mc-title">Trading — Strategy Documented & Sessions Running</div>
+        <div class="mc-desc">Strategy documentation template built this session. May task: complete the template honestly, begin daily chart sessions, log minimum 6 trades with full reasoning. ≥70% win rate target.</div>
+        <div class="mc-rolled">↑ Carried from April. Apartment is sorted — no more excuse.</div>
+      </div>
+
+      <div class="may-card">
+        <div class="mc-priority">Priority 3 — Ongoing from Q2 Plan</div>
+        <div class="mc-title">MSc Decision — By End of May</div>
+        <div class="mc-desc">Curriculum comparison document built this session. May task: complete the comparison, make the decision, begin application process for chosen institution.</div>
+        <div class="mc-rolled">↑ Deadline is May 31. Not movable.</div>
+      </div>
+
+      <div class="may-card">
+        <div class="mc-priority">Priority 4 — Rolled from April</div>
+        <div class="mc-title">4AM Routine — Held Consistently</div>
+        <div class="mc-desc">Prayer, workout, meditation, output completing by 10AM. The apartment is now stable — the environment supports the routine. May is the month to establish it as unbreakable.</div>
+        <div class="mc-rolled">↑ The Quickening tracks this daily.</div>
+      </div>
+
+      <div class="may-card">
+        <div class="mc-priority">Priority 5 — Rolled from April</div>
+        <div class="mc-title">Passport Application</div>
+        <div class="mc-desc">Schedule the NIS visit. Gather required documents. Submit application. The passport unlocks the travel rewards tier and is needed for the MSc application process.</div>
+        <div class="mc-rolled">↑ One appointment. Don't let it drift to June.</div>
+      </div>
+
+      <div class="may-card">
+        <div class="mc-priority">Priority 6 — Reading Reset</div>
+        <div class="mc-title">Reading — ≥5 Books in May</div>
+        <div class="mc-desc">April's 3-book target missed. May target is ≥5. The Q2 total of ≥13 is still achievable if May and June both deliver 5+. Select the list this week. Start today.</div>
+        <div class="mc-rolled">↑ Q2 total recoverable if May delivers.</div>
+      </div>
+
+      <div class="may-card">
+        <div class="mc-priority">Priority 7 — May Goal</div>
+        <div class="mc-title">IOSH Managing Safely — Begin</div>
+        <div class="mc-desc">First certification in the sequence. Enrol in May. Complete at least Module 1. The certification builds the professional credentials that Dante Craft's portfolio requires.</div>
+        <div class="mc-rolled">↑ Career compounding — start the clock.</div>
+      </div>
+
+      <div class="may-card">
+        <div class="mc-priority">Priority 8 — Finance</div>
+        <div class="mc-title">Debt Repayment Milestone</div>
+        <div class="mc-desc">Near-term payment milestone active. May salary from CGSL earmarked. Execute the payment. No new debt. The no-new-debt rule is active from this month forward.</div>
+        <div class="mc-rolled">↑ Financial foundation. Non-negotiable.</div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- MAY COMMITMENTS -->
+  <div class="section">
+    <div class="sec-head"><div class="sec-line"></div><div class="sec-title">May Commitments — The Short List</div></div>
+    <div class="commit-list">
+      <div class="commit-item"><div class="ci-num">01</div><div class="ci-text"><strong>The apartment is stable. The move is done.</strong> May has no structural excuse for the same rollover pattern. The environment is controlled. Use it.</div></div>
+      <div class="commit-item"><div class="ci-num">02</div><div class="ci-text"><strong>Trading sessions begin the first weekday of May.</strong> Even if the account is small and the market is quiet. The habit is what's being built, not the balance — yet.</div></div>
+      <div class="commit-item"><div class="ci-num">03</div><div class="ci-text"><strong>MSc decision made by May 31.</strong> The comparison document exists. The information exists. The decision is a choice, not a research task. Make it.</div></div>
+      <div class="commit-item"><div class="ci-num">04</div><div class="ci-text"><strong>One book started this week.</strong> Not next week. This week. The reading momentum is a Q2 goal that requires May to deliver.</div></div>
+      <div class="commit-item"><div class="ci-num">05</div><div class="ci-text"><strong>The Quickening used daily.</strong> Not perfectly — consistently. Site days at Tier I. Office days at Tier I. Home days pushing Tier II. Compound the small days.</div></div>
+    </div>
+  </div>
+
+  <!-- TRADING NOTE -->
+  <div class="section">
+    <div class="sec-head"><div class="sec-line"></div><div class="sec-title">Trading — May Reset Note</div></div>
+    <div class="trading-note">
+      <div class="tn-label">Context going into May</div>
+      <div class="tn-item"><div class="tn-key">April reality</div><div class="tn-val">No chart sessions. Move consumed the month. Not a character failure — a resource fact.</div></div>
+      <div class="tn-item"><div class="tn-key">Read quality</div><div class="tn-val">Confirmed strong. Correctly called setups not executed. Analysis is not the gap.</div></div>
+      <div class="tn-item"><div class="tn-key">Active gap</div><div class="tn-val">Execution discipline and follow-through. The strategy works when applied. Apply it.</div></div>
+      <div class="tn-item"><div class="tn-key">May target</div><div class="tn-val">Strategy documented. ≥6 trades logged with full entry reasoning. ≥70% win rate tracked.</div></div>
+      <div class="tn-item"><div class="tn-key">Platform</div><div class="tn-val">Deriv — V75(1s) index. SMC/ICT and price action blend. 1:5 RR minimum.</div></div>
+      <div class="tn-item"><div class="tn-key">Non-negotiable</div><div class="tn-val">No trade without a documented reason. No exit without a documented lesson.</div></div>
+    </div>
+  </div>
+
+  <div class="footnote">"We are exactly where we need to be, when we need to be." — Q2 2026</div>
+
+</div>
+
+<script>
+document.body.classList.remove('light');
+</script>
+</body>
+</html>

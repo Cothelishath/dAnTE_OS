@@ -1,0 +1,508 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Financial Literacy Curriculum</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400;1,500&family=DM+Mono:wght@300;400;500&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+:root[data-theme="dark"]{
+  --bg:#09090b;--bg2:#111114;--bg3:#18181c;--bg4:#222228;
+  --border:rgba(255,255,255,0.06);--border-gold:rgba(201,168,76,0.22);
+  --text:#e8e3d8;--muted:#666;--soft:#999;
+  --gold:#c9a84c;--gold-dim:rgba(201,168,76,0.08);--gold-mid:rgba(201,168,76,0.18);
+  --found:#7abf9a;--dev:#bf9a7a;--integ:#9a7abf;
+}
+:root[data-theme="light"]{
+  --bg:#f4f1eb;--bg2:#edeae2;--bg3:#e4e0d6;--bg4:#d8d3c8;
+  --border:rgba(0,0,0,0.07);--border-gold:rgba(140,100,20,0.22);
+  --text:#141210;--muted:#aaa;--soft:#666;
+  --gold:#8a6820;--gold-dim:rgba(138,104,32,0.07);--gold-mid:rgba(138,104,32,0.15);
+  --found:#2a6a4a;--dev:#7a4a2a;--integ:#4a2a6a;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{background:var(--bg);color:var(--text);font-family:'Jost',sans-serif;font-weight:300;line-height:1.7;min-height:100vh;transition:background 0.3s,color 0.3s;}
+header{border-bottom:1px solid var(--border);padding:0 48px;display:flex;align-items:center;justify-content:space-between;height:60px;position:sticky;top:0;background:var(--bg);z-index:100;}
+.wordmark{font-family:'Cormorant Garamond',serif;font-size:1.2rem;font-style:italic;color:var(--gold);letter-spacing:0.03em;}
+.wordmark span{color:var(--text);font-style:normal;font-weight:300;font-size:0.95rem;}
+.header-right{display:flex;align-items:center;gap:12px;}
+.theme-btn{background:var(--bg3);border:1px solid var(--border);color:var(--muted);font-size:0.75rem;width:30px;height:30px;border-radius:50%;cursor:pointer;transition:all 0.2s;display:flex;align-items:center;justify-content:center;}
+.theme-btn:hover{border-color:var(--gold);color:var(--gold);}
+.progress-label{font-family:'DM Mono',monospace;font-size:0.55rem;letter-spacing:0.1em;text-transform:uppercase;color:var(--muted);}
+.nav-strip{display:flex;gap:0;border-bottom:1px solid var(--border);background:var(--bg2);overflow-x:auto;scrollbar-width:none;padding:0 48px;}
+.nav-strip::-webkit-scrollbar{display:none;}
+.nav-btn{padding:14px 18px;background:none;border:none;border-bottom:2px solid transparent;color:var(--muted);font-family:'DM Mono',monospace;font-size:0.52rem;letter-spacing:0.1em;text-transform:uppercase;cursor:pointer;white-space:nowrap;transition:all 0.2s;}
+.nav-btn:hover{color:var(--soft);}
+.nav-btn.active{color:var(--gold);border-bottom-color:var(--gold);}
+main{max-width:900px;margin:0 auto;padding:48px 48px 100px;}
+.tab-panel{display:none;}
+.tab-panel.active{display:block;animation:rise 0.3s ease both;}
+@keyframes rise{from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:translateY(0);}}
+.section-eyebrow{font-family:'DM Mono',monospace;font-size:0.52rem;letter-spacing:0.16em;text-transform:uppercase;color:var(--gold);margin-bottom:12px;}
+.section-title{font-family:'Cormorant Garamond',serif;font-size:2.4rem;font-weight:400;line-height:1.2;color:var(--text);margin-bottom:20px;}
+.section-body{font-size:0.95rem;color:var(--soft);max-width:640px;line-height:1.8;}
+.gold-rule{height:1px;background:linear-gradient(90deg,var(--gold) 0%,transparent 60%);opacity:0.2;margin:36px 0;}
+.tier-grid{display:grid;gap:16px;margin-bottom:48px;}
+.tier-card{background:var(--bg2);border:1px solid var(--border);border-radius:4px;padding:24px 28px;position:relative;overflow:hidden;}
+.tier-card::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;}
+.tier-found::before{background:var(--found);}
+.tier-dev::before{background:var(--dev);}
+.tier-integ::before{background:var(--integ);}
+.tier-label{font-family:'DM Mono',monospace;font-size:0.5rem;letter-spacing:0.14em;text-transform:uppercase;margin-bottom:8px;}
+.tier-found .tier-label{color:var(--found);}
+.tier-dev .tier-label{color:var(--dev);}
+.tier-integ .tier-label{color:var(--integ);}
+.tier-name{font-family:'Cormorant Garamond',serif;font-size:1.3rem;font-weight:500;color:var(--text);margin-bottom:6px;}
+.tier-desc{font-size:0.85rem;color:var(--soft);line-height:1.7;}
+.tier-pillars{display:flex;flex-wrap:wrap;gap:6px;margin-top:14px;}
+.tier-pill{font-family:'DM Mono',monospace;font-size:0.5rem;letter-spacing:0.08em;text-transform:uppercase;padding:3px 10px;border-radius:20px;border:1px solid var(--border);color:var(--muted);}
+.method-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:20px;}
+.method-card{background:var(--bg2);border:1px solid var(--border);border-radius:4px;padding:20px 22px;}
+.method-num{font-family:'DM Mono',monospace;font-size:0.55rem;color:var(--gold);letter-spacing:0.1em;margin-bottom:8px;}
+.method-title{font-family:'Cormorant Garamond',serif;font-size:1.1rem;color:var(--text);margin-bottom:6px;}
+.method-desc{font-size:0.82rem;color:var(--soft);line-height:1.7;}
+.pillar-list{display:flex;flex-direction:column;gap:6px;margin-bottom:32px;}
+.pillar-item{background:var(--bg2);border:1px solid var(--border);border-radius:4px;overflow:hidden;transition:border-color 0.2s;}
+.pillar-item:hover{border-color:var(--border-gold);}
+.pillar-header{display:grid;grid-template-columns:40px 1fr auto;align-items:center;padding:16px 20px;cursor:pointer;gap:12px;}
+.pillar-num{font-family:'DM Mono',monospace;font-size:0.55rem;color:var(--muted);letter-spacing:0.08em;}
+.pillar-meta{display:flex;flex-direction:column;gap:3px;}
+.pillar-name{font-family:'Cormorant Garamond',serif;font-size:1.1rem;font-weight:500;color:var(--text);}
+.pillar-tier-tag{font-family:'DM Mono',monospace;font-size:0.48rem;letter-spacing:0.1em;text-transform:uppercase;display:inline-block;}
+.pillar-status{display:flex;align-items:center;gap:8px;}
+.status-dot{width:8px;height:8px;border-radius:50%;border:1.5px solid var(--border);flex-shrink:0;cursor:pointer;transition:all 0.2s;}
+.status-dot.active{background:var(--gold);border-color:var(--gold);}
+.pillar-toggle{font-family:'DM Mono',monospace;font-size:0.7rem;color:var(--muted);transition:transform 0.2s;margin-left:8px;}
+.pillar-item.open .pillar-toggle{transform:rotate(180deg);}
+.pillar-body{display:none;padding:0 20px 24px;border-top:1px solid var(--border);}
+.pillar-item.open .pillar-body{display:block;}
+.pillar-why{font-size:0.88rem;color:var(--soft);line-height:1.8;margin:16px 0 20px;font-style:italic;padding-left:12px;border-left:2px solid var(--border-gold);}
+.resource-section{margin-bottom:20px;}
+.resource-label{font-family:'DM Mono',monospace;font-size:0.5rem;letter-spacing:0.12em;text-transform:uppercase;color:var(--muted);margin-bottom:10px;}
+.resource-item{display:flex;gap:12px;padding:10px 14px;background:var(--bg3);border-radius:3px;margin-bottom:6px;}
+.resource-icon{font-size:0.9rem;flex-shrink:0;margin-top:2px;}
+.resource-type{font-family:'DM Mono',monospace;font-size:0.48rem;letter-spacing:0.08em;text-transform:uppercase;color:var(--muted);margin-bottom:2px;}
+.resource-title{font-size:0.88rem;color:var(--text);font-weight:400;margin-bottom:2px;}
+.resource-author{font-family:'DM Mono',monospace;font-size:0.5rem;letter-spacing:0.08em;color:var(--muted);}
+.resource-note{font-size:0.8rem;color:var(--soft);margin-top:4px;line-height:1.6;}
+.practice-list{list-style:none;display:flex;flex-direction:column;gap:6px;}
+.practice-list li{font-size:0.85rem;color:var(--soft);padding:8px 12px;background:var(--bg3);border-radius:3px;line-height:1.6;}
+.practice-list li::before{content:'→ ';color:var(--gold);font-family:'DM Mono',monospace;font-size:0.75rem;}
+.bring-back{background:var(--gold-dim);border:1px solid var(--border-gold);border-radius:3px;padding:12px 16px;margin-top:16px;}
+.bring-back-label{font-family:'DM Mono',monospace;font-size:0.5rem;letter-spacing:0.12em;text-transform:uppercase;color:var(--gold);margin-bottom:8px;}
+.bring-back p{font-size:0.82rem;color:var(--soft);line-height:1.7;}
+.progress-overview{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:32px;}
+.prog-card{background:var(--bg2);border:1px solid var(--border);border-radius:4px;padding:20px;text-align:center;}
+.prog-val{font-family:'Cormorant Garamond',serif;font-size:2.2rem;font-weight:500;color:var(--gold);}
+.prog-label{font-family:'DM Mono',monospace;font-size:0.5rem;letter-spacing:0.1em;text-transform:uppercase;color:var(--muted);margin-top:4px;}
+.prog-bar-wrap{margin-bottom:32px;}
+.prog-bar-label{display:flex;justify-content:space-between;font-family:'DM Mono',monospace;font-size:0.52rem;letter-spacing:0.08em;text-transform:uppercase;color:var(--muted);margin-bottom:8px;}
+.prog-bar{height:4px;background:var(--bg4);border-radius:2px;overflow:hidden;}
+.prog-bar-fill{height:100%;background:var(--gold);border-radius:2px;transition:width 0.4s ease;}
+.notes-area{width:100%;min-height:200px;background:var(--bg2);border:1px solid var(--border);border-radius:4px;padding:16px 20px;color:var(--text);font-family:'Cormorant Garamond',serif;font-size:1rem;line-height:1.8;resize:vertical;outline:none;transition:border-color 0.2s;}
+.notes-area:focus{border-color:var(--border-gold);}
+.notes-area::placeholder{color:var(--muted);font-style:italic;}
+.save-notes-btn{margin-top:10px;padding:7px 18px;background:var(--gold-dim);border:1px solid var(--border-gold);border-radius:3px;color:var(--gold);font-family:'DM Mono',monospace;font-size:0.55rem;letter-spacing:0.08em;text-transform:uppercase;cursor:pointer;transition:all 0.2s;}
+.save-notes-btn:hover{background:var(--gold);color:#000;}
+.nigeria-note{background:var(--bg3);border:1px solid var(--border);border-left:3px solid var(--gold);border-radius:3px;padding:12px 16px;margin-top:8px;font-size:0.8rem;color:var(--soft);line-height:1.7;}
+.nigeria-note-label{font-family:'DM Mono',monospace;font-size:0.48rem;letter-spacing:0.1em;text-transform:uppercase;color:var(--gold);margin-bottom:4px;}
+@media(max-width:640px){
+  header,.nav-strip,main{padding-left:20px;padding-right:20px;}
+  .method-grid{grid-template-columns:1fr;}
+  .progress-overview{grid-template-columns:1fr 1fr;}
+}
+</style>
+</head>
+<body>
+<header>
+  <div class="wordmark">Financial Literacy <span>/ Paul Bassey</span></div>
+  <div class="header-right">
+    <span class="progress-label" id="progress-label">0 of 10 started</span>
+    <button class="theme-btn" onclick="toggleTheme()"><span id="theme-icon">☀</span></button>
+  </div>
+</header>
+<nav class="nav-strip">
+  <button class="nav-btn active" onclick="switchTab('overview',this)">Overview</button>
+  <button class="nav-btn" onclick="switchTab('pillars',this)">The 10 Pillars</button>
+  <button class="nav-btn" onclick="switchTab('progress',this)">Progress & Notes</button>
+</nav>
+<main>
+
+<div class="tab-panel active" id="tab-overview">
+  <div style="margin-bottom:48px;">
+    <div class="section-eyebrow">The work</div>
+    <div class="section-title">Understanding money<br>well enough to build with it.</div>
+    <div class="section-body">You know money comes in and you stretch it. That is survival. This curriculum builds the layer above survival — the understanding of how money works, what it can do, and how to use it deliberately to build the life and institutions you are working toward. Start at the foundation. Do not skip ahead.</div>
+  </div>
+  <div class="gold-rule"></div>
+  <div class="section-eyebrow" style="margin-bottom:16px;">Three tiers</div>
+  <div class="tier-grid">
+    <div class="tier-card tier-found">
+      <div class="tier-label">Tier I — Foundation</div>
+      <div class="tier-name">How money actually works.</div>
+      <div class="tier-desc">Before strategy, before investment, before anything — you must understand the fundamentals. How money moves, what it costs to borrow it, what it earns when saved or invested, and what the Nigerian financial system looks like. These four pillars are non-negotiable foundations.</div>
+      <div class="tier-pillars">
+        <span class="tier-pill">Money Mindset</span>
+        <span class="tier-pill">Budgeting & Cash Flow</span>
+        <span class="tier-pill">Debt & Interest</span>
+        <span class="tier-pill">The Nigerian Financial System</span>
+      </div>
+    </div>
+    <div class="tier-card tier-dev">
+      <div class="tier-label">Tier II — Development</div>
+      <div class="tier-name">How money grows.</div>
+      <div class="tier-desc">Savings, investment, tax, and business finance. How to make money work while you work. How to read a financial statement. How to understand what a business is worth. These pillars are the bridge between surviving and building.</div>
+      <div class="tier-pillars">
+        <span class="tier-pill">Savings & Emergency Funds</span>
+        <span class="tier-pill">Investing Foundations</span>
+        <span class="tier-pill">Tax & Obligations</span>
+        <span class="tier-pill">Business Finance</span>
+      </div>
+    </div>
+    <div class="tier-card tier-integ">
+      <div class="tier-label">Tier III — Integration</div>
+      <div class="tier-name">How money serves vision.</div>
+      <div class="tier-desc">Wealth building and financial independence are not the end goal — they are the means by which you build, give, and lead freely. These two pillars connect your financial knowledge to the long vision of dAnTE Inc. and the life you are building.</div>
+      <div class="tier-pillars">
+        <span class="tier-pill">Wealth Building & Independence</span>
+        <span class="tier-pill">Money & the Mission</span>
+      </div>
+    </div>
+  </div>
+  <div class="gold-rule"></div>
+  <div class="section-eyebrow" style="margin-bottom:16px;">How this works</div>
+  <div class="method-grid">
+    <div class="method-card">
+      <div class="method-num">01</div>
+      <div class="method-title">30 minutes, early evening</div>
+      <div class="method-desc">6:30–7:00PM on your timetable. Immediately after the personal development block. One hour of curriculum total — personal development first, financial literacy second.</div>
+    </div>
+    <div class="method-card">
+      <div class="method-num">02</div>
+      <div class="method-title">Nigeria-specific layer</div>
+      <div class="method-desc">Most financial education is American or British. Where relevant, each pillar has a Nigeria-specific note — what the concept looks like in the Nigerian context. Don't import frameworks that don't apply.</div>
+    </div>
+    <div class="method-card">
+      <div class="method-num">03</div>
+      <div class="method-title">Apply to real numbers</div>
+      <div class="method-desc">Every pillar has a practice that touches your actual financial situation — not a hypothetical. The learning is only real when it changes a decision you make with real money.</div>
+    </div>
+    <div class="method-card">
+      <div class="method-num">04</div>
+      <div class="method-title">Bring it back</div>
+      <div class="method-desc">Each pillar ends with questions to bring back here. We talk through what you learned and how it applies to dAnTE Inc., trading, and your personal financial situation.</div>
+    </div>
+  </div>
+</div>
+
+<div class="tab-panel" id="tab-pillars">
+  <div class="section-eyebrow" style="margin-bottom:6px;">All 10 pillars</div>
+  <div style="font-size:0.85rem;color:var(--muted);margin-bottom:28px;">Click to expand. Mark as started when you begin.</div>
+  <div class="pillar-list" id="pillar-list"></div>
+</div>
+
+<div class="tab-panel" id="tab-progress">
+  <div class="section-eyebrow" style="margin-bottom:20px;">Where you are</div>
+  <div class="progress-overview">
+    <div class="prog-card"><div class="prog-val" id="prog-started">0</div><div class="prog-label">Started</div></div>
+    <div class="prog-card"><div class="prog-val" id="prog-remaining">10</div><div class="prog-label">Remaining</div></div>
+    <div class="prog-card"><div class="prog-val">30m</div><div class="prog-label">Daily target</div></div>
+  </div>
+  <div class="prog-bar-wrap">
+    <div class="prog-bar-label"><span>Overall progress</span><span id="prog-pct">0%</span></div>
+    <div class="prog-bar"><div class="prog-bar-fill" id="prog-fill" style="width:0%"></div></div>
+  </div>
+  <div class="section-eyebrow" style="margin-bottom:12px;">Running notes</div>
+  <div style="font-size:0.82rem;color:var(--muted);margin-bottom:10px;">What's shifting. What you're learning. What's confusing.</div>
+  <textarea class="notes-area" id="notes-area" placeholder="What is money teaching you so far..."></textarea>
+  <button class="save-notes-btn" onclick="saveNotes()">Save Notes</button>
+</div>
+
+</main>
+<script>
+const PILLARS = [
+  {
+    id:'fl1',num:'01',tier:'foundation',tierLabel:'Tier I — Foundation',
+    name:'Money Mindset',
+    why:'Before any concept or strategy, your relationship with money needs examining. What you believe about money — consciously and unconsciously — determines every financial decision you make. Most people are running a money story they inherited, not one they chose.',
+    nigeria:'Nigeria has a complex relationship with wealth — prosperity gospel on one end, "money is the root of all evil" on the other. Neither is the full picture. Understand where your money story came from before you try to rewrite it.',
+    resources:[
+      {icon:'📖',type:'Book',title:'Rich Dad Poor Dad',author:'Robert Kiyosaki',note:'The starting point for almost everyone. The core idea — assets vs liabilities, and the difference between working for money and money working for you — is foundational even if the specifics are simplified.'},
+      {icon:'📖',type:'Book',title:'The Psychology of Money',author:'Morgan Housel',note:'The best modern book on how emotions and behaviour drive financial outcomes more than intelligence or information. Read this before anything on investing.'},
+      {icon:'▶️',type:'Video',title:'Why You\'re Always Broke',author:'Andrei Jikh — YouTube',note:'Direct, clear, no jargon. A good entry point for understanding spending patterns and the psychology behind them. 15 minutes.'},
+      {icon:'🎙️',type:'Podcast',title:'Afford Anything',author:'Paula Pant',note:'Episode 1 and the "you can afford anything but not everything" philosophy. Reframes financial decision-making around values and trade-offs rather than restriction.'},
+    ],
+    practice:[
+      'Write your money story — what did your family believe about money when you were growing up? What do you believe now?',
+      'List your last 10 financial decisions. Which ones came from fear? Which from strategy?',
+      'What does financial freedom actually mean to you — in concrete terms, not feelings?',
+    ],
+    bringBack:'What money beliefs have you been carrying that aren\'t serving you? Where does fear drive your financial decisions versus strategy? What would a healthy relationship with money look like for you specifically?',
+  },
+  {
+    id:'fl2',num:'02',tier:'foundation',tierLabel:'Tier I — Foundation',
+    name:'Budgeting & Cash Flow',
+    why:'A budget is not a restriction — it is a plan for your money. Cash flow is the difference between money coming in and money going out. Most people don\'t know their numbers. You said you stretch money as far as it goes — that\'s resourcefulness, but it\'s not a system. This pillar builds the system.',
+    nigeria:'Nigeria\'s informal economy means a lot of income may be irregular — contracts, cash payments, variable work. A budget here is not a fixed monthly salary exercise — it needs to account for variable income and plan for the gaps.',
+    resources:[
+      {icon:'💻',type:'Course',title:'Personal Finance Basics',author:'Khan Academy — free',note:'Start here. Khan Academy\'s personal finance section covers budgeting, interest, taxes, and investing from absolute zero. Work through it sequentially.'},
+      {icon:'📖',type:'Book',title:'I Will Teach You to Be Rich',author:'Ramit Sethi',note:'Practical, not preachy. The six-week programme builds a real financial system. Ignore the American-specific products — apply the principles.'},
+      {icon:'▶️',type:'Video',title:'Zero-Based Budgeting Explained',author:'YNAB — YouTube',note:'Zero-based budgeting: every naira gets a job. Nothing sits unallocated. 10-minute video. Apply it to your next month\'s income before moving on.'},
+      {icon:'⚙️',type:'Framework',title:'The 50/30/20 Rule',author:'Elizabeth Warren',note:'50% needs, 30% wants, 20% savings and debt repayment. A starting framework — not a permanent one, but a place to see where your money is currently going versus where it should go.'},
+      {icon:'⚙️',type:'Tool',title:'dAnTE Inc. Finances Dashboard',author:'Built for you',note:'Your existing finances dashboard. This is where you start applying what you learn — income, accounts, flow map. Update it as this pillar progresses.'},
+    ],
+    practice:[
+      'Write down every naira that came in and went out last month. Every single one. This is your baseline.',
+      'Categorise your spending: needs, wants, savings, debt. What are the percentages?',
+      'Build a zero-based budget for next month — before the month starts, not after.',
+    ],
+    bringBack:'What did your actual spending last month reveal that surprised you? Where is money going that you didn\'t consciously choose? What would a healthy cash flow look like for your current income level?',
+  },
+  {
+    id:'fl3',num:'03',tier:'foundation',tierLabel:'Tier I — Foundation',
+    name:'Debt & Interest',
+    why:'You have an active debt repayment plan. Understanding exactly how debt works — what interest costs you, how compounding works against you when you borrow and for you when you save — is essential. Most people only see the monthly payment, not the full cost.',
+    nigeria:'Interest rates in Nigeria are significantly higher than in Western economies. CBN monetary policy rates, commercial bank lending rates, and the informal loan market all operate differently. Understanding this protects you from expensive mistakes.',
+    resources:[
+      {icon:'💻',type:'Course',title:'Interest and Debt — Khan Academy',author:'Khan Academy — free',note:'The module on interest, compound interest, and debt. Work through every exercise, not just the videos. The maths is the point.'},
+      {icon:'📖',type:'Book',title:'The Total Money Makeover',author:'Dave Ramsey',note:'The debt snowball method — pay off smallest debts first for psychological momentum. Not optimal mathematically but very effective behaviourally. Useful for where you are now.'},
+      {icon:'▶️',type:'Video',title:'Compound Interest Explained',author:'Khan Academy or Investopedia — YouTube',note:'Watch two different explanations of compound interest. Understand it from both directions — as the enemy when you\'re in debt, and the ally when you\'re investing.'},
+      {icon:'⚙️',type:'Framework',title:'Debt Avalanche vs Debt Snowball',author:'Standard financial planning',note:'Avalanche: pay highest interest rate first (mathematically optimal). Snowball: pay smallest balance first (psychologically effective). Know both. Choose deliberately.'},
+    ],
+    practice:[
+      'List every debt you have: amount owed, interest rate, monthly payment, total cost if paid minimum only.',
+      'Calculate how much your current debt will cost you in total interest if you only pay the minimum.',
+      'Identify one debt to attack aggressively this month — even if small. Apply the first extra payment.',
+    ],
+    bringBack:'What is the full cost of your current debt — not the balance, the total cost including interest? What would being completely debt-free change about your financial capacity? What is your current repayment strategy and is it the right one?',
+  },
+  {
+    id:'fl4',num:'04',tier:'foundation',tierLabel:'Tier I — Foundation',
+    name:'The Nigerian Financial System',
+    why:'Most financial education is designed for American or British contexts. The Nigerian financial landscape — CBN policy, the naira, inflation, regulated and unregulated investment products, pension systems, the informal economy — is different enough that imported frameworks need translation. You need to understand the system you are actually operating in.',
+    nigeria:'This pillar is entirely Nigeria-specific. Everything here is about the actual financial environment you live and work in.',
+    resources:[
+      {icon:'▶️',type:'Video Channel',title:'Strive — Nigerian Personal Finance',author:'YouTube',note:'One of the best Nigerian personal finance channels. Plain language, Nigeria-specific content. Watch the budgeting, investing, and savings playlists in order.'},
+      {icon:'🌐',type:'Website',title:'CBN Consumer Protection — cbn.gov.ng',author:'Central Bank of Nigeria',note:'Understand what the CBN does, what it protects, and what the current monetary policy rate means for your savings and borrowing. Not exciting reading — necessary reading.'},
+      {icon:'🎙️',type:'Podcast',title:'Investogist Podcast',author:'Nigerian finance podcast',note:'Nigerian investment landscape, market updates, and personal finance in context. Listen to recent episodes on inflation, dollar exposure, and investment products.'},
+      {icon:'📖',type:'Book / Resource',title:'Understanding the Nigerian Capital Market',author:'Securities and Exchange Commission Nigeria',note:'SEC Nigeria publishes investor education materials. Download and read the investor protection guide. Know what is regulated and what is not before you put money anywhere.'},
+      {icon:'⚙️',type:'Framework',title:'Nigeria Inflation Context',author:'NBS data',note:'Nigeria\'s inflation rate means naira saved without growth is naira losing value. Understand the real return on any financial product — not just the stated rate but the rate minus inflation.'},
+    ],
+    practice:[
+      'Look up the current CBN monetary policy rate and the current inflation rate. What is the gap and what does it mean?',
+      'List every financial institution or product you currently use or have used. Is each one regulated by CBN, SEC, or NAICOM?',
+      'What does dollar exposure mean and why does it matter in Nigeria? Research and bring your answer back.',
+    ],
+    bringBack:'What did you not know about the Nigerian financial system that you now do? What financial products have you been exposed to that you didn\'t fully understand? What does the inflation rate mean for how you store money?',
+  },
+  {
+    id:'fl5',num:'05',tier:'development',tierLabel:'Tier II — Development',
+    name:'Savings & Emergency Funds',
+    why:'Savings is not what is left over after spending. Savings is what you pay yourself first. An emergency fund is not optional — it is the difference between a setback and a catastrophe. Before any investment, before any strategy, this must exist.',
+    nigeria:'High inflation means savings accounts in naira lose real value quickly. The question of where to keep savings in Nigeria — dollar accounts, money market funds, treasury bills — is more complex than in stable currency environments.',
+    resources:[
+      {icon:'📖',type:'Book',title:'The Automatic Millionaire',author:'David Bach',note:'The pay yourself first principle. Automate savings before you can spend it. The concept translates to any income level — including irregular contract income.'},
+      {icon:'▶️',type:'Video',title:'Where to Keep Your Emergency Fund in Nigeria',author:'Strive — YouTube',note:'Specific to the Nigerian context. What options exist, what rates are available, what the trade-offs are. Watch before deciding where to put savings.'},
+      {icon:'🎙️',type:'Podcast',title:'Nigerian money market funds explained',author:'Investogist or Strive podcast',note:'Search for the episode on money market funds specifically. This is likely the most practical short-term savings vehicle in Nigeria right now.'},
+      {icon:'⚙️',type:'Framework',title:'The 3-6 Month Emergency Fund Rule',author:'Standard financial planning',note:'Target: three to six months of living expenses in liquid savings before investing anything. Calculate your number. It\'s probably smaller than you think and more achievable than it feels.'},
+    ],
+    practice:[
+      'Calculate your monthly living expenses — everything required to survive for one month. This is your emergency fund unit.',
+      'Multiply by three. That is your minimum target. Where are you relative to that number right now?',
+      'Research two Nigerian money market funds. Compare rates, minimums, and liquidity. Bring the comparison back.',
+    ],
+    bringBack:'What is your emergency fund target in naira? What is the gap between where you are and that number? What is the most practical place to build it in the Nigerian context and why?',
+  },
+  {
+    id:'fl6',num:'06',tier:'development',tierLabel:'Tier II — Development',
+    name:'Investing Foundations',
+    why:'You don\'t understand stocks, bonds, ROI, or interest. This pillar builds that foundation from absolute zero — what these instruments are, how they work, what risk and return mean, and how to think about investing before you put a single naira into anything.',
+    nigeria:'The Nigerian Stock Exchange (NGX), treasury bills, government bonds, Eurobonds, dollar-denominated instruments, real estate — all of these are available in Nigeria. Understanding the basics lets you evaluate these options rather than just trust whoever is selling them.',
+    resources:[
+      {icon:'💻',type:'Course',title:'Investing — Khan Academy',author:'Khan Academy — free',note:'Work through the entire investing module. Stocks, bonds, mutual funds, ETFs, risk and return. This is the conceptual foundation. Do every exercise.'},
+      {icon:'📖',type:'Book',title:'The Little Book of Common Sense Investing',author:'John Bogle',note:'The founder of Vanguard. The argument for index investing over stock picking. Even if you never index invest, understanding why this argument is strong makes you a better investor.'},
+      {icon:'▶️',type:'Video',title:'How the Stock Market Works',author:'Zeducation or Investopedia — YouTube',note:'Watch two explainer videos on how stocks actually work — what you own when you buy a share, how price is determined, what dividends are. Basics first.'},
+      {icon:'▶️',type:'Video',title:'Nigerian Stock Exchange for Beginners',author:'Strive — YouTube',note:'The NGX specifically — how to open a CSCS account, how Nigerian stocks are traded, what the indices mean. Local context essential.'},
+      {icon:'🎙️',type:'Podcast',title:'We Study Billionaires',author:'The Investor\'s Podcast Network',note:'Long-form investing education through the lens of how the world\'s best investors think. Start with the Warren Buffett episodes. Foundational thinking, not tips.'},
+    ],
+    practice:[
+      'Define in your own words: stock, bond, mutual fund, ETF, dividend, ROI, risk premium. Write the definitions without looking them up after you\'ve studied them.',
+      'Look up the NGX All Share Index performance over the last five years. What does that tell you?',
+      'Research one Nigerian investment platform (Bamboo, Trove, Risevest, Cowrywise). Understand what it offers and how it works before deciding anything.',
+    ],
+    bringBack:'What is the difference between a stock and a bond — and which is more appropriate for your current financial situation and why? What does ROI actually mean and how do you calculate it? What has your trading experience on Deriv taught you that applies to investment thinking?',
+  },
+  {
+    id:'fl7',num:'07',tier:'development',tierLabel:'Tier II — Development',
+    name:'Tax & Financial Obligations',
+    why:'You cannot build a company or manage wealth without understanding your tax obligations. In Nigeria this includes personal income tax, company income tax, VAT, and the obligations that come with being registered as a business. Ignorance here is expensive.',
+    nigeria:'FIRS (Federal Inland Revenue Service) and state tax authorities. PAYE for employment income. Company income tax for Dante Craft. Value Added Tax. Withholding tax. These are real obligations with real consequences. Understanding them protects you and the company.',
+    resources:[
+      {icon:'🌐',type:'Website',title:'FIRS Taxpayer Education',author:'firs.gov.ng',note:'The Federal Inland Revenue Service publishes guides for individuals and businesses. Start with the individual income tax guide and the SME tax guide.'},
+      {icon:'▶️',type:'Video',title:'How Taxes Work in Nigeria',author:'Strive or Legalpedia — YouTube',note:'Search for recent videos (2024-2025) on Nigerian tax obligations for individuals and small businesses. Regulations change — recency matters here.'},
+      {icon:'📖',type:'Book / Resource',title:'Nigerian Tax Law and Practice',author:'CITN publications',note:'The Chartered Institute of Taxation of Nigeria publishes accessible guides. Not a law textbook — practical guidance for compliance.'},
+      {icon:'⚙️',type:'Framework',title:'Tax Calendar',author:'FIRS schedule',note:'Know when your obligations fall due. Missing tax deadlines has penalties. Build the tax calendar into your planning before Dante Craft starts generating significant revenue.'},
+    ],
+    practice:[
+      'Find out what tax obligations Dante Craft (as a registered company) currently has — even if income is minimal.',
+      'What is your personal income tax rate on your CGSL contract income? Calculate what you owe or have paid.',
+      'What is VAT, when does it apply, and at what rate in Nigeria currently? Research and bring back the answer.',
+    ],
+    bringBack:'What are your current tax obligations — personal and business? What would it cost you if you ignored them? What do you need to set up before Dante Craft starts generating serious revenue to ensure compliance from the start?',
+  },
+  {
+    id:'fl8',num:'08',tier:'development',tierLabel:'Tier II — Development',
+    name:'Business Finance',
+    why:'dAnTE Inc. is a conglomerate vision. Dante Craft is already registered. Understanding business finance — how to read a P&L, what a balance sheet shows, what cash flow means for a business versus personal cash flow, what profit margin is — is not optional for a founder. You need to speak this language.',
+    nigeria:'Nigerian business finance has specific considerations — dollar exposure, FX risk for any business dealing in foreign currency, the informal economy, and the gap between registered and actual financial activity that affects many SMEs.',
+    resources:[
+      {icon:'💻',type:'Course',title:'Financial Accounting Foundations',author:'Coursera / University of Illinois — free audit',note:'The most accessible introduction to reading financial statements. Four weeks. Audit for free. Work through every exercise — this is not passive watching.'},
+      {icon:'📖',type:'Book',title:'Financial Intelligence for Entrepreneurs',author:'Karen Berman & Joe Knight',note:'Written specifically for founders who are not accountants. How to read a P&L, balance sheet, and cash flow statement. Practical and jargon-light.'},
+      {icon:'▶️',type:'Video',title:'How to Read a Balance Sheet',author:'HBR or Accounting Stuff — YouTube',note:'Watch two videos from different sources. The balance sheet, income statement, and cash flow statement are the three financial documents every founder must be able to read.'},
+      {icon:'🎙️',type:'Podcast',title:'How I Built This',author:'Guy Raz — NPR',note:'Return to this one at this pillar. Now listen specifically for how founders talk about the financial turning points — when they ran out of cash, how they managed runway, what made them profitable.'},
+      {icon:'⚙️',type:'Framework',title:'Dante Craft P&L Template',author:'To be built',note:'Once this pillar is complete we build a simple P&L template for Dante Craft. Even with minimal current revenue, the structure should exist from the start.'},
+    ],
+    practice:[
+      'Draw a simple P&L (Profit and Loss) for Dante Craft — even if the numbers are mostly zero. Revenue, costs, gross profit, net profit. The structure first.',
+      'What is gross margin? What is net margin? Calculate both for a hypothetical Dante Craft project.',
+      'What does "cash flow positive" mean and why can a profitable business still run out of money? Explain it back to me.',
+    ],
+    bringBack:'What financial document do you find hardest to read — P&L, balance sheet, or cash flow statement? What does Dante Craft\'s financial picture look like right now — even at its earliest stage? What do you need to understand financially before taking on a significant client?',
+  },
+  {
+    id:'fl9',num:'09',tier:'integration',tierLabel:'Tier III — Integration',
+    name:'Wealth Building & Financial Independence',
+    why:'Wealth is not income. Wealth is what accumulates when income exceeds expenditure and the excess is deployed intelligently over time. Financial independence — the point at which you do not need to trade time for money to sustain your life — is the goal behind the goal. This pillar integrates everything above it into a long-term plan.',
+    nigeria:'The path to financial independence in Nigeria is different from Western models — inflation, currency devaluation, and limited access to certain instruments require a deliberately diversified approach. Dollar exposure, real assets, and multiple income streams are more important here than in stable economies.',
+    resources:[
+      {icon:'📖',type:'Book',title:'The Millionaire Next Door',author:'Thomas Stanley & William Danko',note:'Research-based. What wealthy people actually do versus what we assume they do. The finding that most millionaires live below their means is more useful than any investment tip.'},
+      {icon:'📖',type:'Book',title:'Die With Zero',author:'Bill Perkins',note:'The counterargument to pure accumulation — on timing the use of wealth, not just the building of it. Important for someone who believes in a full, inhabited present life alongside a long horizon.'},
+      {icon:'▶️',type:'Video',title:'Financial Independence Explained',author:'Graham Stephan or Andrei Jikh — YouTube',note:'The FIRE movement concepts applied. Calculate your financial independence number: annual expenses × 25. That is your target portfolio. Know your number.'},
+      {icon:'🎙️',type:'Podcast',title:'ChooseFI',author:'Brad Barrett & Jonathan Mendonsa',note:'The most comprehensive podcast on financial independence. Start with episode 1. Apply the concepts to the Nigerian context with the adjustments this pillar teaches.'},
+      {icon:'⚙️',type:'Framework',title:'The dAnTE Inc. Financial Independence Plan',author:'To be built with Claude',note:'Once this pillar is complete we build a 10-year financial independence roadmap for Paul Bassey — income streams, investment targets, the number, and the timeline.'},
+    ],
+    practice:[
+      'Calculate your financial independence number: your desired annual expenses × 25. Write it down. That is the target.',
+      'List every potential income stream available to you in the next five years — engineering, trading, Dante Craft, dAnTE Inc., passive. What is realistic?',
+      'What does diversification mean in the Nigerian context — across currencies, asset classes, and income types?',
+    ],
+    bringBack:'What is your financial independence number? What is the most realistic path to it given your current situation and the 20-year horizon? What does the intersection of dAnTE Inc.\'s growth and your personal financial independence look like?',
+  },
+  {
+    id:'fl10',num:'10',tier:'integration',tierLabel:'Tier III — Integration',
+    name:'Money & the Mission',
+    why:'This is the pillar where financial literacy meets everything else you are building. Money is a tool. The question is always: tool for what? For you it is the freedom to build, the freedom to give, and the freedom to lead without financial anxiety constraining every decision. This pillar connects the numbers to the vision.',
+    nigeria:'Generosity in the Nigerian context has specific cultural dimensions — family obligations, community expectations, the balance between personal financial discipline and the social expectation to give. This tension needs a deliberate framework, not just goodwill.',
+    resources:[
+      {icon:'📖',type:'Book',title:'Thou Shall Prosper',author:'Rabbi Daniel Lapin',note:'A theological and philosophical case for wealth creation as moral good. Not prosperity gospel — a serious argument for why building wealth and serving others are not in conflict.'},
+      {icon:'📖',type:'Book',title:'The Generosity Factor',author:'Ken Blanchard & S. Truett Cathy',note:'On giving as a practice and a discipline — not just when you feel like it or when there is excess. The posture of generosity as foundational to wealth, not consequential to it.'},
+      {icon:'▶️',type:'Video',title:'Warren Buffett & Bill Gates on Wealth and Giving',author:'Various — YouTube',note:'Search for their conversations on the Giving Pledge and on the responsibility of wealth. Not prescriptive — foundational thinking about what money is ultimately for.'},
+      {icon:'🎙️',type:'Podcast',title:'The Generosity Giving Podcast',author:'Various',note:'Stories of people who have built wealth and given it deliberately. Listen for the frameworks and the posture, not just the inspiration.'},
+      {icon:'⚙️',type:'Framework',title:'The Giving Budget',author:'Your own design',note:'Even now, at this level of income: what percentage of what comes in goes out as generosity? Define it. Even if it\'s 1% it builds the habit and the posture. Increase it as capacity grows.'},
+    ],
+    practice:[
+      'Write a paragraph on what money is for — in your life, given your values and your vision. Not what it should be for theoretically. What it is for, for you.',
+      'What is your current giving practice — financial or otherwise? Is it deliberate or reactive?',
+      'What would dAnTE Inc.\'s financial responsibility to the communities it operates in look like? Draft the principle even before the revenue exists.',
+    ],
+    bringBack:'What does it mean to you that autonomy includes the freedom to give generously? What financial capacity would make you feel free to give the way you want to? What is the relationship between building wealth and building the educational institution — what does one require of the other?',
+  },
+];
+
+const TIER_COLORS={foundation:'var(--found)',development:'var(--dev)',integration:'var(--integ)'};
+let started=JSON.parse(localStorage.getItem('fl-started')||'[]');
+const TOTAL=10;
+
+function toggleTheme(){
+  const dark=document.documentElement.getAttribute('data-theme')==='dark';
+  document.documentElement.setAttribute('data-theme',dark?'light':'dark');
+  document.getElementById('theme-icon').textContent=dark?'☾':'☀';
+  localStorage.setItem('fl-theme',dark?'light':'dark');
+}
+function switchTab(name,btn){
+  document.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
+  document.getElementById('tab-'+name).classList.add('active');
+  btn.classList.add('active');
+  if(name==='progress')updateProgress();
+}
+function togglePillar(el){el.classList.toggle('open');}
+function toggleStarted(id,dot){
+  const idx=started.indexOf(id);
+  if(idx>-1){started.splice(idx,1);}else{started.push(id);}
+  localStorage.setItem('fl-started',JSON.stringify(started));
+  dot.classList.toggle('active',started.includes(id));
+  updateProgressLabel();updateProgress();
+}
+function updateProgressLabel(){document.getElementById('progress-label').textContent=started.length+' of '+TOTAL+' started';}
+function updateProgress(){
+  const s=started.length;
+  document.getElementById('prog-started').textContent=s;
+  document.getElementById('prog-remaining').textContent=TOTAL-s;
+  const pct=Math.round((s/TOTAL)*100);
+  document.getElementById('prog-pct').textContent=pct+'%';
+  document.getElementById('prog-fill').style.width=pct+'%';
+}
+function saveNotes(){
+  localStorage.setItem('fl-notes',document.getElementById('notes-area').value);
+  const btn=document.querySelector('.save-notes-btn');
+  btn.textContent='Saved.';setTimeout(()=>btn.textContent='Save Notes',2000);
+}
+function buildPillars(){
+  const list=document.getElementById('pillar-list');
+  PILLARS.forEach(p=>{
+    const isStarted=started.includes(p.id);
+    const tc=TIER_COLORS[p.tier];
+    const el=document.createElement('div');
+    el.className='pillar-item';
+    el.innerHTML=`
+      <div class="pillar-header" onclick="togglePillar(this.closest('.pillar-item'))">
+        <div class="pillar-num">${p.num}</div>
+        <div class="pillar-meta">
+          <div class="pillar-name">${p.name}</div>
+          <div class="pillar-tier-tag" style="color:${tc};">${p.tierLabel}</div>
+        </div>
+        <div class="pillar-status">
+          <div class="status-dot${isStarted?' active':''}" title="Mark as started" onclick="event.stopPropagation();toggleStarted('${p.id}',this)"></div>
+          <span class="pillar-toggle">▾</span>
+        </div>
+      </div>
+      <div class="pillar-body">
+        <div class="pillar-why">${p.why}</div>
+        ${p.nigeria?`<div class="nigeria-note"><div class="nigeria-note-label">Nigeria Context</div>${p.nigeria}</div>`:''}
+        <div class="resource-section" style="margin-top:16px;">
+          <div class="resource-label">Resources</div>
+          ${p.resources.map(r=>`
+            <div class="resource-item">
+              <div class="resource-icon">${r.icon}</div>
+              <div class="resource-info">
+                <div class="resource-type">${r.type}</div>
+                <div class="resource-title">${r.title}</div>
+                <div class="resource-author">${r.author}</div>
+                <div class="resource-note">${r.note}</div>
+              </div>
+            </div>`).join('')}
+        </div>
+        <div class="resource-section">
+          <div class="resource-label">Practice</div>
+          <ul class="practice-list">${p.practice.map(pr=>`<li>${pr}</li>`).join('')}</ul>
+        </div>
+        <div class="bring-back">
+          <div class="bring-back-label">Bring back to Claude</div>
+          <p>${p.bringBack}</p>
+        </div>
+      </div>`;
+    list.appendChild(el);
+  });
+}
+function init(){
+  const theme=localStorage.getItem('fl-theme')||'dark';
+  document.documentElement.setAttribute('data-theme',theme);
+  document.getElementById('theme-icon').textContent=theme==='dark'?'☀':'☾';
+  document.getElementById('notes-area').value=localStorage.getItem('fl-notes')||'';
+  buildPillars();updateProgressLabel();updateProgress();
+}
+init();
+</script>
+</body>
+</html>

@@ -1,0 +1,480 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Trading Strategy — Paul Bassey</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#09090c;--surface:#111116;--surface2:#18181e;
+  --border:rgba(255,255,255,0.07);--border-acc:rgba(100,180,140,0.28);
+  --acc:#64b48c;--acc-dim:#3a7a58;--acc-bright:#88d4a8;
+  --gold:#c4a470;--gold-dim:#7a6440;
+  --red:#e07a7a;--blue:#7aa8d8;--purple:#a07ac8;
+  --text:#e0dbd4;--text-mid:#8a8480;--text-dim:#4a4845;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{background:var(--bg);color:var(--text);font-family:'DM Mono',monospace;font-size:13px;line-height:1.7;min-height:100vh;}
+body.light{--bg:#f5f2ec;--surface:#edeae2;--surface2:#e4e0d6;--border:rgba(0,0,0,0.08);--border-acc:rgba(40,120,80,0.2);--text:#1a1916;--text-mid:#6b6860;--text-dim:#b0aca4;--acc:#2a7a58;--acc-dim:#3a9a70;}
+
+/* HEADER */
+.header{padding:48px 44px 36px;border-bottom:1px solid var(--border);position:relative;overflow:hidden;}
+.header::before{content:'';position:absolute;top:-80px;right:-80px;width:400px;height:400px;border-radius:50%;background:radial-gradient(circle,rgba(100,180,140,0.05) 0%,transparent 70%);pointer-events:none;}
+.h-eye{font-size:9px;letter-spacing:0.35em;text-transform:uppercase;color:var(--acc-dim);margin-bottom:12px;}
+.h-title{font-family:'Cormorant Garamond',serif;font-size:clamp(32px,5vw,52px);font-weight:300;line-height:1.1;margin-bottom:8px;}
+.h-title em{font-style:italic;color:var(--acc);}
+.h-sub{font-size:10px;color:var(--text-mid);letter-spacing:0.14em;}
+.h-meta{display:flex;gap:20px;flex-wrap:wrap;margin-top:20px;}
+.hm-item{font-size:10px;color:var(--text-dim);}
+.hm-item strong{color:var(--acc);}
+.h-controls{position:absolute;top:48px;right:44px;display:flex;gap:8px;}
+.ctrl{background:var(--surface2);border:1px solid var(--border);color:var(--text-mid);padding:6px 14px;cursor:pointer;font-family:'DM Mono',monospace;font-size:9px;letter-spacing:0.1em;transition:all 0.2s;}
+.ctrl:hover{border-color:var(--border-acc);color:var(--acc);}
+
+/* BODY */
+.body{max-width:880px;margin:0 auto;padding:44px 44px 100px;}
+
+/* INTRO */
+.intro-block{background:var(--surface);border:1px solid var(--border-acc);border-radius:3px;padding:20px 24px;margin-bottom:36px;}
+.ib-label{font-size:9px;letter-spacing:0.28em;text-transform:uppercase;color:var(--acc-dim);margin-bottom:10px;}
+.ib-text{font-family:'Cormorant Garamond',serif;font-style:italic;font-size:15px;color:var(--text-mid);line-height:1.8;}
+.ib-text strong{font-style:normal;color:var(--text);}
+
+/* SECTIONS */
+.section{margin-bottom:44px;}
+.sec-head{display:flex;align-items:center;gap:14px;margin-bottom:20px;padding-bottom:10px;border-bottom:1px solid var(--border);}
+.sec-line{width:28px;height:1px;background:var(--acc);}
+.sec-title{font-size:9px;letter-spacing:0.3em;text-transform:uppercase;color:var(--acc-dim);}
+
+/* FIELD ROWS */
+.field-grid{display:flex;flex-direction:column;gap:8px;}
+.field-row{background:var(--surface);border:1px solid var(--border);border-radius:2px;overflow:hidden;transition:border-color 0.2s;}
+.field-row:hover{border-color:var(--border-acc);}
+.field-row.filled{border-color:rgba(100,180,140,0.2);}
+.fr-label{font-size:8px;letter-spacing:0.22em;text-transform:uppercase;color:var(--text-dim);padding:10px 16px 6px;border-bottom:1px solid var(--border);}
+.fr-input{background:transparent;border:none;width:100%;color:var(--text);font-family:'Cormorant Garamond',serif;font-style:italic;font-size:15px;padding:10px 16px 12px;outline:none;resize:none;line-height:1.6;min-height:44px;}
+.fr-input::placeholder{color:rgba(100,180,140,0.18);}
+.fr-input:focus{background:rgba(100,180,140,0.02);}
+
+/* RULES LIST */
+.rules-list{display:flex;flex-direction:column;gap:7px;}
+.rule-item{display:flex;gap:14px;padding:13px 16px;background:var(--surface);border:1px solid var(--border);border-radius:2px;position:relative;}
+.rule-item.locked{border-left:2px solid var(--acc);}
+.rule-item.warn{border-left:2px solid var(--red);}
+.ri-num{font-size:9px;color:var(--acc-dim);width:22px;flex-shrink:0;padding-top:2px;}
+.ri-label{font-size:10px;color:var(--text);font-weight:500;margin-bottom:4px;}
+.ri-input{background:transparent;border:none;width:100%;color:var(--text-mid);font-family:'Cormorant Garamond',serif;font-style:italic;font-size:14px;outline:none;resize:none;line-height:1.6;min-height:32px;}
+.ri-input::placeholder{color:rgba(100,180,140,0.14);}
+.ri-content{flex:1;}
+
+/* CHECKLIST */
+.checklist{display:flex;flex-direction:column;gap:6px;}
+.check-item{display:flex;align-items:flex-start;gap:12px;padding:12px 16px;background:var(--surface);border:1px solid var(--border);border-radius:2px;cursor:pointer;user-select:none;transition:all 0.18s;}
+.check-item:hover{border-color:var(--border-acc);}
+.check-item.checked{background:rgba(100,180,140,0.04);border-color:rgba(100,180,140,0.22);}
+.ci-box{width:14px;height:14px;border:1px solid rgba(100,180,140,0.35);border-radius:2px;flex-shrink:0;margin-top:1px;display:flex;align-items:center;justify-content:center;font-size:9px;transition:all 0.18s;}
+.check-item.checked .ci-box{background:var(--acc);border-color:var(--acc);color:var(--bg);}
+.ci-text{font-size:11px;color:var(--text-mid);line-height:1.6;flex:1;}
+.check-item.checked .ci-text{color:var(--acc-dim);}
+
+/* TRADE LOG */
+.log-table{border:1px solid var(--border);border-radius:3px;overflow:hidden;margin-bottom:16px;}
+.lt-head{display:grid;grid-template-columns:80px 80px 70px 70px 70px 70px 1fr;background:var(--surface2);border-bottom:1px solid var(--border);}
+.lt-row{display:grid;grid-template-columns:80px 80px 70px 70px 70px 70px 1fr;border-bottom:1px solid var(--border);}
+.lt-row:last-child{border-bottom:none;}
+.lt-cell{padding:10px 10px;font-size:9px;border-right:1px solid var(--border);}
+.lt-cell:last-child{border-right:none;}
+.lt-head .lt-cell{letter-spacing:0.15em;text-transform:uppercase;color:var(--text-dim);}
+.lt-input{background:transparent;border:none;width:100%;color:var(--text-mid);font-family:'DM Mono',monospace;font-size:10px;outline:none;padding:0;}
+.lt-input::placeholder{color:rgba(100,180,140,0.12);}
+
+/* STATS */
+.stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:24px;}
+.stat-card{background:var(--surface);border:1px solid var(--border);border-radius:2px;padding:14px 16px;text-align:center;}
+.sc-label{font-size:8px;letter-spacing:0.18em;text-transform:uppercase;color:var(--text-dim);margin-bottom:5px;}
+.sc-val{font-family:'Cormorant Garamond',serif;font-size:28px;color:var(--acc);line-height:1;}
+.sc-sub{font-size:9px;color:var(--text-dim);margin-top:3px;}
+
+/* REVIEW BLOCKS */
+.review-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.rv-card{background:var(--surface);border:1px solid var(--border);border-radius:2px;overflow:hidden;}
+.rv-head{padding:10px 16px;border-bottom:1px solid var(--border);font-size:8px;letter-spacing:0.22em;text-transform:uppercase;color:var(--text-dim);}
+.rv-body{padding:0;}
+.rv-input{background:transparent;border:none;width:100%;color:var(--text-mid);font-family:'Cormorant Garamond',serif;font-style:italic;font-size:14px;padding:12px 16px;outline:none;resize:none;line-height:1.65;min-height:80px;}
+.rv-input::placeholder{color:rgba(100,180,140,0.12);}
+
+/* SAVE BAR */
+.save-bar{position:fixed;bottom:0;left:0;right:0;background:rgba(9,9,12,0.97);backdrop-filter:blur(12px);border-top:1px solid var(--border);padding:10px 44px;display:flex;align-items:center;justify-content:space-between;z-index:100;}
+body.light .save-bar{background:rgba(245,242,236,0.97);}
+.sb-info{font-size:9px;color:var(--text-dim);display:flex;gap:20px;align-items:center;}
+.sb-info span{color:var(--acc);}
+.sb-btns{display:flex;gap:8px;}
+.sb-btn{background:transparent;border:1px solid var(--border);color:var(--text-dim);font-family:'DM Mono',monospace;font-size:9px;letter-spacing:0.12em;padding:6px 14px;cursor:pointer;transition:all 0.2s;}
+.sb-btn:hover{border-color:var(--border-acc);color:var(--acc);}
+.sb-btn.primary{border-color:var(--border-acc);color:var(--acc);}
+
+.note{font-size:10px;color:var(--text-dim);font-style:italic;padding:8px 0;}
+
+@media(max-width:600px){
+  .header{padding:32px 20px 24px;}.h-controls{display:none;}
+  .body{padding:24px 20px 80px;}
+  .stats-row{grid-template-columns:1fr 1fr;}
+  .review-grid{grid-template-columns:1fr;}
+  .lt-head,.lt-row{grid-template-columns:70px 60px 60px 1fr;}
+  .lt-cell:nth-child(5),.lt-cell:nth-child(6),.lt-cell:nth-child(7){display:none;}
+}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="h-eye">Trading — Strategy Document</div>
+  <div class="h-title">V75(1s) <em>Strategy</em></div>
+  <div class="h-sub">Paul Bassey · Deriv · SMC / ICT / Price Action</div>
+  <div class="h-meta">
+    <div class="hm-item">Platform: <strong>Deriv</strong></div>
+    <div class="hm-item">Instrument: <strong>Volatility 75 (1s) Index</strong></div>
+    <div class="hm-item">Methodology: <strong>SMC / ICT / Price Action</strong></div>
+    <div class="hm-item">RR Target: <strong>1:5 minimum</strong></div>
+    <div class="hm-item">Win Rate Target: <strong>≥ 70%</strong></div>
+  </div>
+  <div class="h-controls">
+    <button class="ctrl" onclick="document.body.classList.toggle('light')">☀ / ☾</button>
+    <button class="ctrl" onclick="saveAll()">Save</button>
+  </div>
+</div>
+
+<div class="body">
+
+  <div class="intro-block">
+    <div class="ib-label">How to use this document</div>
+    <div class="ib-text">This is a transcription task, not a research task. <strong>You already know your strategy.</strong> Fill in each section honestly from what you already do and believe about the market. Write in your own language. The purpose is to make the implicit explicit — so that execution discipline has a written standard to be held against. Complete it once. Then use it daily as a reference before every session.</div>
+  </div>
+
+  <!-- MARKET UNDERSTANDING -->
+  <div class="section">
+    <div class="sec-head"><div class="sec-line"></div><div class="sec-title">I — Market Understanding</div></div>
+    <div class="field-grid">
+      <div class="field-row">
+        <div class="fr-label">What is the V75(1s) and how does it behave?</div>
+        <textarea class="fr-input" rows="3" placeholder="Describe the instrument in your own words — volatility, session behaviour, tendencies you've observed..."></textarea>
+      </div>
+      <div class="field-row">
+        <div class="fr-label">What times / sessions do you trade and why?</div>
+        <textarea class="fr-input" rows="2" placeholder="When is the instrument most predictable for your approach?"></textarea>
+      </div>
+      <div class="field-row">
+        <div class="fr-label">What makes this instrument suitable for SMC/ICT methodology?</div>
+        <textarea class="fr-input" rows="2" placeholder="Liquidity pools, order blocks, fair value gaps — how do these manifest on V75?"></textarea>
+      </div>
+    </div>
+  </div>
+
+  <!-- METHODOLOGY -->
+  <div class="section">
+    <div class="sec-head"><div class="sec-line"></div><div class="sec-title">II — Methodology</div></div>
+    <div class="field-grid">
+      <div class="field-row">
+        <div class="fr-label">Top-Down Analysis — How you read the higher timeframes</div>
+        <textarea class="fr-input" rows="3" placeholder="Which timeframes do you start with? What are you looking for on each? What does the higher timeframe need to show before you drop down?"></textarea>
+      </div>
+      <div class="field-row">
+        <div class="fr-label">Bias Determination — How you establish directional bias</div>
+        <textarea class="fr-input" rows="3" placeholder="What tells you the market is bullish or bearish? Structure? Liquidity? MSS? Describe the process in your own words..."></textarea>
+      </div>
+      <div class="field-row">
+        <div class="fr-label">Point of Interest (POI) — What you're looking for</div>
+        <textarea class="fr-input" rows="3" placeholder="Order blocks, FVGs, breaker blocks, mitigation zones — which do you weight most heavily and why?"></textarea>
+      </div>
+      <div class="field-row">
+        <div class="fr-label">Entry Timeframe & Confirmation</div>
+        <textarea class="fr-input" rows="2" placeholder="Which timeframe do you enter on? What confirmation do you need before entry? What does a valid entry look like?"></textarea>
+      </div>
+    </div>
+  </div>
+
+  <!-- ENTRY RULES -->
+  <div class="section">
+    <div class="sec-head"><div class="sec-line"></div><div class="sec-title">III — Entry Rules</div></div>
+    <div class="note">These are your rules. Write them as absolutes — conditions that must ALL be met before a trade is taken. If any condition is absent, the trade does not exist.</div>
+    <div class="rules-list">
+      <div class="rule-item locked">
+        <div class="ri-num">R1</div>
+        <div class="ri-content">
+          <div class="ri-label">Higher timeframe bias is clear</div>
+          <textarea class="ri-input" rows="1" placeholder="Define what 'clear' means to you — not 'I think'. What does the chart need to show?"></textarea>
+        </div>
+      </div>
+      <div class="rule-item locked">
+        <div class="ri-num">R2</div>
+        <div class="ri-content">
+          <div class="ri-label">Price is at a valid POI</div>
+          <textarea class="ri-input" rows="1" placeholder="What makes a POI valid vs invalid? How do you distinguish a genuine order block from random price?"></textarea>
+        </div>
+      </div>
+      <div class="rule-item locked">
+        <div class="ri-num">R3</div>
+        <div class="ri-content">
+          <div class="ri-label">Entry confirmation on execution timeframe</div>
+          <textarea class="ri-input" rows="1" placeholder="What confirmation do you require? Displacement candle? MSS? BOS? Describe exactly."></textarea>
+        </div>
+      </div>
+      <div class="rule-item locked">
+        <div class="ri-num">R4</div>
+        <div class="ri-content">
+          <div class="ri-label">Risk-Reward ratio is minimum 1:5</div>
+          <textarea class="ri-input" rows="1" placeholder="How do you calculate the RR before entry? Where is the SL placed and why? Where is the TP and why?"></textarea>
+        </div>
+      </div>
+      <div class="rule-item locked">
+        <div class="ri-num">R5</div>
+        <div class="ri-content">
+          <div class="ri-label">Position size is within risk parameters</div>
+          <textarea class="ri-input" rows="1" placeholder="What % of account per trade? Maximum concurrent positions? Define your risk rule."></textarea>
+        </div>
+      </div>
+      <div class="rule-item">
+        <div class="ri-num">R6</div>
+        <div class="ri-content">
+          <div class="ri-label">Additional rule (your own)</div>
+          <textarea class="ri-input" rows="1" placeholder="Add any additional entry condition you consistently use..."></textarea>
+        </div>
+      </div>
+      <div class="rule-item">
+        <div class="ri-num">R7</div>
+        <div class="ri-content">
+          <div class="ri-label">Additional rule (your own)</div>
+          <textarea class="ri-input" rows="1" placeholder="Add any additional entry condition you consistently use..."></textarea>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- INVALIDATION RULES -->
+  <div class="section">
+    <div class="sec-head"><div class="sec-line"></div><div class="sec-title">IV — Invalidation & Exit Rules</div></div>
+    <div class="note">These are the conditions under which the trade idea is wrong and the position must be closed, regardless of emotion.</div>
+    <div class="rules-list">
+      <div class="rule-item warn">
+        <div class="ri-num">I1</div>
+        <div class="ri-content">
+          <div class="ri-label">Stop Loss placement — where and why</div>
+          <textarea class="ri-input" rows="1" placeholder="Where exactly is your SL placed? Below OB? Above liquidity? Define the logic not just the location."></textarea>
+        </div>
+      </div>
+      <div class="rule-item warn">
+        <div class="ri-num">I2</div>
+        <div class="ri-content">
+          <div class="ri-label">What invalidates the setup before entry</div>
+          <textarea class="ri-input" rows="1" placeholder="If price does X before you enter, the trade is off. What is X?"></textarea>
+        </div>
+      </div>
+      <div class="rule-item warn">
+        <div class="ri-num">I3</div>
+        <div class="ri-content">
+          <div class="ri-label">Take Profit placement — where and why</div>
+          <textarea class="ri-input" rows="1" placeholder="Where is TP1? TP2? Do you scale out or take full at one target? Define the rule."></textarea>
+        </div>
+      </div>
+      <div class="rule-item warn">
+        <div class="ri-num">I4</div>
+        <div class="ri-content">
+          <div class="ri-label">Daily loss limit — when to stop trading</div>
+          <textarea class="ri-input" rows="1" placeholder="How much can you lose in a day before you close the platform? This is a hard number, not a feeling."></textarea>
+        </div>
+      </div>
+      <div class="rule-item warn">
+        <div class="ri-num">I5</div>
+        <div class="ri-content">
+          <div class="ri-label">Emotional state rule</div>
+          <textarea class="ri-input" rows="1" placeholder="Under what emotional conditions do you not trade? Frustration after a loss? Excitement after a win? Define the standard."></textarea>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PRE-SESSION CHECKLIST -->
+  <div class="section">
+    <div class="sec-head"><div class="sec-line"></div><div class="sec-title">V — Pre-Session Checklist</div></div>
+    <div class="note">Complete this before every session. If any item cannot be checked, do not trade.</div>
+    <div class="checklist" id="checklist">
+      <div class="check-item" onclick="toggleCheck(this)"><div class="ci-box"></div><div class="ci-text">Higher timeframe bias identified and written down</div></div>
+      <div class="check-item" onclick="toggleCheck(this)"><div class="ci-box"></div><div class="ci-text">POIs marked on chart — OBs, FVGs, liquidity levels</div></div>
+      <div class="check-item" onclick="toggleCheck(this)"><div class="ci-box"></div><div class="ci-text">Risk per trade confirmed — position size calculated before entry</div></div>
+      <div class="check-item" onclick="toggleCheck(this)"><div class="ci-box"></div><div class="ci-text">Daily loss limit noted — know when to stop before starting</div></div>
+      <div class="check-item" onclick="toggleCheck(this)"><div class="ci-box"></div><div class="ci-text">Emotional state assessed — not trading on frustration, desperation, or euphoria</div></div>
+      <div class="check-item" onclick="toggleCheck(this)"><div class="ci-box"></div><div class="ci-text">Trade log open and ready to record entry reasoning before entry</div></div>
+      <div class="check-item" onclick="toggleCheck(this)"><div class="ci-box"></div><div class="ci-text">All entry rules reviewed — will not trade any setup that doesn't meet all rules</div></div>
+    </div>
+  </div>
+
+  <!-- TRADE LOG -->
+  <div class="section">
+    <div class="sec-head"><div class="sec-line"></div><div class="sec-title">VI — Trade Log</div></div>
+    <div class="note">Every trade documented before entry and after exit. No exceptions. The log is the discipline.</div>
+
+    <!-- LIVE STATS -->
+    <div class="stats-row" id="statsRow">
+      <div class="stat-card"><div class="sc-label">Trades Logged</div><div class="sc-val" id="statTotal">0</div><div class="sc-sub">this month</div></div>
+      <div class="stat-card"><div class="sc-label">Win Rate</div><div class="sc-val" id="statWR">—</div><div class="sc-sub">target ≥ 70%</div></div>
+      <div class="stat-card"><div class="sc-label">Wins</div><div class="sc-val" id="statWins" style="color:var(--acc)">0</div><div class="sc-sub">profitable</div></div>
+      <div class="stat-card"><div class="sc-label">Losses</div><div class="sc-val" id="statLoss" style="color:var(--red)">0</div><div class="sc-sub">stopped out</div></div>
+    </div>
+
+    <div class="log-table">
+      <div class="lt-head">
+        <div class="lt-cell">Date</div>
+        <div class="lt-cell">Direction</div>
+        <div class="lt-cell">Entry</div>
+        <div class="lt-cell">SL</div>
+        <div class="lt-cell">TP</div>
+        <div class="lt-cell">Result</div>
+        <div class="lt-cell">Reasoning / Lesson</div>
+      </div>
+      <div id="tradeRows">
+        <!-- Rows rendered by JS -->
+      </div>
+    </div>
+    <button class="ctrl" onclick="addTradeRow()" style="width:100%;padding:10px;">+ Add Trade</button>
+  </div>
+
+  <!-- WEEKLY REVIEW -->
+  <div class="section">
+    <div class="sec-head"><div class="sec-line"></div><div class="sec-title">VII — Weekly Review</div></div>
+    <div class="review-grid">
+      <div class="rv-card">
+        <div class="rv-head">What worked this week</div>
+        <div class="rv-body"><textarea class="rv-input" placeholder="Setups that fired correctly. Rules that were followed. Reads that were right..."></textarea></div>
+      </div>
+      <div class="rv-card">
+        <div class="rv-head">What didn't work</div>
+        <div class="rv-body"><textarea class="rv-input" placeholder="Where did the setup fail? Was it the setup or the execution? What would you do differently?"></textarea></div>
+      </div>
+      <div class="rv-card">
+        <div class="rv-head">Execution discipline assessment</div>
+        <div class="rv-body"><textarea class="rv-input" placeholder="Did you follow the rules? If not — which rule broke down and when? Be specific."></textarea></div>
+      </div>
+      <div class="rv-card">
+        <div class="rv-head">Next week's focus</div>
+        <div class="rv-body"><textarea class="rv-input" placeholder="One specific thing to improve. One rule to pay extra attention to. One pattern to watch for."></textarea></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PRINCIPLES -->
+  <div class="section">
+    <div class="sec-head"><div class="sec-line"></div><div class="sec-title">VIII — Trading Principles</div></div>
+    <div class="note">Read these before every session. These are not rules — they are the mindset the rules come from.</div>
+    <div class="rules-list">
+      <div class="rule-item locked"><div class="ri-num">P1</div><div class="ri-content"><div class="ri-label">The read quality is not the problem. Execution is.</div><textarea class="ri-input" rows="1" placeholder="Write what this means to you personally — in your own words..."></textarea></div></div>
+      <div class="rule-item locked"><div class="ri-num">P2</div><div class="ri-content"><div class="ri-label">A trade not taken is not a missed opportunity. An untriggered setup is a correct non-trade.</div><textarea class="ri-input" rows="1" placeholder="What does 'patience' mean in the context of V75?"></textarea></div></div>
+      <div class="rule-item locked"><div class="ri-num">P3</div><div class="ri-content"><div class="ri-label">The account is a means to financial independence. Protect it accordingly.</div><textarea class="ri-input" rows="1" placeholder="What does protecting the account mean to you beyond just setting a SL?"></textarea></div></div>
+      <div class="rule-item locked"><div class="ri-num">P4</div><div class="ri-content"><div class="ri-label">Compounding requires consistency. One exceptional day cannot undo five undisciplined ones.</div><textarea class="ri-input" rows="1" placeholder="How do you apply the compounding principle to trading?"></textarea></div></div>
+      <div class="rule-item"><div class="ri-num">P5</div><div class="ri-content"><div class="ri-label">Your principle (add one)</div><textarea class="ri-input" rows="1" placeholder="A trading conviction you hold strongly..."></textarea></div></div>
+    </div>
+  </div>
+
+</div>
+
+<!-- SAVE BAR -->
+<div class="save-bar">
+  <div class="sb-info">Trading Strategy <span>V75(1s)</span> · Paul Bassey</div>
+  <div class="sb-btns">
+    <button class="sb-btn" onclick="document.body.classList.toggle('light')">☀ / ☾</button>
+    <button class="sb-btn" onclick="window.print()">Print</button>
+    <button class="sb-btn primary" onclick="saveAll()">Save</button>
+  </div>
+</div>
+
+<script>
+const SAVE_KEY = 'trading_strategy_v1';
+
+// TRADE ROWS
+let trades = [];
+
+function addTradeRow(data) {
+  const t = data || { date:'', dir:'', entry:'', sl:'', tp:'', result:'', note:'' };
+  trades.push(t);
+  renderTrades();
+  updateStats();
+}
+
+function renderTrades() {
+  const cont = document.getElementById('tradeRows');
+  cont.innerHTML = trades.map((t,i) => `
+    <div class="lt-row">
+      <div class="lt-cell"><input class="lt-input" value="${esc(t.date)}" placeholder="dd/mm" oninput="trades[${i}].date=this.value;updateStats();autoSave()"></div>
+      <div class="lt-cell"><input class="lt-input" value="${esc(t.dir)}" placeholder="L / S" oninput="trades[${i}].dir=this.value;autoSave()"></div>
+      <div class="lt-cell"><input class="lt-input" value="${esc(t.entry)}" placeholder="price" oninput="trades[${i}].entry=this.value;autoSave()"></div>
+      <div class="lt-cell"><input class="lt-input" value="${esc(t.sl)}" placeholder="price" oninput="trades[${i}].sl=this.value;autoSave()"></div>
+      <div class="lt-cell"><input class="lt-input" value="${esc(t.tp)}" placeholder="price" oninput="trades[${i}].tp=this.value;autoSave()"></div>
+      <div class="lt-cell"><input class="lt-input" value="${esc(t.result)}" placeholder="W / L / B/E" oninput="trades[${i}].result=this.value;updateStats();autoSave()"></div>
+      <div class="lt-cell"><input class="lt-input" value="${esc(t.note)}" placeholder="reason for entry / lesson..." oninput="trades[${i}].note=this.value;autoSave()"></div>
+    </div>`).join('');
+}
+
+function updateStats() {
+  const total = trades.filter(t => t.result).length;
+  const wins = trades.filter(t => t.result.toLowerCase() === 'w').length;
+  const loss = trades.filter(t => t.result.toLowerCase() === 'l').length;
+  const wr = total > 0 ? Math.round((wins/total)*100) : null;
+  document.getElementById('statTotal').textContent = total;
+  document.getElementById('statWR').textContent = wr !== null ? wr + '%' : '—';
+  document.getElementById('statWR').style.color = wr !== null ? (wr >= 70 ? 'var(--acc)' : 'var(--red)') : 'var(--text-mid)';
+  document.getElementById('statWins').textContent = wins;
+  document.getElementById('statLoss').textContent = loss;
+}
+
+function esc(s) { return String(s||'').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+// CHECKLIST
+function toggleCheck(el) {
+  el.classList.toggle('checked');
+  el.querySelector('.ci-box').textContent = el.classList.contains('checked') ? '✓' : '';
+  autoSave();
+}
+
+// SAVE / LOAD
+function getState() {
+  const textareas = {};
+  document.querySelectorAll('textarea').forEach((ta, i) => { textareas[i] = ta.value; });
+  const checks = Array.from(document.querySelectorAll('.check-item')).map(el => el.classList.contains('checked'));
+  return { textareas, checks, trades };
+}
+
+function saveAll() {
+  try { localStorage.setItem(SAVE_KEY, JSON.stringify(getState())); showToast('Saved.'); } catch(e) { showToast('Save failed.'); }
+}
+
+let autoTimer;
+function autoSave() { clearTimeout(autoTimer); autoTimer = setTimeout(() => { try { localStorage.setItem(SAVE_KEY, JSON.stringify(getState())); } catch(e){} }, 800); }
+
+function loadState() {
+  try {
+    const raw = localStorage.getItem(SAVE_KEY);
+    if(!raw) return;
+    const s = JSON.parse(raw);
+    if(s.textareas) { document.querySelectorAll('textarea').forEach((ta,i) => { if(s.textareas[i]) ta.value = s.textareas[i]; }); }
+    if(s.checks) {
+      const items = document.querySelectorAll('.check-item');
+      s.checks.forEach((c,i) => { if(c && items[i]) { items[i].classList.add('checked'); items[i].querySelector('.ci-box').textContent = '✓'; } });
+    }
+    if(s.trades) { trades = s.trades; renderTrades(); updateStats(); }
+  } catch(e) {}
+}
+
+function showToast(msg) {
+  let t = document.getElementById('toast');
+  if(!t){ t=document.createElement('div'); t.id='toast'; t.style.cssText='position:fixed;bottom:56px;left:50%;transform:translateX(-50%) translateY(40px);background:var(--surface2);border:1px solid var(--border-acc);color:var(--acc);font-family:"DM Mono",monospace;font-size:9px;letter-spacing:0.12em;padding:8px 18px;transition:transform 0.4s cubic-bezier(0.34,1.56,0.64,1);z-index:999;white-space:nowrap;pointer-events:none;'; document.body.appendChild(t); }
+  t.textContent = msg;
+  t.style.transform = 'translateX(-50%) translateY(0)';
+  setTimeout(() => { t.style.transform = 'translateX(-50%) translateY(40px)'; }, 2200);
+}
+
+// Add 3 empty rows to start
+addTradeRow(); addTradeRow(); addTradeRow();
+loadState();
+</script>
+</body>
+</html>

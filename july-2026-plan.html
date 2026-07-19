@@ -1,0 +1,545 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>July 2026 — dAnTE</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@300;400&display=swap');
+
+  :root {
+    --bg:#0d0d0d; --bg2:#141414; --bg3:#1a1a1a;
+    --border:#2a2a2a; --border2:#333;
+    --gold:#c9a84c; --gold-dim:#8a6f2e; --gold-glow:rgba(201,168,76,0.08);
+    --text:#e8e4dc; --text-dim:#888; --text-muted:#555;
+    --red:#c0392b; --green:#4caf7d; --radius:6px;
+  }
+  .light {
+    --bg:#f5f2ec; --bg2:#ede9e0; --bg3:#e4dfd4;
+    --border:#d4cfc4; --border2:#c4bfb4;
+    --gold:#8a6020; --gold-dim:#b8902a; --gold-glow:rgba(138,96,32,0.07);
+    --text:#1a1814; --text-dim:#666; --text-muted:#999;
+  }
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+  body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;font-size:14px;line-height:1.6;min-height:100vh;transition:background .3s,color .3s}
+
+  /* HEADER */
+  header{position:sticky;top:0;z-index:100;background:var(--bg);border-bottom:1px solid var(--border);padding:14px 32px;display:flex;align-items:center;justify-content:space-between}
+  .header-left{display:flex;flex-direction:column;gap:1px}
+  .brand{font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.2em;color:var(--gold);text-transform:uppercase}
+  .plan-title{font-family:'Cormorant Garamond',serif;font-size:22px;font-weight:300;color:var(--text);letter-spacing:.04em}
+  .plan-title span{color:var(--gold);font-style:italic}
+  .header-right{display:flex;align-items:center;gap:10px}
+
+  /* BUTTONS */
+  .btn{display:inline-flex;align-items:center;gap:6px;padding:7px 14px;border-radius:var(--radius);border:1px solid var(--border2);background:transparent;color:var(--text-dim);font-family:'Inter',sans-serif;font-size:12px;cursor:pointer;transition:all .2s;white-space:nowrap}
+  .btn:hover{border-color:var(--gold);color:var(--gold)}
+  .btn-gold{border-color:var(--gold);color:var(--gold)}
+  .btn-gold:hover{background:var(--gold-glow)}
+  .btn-icon{padding:7px 10px;font-size:13px}
+  .theme-toggle{background:var(--bg3);border:1px solid var(--border);border-radius:20px;padding:4px 10px;font-size:13px;cursor:pointer;color:var(--text-dim);transition:all .2s}
+  .theme-toggle:hover{border-color:var(--gold);color:var(--gold)}
+
+  /* MAIN */
+  main{max-width:900px;margin:0 auto;padding:40px 24px 90px}
+
+  /* PLAN HEADER */
+  .plan-header{margin-bottom:48px;padding-bottom:32px;border-bottom:1px solid var(--border)}
+  .theme-label{font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.25em;color:var(--gold-dim);text-transform:uppercase;margin-bottom:8px}
+  .theme-word{font-family:'Cormorant Garamond',serif;font-size:52px;font-weight:300;color:var(--text);letter-spacing:.06em;line-height:1;margin-bottom:16px}
+  .theme-word em{color:var(--gold);font-style:italic}
+  .intention-text{font-size:13px;color:var(--text-dim);max-width:580px;line-height:1.8;font-style:italic;border-left:2px solid var(--gold-dim);padding-left:16px;outline:none}
+  .intention-text:focus{border-left-color:var(--gold);background:var(--gold-glow);padding:8px 16px;border-radius:0 4px 4px 0}
+  .month-meta{display:flex;align-items:center;gap:16px;margin-top:20px;flex-wrap:wrap}
+  .meta-item{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--text-muted);letter-spacing:.08em}
+  .meta-item span{color:var(--gold)}
+  .progress-bar-wrap{flex:1;min-width:120px;height:2px;background:var(--border);border-radius:2px;overflow:hidden}
+  .progress-bar-fill{height:100%;background:var(--gold);transition:width .4s ease}
+
+  /* CATEGORIES */
+  .categories{display:flex;flex-direction:column;gap:28px}
+  .category{background:var(--bg2);border:1px solid var(--border);border-radius:8px;overflow:hidden;transition:border-color .2s}
+  .category:hover{border-color:var(--border2)}
+  .cat-header{display:flex;align-items:center;justify-content:space-between;padding:16px 20px;border-bottom:1px solid var(--border);cursor:pointer;user-select:none;gap:12px}
+  .cat-header:hover{background:var(--gold-glow)}
+  .cat-left{display:flex;align-items:center;gap:12px;flex:1;min-width:0}
+  .cat-icon{font-size:16px;flex-shrink:0}
+  .cat-name{font-family:'Cormorant Garamond',serif;font-size:18px;font-weight:400;color:var(--text);letter-spacing:.04em}
+  .cat-count{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--text-muted);letter-spacing:.1em;margin-top:1px}
+  .cat-count span{color:var(--gold)}
+  .cat-right{display:flex;align-items:center;gap:8px;flex-shrink:0}
+  .cat-progress{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--gold)}
+  .chevron{font-size:10px;color:var(--text-muted);transition:transform .25s}
+  .category.collapsed .chevron{transform:rotate(-90deg)}
+  .cat-body{padding:0 20px 16px}
+  .category.collapsed .cat-body{display:none}
+
+  /* GOALS */
+  .goals-list{padding-top:12px;display:flex;flex-direction:column;gap:4px}
+  .goal-item{display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:var(--radius);border:1px solid transparent;transition:all .15s}
+  .goal-item:hover{background:var(--bg3);border-color:var(--border)}
+
+  /* CHECKBOX STYLE */
+  .goal-check{width:18px;height:18px;border:1px solid var(--border2);border-radius:3px;flex-shrink:0;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:10px;color:transparent;transition:all .15s}
+  .goal-item.done .goal-check{background:var(--gold);border-color:var(--gold);color:#000}
+  .goal-item.done .goal-text{text-decoration:line-through;color:var(--text-muted)}
+
+  /* COUNTER STYLE */
+  .goal-counter{display:flex;align-items:center;gap:0;flex-shrink:0;border:1px solid var(--border2);border-radius:4px;overflow:hidden}
+  .counter-btn{background:none;border:none;color:var(--text-muted);cursor:pointer;font-size:14px;padding:2px 8px;transition:all .15s;font-family:'Inter',sans-serif;line-height:1}
+  .counter-btn:hover{background:var(--gold-glow);color:var(--gold)}
+  .counter-val{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--text);padding:3px 6px;background:var(--bg3);min-width:52px;text-align:center;white-space:nowrap}
+  .counter-val.complete{color:var(--gold)}
+  .goal-item.done .goal-counter{opacity:.6}
+
+  .goal-text{flex:1;font-size:13px;color:var(--text);line-height:1.5;outline:none;min-width:0}
+  .goal-text:focus{background:var(--gold-glow);border-radius:3px;padding:2px 4px}
+  .goal-item.done .goal-text{text-decoration:line-through;color:var(--text-muted)}
+
+  .goal-actions{display:flex;gap:4px;opacity:0;transition:opacity .15s;flex-shrink:0}
+  .goal-item:hover .goal-actions{opacity:1}
+  .goal-action-btn{background:none;border:none;color:var(--text-muted);cursor:pointer;font-size:11px;padding:3px 6px;border-radius:3px;transition:all .15s;font-family:'Inter',sans-serif}
+  .goal-action-btn:hover{color:var(--gold);background:var(--gold-glow)}
+  .goal-action-btn.del:hover{color:var(--red);background:rgba(192,57,43,.08)}
+
+  /* ADD ROW */
+  .add-goal-row{display:flex;gap:8px;margin-top:10px;padding-top:10px;border-top:1px solid var(--border);flex-wrap:wrap}
+  .add-goal-input{flex:1;min-width:140px;background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius);color:var(--text);font-family:'Inter',sans-serif;font-size:12px;padding:7px 12px;outline:none;transition:border-color .2s}
+  .add-goal-input:focus{border-color:var(--gold)}
+  .add-goal-input::placeholder{color:var(--text-muted)}
+  .add-target-input{width:70px;background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius);color:var(--text);font-family:'JetBrains Mono',monospace;font-size:12px;padding:7px 10px;outline:none;transition:border-color .2s;text-align:center}
+  .add-target-input:focus{border-color:var(--gold)}
+  .add-target-input::placeholder{color:var(--text-muted);font-size:10px}
+  .add-goal-btn{background:var(--gold-glow);border:1px solid var(--gold-dim);border-radius:var(--radius);color:var(--gold);font-size:16px;padding:0 14px;cursor:pointer;transition:all .15s}
+  .add-goal-btn:hover{background:var(--gold);color:#000}
+
+  /* NOTES */
+  .cat-notes{margin-top:12px;padding-top:12px;border-top:1px solid var(--border)}
+  .notes-label{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--text-muted);letter-spacing:.15em;text-transform:uppercase;margin-bottom:6px}
+  .notes-area{width:100%;background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius);color:var(--text-dim);font-family:'Inter',sans-serif;font-size:12px;line-height:1.6;padding:10px 12px;resize:vertical;min-height:56px;outline:none;transition:border-color .2s}
+  .notes-area:focus{border-color:var(--gold-dim)}
+  .notes-area::placeholder{color:var(--text-muted)}
+
+  /* MODAL */
+  .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:200;display:flex;align-items:center;justify-content:center;padding:24px;backdrop-filter:blur(4px)}
+  .modal-overlay.hidden{display:none}
+  .modal{background:var(--bg2);border:1px solid var(--border2);border-radius:10px;padding:28px;width:100%;max-width:440px;display:flex;flex-direction:column;gap:14px}
+  .modal-title{font-family:'Cormorant Garamond',serif;font-size:20px;font-weight:300;color:var(--text)}
+  .modal-sub{font-size:11px;color:var(--text-muted);margin-top:-6px}
+  .modal-input{background:var(--bg3);border:1px solid var(--border2);border-radius:var(--radius);color:var(--text);font-family:'Inter',sans-serif;font-size:13px;padding:10px 14px;outline:none;width:100%;transition:border-color .2s}
+  .modal-input:focus{border-color:var(--gold)}
+  .modal-actions{display:flex;gap:10px;justify-content:flex-end}
+
+  /* TOAST */
+  .toast{position:fixed;bottom:24px;right:24px;background:var(--bg3);border:1px solid var(--gold-dim);color:var(--gold);font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.08em;padding:10px 18px;border-radius:var(--radius);z-index:300;opacity:0;transform:translateY(8px);transition:all .3s;pointer-events:none}
+  .toast.show{opacity:1;transform:translateY(0)}
+
+  /* SUMMARY BAR */
+  .summary-bar{position:fixed;bottom:0;left:0;right:0;background:var(--bg2);border-top:1px solid var(--border);padding:10px 32px;display:flex;align-items:center;gap:20px;z-index:90;flex-wrap:wrap}
+  .summary-stat{display:flex;align-items:baseline;gap:5px}
+  .summary-num{font-family:'Cormorant Garamond',serif;font-size:20px;color:var(--gold)}
+  .summary-label{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--text-muted);letter-spacing:.1em;text-transform:uppercase}
+  .summary-divider{width:1px;height:20px;background:var(--border)}
+  .summary-bar-right{margin-left:auto}
+
+  @media(max-width:600px){
+    header{padding:12px 16px}
+    main{padding:28px 16px 90px}
+    .theme-word{font-size:36px}
+    .summary-bar{padding:10px 16px;gap:14px}
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-left">
+    <div class="brand">dAnTE Inc.</div>
+    <div class="plan-title">July <span>2026</span></div>
+  </div>
+  <div class="header-right">
+    <button class="theme-toggle" onclick="toggleTheme()">☀︎</button>
+    <button class="btn" onclick="importData()">⬆ Import</button>
+    <button class="btn" onclick="exportData()">⬇ Export</button>
+    <button class="btn btn-gold" onclick="saveData()">Save</button>
+  </div>
+</header>
+
+<main>
+  <div class="plan-header">
+    <div class="theme-label">Month Theme</div>
+    <div class="theme-word"><em>Foundation</em></div>
+    <div class="intention-text" id="intention" contenteditable="true">Everything this month is load-bearing. Not momentum — roots. The goal is not to sprint into Q3 but to arrive there standing on something real: a clearer self, a coherent system, a home worth entering, and an income that does not run out.</div>
+    <div class="month-meta">
+      <div class="meta-item">July 1 – 31, <span>2026</span></div>
+      <div class="progress-bar-wrap"><div class="progress-bar-fill" id="monthProgress" style="width:0%"></div></div>
+      <div class="meta-item" id="daysLeft">— days remaining</div>
+    </div>
+  </div>
+
+  <div class="categories" id="categoriesContainer"></div>
+</main>
+
+<div class="summary-bar">
+  <div class="summary-stat"><div class="summary-num" id="totalDone">0</div><div class="summary-label">Done</div></div>
+  <div class="summary-divider"></div>
+  <div class="summary-stat"><div class="summary-num" id="totalGoals">0</div><div class="summary-label">Goals</div></div>
+  <div class="summary-divider"></div>
+  <div class="summary-stat"><div class="summary-num" id="totalPct">0%</div><div class="summary-label">Complete</div></div>
+  <div class="summary-bar-right">
+    <button class="btn btn-gold" onclick="addCategoryModal()">+ Category</button>
+  </div>
+</div>
+
+<!-- Category Modal -->
+<div class="modal-overlay hidden" id="catModal">
+  <div class="modal">
+    <div class="modal-title" id="catModalTitle">New Category</div>
+    <input class="modal-input" id="catNameInput" placeholder="Category name..." maxlength="40">
+    <input class="modal-input" id="catIconInput" placeholder="Icon (emoji)..." maxlength="4" value="◆">
+    <div class="modal-actions">
+      <button class="btn" onclick="closeCatModal()">Cancel</button>
+      <button class="btn btn-gold" onclick="confirmCatModal()">Confirm</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+<input type="file" id="importFile" accept=".json" style="display:none" onchange="handleImport(event)">
+
+<script>
+// ── HELPERS ────────────────────────────────────────────────
+function uid(){ return Math.random().toString(36).slice(2,9) }
+
+// ── DEFAULT DATA ───────────────────────────────────────────
+const DEFAULTS = {
+  intention: "Everything this month is load-bearing. Not momentum — roots. The goal is not to sprint into Q3 but to arrive there standing on something real: a clearer self, a coherent system, a home worth entering, and an income that does not run out.",
+  categories: [
+    { id:"faith", icon:"✦", name:"Faith", collapsed:false, notes:"", goals:[
+      { id:uid(), text:"Bible study days", target:20, count:0, done:false },
+      { id:uid(), text:"Spiritual growth book — read and finish one", target:null, count:0, done:false },
+      { id:uid(), text:"4AM prayer block held uninterrupted — daily anchor", target:null, count:0, done:false }
+    ]},
+    { id:"relationship", icon:"◈", name:"Relationship", collapsed:false, notes:"", goals:[
+      { id:uid(), text:"Morning contact days — text or call, shorter on site but present", target:31, count:0, done:false },
+      { id:uid(), text:"Evening call days", target:31, count:0, done:false },
+      { id:uid(), text:"Full week without conflict", target:null, count:0, done:false },
+      { id:uid(), text:"Speak up on one recurring tension rather than absorbing it", target:null, count:0, done:false },
+      { id:uid(), text:"Lead one thing this month without being asked", target:null, count:0, done:false }
+    ]},
+    { id:"health", icon:"◉", name:"Health", collapsed:false, notes:"", goals:[
+      { id:uid(), text:"Workout days", target:25, count:0, done:false },
+      { id:uid(), text:"Push-up reps — hit 30 by month end", target:30, count:0, done:false },
+      { id:uid(), text:"Squat reps — hit 30 by month end", target:30, count:0, done:false },
+      { id:uid(), text:"Crunch reps — hit 30 by month end", target:30, count:0, done:false },
+      { id:uid(), text:"Water tracked daily", target:31, count:0, done:false }
+    ]},
+    { id:"rest", icon:"◌", name:"Rest", collapsed:false, notes:"", goals:[
+      { id:uid(), text:"Identify and document two genuinely restorative activities — not numbing", target:2, count:0, done:false },
+      { id:uid(), text:"Deliberate rest blocks taken — one per week, protected", target:4, count:0, done:false },
+      { id:uid(), text:"Written vocabulary built — what depletion feels like vs restoration", target:null, count:0, done:false },
+      { id:uid(), text:"Month-end answer written: what does rest actually look like for me?", target:null, count:0, done:false }
+    ]},
+    { id:"career", icon:"⬡", name:"Career", collapsed:false, notes:"", goals:[
+      { id:uid(), text:"CGSL — present and sharp on all active site work", target:null, count:0, done:false },
+      { id:uid(), text:"IOSH Managing Safely — enroll (5 minutes, no further delay)", target:null, count:0, done:false },
+      { id:uid(), text:"Structural design course — complete beginner-to-intermediate series", target:null, count:0, done:false },
+      { id:uid(), text:"Produce one independent structural design drawing by month end", target:null, count:0, done:false },
+      { id:uid(), text:"Commute learning sessions — AutoCAD/Civil 3D or Primavera P6", target:20, count:0, done:false },
+      { id:uid(), text:"Bridge project confirmed — classify as Dante Craft from day one", target:null, count:0, done:false }
+    ]},
+    { id:"dantecraft", icon:"◧", name:"Dante Craft", collapsed:false, notes:"", goals:[
+      { id:uid(), text:"Company bank account opened", target:null, count:0, done:false },
+      { id:uid(), text:"Invoice template built and ready before architect job pays", target:null, count:0, done:false },
+      { id:uid(), text:"Business literacy — one book or structured resource completed", target:null, count:0, done:false },
+      { id:uid(), text:"Architect job milestone tracking — current and documented", target:null, count:0, done:false },
+      { id:uid(), text:"One new project opportunity identified and pitched", target:null, count:0, done:false }
+    ]},
+    { id:"trading", icon:"◎", name:"Trading", collapsed:false, notes:"", goals:[
+      { id:uid(), text:"Ruleset built — exact definitions for zones, blocks, entries, stops, targets on V75-1s", target:null, count:0, done:false },
+      { id:uid(), text:"No live trading until ruleset is tested on historical charts", target:null, count:0, done:false },
+      { id:uid(), text:"Paper trading sessions — week 3", target:10, count:0, done:false },
+      { id:uid(), text:"Live sessions — week 4 only if paper edge holds", target:2, count:0, done:false },
+      { id:uid(), text:"Pre-session prep: key levels marked at 6:45 before watching", target:null, count:0, done:false },
+      { id:uid(), text:"Trading journal updated after every session", target:null, count:0, done:false }
+    ]},
+    { id:"finances", icon:"◈", name:"Finances", collapsed:false, notes:"", goals:[
+      { id:uid(), text:"Personal budget built — income, fixed, variable, discretionary written down", target:null, count:0, done:false },
+      { id:uid(), text:"One full month's spending traced — find where money runs out", target:null, count:0, done:false },
+      { id:uid(), text:"One spending boundary set and held for the whole month", target:null, count:0, done:false },
+      { id:uid(), text:"Personal finance fundamentals — one resource read or studied", target:null, count:0, done:false },
+      { id:uid(), text:"End July without running out of money", target:null, count:0, done:false }
+    ]},
+    { id:"apartment", icon:"◫", name:"Apartment", collapsed:false, notes:"", goals:[
+      { id:uid(), text:"Wave 1 complete — bedroom and bathroom fully furnished and functional", target:null, count:0, done:false },
+      { id:uid(), text:"Wave 2 complete — kitchen operational", target:null, count:0, done:false },
+      { id:uid(), text:"Wave 3 begun — living area, if Waves 1 and 2 are done", target:null, count:0, done:false },
+      { id:uid(), text:"Entrance complete — light, hooks, shoe organiser, spare keys x3", target:null, count:0, done:false },
+      { id:uid(), text:"Checklist updated — weekly, nothing left undecided by month end", target:4, count:0, done:false }
+    ]}
+  ]
+};
+
+// ── STATE ──────────────────────────────────────────────────
+let state = JSON.parse(JSON.stringify(DEFAULTS));
+let isDark = true;
+let renamingCatId = null;
+
+// ── PERSISTENCE ────────────────────────────────────────────
+function loadState(){
+  const s = localStorage.getItem('july2026v2');
+  if(s){ try{ state = JSON.parse(s) }catch(e){} }
+  const t = localStorage.getItem('july2026theme');
+  if(t==='light'){ isDark=false; document.body.classList.add('light') }
+}
+function saveData(){
+  state.intention = document.getElementById('intention').innerText.trim();
+  localStorage.setItem('july2026v2', JSON.stringify(state));
+  showToast('Saved');
+}
+function exportData(){
+  state.intention = document.getElementById('intention').innerText.trim();
+  const blob = new Blob([JSON.stringify(state,null,2)],{type:'application/json'});
+  const a = document.createElement('a'); a.href=URL.createObjectURL(blob);
+  a.download='july-2026-plan.json'; a.click(); showToast('Exported');
+}
+function importData(){ document.getElementById('importFile').click() }
+function handleImport(e){
+  const file=e.target.files[0]; if(!file) return;
+  const r=new FileReader();
+  r.onload=ev=>{ try{ state=JSON.parse(ev.target.result); render(); saveData(); showToast('Imported') }catch(e){ showToast('Import failed') } };
+  r.readAsText(file); e.target.value='';
+}
+function toggleTheme(){
+  isDark=!isDark; document.body.classList.toggle('light',!isDark);
+  localStorage.setItem('july2026theme', isDark?'dark':'light');
+}
+function showToast(msg){
+  const t=document.getElementById('toast'); t.textContent=msg;
+  t.classList.add('show'); setTimeout(()=>t.classList.remove('show'),2000);
+}
+
+// ── MONTH PROGRESS ─────────────────────────────────────────
+function updateMonthProgress(){
+  const now=new Date(), start=new Date('2026-07-01'), end=new Date('2026-07-31');
+  const pct=Math.round((Math.min(Math.max(now-start,0),end-start))/(end-start)*100);
+  document.getElementById('monthProgress').style.width=pct+'%';
+  const rem=Math.max(0,Math.ceil((end-now)/86400000));
+  document.getElementById('daysLeft').innerHTML=`<span>${rem}</span> days remaining`;
+}
+
+// ── SUMMARY ────────────────────────────────────────────────
+function updateSummary(){
+  let total=0,done=0;
+  state.categories.forEach(cat=>cat.goals.forEach(g=>{ total++; if(isGoalDone(g)) done++ }));
+  document.getElementById('totalGoals').textContent=total;
+  document.getElementById('totalDone').textContent=done;
+  document.getElementById('totalPct').textContent=total?Math.round(done/total*100)+'%':'0%';
+}
+function updateCatMeta(catId){
+  const cat=state.categories.find(c=>c.id===catId); if(!cat) return;
+  const total=cat.goals.length, done=cat.goals.filter(g=>isGoalDone(g)).length;
+  const el=document.querySelector(`[data-cat="${catId}"] .cat-count`);
+  const pe=document.querySelector(`[data-cat="${catId}"] .cat-progress`);
+  if(el) el.innerHTML=`<span>${done}</span> / ${total} goals`;
+  if(pe) pe.textContent=total?Math.round(done/total*100)+'%':'';
+}
+function isGoalDone(g){
+  if(g.target!==null && g.target>0) return g.count>=g.target;
+  return g.done;
+}
+
+// ── RENDER ─────────────────────────────────────────────────
+function render(){
+  const container=document.getElementById('categoriesContainer');
+  container.innerHTML='';
+  const intEl=document.getElementById('intention');
+  if(state.intention) intEl.innerText=state.intention;
+
+  state.categories.forEach(cat=>{
+    const div=document.createElement('div');
+    div.className='category'+(cat.collapsed?' collapsed':'');
+    div.dataset.cat=cat.id;
+    const total=cat.goals.length, done=cat.goals.filter(g=>isGoalDone(g)).length;
+    const pct=total?Math.round(done/total*100)+'%':'';
+
+    div.innerHTML=`
+      <div class="cat-header" onclick="toggleCat('${cat.id}')">
+        <div class="cat-left">
+          <div class="cat-icon">${cat.icon}</div>
+          <div>
+            <div class="cat-name">${cat.name}</div>
+            <div class="cat-count"><span>${done}</span> / ${total} goals</div>
+          </div>
+        </div>
+        <div class="cat-right">
+          <div class="cat-progress">${pct}</div>
+          <button class="btn btn-icon" onclick="event.stopPropagation();renameCat('${cat.id}')" title="Rename">✎</button>
+          <button class="btn btn-icon" style="color:var(--text-muted)" onclick="event.stopPropagation();deleteCat('${cat.id}')" title="Remove">✕</button>
+          <div class="chevron">▾</div>
+        </div>
+      </div>
+      <div class="cat-body">
+        <div class="goals-list" id="goals-${cat.id}"></div>
+        <div class="add-goal-row">
+          <input class="add-goal-input" id="addText-${cat.id}" placeholder="Goal description..." onkeydown="if(event.key==='Enter')addGoal('${cat.id}')">
+          <input class="add-target-input" id="addTarget-${cat.id}" type="number" min="1" placeholder="Target #" title="Optional numeric target (e.g. 20 for 20 days)">
+          <button class="add-goal-btn" onclick="addGoal('${cat.id}')">+</button>
+        </div>
+        <div class="cat-notes">
+          <div class="notes-label">Notes</div>
+          <textarea class="notes-area" placeholder="Notes, context, reflections..." onchange="updateNotes('${cat.id}',this.value)">${cat.notes||''}</textarea>
+        </div>
+      </div>`;
+    container.appendChild(div);
+    renderGoals(cat.id);
+  });
+  updateSummary();
+}
+
+function renderGoals(catId){
+  const cat=state.categories.find(c=>c.id===catId); if(!cat) return;
+  const list=document.getElementById('goals-'+catId); if(!list) return;
+  list.innerHTML='';
+
+  cat.goals.forEach(goal=>{
+    const done=isGoalDone(goal);
+    const item=document.createElement('div');
+    item.className='goal-item'+(done?' done':'');
+    item.dataset.goalId=goal.id;
+
+    let controlHTML='';
+    if(goal.target!==null && goal.target>0){
+      const pct=Math.min(goal.count,goal.target);
+      const complete=goal.count>=goal.target;
+      controlHTML=`
+        <div class="goal-counter">
+          <button class="counter-btn" onclick="adjustCount('${catId}','${goal.id}',-1)">−</button>
+          <div class="counter-val${complete?' complete':''}">${goal.count} / ${goal.target}</div>
+          <button class="counter-btn" onclick="adjustCount('${catId}','${goal.id}',1)">+</button>
+        </div>`;
+    } else {
+      controlHTML=`<div class="goal-check" onclick="toggleGoal('${catId}','${goal.id}')">✓</div>`;
+    }
+
+    item.innerHTML=`
+      ${controlHTML}
+      <div class="goal-text" contenteditable="true" onblur="updateGoalText('${catId}','${goal.id}',this.innerText)">${goal.text}</div>
+      <div class="goal-actions">
+        <button class="goal-action-btn del" onclick="deleteGoal('${catId}','${goal.id}')">✕</button>
+      </div>`;
+    list.appendChild(item);
+  });
+}
+
+// ── GOAL ACTIONS ───────────────────────────────────────────
+function toggleGoal(catId,goalId){
+  const cat=state.categories.find(c=>c.id===catId); if(!cat) return;
+  const goal=cat.goals.find(g=>g.id===goalId); if(!goal) return;
+  goal.done=!goal.done;
+  renderGoals(catId); updateCatMeta(catId); updateSummary(); saveData();
+}
+
+function adjustCount(catId,goalId,delta){
+  const cat=state.categories.find(c=>c.id===catId); if(!cat) return;
+  const goal=cat.goals.find(g=>g.id===goalId); if(!goal) return;
+  goal.count=Math.max(0,(goal.count||0)+delta);
+  renderGoals(catId); updateCatMeta(catId); updateSummary(); saveData();
+}
+
+function updateGoalText(catId,goalId,text){
+  const cat=state.categories.find(c=>c.id===catId); if(!cat) return;
+  const goal=cat.goals.find(g=>g.id===goalId);
+  if(goal){ goal.text=text.trim(); saveData() }
+}
+
+function deleteGoal(catId,goalId){
+  const cat=state.categories.find(c=>c.id===catId); if(!cat) return;
+  cat.goals=cat.goals.filter(g=>g.id!==goalId);
+  renderGoals(catId); updateCatMeta(catId); updateSummary(); saveData();
+}
+
+function addGoal(catId){
+  const textEl=document.getElementById('addText-'+catId);
+  const targetEl=document.getElementById('addTarget-'+catId);
+  const text=textEl.value.trim(); if(!text) return;
+  const targetVal=parseInt(targetEl.value);
+  const target=(targetEl.value.trim()!==''&&!isNaN(targetVal)&&targetVal>0)?targetVal:null;
+  const cat=state.categories.find(c=>c.id===catId); if(!cat) return;
+  cat.goals.push({id:uid(),text,target,count:0,done:false});
+  textEl.value=''; targetEl.value='';
+  renderGoals(catId); updateCatMeta(catId); updateSummary(); saveData();
+}
+
+function updateNotes(catId,val){
+  const cat=state.categories.find(c=>c.id===catId);
+  if(cat){ cat.notes=val; saveData() }
+}
+
+// ── CATEGORY ACTIONS ───────────────────────────────────────
+function toggleCat(catId){
+  const cat=state.categories.find(c=>c.id===catId); if(!cat) return;
+  cat.collapsed=!cat.collapsed;
+  const el=document.querySelector(`[data-cat="${catId}"]`);
+  if(el) el.classList.toggle('collapsed',cat.collapsed);
+}
+
+function deleteCat(catId){
+  if(!confirm('Remove this category and all its goals?')) return;
+  state.categories=state.categories.filter(c=>c.id!==catId);
+  render(); saveData();
+}
+
+function renameCat(catId){
+  renamingCatId=catId;
+  const cat=state.categories.find(c=>c.id===catId);
+  document.getElementById('catModalTitle').textContent='Rename Category';
+  document.getElementById('catNameInput').value=cat?cat.name:'';
+  document.getElementById('catIconInput').value=cat?cat.icon:'◆';
+  document.getElementById('catModal').classList.remove('hidden');
+  document.getElementById('catNameInput').focus();
+}
+
+function addCategoryModal(){
+  renamingCatId=null;
+  document.getElementById('catModalTitle').textContent='New Category';
+  document.getElementById('catNameInput').value='';
+  document.getElementById('catIconInput').value='◆';
+  document.getElementById('catModal').classList.remove('hidden');
+  document.getElementById('catNameInput').focus();
+}
+
+function closeCatModal(){
+  document.getElementById('catModal').classList.add('hidden');
+  renamingCatId=null;
+}
+
+function confirmCatModal(){
+  const name=document.getElementById('catNameInput').value.trim();
+  const icon=document.getElementById('catIconInput').value.trim()||'◆';
+  if(!name) return;
+  if(renamingCatId){
+    const cat=state.categories.find(c=>c.id===renamingCatId);
+    if(cat){ cat.name=name; cat.icon=icon }
+  } else {
+    state.categories.push({id:uid(),icon,name,collapsed:false,notes:'',goals:[]});
+  }
+  closeCatModal(); render(); saveData();
+}
+
+document.getElementById('catModal').addEventListener('keydown',e=>{
+  if(e.key==='Enter') confirmCatModal();
+  if(e.key==='Escape') closeCatModal();
+});
+document.getElementById('catModal').addEventListener('click',e=>{
+  if(e.target===document.getElementById('catModal')) closeCatModal();
+});
+
+// ── INIT ───────────────────────────────────────────────────
+loadState();
+render();
+updateMonthProgress();
+setInterval(updateMonthProgress,60000);
+</script>
+</body>
+</html>

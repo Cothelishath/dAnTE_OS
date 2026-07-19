@@ -1,0 +1,642 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Home Checklist — Paul & T</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&family=Jost:wght@200;300;400&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#09090b;--s1:#111114;--s2:#18181c;--border:rgba(255,255,255,0.07);--border-g:rgba(255,255,255,0.14);--tx:#e8e8ec;--dim:#454548;--mid:#888890;--acc:#c9a84c;--green:#4aaa78;--red:#c46858;--blue:#6a9ab8;--rose:#c47888;--fd:'Cormorant Garamond',serif;--fm:'Jost',sans-serif;}
+body.light{--bg:#f5f5f0;--s1:#ebebE4;--s2:#deded6;--border:rgba(0,0,0,0.08);--border-g:rgba(0,0,0,0.16);--tx:#141412;--dim:#9a9a90;--mid:#505048;--acc:#8a6820;--green:#1a7848;--red:#8a3828;--blue:#2a5878;--rose:#8a3848;}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{background:var(--bg);color:var(--tx);font-family:var(--fm);font-size:12px;font-weight:300;line-height:1.6;min-height:100vh;transition:background .25s,color .25s;}
+.hdr{padding:20px 16px 14px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:10px;}
+.brand{font-size:8px;letter-spacing:0.28em;text-transform:uppercase;color:var(--acc);margin-bottom:4px;}
+.title{font-family:var(--fd);font-size:clamp(20px,5vw,32px);font-weight:300;line-height:1.1;}
+.title em{font-style:italic;color:var(--acc);}
+.subtitle{font-size:8px;letter-spacing:0.2em;text-transform:uppercase;color:var(--dim);margin-top:3px;}
+.hdr-r{display:flex;gap:6px;align-items:center;flex-wrap:wrap;}
+.btn{background:none;border:1px solid var(--border-g);border-radius:2px;color:var(--mid);font-family:var(--fm);font-size:8px;font-weight:300;letter-spacing:0.1em;padding:5px 10px;cursor:pointer;transition:all .2s;white-space:nowrap;}
+.btn:hover,.btn.on{color:var(--acc);border-color:var(--acc);background:rgba(201,168,76,0.06);}
+.btn.her.on{color:var(--rose);border-color:var(--rose);background:rgba(196,120,136,0.06);}
+.summary{display:grid;grid-template-columns:repeat(5,1fr);gap:6px;padding:12px 16px;border-bottom:1px solid var(--border);}
+.sm{background:var(--s1);border:1px solid var(--border);border-radius:3px;padding:8px 10px;}
+.smv{font-family:var(--fd);font-size:18px;line-height:1;font-weight:300;}
+.smv.g{color:var(--green);} .smv.a{color:var(--acc);}
+.sml{font-size:7px;letter-spacing:0.1em;text-transform:uppercase;color:var(--dim);margin-top:2px;}
+.nav{display:flex;padding:0 16px;border-bottom:1px solid var(--border);overflow-x:auto;position:sticky;top:0;z-index:50;background:rgba(9,9,11,.97);backdrop-filter:blur(8px);}
+body.light .nav{background:rgba(245,245,240,.97);}
+.nt{font-size:8px;letter-spacing:0.12em;text-transform:uppercase;color:var(--dim);padding:10px 10px;cursor:pointer;border:none;border-bottom:2px solid transparent;background:none;font-family:var(--fm);font-weight:300;white-space:nowrap;flex-shrink:0;transition:all .2s;}
+.nt:hover{color:var(--mid);} .nt.active{color:var(--acc);border-bottom-color:var(--acc);}
+.content{max-width:900px;margin:0 auto;padding:14px 12px 80px;}
+.page{display:none;} .page.active{display:block;}
+.sbar{display:flex;gap:7px;margin-bottom:14px;flex-wrap:wrap;}
+.sinp{background:var(--s1);border:1px solid var(--border);border-radius:2px;color:var(--tx);font-family:var(--fm);font-size:11px;font-weight:300;padding:6px 10px;outline:none;flex:1;min-width:140px;}
+.sinp:focus{border-color:var(--border-g);} .sinp::placeholder{color:var(--dim);}
+.fbtn{background:none;border:1px solid var(--border);border-radius:2px;color:var(--dim);font-family:var(--fm);font-size:8px;font-weight:300;letter-spacing:0.08em;padding:5px 9px;cursor:pointer;transition:all .2s;white-space:nowrap;}
+.fbtn:hover,.fbtn.on{color:var(--acc);border-color:var(--acc);}
+.cat{margin-bottom:20px;}
+.chdr{display:flex;align-items:center;gap:8px;margin-bottom:8px;padding-bottom:7px;border-bottom:1px solid var(--border-g);cursor:pointer;user-select:none;}
+.cicon{font-size:15px;flex-shrink:0;} .cname{font-family:var(--fd);font-size:17px;font-weight:300;font-style:italic;flex:1;}
+.ccnt{font-size:8px;color:var(--dim);letter-spacing:0.08em;} .cprog{font-size:8px;color:var(--green);}
+.carr{font-size:9px;color:var(--dim);transition:transform .2s;}
+.cat.collapsed .carr{transform:rotate(-90deg);} .cat.collapsed .cbody{display:none;}
+.item{display:grid;grid-template-columns:18px 1fr 110px 20px;gap:6px;align-items:start;padding:7px 8px;border-radius:2px;border:1px solid transparent;transition:all .15s;margin-bottom:2px;}
+.item:hover{background:var(--s1);border-color:var(--border);}
+.item.done{opacity:0.38;} .item.done .iname{text-decoration:line-through;color:var(--dim);}
+.ichk{width:13px;height:13px;border:1px solid var(--border-g);border-radius:2px;display:flex;align-items:center;justify-content:center;font-size:7px;flex-shrink:0;cursor:pointer;transition:all .15s;margin-top:2px;}
+.ichk.her{border-color:rgba(196,120,136,0.4);}
+.item.done .ichk{background:var(--green);border-color:var(--green);color:var(--bg);}
+.item.done .ichk.her{background:var(--rose);border-color:var(--rose);}
+.ibody{min-width:0;}
+.iname{font-size:11px;font-weight:300;color:var(--tx);line-height:1.4;cursor:pointer;}
+.inote{font-size:9px;color:var(--dim);margin-top:1px;font-style:italic;font-family:var(--fd);}
+.itags{display:flex;gap:3px;flex-wrap:wrap;margin-top:3px;}
+.tag{font-size:7px;padding:1px 5px;border-radius:2px;letter-spacing:0.06em;display:inline-block;font-weight:300;}
+.p1{background:rgba(196,104,88,0.12);color:var(--red);border:1px solid rgba(196,104,88,0.25);}
+.p2{background:rgba(201,168,76,0.1);color:var(--acc);border:1px solid rgba(201,168,76,0.2);}
+.p3{background:rgba(74,170,120,0.08);color:var(--green);border:1px solid rgba(74,170,120,0.18);}
+.p4{background:rgba(106,154,184,0.08);color:var(--blue);border:1px solid rgba(106,154,184,0.15);}
+.ther{background:rgba(196,120,136,0.08);color:var(--rose);border:1px solid rgba(196,120,136,0.2);}
+.test{background:rgba(201,168,76,0.07);color:var(--acc);border:1px solid rgba(201,168,76,0.18);}
+.tmat{background:rgba(106,154,184,0.06);color:var(--blue);border:1px solid rgba(106,154,184,0.14);}
+.hertag{font-size:7px;letter-spacing:0.08em;text-transform:uppercase;color:var(--rose);background:rgba(196,120,136,0.08);border:1px solid rgba(196,120,136,0.2);border-radius:2px;padding:1px 4px;margin-left:4px;vertical-align:middle;}
+.iprice{background:var(--s2);border:1px solid var(--border);border-radius:2px;color:var(--tx);font-family:var(--fd);font-size:12px;font-weight:300;width:100%;outline:none;padding:3px 6px;text-align:right;transition:border-color .15s;}
+.iprice:focus{border-color:var(--acc);} .iprice::placeholder{color:var(--dim);font-size:10px;}
+.idel{background:none;border:none;color:var(--dim);cursor:pointer;font-size:10px;opacity:0;transition:all .15s;padding:1px;}
+.item:hover .idel{opacity:1;} .idel:hover{color:var(--red);}
+.ctotal{display:flex;justify-content:flex-end;align-items:center;gap:10px;padding:5px 8px;margin-top:3px;}
+.ctlbl{font-size:8px;color:var(--dim);letter-spacing:0.08em;} .ctval{font-family:var(--fd);font-size:14px;color:var(--acc);}
+.arow{display:flex;gap:6px;margin-top:7px;flex-wrap:wrap;}
+.ainp{background:var(--s2);border:1px solid var(--border);border-radius:2px;color:var(--tx);font-family:var(--fm);font-size:10px;font-weight:300;padding:5px 8px;outline:none;flex:1;min-width:120px;}
+.ainp::placeholder{color:var(--dim);}
+.abtn{background:none;border:1px dashed var(--border-g);border-radius:2px;color:var(--dim);font-family:var(--fm);font-size:8px;font-weight:300;letter-spacing:0.08em;padding:5px 10px;cursor:pointer;transition:all .2s;}
+.abtn:hover{color:var(--acc);border-color:var(--acc);}
+.empty{text-align:center;padding:28px;font-family:var(--fd);font-style:italic;color:var(--dim);font-size:14px;}
+.toast{position:fixed;bottom:18px;left:50%;transform:translateX(-50%) translateY(44px);background:var(--s2);border:1px solid var(--border-g);color:var(--acc);font-size:8px;font-weight:300;letter-spacing:0.1em;padding:7px 16px;border-radius:2px;transition:transform .35s cubic-bezier(.34,1.56,.64,1);z-index:999;white-space:nowrap;}
+.toast.show{transform:translateX(-50%) translateY(0);}
+@media(max-width:500px){.summary{grid-template-columns:1fr 1fr;}.item{grid-template-columns:18px 1fr 100px 18px;}.content{padding:10px 8px 60px;}}
+</style>
+</head>
+<body>
+<div class="hdr">
+  <div>
+    <div class="brand">Paul &amp; T &middot; Port Harcourt &middot; Home</div>
+    <div class="title">The <em>Home</em> Checklist</div>
+    <div class="subtitle">Built together &mdash; begun with her</div>
+  </div>
+  <div class="hdr-r">
+    <button class="btn" onclick="toggleTheme()">&#9788; / &#9790;</button>
+    <button class="btn her" id="herBtn" onclick="filterHer()">For Her</button>
+    <button class="btn" id="pendBtn" onclick="filterPending()">Pending</button>
+    <button class="btn" onclick="exportData()">Export</button>
+    <button class="btn" onclick="document.getElementById('imp').click()">Import</button>
+    <input type="file" id="imp" accept=".json" style="display:none" onchange="importData(event)">
+    <button class="btn on" onclick="saveAll()">Save</button>
+  </div>
+</div>
+<div class="summary">
+  <div class="sm"><div class="smv a" id="smT">0</div><div class="sml">Total</div></div>
+  <div class="sm"><div class="smv g" id="smD">0</div><div class="sml">Acquired</div></div>
+  <div class="sm"><div class="smv" id="smP">0</div><div class="sml">Pending</div></div>
+  <div class="sm"><div class="smv a" id="smS">&#8358;0</div><div class="sml">Spent</div></div>
+  <div class="sm"><div class="smv" id="smPct">0%</div><div class="sml">Complete</div></div>
+</div>
+<nav class="nav" id="navBar"></nav>
+<div class="content">
+  <div class="sbar">
+    <input class="sinp" id="sinp" placeholder="Search items..." oninput="doSearch()">
+    <button class="fbtn" id="fp1" onclick="filterPri(1,this)">Day One</button>
+    <button class="fbtn" id="fp2" onclick="filterPri(2,this)">Week One</button>
+    <button class="fbtn" id="fp3" onclick="filterPri(3,this)">Month One</button>
+    <button class="fbtn" id="fp4" onclick="filterPri(4,this)">Later</button>
+  </div>
+  <div id="con"></div>
+</div>
+<div class="toast" id="toast"></div>
+<script>
+var PL=['','Day One','Week One','Month One','Later'];
+var CATS=[
+{id:'bedroom',icon:'🛏',name:'Bedroom',items:[
+{n:'Bed frame — double',p:1,e:80000,note:'Solid wood or metal. Avoid chipboard in PH humidity.'},
+{n:'Mattress — high density or orthopedic',p:1,e:120000,note:'Mouka or Vitafoam. Worth spending up on.'},
+{n:'Bed slats or base board',p:1,e:15000},
+{n:'Pillows x4 — two each',p:1,e:12000},
+{n:'Pillow cases x6',p:1,e:8000},
+{n:'Bedsheets fitted x3 sets',p:1,e:25000,note:'Always one clean, one airing, one on.'},
+{n:'Flat sheet x2',p:1,e:10000},
+{n:'Duvet or light blanket',p:1,e:20000,note:'PH is warm — light cotton duvet.'},
+{n:'Duvet cover x2',p:1,e:15000},
+{n:'Mattress protector',p:2,e:8000},
+{n:'Chandelier — bedroom, warm dimmable',p:1,e:45000,her:true,note:'Anchors the room. Warm white only.'},
+{n:'Dimmer switch for chandelier',p:1,e:8000},
+{n:'Wall-mounted shelf or bedside tray x2',p:2,e:12000,note:'One each side — phone, water, small things.'},
+{n:'Water carafe and glass — bedside',p:2,e:5000,her:true,note:'Water within reach at night.'},
+{n:'Dresser with mirror — full length',p:2,e:85000,note:'Replaces separate chest and mirror.'},
+{n:'Lighted vanity mirror — dresser top',p:2,e:25000,her:true,note:'Directed light for skincare and getting ready.'},
+{n:'Wardrobe — full length',p:2,e:95000},
+{n:'Wardrobe hangers — velvet x30',p:2,e:6000,her:true,note:'A section quietly designated for her clothes.'},
+{n:'Curtains — blackout outer layer',p:1,e:22000},
+{n:'Curtains — sheer inner layer',p:1,e:12000,her:true,note:'Soft daylight without full exposure.'},
+{n:'Curtain rods and fittings',p:1,e:8000},
+{n:'Rug — bedroom, warm tone',p:2,e:25000},
+{n:'Robe hook — hers, separate',p:2,e:3000,her:true,note:'Her own hook. Not shared.'},
+{n:'Extra comfort pillow or bolster',p:3,e:8000,her:true},
+{n:'Reed diffuser or electric diffuser — bedroom',p:2,e:12000,her:true,note:'Separate from living area.'},
+{n:'Linen spray — bed',p:2,e:4000,her:true,note:'Bed should smell like somewhere she wants to be.'},
+{n:'Skincare drawer — dedicated to her',p:2,e:0,her:true,note:'Enclosed in dresser. Away from heat and light. Cost included in dresser.'},
+{n:'Fragrance tray on dresser — shared surface',p:2,e:4000,her:true,note:'His and hers fragrances. One considered surface.'},
+{n:'Framed print or artwork — bedroom wall',p:3,e:15000,note:'One considered piece.'},
+{n:'Indoor plant — snake plant or pothos',p:3,e:5000},
+{n:'Plant pot',p:3,e:3000},
+{n:'Laundry basket',p:2,e:5000},
+{n:'Door hook or back-of-door rack',p:3,e:3000},
+{n:'Small fan or standing fan',p:1,e:18000},
+{n:'Air conditioner',p:4,e:250000},
+{n:'Stabiliser — AC',p:4,e:35000},
+{n:'Insect repellent or mosquito net',p:1,e:4000},
+{n:'Torch — rechargeable',p:1,e:3000}
+]},
+{id:'bathroom',icon:'🚿',name:'Bathroom',items:[
+{n:'Shower partition or screen — supply and install',p:1,e:80000,mat:'Tempered glass or acrylic panel',note:'As sketched.'},
+{n:'Mirror cabinet — above sink, supply and install',p:1,e:55000,mat:'Wall-mounted aluminium frame, mirror front, shelved interior',her:true,note:'Her things inside.'},
+{n:'Bath products cabinet — shower zone, supply and install',p:1,e:35000,mat:'Moisture-resistant MDF or PVC board',note:'Under heater position.'},
+{n:'Bath towels x4',p:1,e:14000},
+{n:'Hand towels x4',p:1,e:8000},
+{n:'Face towels x4',p:1,e:6000},
+{n:'Towel rack or hooks — his',p:1,e:5000},
+{n:'Towel hook — hers, separate position',p:1,e:2500,her:true,note:'Her own hook. Not shared.'},
+{n:'Bath mat — non-slip',p:1,e:4000},
+{n:'Shower curtain rings if needed',p:2,e:2000},
+{n:'Toilet brush and holder',p:1,e:3000},
+{n:'Toilet roll holder',p:1,e:3500},
+{n:'Toilet rolls — stock',p:1,e:5000},
+{n:'Soap dish',p:1,e:2000},
+{n:'Toothbrush holder',p:1,e:2500},
+{n:'Quality hand soap — fragranced',p:1,e:3500,her:true,note:'Scent consideration. Not clinical.'},
+{n:'Small diffuser or air freshener — considered',p:2,e:8000,her:true},
+{n:'Toothbrush x2 spare',p:1,e:2000},
+{n:'Toothpaste',p:1,e:1500},
+{n:'Feminine hygiene products — stocked quietly',p:1,e:5000,her:true,note:'A man who thought ahead.'},
+{n:'Floss',p:2,e:1500},
+{n:'Mouthwash',p:2,e:2500},
+{n:'Shampoo',p:1,e:3500},
+{n:'Conditioner',p:2,e:3500},
+{n:'Body wash',p:1,e:3000},
+{n:'Shaving kit',p:1,e:5000},
+{n:'Deodorant',p:1,e:3000},
+{n:'Body lotion and moisturiser',p:1,e:4000},
+{n:'Face wash',p:1,e:3500},
+{n:'Bathroom bin and liner',p:1,e:3000},
+{n:'Bucket large',p:1,e:2500},
+{n:'Bucket small',p:1,e:1500},
+{n:'Nail clipper',p:2,e:2000},
+{n:'Cotton buds',p:2,e:1000},
+{n:'Cotton pads',p:2,e:1500,her:true},
+{n:'First aid kit — basic',p:2,e:8000,note:'Plasters, antiseptic, thermometer.'},
+{n:'Paracetamol and ibuprofen',p:1,e:2000},
+{n:'Antihistamine and vitamin C',p:2,e:3000},
+{n:'Antiseptic cream and plasters',p:2,e:2000}
+]},
+{id:'kitchen',icon:'🍳',name:'Kitchen',items:[
+{n:'Cooker platform — extended concrete top with storage below',p:1,e:180000,mat:'Reinforced concrete base, ceramic or porcelain tile surface. Sealed for heat and moisture.',note:'Longer than standard. Real workspace. Pull-out spice drawer built in.'},
+{n:'Pull-out spice drawer — cooker zone',p:1,e:25000,mat:'Soft-close drawer mechanism, timber or aluminium box',her:true,note:'Her spices within reach of the heat source.'},
+{n:'Appliance cabinet — three levels, middle split',p:1,e:150000,mat:'Plywood carcass, MDF doors, dark wood laminate finish',note:'Daily appliances: microwave, kettle. Near outlets.'},
+{n:'Tea and beverage cabinet — separate',p:2,e:60000,mat:'Matching finish to appliance cabinet',her:true,note:'Her water bottle, mug, teas. Visibly hers.'},
+{n:'Kitchen blinds — window',p:2,e:18000,mat:'PVC roller blind or fabric Roman blind, moisture-resistant'},
+{n:'Ventilation — extractor fan',p:3,e:35000,mat:'Window-mounted or wall-mounted extractor',note:'Check structural provision first.'},
+{n:'Refrigerator — full size',p:1,e:280000},
+{n:'Deep freezer — dedicated food preservation',p:1,e:160000},
+{n:'Stabiliser — fridge',p:1,e:25000},
+{n:'Stabiliser — deep freezer',p:1,e:25000},
+{n:'Gas cooker — 4 burner',p:1,e:65000},
+{n:'Gas cylinder',p:1,e:25000},
+{n:'Gas hose and regulator',p:1,e:5000},
+{n:'Gas lighter',p:1,e:1000},
+{n:'Washing machine — kitchen verandah',p:2,e:180000,note:'Game changer for two people.'},
+{n:'Stabiliser — washing machine',p:2,e:20000},
+{n:'Microwave',p:2,e:55000},
+{n:'Stabiliser — microwave',p:2,e:15000},
+{n:'Electric kettle',p:1,e:12000},
+{n:'Air fryer',p:3,e:45000},
+{n:'Blender',p:3,e:25000},
+{n:'Cooking pots — medium and large',p:1,e:20000},
+{n:'Frying pan',p:1,e:7000},
+{n:'Cooking spoon, ladle, spatula set',p:1,e:4000},
+{n:'Colander and strainer',p:2,e:3000},
+{n:'Chopping boards x2',p:1,e:5000},
+{n:'Chef knife and paring knife',p:1,e:12000},
+{n:'Can opener and bottle opener',p:2,e:3000},
+{n:'Grater and peeler',p:2,e:3000},
+{n:'Measuring cups and spoons',p:2,e:3000},
+{n:'Mixing bowls x2',p:2,e:5000},
+{n:'Dinner plates x6',p:1,e:12000},
+{n:'Side plates x4',p:2,e:6000},
+{n:'Bowls x6',p:1,e:8000},
+{n:'Cups and mugs x6',p:1,e:8000},
+{n:'Glasses x6',p:1,e:8000},
+{n:'Cutlery set x6',p:1,e:10000},
+{n:'Serving dish and tray',p:2,e:6000},
+{n:'Dish rack',p:1,e:5000},
+{n:'Dish washing liquid and sponges',p:1,e:3000},
+{n:'Kitchen towels and cloths',p:1,e:3000},
+{n:'Rubber gloves',p:2,e:1500},
+{n:'Food storage containers x6',p:2,e:8000},
+{n:'Kitchen bin and liner bags',p:1,e:5000},
+{n:'Aprons x2 — for cooking together',p:3,e:5000,her:true},
+{n:'Oven mitts x2 pairs',p:2,e:4000},
+{n:'Cooking oil, salt, seasoning — starter stock',p:1,e:8000},
+{n:'Tea, coffee, sugar — starter stock',p:1,e:5000,her:true},
+{n:'Rice and staples — starter stock',p:1,e:8000},
+{n:'Water dispenser — location TBC',p:3,e:35000}
+]},
+{id:'living',icon:'🛋',name:'Living Area',items:[
+{n:'Sofa — cream or warm neutral, 3-seater',p:1,e:350000,note:'The anchor piece.'},
+{n:'Accent chair — cognac leather',p:1,e:120000,her:true,note:'Warm and deliberate. The second seat.'},
+{n:'Coffee table — dark marble top, metal frame',p:1,e:95000},
+{n:'TV console — fluted wood, low and long',p:1,e:110000,note:'Dark warm tone.'},
+{n:'Television — 55 inch',p:2,e:400000},
+{n:'Stabiliser — TV',p:2,e:20000},
+{n:'TV wall mount',p:2,e:12000},
+{n:'LED backlight — behind TV, warm amber',p:2,e:8000},
+{n:'Pendant or chandelier — living area',p:1,e:75000},
+{n:'Wall sconces x2',p:2,e:35000,note:'Ambience layer.'},
+{n:'Dimmer switches — all living area lights',p:1,e:15000},
+{n:'Curtains — blackout outer layer',p:1,e:45000},
+{n:'Curtains — sheer inner layer',p:1,e:20000,her:true},
+{n:'Curtain rods and fittings',p:1,e:12000},
+{n:'Rug — large, warm tone',p:1,e:65000},
+{n:'Throw cushions x4 — chosen together',p:2,e:15000,her:true,note:'Her input on colour and texture.'},
+{n:'Throw blanket',p:2,e:8000,her:true},
+{n:'Indoor plant — large fiddle leaf or ficus',p:2,e:18000,note:'Anchors TV wall.'},
+{n:'Indoor plant — small for console or shelf',p:3,e:6000},
+{n:'Plant pots x2',p:2,e:8000},
+{n:'Scent diffuser — living area',p:2,e:15000,note:'Signature scent for the space.'},
+{n:'Diffuser oils',p:2,e:6000},
+{n:'Wall art — large framed piece',p:2,e:35000},
+{n:'Framed photo — TV console',p:3,e:5000,her:true,note:'Small, personal, yours and hers.'},
+{n:'Picture hooks and fittings',p:2,e:3000},
+{n:'Coffee table books or tray styling',p:3,e:8000,her:true,note:'Chosen together.'},
+{n:'Bookshelf or display shelves',p:3,e:45000},
+{n:'Bluetooth speaker — quality',p:3,e:35000},
+{n:'HDMI cable',p:2,e:3000}
+]},
+{id:'workspace',icon:'💻',name:'Workspace',items:[
+{n:'Trading desk — large, dark wood tone',p:1,e:120000,note:'Monitors, laptop, trading setup.'},
+{n:'Study desk — 120x60cm, matching tone',p:1,e:100000,note:'Reading, writing, engineering work.'},
+{n:'Bar counter extension — from study desk end',p:2,e:80000,mat:'Match desk surface. Dark wood veneer or laminate on MDF frame.',her:true,note:'Where she sits while you work.'},
+{n:'Bar stools x2 — tall, dark, sleek',p:2,e:55000,her:true},
+{n:'Ergonomic office chair',p:1,e:260000,note:'Hours at this desk. Back matters.'},
+{n:'Curved ultrawide monitor — 38 inch or larger',p:1,e:400000,note:'Trading primary screen.'},
+{n:'Vertical secondary monitor — 24 inch',p:1,e:120000},
+{n:'Monitor arms x2',p:2,e:35000},
+{n:'Laptop stand',p:2,e:15000},
+{n:'External keyboard',p:2,e:25000},
+{n:'Mouse and large mousepad',p:2,e:15000},
+{n:'USB hub',p:2,e:12000},
+{n:'Desk lamp — warm, adjustable, study side',p:1,e:18000},
+{n:'Wall sconces — workspace x2',p:2,e:30000},
+{n:'Dark blackout curtain — backdrop',p:1,e:35000,note:'Anchors the entire aesthetic.'},
+{n:'Floating shelves — trading wall x2',p:2,e:28000,note:'120cm and 80cm.'},
+{n:'Floating shelf — study side, brass or gold-toned',p:2,e:22000,her:true,note:'Warms the dark room. Short-use books and journals.'},
+{n:'Framed motivational wall art x2',p:2,e:45000,note:'Yours to choose what they say.'},
+{n:'Whiteboard or planner frame — study wall',p:2,e:30000},
+{n:'Area rug — dark, textured, 120x170cm',p:2,e:65000},
+{n:'Mobile drawer unit',p:2,e:60000},
+{n:'Indoor plants — small x3 for shelves and desk',p:3,e:12000},
+{n:'Desk organiser and pen holder',p:2,e:5000},
+{n:'Pens — ballpoint, gel, fine liner',p:1,e:3000},
+{n:'Notebooks and journals x4',p:1,e:8000,note:'Trading, ideas, engineering, personal.'},
+{n:'Sticky notes',p:2,e:2000},
+{n:'Document section — built into study desk',p:2,e:5000,note:'Files, folders, expanding file.'},
+{n:'Household notebook — shared, physical',p:2,e:2000,her:true,note:'Running lists, decisions, house notes. Both of you.'},
+{n:'Printer — HP LaserJet or similar',p:3,e:145000},
+{n:'Printer paper — A4 ream',p:3,e:5000},
+{n:'Files and folders',p:2,e:4000},
+{n:'Scissors, ruler, tape, stapler',p:2,e:5000},
+{n:'Small bar setup — glasses, decanter',p:3,e:25000,note:'On the bar counter. Considered, not excessive.'},
+{n:'One personal object — chosen for her',p:3,e:5000,her:true,note:'On study desk or shelf. Chosen with her in mind.'}
+]},
+{id:'laundry',icon:'👕',name:'Laundry and Cleaning',items:[
+{n:'Foldable ironing board',p:2,e:12000,note:'Space-saving.'},
+{n:'Iron',p:2,e:15000},
+{n:'Mesh laundry bag — delicates',p:2,e:2000,her:true,note:'Quiet consideration.'},
+{n:'Laundry detergent',p:1,e:5000},
+{n:'Fabric softener',p:2,e:3500},
+{n:'Stain remover',p:2,e:3000},
+{n:'Drying rack',p:1,e:8000},
+{n:'Clothespins',p:1,e:1500},
+{n:'Broom and dustpan',p:1,e:4000},
+{n:'Mop and bucket',p:1,e:6000},
+{n:'Floor cleaner and disinfectant',p:1,e:4000},
+{n:'All-purpose surface cleaner',p:1,e:3000},
+{n:'Sponge scourers x5',p:1,e:2000},
+{n:'Cleaning cloths x5',p:1,e:2500},
+{n:'Rubber gloves — cleaning',p:1,e:1500},
+{n:'Toilet cleaner and bleach',p:1,e:3000},
+{n:'Bin bags — large and small',p:1,e:3000},
+{n:'Vacuum cleaner or dustbuster',p:3,e:45000},
+{n:'Insecticide spray',p:1,e:3000},
+{n:'Cockroach chalk or bait',p:1,e:2000}
+]},
+{id:'power',icon:'⚡',name:'Power and Tech',items:[
+{n:'Petrol generator — sized for ACs',p:1,e:350000,note:'Big enough to handle air conditioning load.'},
+{n:'Solar generator — explore as complement',p:3,e:400000,note:'Jackery or Bluetti type. Clean, quiet, good for trading continuity.'},
+{n:'Fuel can',p:1,e:5000},
+{n:'Stabiliser — fridge',p:1,e:25000},
+{n:'Stabiliser — deep freezer',p:1,e:25000},
+{n:'Stabiliser — washing machine',p:2,e:20000},
+{n:'Stabiliser — microwave',p:2,e:15000},
+{n:'Stabiliser — AC per unit',p:3,e:35000},
+{n:'Stabiliser — TV and workspace electronics',p:1,e:25000},
+{n:'Surge protector — workspace',p:1,e:8000},
+{n:'Extension cords 4-6 socket x3',p:1,e:9000},
+{n:'Extension cord long 10m',p:2,e:5000},
+{n:'MTN Fibre X — router and subscription',p:1,e:50000},
+{n:'Phone charger — fast charge',p:1,e:5000},
+{n:'Spare phone charger',p:2,e:4000},
+{n:'Laptop charger and spare',p:1,e:15000},
+{n:'Power bank — high capacity 20000mAh plus',p:2,e:18000},
+{n:'USB-C multi cable set',p:2,e:5000},
+{n:'Lightbulbs — warm white 2700K x12',p:1,e:12000,note:'Throughout the entire home.'},
+{n:'Torch — rechargeable',p:1,e:5000},
+{n:'Candles and matches — emergency',p:2,e:3000},
+{n:'Battery set — AA and AAA',p:2,e:3000},
+{n:'Smoke detector',p:3,e:8000},
+{n:'Fire extinguisher — small',p:3,e:12000}
+]},
+{id:'water',icon:'💧',name:'Water',items:[
+{n:'Buckets — large x3',p:1,e:6000,note:'Compound tanks supply water when there is light.'},
+{n:'Drinking water — initial stock',p:1,e:5000},
+{n:'Water dispenser — location TBC after kitchen is built',p:3,e:35000}
+]},
+{id:'entrance',icon:'🚪',name:'Entrance and General',items:[
+{n:'Entrance light — warm outdoor wall light',p:2,e:12000,note:'Arriving home should feel welcoming, not functional.'},
+{n:'Shoe organiser — entrance outside',p:2,e:15000},
+{n:'Door mat — considered quality',p:2,e:6000},
+{n:'Wall hook rail — just inside door',p:2,e:8000,her:true,note:'Bags, keys, jackets. Landing spot for both.'},
+{n:'Spare keys x3 — one hers',p:1,e:3000,her:true,note:'One set designated hers. Day one.'},
+{n:'Padlock — gate or door',p:1,e:5000},
+{n:'Umbrellas x2',p:2,e:6000,her:true},
+{n:'Toolbox — hammer, screwdrivers, pliers, tape',p:2,e:15000},
+{n:'WD-40, superglue, duct tape',p:2,e:5000},
+{n:'Picture hanging kit',p:2,e:3000},
+{n:'Sewing kit',p:3,e:2000},
+{n:'Wall clock',p:3,e:8000},
+{n:'Sticky notes — quickies and shared info',p:2,e:2000,her:true}
+]},
+{id:'personal',icon:'🧴',name:'Personal Care',items:[
+{n:'Perfume and cologne — his',p:1,e:15000},
+{n:'Skincare routine items — his',p:1,e:12000},
+{n:'Fragrance tray — shared dresser surface',p:2,e:4000,her:true,note:'His and hers. One considered surface.'},
+{n:'Hair products and comb',p:1,e:5000},
+{n:'Electric clipper',p:2,e:18000},
+{n:'Medicine cabinet — expanded',p:2,e:12000,note:'Paracetamol, ibuprofen, antacid, antihistamine, vitamin C, feminine pain relief.'},
+{n:'Vitamin supplements',p:3,e:8000},
+{n:'Lint roller',p:3,e:3000},
+{n:'Shoe care kit',p:3,e:5000},
+{n:'Mesh laundry bag — delicates',p:2,e:2000,her:true}
+]}
+];
+
+var LS='home_v3';
+var S={done:{},prices:{},custom:{}};
+var activeF=null,pendF=false,herF=false;
+
+function load(){try{var s=localStorage.getItem(LS);if(s)S=JSON.parse(s);}catch(e){}}
+function saveAll(){try{localStorage.setItem(LS,JSON.stringify(S));toast('Saved.');}catch(e){toast('Save failed.');}updateSummary();}
+function exportData(){var b=new Blob([JSON.stringify({state:S,exported:new Date().toISOString()},null,2)],{type:'application/json'});var a=document.createElement('a');a.href=URL.createObjectURL(b);a.download='home-checklist-'+new Date().toISOString().slice(0,10)+'.json';a.click();toast('Exported.');}
+function importData(e){var f=e.target.files[0];if(!f)return;var r=new FileReader();r.onload=function(ev){try{var p=JSON.parse(ev.target.result);if(p.state){S=p.state;localStorage.setItem(LS,JSON.stringify(S));render();toast('Imported.');}else toast('Invalid file.');}catch(err){toast('Could not read.');}};r.readAsText(f);e.target.value='';}
+function toggleTheme(){document.body.classList.toggle('light');try{localStorage.setItem('home_theme',document.body.classList.contains('light')?'light':'dark');}catch(e){}}
+function toast(m){var t=document.getElementById('toast');t.textContent=m;t.classList.add('show');setTimeout(function(){t.classList.remove('show');},2400);}
+function parseN(s){return parseFloat(String(s).replace(/[^0-9.]/g,''))||0;}
+function fmtN(n){return Math.round(n).toLocaleString();}
+function setText(id,v){var el=document.getElementById(id);if(el)el.textContent=v;}
+
+function makeItem(catId,ii,item,isC){
+  var key=isC?(catId+'_c_'+ii):(catId+'_'+ii);
+  var done=S.done[key]||false;
+  var price=S.prices[key]||'';
+  var est=item.e?('~\u20a6'+fmtN(item.e)):'';
+  var ph=item.e?('~\u20a6'+fmtN(item.e)+' est'):'\u20a6 actual';
+  var div=document.createElement('div');
+  div.className='item'+(done?' done':'');
+  div.id='item_'+key;
+  var chk=document.createElement('div');
+  chk.className='ichk'+(item.her?' her':'');
+  chk.textContent=done?'\u2713':'';
+  chk.onclick=(function(k){return function(){toggleDone(k);};})(key);
+  var body=document.createElement('div');
+  body.className='ibody';
+  var name=document.createElement('div');
+  name.className='iname';
+  name.textContent=item.n;
+  if(item.her){var ht=document.createElement('span');ht.className='hertag';ht.textContent='for her';name.appendChild(ht);}
+  name.onclick=(function(k){return function(){toggleDone(k);};})(key);
+  body.appendChild(name);
+  if(item.note){var nt=document.createElement('div');nt.className='inote';nt.textContent=item.note;body.appendChild(nt);}
+  var tags=document.createElement('div');
+  tags.className='itags';
+  if(item.p){var pt=document.createElement('span');pt.className='tag p'+item.p;pt.textContent=PL[item.p];tags.appendChild(pt);}
+  if(item.her){var ht2=document.createElement('span');ht2.className='tag ther';ht2.textContent='for her';tags.appendChild(ht2);}
+  if(item.mat){var mt=document.createElement('span');mt.className='tag tmat';mt.title=item.mat;mt.textContent='material note';tags.appendChild(mt);}
+  if(est){var et=document.createElement('span');et.className='tag test';et.textContent=est;tags.appendChild(et);}
+  body.appendChild(tags);
+  var estDiv=document.createElement('div');
+  estDiv.className='item-est';
+  estDiv.style.cssText='font-family:var(--fd);font-size:12px;color:var(--dim);text-align:right;padding-top:2px;';
+  estDiv.textContent=est;
+  var inp=document.createElement('input');
+  inp.className='iprice';
+  inp.type='text';
+  inp.placeholder=ph;
+  inp.value=price;
+  inp.oninput=(function(k,cid){return function(){S.prices[k]=this.value;updateCatTotal(cid);updateSummary();};})(key,catId);
+  var del=document.createElement('button');
+  del.className='idel';
+  del.textContent='\u2715';
+  del.title='Remove';
+  del.onclick=(function(cid,i,c){return function(){delItem(cid,i,c);};})(catId,ii,isC);
+  div.appendChild(chk);div.appendChild(body);div.appendChild(estDiv);div.appendChild(inp);div.appendChild(del);
+  return div;
+}
+
+function makeCat(cat){
+  var customs=S.custom[cat.id]||[];
+  var allLen=cat.items.length+customs.length;
+  var doneCount=0;
+  cat.items.forEach(function(_,ii){if(S.done[cat.id+'_'+ii])doneCount++;});
+  customs.forEach(function(_,ci){if(S.done[cat.id+'_c_'+ci])doneCount++;});
+  var wrap=document.createElement('div');
+  wrap.className='cat';wrap.id='cat_'+cat.id;
+  var hdr=document.createElement('div');hdr.className='chdr';
+  hdr.onclick=(function(id){return function(){document.getElementById('cat_'+id).classList.toggle('collapsed');};})(cat.id);
+  hdr.innerHTML='<div class="cicon">'+cat.icon+'</div><div class="cname">'+cat.name+'</div><div class="ccnt">'+allLen+' items</div><div class="cprog">'+doneCount+'/'+allLen+'</div><div class="carr">&#9662;</div>';
+  var body=document.createElement('div');body.className='cbody';
+  cat.items.forEach(function(item,ii){body.appendChild(makeItem(cat.id,ii,item,false));});
+  customs.forEach(function(n,ci){body.appendChild(makeItem(cat.id,ci,{n:n,p:4},true));});
+  var tot=document.createElement('div');tot.className='ctotal';
+  tot.innerHTML='<span class="ctlbl">Category estimate</span><span class="ctval" id="ct_'+cat.id+'">&#8358;0</span>';
+  body.appendChild(tot);
+  var arow=document.createElement('div');arow.className='arow';
+  var ainp=document.createElement('input');ainp.className='ainp';ainp.id='ai_'+cat.id;ainp.placeholder='Add item...';
+  ainp.onkeydown=(function(id){return function(e){if(e.key==='Enter')addItem(id);};})(cat.id);
+  var abtn=document.createElement('button');abtn.className='abtn';abtn.textContent='+ Add';
+  abtn.onclick=(function(id){return function(){addItem(id);};})(cat.id);
+  arow.appendChild(ainp);arow.appendChild(abtn);body.appendChild(arow);
+  wrap.appendChild(hdr);wrap.appendChild(body);
+  return wrap;
+}
+
+function render(){
+  var nav=document.getElementById('navBar');
+  var con=document.getElementById('con');
+  nav.innerHTML='';con.innerHTML='';
+  CATS.forEach(function(cat,ci){
+    var btn=document.createElement('button');
+    btn.className='nt'+(ci===0?' active':'');
+    btn.textContent=cat.icon+' '+cat.name;
+    btn.onclick=(function(i,b){return function(){showCat(i,b);};})(ci,btn);
+    nav.appendChild(btn);
+    var page=document.createElement('div');
+    page.className='page'+(ci===0?' active':'');
+    page.id='page_'+cat.id;
+    page.appendChild(makeCat(cat));
+    con.appendChild(page);
+  });
+  updateSummary();
+}
+
+function showCat(ci,btn){
+  document.querySelectorAll('.page').forEach(function(p){p.classList.remove('active');});
+  document.querySelectorAll('.nt').forEach(function(t){t.classList.remove('active');});
+  document.getElementById('page_'+CATS[ci].id).classList.add('active');
+  btn.classList.add('active');
+}
+
+function toggleDone(key){
+  S.done[key]=!S.done[key];
+  var el=document.getElementById('item_'+key);
+  if(el){
+    el.classList.toggle('done',S.done[key]);
+    var c=el.querySelector('.ichk');if(c)c.textContent=S.done[key]?'\u2713':'';
+  }
+  saveAll();
+}
+
+function updateCatTotal(catId){
+  var t=0;
+  Object.keys(S.prices).forEach(function(k){if(k.indexOf(catId+'_')===0)t+=parseN(S.prices[k]);});
+  var el=document.getElementById('ct_'+catId);if(el)el.textContent=t?'\u20a6'+fmtN(t):'\u20a6'+fmtN(getEstTotal(catId));
+}
+
+function getEstTotal(catId){
+  var cat=CATS.find(function(c){return c.id===catId;});
+  if(!cat)return 0;
+  return cat.items.reduce(function(a,item){return a+(item.e||0);},0);
+}
+
+function updateSummary(){
+  var total=0,done=0,spent=0;
+  CATS.forEach(function(cat){
+    cat.items.forEach(function(_,ii){total++;var k=cat.id+'_'+ii;if(S.done[k])done++;spent+=parseN(S.prices[k]||'0');});
+    (S.custom[cat.id]||[]).forEach(function(_,ci){total++;var k=cat.id+'_c_'+ci;if(S.done[k])done++;spent+=parseN(S.prices[k]||'0');});
+  });
+  setText('smT',total);setText('smD',done);setText('smP',total-done);
+  setText('smS','\u20a6'+fmtN(spent));setText('smPct',total?Math.round(done/total*100)+'%':'0%');
+  CATS.forEach(function(cat){updateCatTotal(cat.id);});
+}
+
+function addItem(catId){
+  var inp=document.getElementById('ai_'+catId);var val=inp.value.trim();if(!val)return;
+  if(!S.custom[catId])S.custom[catId]=[];S.custom[catId].push(val);inp.value='';saveAll();
+  render();
+  document.querySelectorAll('.page').forEach(function(p){p.classList.remove('active');});
+  document.querySelectorAll('.nt').forEach(function(t){t.classList.remove('active');});
+  var idx=CATS.findIndex(function(c){return c.id===catId;});
+  document.getElementById('page_'+catId).classList.add('active');
+  document.querySelectorAll('.nt')[idx].classList.add('active');
+}
+
+function delItem(catId,ii,isC){
+  if(isC&&S.custom[catId])S.custom[catId].splice(ii,1);
+  saveAll();render();
+}
+
+function filterHer(){
+  herF=!herF;pendF=false;activeF=null;
+  document.getElementById('herBtn').classList.toggle('on',herF);
+  document.getElementById('pendBtn').classList.remove('on');
+  document.querySelectorAll('.fbtn').forEach(function(b){b.classList.remove('on');});
+  if(!herF){render();return;}
+  var con=document.getElementById('con');con.innerHTML='';
+  var wrap=document.createElement('div');wrap.className='cat';
+  wrap.innerHTML='<div class="chdr" style="cursor:default"><div class="cname">For Her</div></div>';
+  var body=document.createElement('div');body.className='cbody';
+  var count=0;
+  CATS.forEach(function(cat){cat.items.forEach(function(item,ii){if(item.her){body.appendChild(makeItem(cat.id,ii,item,false));count++;}});});
+  if(!count){var em=document.createElement('div');em.className='empty';em.textContent='No items tagged yet.';body.appendChild(em);}
+  wrap.appendChild(body);con.appendChild(wrap);
+  document.querySelectorAll('.nt').forEach(function(t){t.classList.remove('active');});
+}
+
+function filterPending(){
+  pendF=!pendF;herF=false;activeF=null;
+  document.getElementById('pendBtn').classList.toggle('on',pendF);
+  document.getElementById('herBtn').classList.remove('on');
+  document.querySelectorAll('.fbtn').forEach(function(b){b.classList.remove('on');});
+  if(!pendF){render();return;}
+  var con=document.getElementById('con');con.innerHTML='';
+  var wrap=document.createElement('div');wrap.className='cat';
+  wrap.innerHTML='<div class="chdr" style="cursor:default"><div class="cname">Pending Items</div></div>';
+  var body=document.createElement('div');body.className='cbody';
+  var count=0;
+  CATS.forEach(function(cat){cat.items.forEach(function(item,ii){var k=cat.id+'_'+ii;if(!S.done[k]){body.appendChild(makeItem(cat.id,ii,item,false));count++;}});});
+  if(!count){var em=document.createElement('div');em.className='empty';em.textContent='Everything acquired!';body.appendChild(em);}
+  wrap.appendChild(body);con.appendChild(wrap);
+  document.querySelectorAll('.nt').forEach(function(t){t.classList.remove('active');});
+}
+
+function filterPri(pri,btn){
+  document.getElementById('sinp').value='';herF=false;pendF=false;
+  document.getElementById('herBtn').classList.remove('on');
+  document.getElementById('pendBtn').classList.remove('on');
+  if(activeF===pri){activeF=null;btn.classList.remove('on');render();return;}
+  activeF=pri;
+  document.querySelectorAll('.fbtn').forEach(function(b){b.classList.remove('on');});
+  btn.classList.add('on');
+  var con=document.getElementById('con');con.innerHTML='';
+  var wrap=document.createElement('div');wrap.className='cat';
+  wrap.innerHTML='<div class="chdr" style="cursor:default"><div class="cname">'+PL[pri]+'</div></div>';
+  var body=document.createElement('div');body.className='cbody';
+  var count=0;
+  CATS.forEach(function(cat){cat.items.forEach(function(item,ii){if(item.p===pri){body.appendChild(makeItem(cat.id,ii,item,false));count++;}});});
+  if(!count){var em=document.createElement('div');em.className='empty';em.textContent='No items in this priority.';body.appendChild(em);}
+  wrap.appendChild(body);con.appendChild(wrap);
+  document.querySelectorAll('.nt').forEach(function(t){t.classList.remove('active');});
+}
+
+function doSearch(){
+  var q=document.getElementById('sinp').value.toLowerCase().trim();
+  herF=false;pendF=false;activeF=null;
+  document.getElementById('herBtn').classList.remove('on');
+  document.getElementById('pendBtn').classList.remove('on');
+  document.querySelectorAll('.fbtn').forEach(function(b){b.classList.remove('on');});
+  if(!q){render();return;}
+  var con=document.getElementById('con');con.innerHTML='';
+  var wrap=document.createElement('div');wrap.className='cat';
+  wrap.innerHTML='<div class="chdr" style="cursor:default"><div class="cname">Search Results</div></div>';
+  var body=document.createElement('div');body.className='cbody';
+  var count=0;
+  CATS.forEach(function(cat){cat.items.forEach(function(item,ii){if(item.n.toLowerCase().indexOf(q)>-1||(item.note||'').toLowerCase().indexOf(q)>-1){body.appendChild(makeItem(cat.id,ii,item,false));count++;}});});
+  if(!count){var em=document.createElement('div');em.className='empty';em.textContent='Nothing found for "'+q+'"';body.appendChild(em);}
+  wrap.appendChild(body);con.appendChild(wrap);
+  document.querySelectorAll('.nt').forEach(function(t){t.classList.remove('active');});
+}
+
+load();
+try{if(localStorage.getItem('home_theme')==='light')document.body.classList.add('light');}catch(e){}
+render();
+</script>
+</body>
+</html>

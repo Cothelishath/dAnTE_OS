@@ -1,0 +1,1809 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>May 2026 — Paul Bassey</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=DM+Mono:wght@300;400;500&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root[data-theme="dark"] {
+    --bg: #0d0d0d;
+    --bg-2: #141414;
+    --bg-3: #1a1a1a;
+    --bg-4: #222222;
+    --border: rgba(255,255,255,0.07);
+    --border-accent: rgba(212,175,55,0.3);
+    --text-primary: #f0ede8;
+    --text-secondary: #888880;
+    --text-muted: #555550;
+    --gold: #d4af37;
+    --gold-dim: rgba(212,175,55,0.15);
+    --gold-bright: #e8c84a;
+    --spine: #d4af37;
+    --ground: #7eb8a4;
+    --build: #8fa8c8;
+    --events: #c49a6c;
+    --danger: #c87060;
+    --success: #7eb87e;
+    --shadow: 0 4px 40px rgba(0,0,0,0.6);
+  }
+  :root[data-theme="light"] {
+    --bg: #f5f2eb;
+    --bg-2: #ede9e0;
+    --bg-3: #e5e0d5;
+    --bg-4: #dbd5c8;
+    --border: rgba(0,0,0,0.08);
+    --border-accent: rgba(160,120,20,0.3);
+    --text-primary: #1a1812;
+    --text-secondary: #6b6555;
+    --text-muted: #aaa090;
+    --gold: #a07810;
+    --gold-dim: rgba(160,120,20,0.1);
+    --gold-bright: #b88c18;
+    --spine: #a07810;
+    --ground: #3d7a68;
+    --build: #3d5f8a;
+    --events: #8a6030;
+    --danger: #a04030;
+    --success: #3d7a3d;
+    --shadow: 0 4px 40px rgba(0,0,0,0.1);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--text-primary);
+    font-family: 'Outfit', sans-serif;
+    font-weight: 300;
+    min-height: 100vh;
+    transition: background 0.4s, color 0.4s;
+  }
+
+  /* HEADER */
+  header {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: var(--bg);
+    border-bottom: 1px solid var(--border);
+    padding: 0 2rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 64px;
+  }
+
+  .header-left {
+    display: flex;
+    align-items: baseline;
+    gap: 1rem;
+  }
+
+  .header-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.5rem;
+    font-weight: 400;
+    color: var(--gold);
+    letter-spacing: 0.02em;
+  }
+
+  .header-sub {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.7rem;
+    color: var(--text-muted);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+
+  .header-right {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+  }
+
+  .month-badge {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.65rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+  }
+
+  .theme-toggle {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    border: 1px solid var(--border);
+    background: var(--bg-3);
+    color: var(--text-secondary);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.9rem;
+    transition: all 0.2s;
+  }
+  .theme-toggle:hover { border-color: var(--gold); color: var(--gold); }
+
+  /* NAV TABS */
+  .nav-tabs {
+    display: flex;
+    gap: 0;
+    padding: 0 2rem;
+    background: var(--bg-2);
+    border-bottom: 1px solid var(--border);
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+  .nav-tabs::-webkit-scrollbar { display: none; }
+
+  .tab-btn {
+    padding: 0.85rem 1.5rem;
+    background: none;
+    border: none;
+    border-bottom: 2px solid transparent;
+    color: var(--text-muted);
+    font-family: 'DM Mono', monospace;
+    font-size: 0.65rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: all 0.2s;
+  }
+  .tab-btn:hover { color: var(--text-secondary); }
+  .tab-btn.active { color: var(--gold); border-bottom-color: var(--gold); }
+
+  /* MAIN */
+  main {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 2.5rem 2rem 4rem;
+  }
+
+  .tab-panel { display: none; }
+  .tab-panel.active { display: block; }
+
+  /* OVERVIEW TAB */
+  .month-statement {
+    background: var(--bg-2);
+    border: 1px solid var(--border-accent);
+    border-left: 3px solid var(--gold);
+    padding: 2rem 2.5rem;
+    margin-bottom: 2.5rem;
+    border-radius: 2px;
+  }
+
+  .month-statement p {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.25rem;
+    font-weight: 300;
+    font-style: italic;
+    color: var(--text-primary);
+    line-height: 1.7;
+  }
+
+  .month-statement .author {
+    margin-top: 1rem;
+    font-family: 'DM Mono', monospace;
+    font-size: 0.6rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+  }
+
+  /* HIERARCHY CARDS */
+  .hierarchy-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+    margin-bottom: 2.5rem;
+  }
+
+  @media (max-width: 700px) {
+    .hierarchy-grid { grid-template-columns: 1fr; }
+  }
+
+  .h-card {
+    background: var(--bg-2);
+    border: 1px solid var(--border);
+    border-radius: 2px;
+    padding: 1.5rem;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .h-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+  }
+
+  .h-card.spine::before { background: var(--spine); }
+  .h-card.ground::before { background: var(--ground); }
+  .h-card.build::before { background: var(--build); }
+  .h-card.events::before { background: var(--events); }
+
+  .h-card-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.6rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    margin-bottom: 0.4rem;
+  }
+
+  .h-card.spine .h-card-label { color: var(--spine); }
+  .h-card.ground .h-card-label { color: var(--ground); }
+  .h-card.build .h-card-label { color: var(--build); }
+  .h-card.events .h-card-label { color: var(--events); }
+
+  .h-card-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.3rem;
+    font-weight: 400;
+    color: var(--text-primary);
+    margin-bottom: 0.6rem;
+  }
+
+  .h-card-desc {
+    font-size: 0.82rem;
+    color: var(--text-secondary);
+    line-height: 1.6;
+  }
+
+  /* END STATE */
+  .end-state {
+    background: var(--bg-2);
+    border: 1px solid var(--border);
+    border-radius: 2px;
+    padding: 1.75rem 2rem;
+    margin-bottom: 2.5rem;
+  }
+
+  .section-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.6rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    margin-bottom: 1.2rem;
+  }
+
+  .end-state-items {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.75rem;
+  }
+
+  @media (max-width: 600px) {
+    .end-state-items { grid-template-columns: 1fr; }
+  }
+
+  .end-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.75rem;
+    padding: 0.85rem 1rem;
+    background: var(--bg-3);
+    border-radius: 2px;
+    border: 1px solid var(--border);
+  }
+
+  .end-item-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--gold);
+    margin-top: 0.35rem;
+    flex-shrink: 0;
+  }
+
+  .end-item-text {
+    font-size: 0.83rem;
+    color: var(--text-secondary);
+    line-height: 1.5;
+  }
+
+  /* BASELINE / CEILING */
+  .bc-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+  }
+
+  @media (max-width: 600px) {
+    .bc-grid { grid-template-columns: 1fr; }
+  }
+
+  .bc-card {
+    background: var(--bg-2);
+    border: 1px solid var(--border);
+    border-radius: 2px;
+    padding: 1.5rem;
+  }
+
+  .bc-card.baseline { border-top: 2px solid var(--ground); }
+  .bc-card.ceiling { border-top: 2px solid var(--gold); }
+
+  .bc-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.6rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    margin-bottom: 1rem;
+  }
+
+  .bc-card.baseline .bc-label { color: var(--ground); }
+  .bc-card.ceiling .bc-label { color: var(--gold); }
+
+  .bc-list {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .bc-list li {
+    font-size: 0.82rem;
+    color: var(--text-secondary);
+    padding-left: 1rem;
+    position: relative;
+    line-height: 1.5;
+  }
+
+  .bc-list li::before {
+    content: '—';
+    position: absolute;
+    left: 0;
+    color: var(--text-muted);
+    font-size: 0.7rem;
+  }
+
+  /* PRIORITIES TAB */
+  .priority-section {
+    margin-bottom: 2.5rem;
+  }
+
+  .priority-section-header {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 1.25rem;
+    padding-bottom: 0.75rem;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .priority-section-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.1rem;
+    font-weight: 400;
+    color: var(--text-primary);
+  }
+
+  .priority-tag {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.58rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    padding: 0.25rem 0.6rem;
+    border-radius: 2px;
+  }
+
+  .tag-spine { background: rgba(212,175,55,0.12); color: var(--spine); }
+  .tag-ground { background: rgba(126,184,164,0.12); color: var(--ground); }
+  .tag-build { background: rgba(143,168,200,0.12); color: var(--build); }
+  .tag-events { background: rgba(196,154,108,0.12); color: var(--events); }
+
+  .priority-items {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+
+  .priority-item {
+    background: var(--bg-2);
+    border: 1px solid var(--border);
+    border-radius: 2px;
+    padding: 1.25rem 1.5rem;
+    display: flex;
+    align-items: flex-start;
+    gap: 1rem;
+    cursor: pointer;
+    transition: border-color 0.2s;
+  }
+
+  .priority-item:hover { border-color: var(--border-accent); }
+  .priority-item.done { opacity: 0.5; }
+
+  .priority-check {
+    width: 18px;
+    height: 18px;
+    border-radius: 2px;
+    border: 1px solid var(--border);
+    flex-shrink: 0;
+    margin-top: 0.1rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.7rem;
+    transition: all 0.2s;
+  }
+
+  .priority-item.done .priority-check {
+    background: var(--gold);
+    border-color: var(--gold);
+    color: #000;
+  }
+
+  .priority-content { flex: 1; }
+
+  .priority-name {
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: var(--text-primary);
+    margin-bottom: 0.3rem;
+  }
+
+  .priority-detail {
+    font-size: 0.78rem;
+    color: var(--text-secondary);
+    line-height: 1.55;
+  }
+
+  .priority-meta {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-top: 0.5rem;
+  }
+
+  .meta-pill {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.55rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    padding: 0.2rem 0.5rem;
+    border-radius: 20px;
+    border: 1px solid var(--border);
+    color: var(--text-muted);
+  }
+
+  .meta-pill.deadline { border-color: rgba(200,112,96,0.4); color: var(--danger); }
+  .meta-pill.stretch { border-color: rgba(212,175,55,0.3); color: var(--gold); }
+
+  /* TRADING TAB */
+  .trading-spine {
+    background: linear-gradient(135deg, var(--bg-2) 0%, var(--bg-3) 100%);
+    border: 1px solid var(--border-accent);
+    border-radius: 2px;
+    padding: 2rem;
+    margin-bottom: 1.5rem;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .trading-spine::after {
+    content: 'THE SPINE';
+    position: absolute;
+    right: 1.5rem;
+    top: 1.5rem;
+    font-family: 'DM Mono', monospace;
+    font-size: 0.55rem;
+    letter-spacing: 0.2em;
+    color: var(--gold);
+    opacity: 0.4;
+  }
+
+  .trading-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.5rem;
+    font-weight: 400;
+    color: var(--gold);
+    margin-bottom: 0.5rem;
+  }
+
+  .trading-chain {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+    margin: 1.25rem 0;
+  }
+
+  .chain-node {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.65rem;
+    padding: 0.4rem 0.75rem;
+    background: var(--gold-dim);
+    border: 1px solid var(--border-accent);
+    border-radius: 2px;
+    color: var(--gold);
+    letter-spacing: 0.05em;
+  }
+
+  .chain-arrow {
+    color: var(--text-muted);
+    font-size: 0.8rem;
+  }
+
+  .trading-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+  }
+
+  @media (max-width: 700px) {
+    .trading-grid { grid-template-columns: 1fr; }
+  }
+
+  .trading-stat {
+    background: var(--bg-2);
+    border: 1px solid var(--border);
+    border-radius: 2px;
+    padding: 1.25rem;
+    text-align: center;
+  }
+
+  .trading-stat-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.58rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    margin-bottom: 0.5rem;
+  }
+
+  .trading-stat-value {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.6rem;
+    font-weight: 300;
+    color: var(--text-primary);
+  }
+
+  .trading-stat-value.gold { color: var(--gold); }
+
+  .trading-rules {
+    background: var(--bg-2);
+    border: 1px solid var(--border);
+    border-radius: 2px;
+    padding: 1.5rem;
+  }
+
+  .rules-title {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.6rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    margin-bottom: 1rem;
+  }
+
+  .rules-list {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+  }
+
+  .rules-list li {
+    font-size: 0.83rem;
+    color: var(--text-secondary);
+    padding-left: 1.25rem;
+    position: relative;
+    line-height: 1.5;
+  }
+
+  .rules-list li::before {
+    content: attr(data-n);
+    position: absolute;
+    left: 0;
+    font-family: 'DM Mono', monospace;
+    font-size: 0.6rem;
+    color: var(--gold);
+    top: 0.15rem;
+  }
+
+  /* ROUTINE TAB */
+  .routine-blocks {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    margin-bottom: 2rem;
+  }
+
+  .time-block {
+    display: grid;
+    grid-template-columns: 80px 1fr auto;
+    align-items: center;
+    gap: 1rem;
+    background: var(--bg-2);
+    border: 1px solid var(--border);
+    border-radius: 2px;
+    padding: 0.9rem 1.25rem;
+    transition: border-color 0.2s;
+  }
+
+  .time-block:hover { border-color: var(--border-accent); }
+
+  .time-block.anchor {
+    border-left: 3px solid var(--gold);
+    background: var(--bg-3);
+  }
+
+  .block-time {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.68rem;
+    color: var(--gold);
+    letter-spacing: 0.05em;
+  }
+
+  .block-name {
+    font-size: 0.88rem;
+    color: var(--text-primary);
+    font-weight: 400;
+  }
+
+  .block-note {
+    font-size: 0.72rem;
+    color: var(--text-muted);
+    margin-top: 0.15rem;
+  }
+
+  .block-badge {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.55rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    padding: 0.2rem 0.5rem;
+    border-radius: 2px;
+    background: var(--gold-dim);
+    color: var(--gold);
+    border: 1px solid var(--border-accent);
+    white-space: nowrap;
+  }
+
+  .infrastructure-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 0.75rem;
+  }
+
+  .infra-item {
+    background: var(--bg-2);
+    border: 1px solid var(--border);
+    border-radius: 2px;
+    padding: 1rem 1.25rem;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .infra-item:hover { border-color: var(--border-accent); }
+  .infra-item.acquired { border-color: var(--ground); opacity: 0.6; }
+
+  .infra-check {
+    width: 16px;
+    height: 16px;
+    border: 1px solid var(--border);
+    border-radius: 2px;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.65rem;
+    transition: all 0.2s;
+  }
+
+  .infra-item.acquired .infra-check {
+    background: var(--ground);
+    border-color: var(--ground);
+    color: #fff;
+  }
+
+  .infra-name {
+    font-size: 0.82rem;
+    color: var(--text-secondary);
+  }
+
+  /* GROWTH TAB */
+  .growth-columns {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.5rem;
+  }
+
+  @media (max-width: 700px) {
+    .growth-columns { grid-template-columns: 1fr; }
+  }
+
+  .growth-card {
+    background: var(--bg-2);
+    border: 1px solid var(--border);
+    border-radius: 2px;
+    padding: 1.5rem;
+  }
+
+  .growth-card-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.1rem;
+    font-weight: 400;
+    color: var(--text-primary);
+    margin-bottom: 0.3rem;
+  }
+
+  .growth-card-sub {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    margin-bottom: 1.25rem;
+    font-family: 'DM Mono', monospace;
+    letter-spacing: 0.05em;
+  }
+
+  .growth-list {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .growth-list li {
+    font-size: 0.82rem;
+    color: var(--text-secondary);
+    padding-left: 1rem;
+    position: relative;
+    line-height: 1.5;
+  }
+
+  .growth-list li::before {
+    content: '·';
+    position: absolute;
+    left: 0;
+    color: var(--build);
+  }
+
+  .book-item {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.6rem 0;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .book-item:last-child { border-bottom: none; }
+
+  .book-status {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+
+  .book-status.reading { background: var(--gold); }
+  .book-status.queued { background: var(--text-muted); }
+  .book-status.done { background: var(--success); }
+
+  .book-title {
+    font-size: 0.82rem;
+    color: var(--text-secondary);
+    flex: 1;
+  }
+
+  .book-note {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.58rem;
+    color: var(--text-muted);
+    letter-spacing: 0.05em;
+  }
+
+  /* MSC TAB */
+  .msc-deadline {
+    background: var(--bg-2);
+    border: 1px solid var(--border);
+    border-top: 2px solid var(--danger);
+    border-radius: 2px;
+    padding: 1.5rem 2rem;
+    margin-bottom: 1.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    flex-wrap: wrap;
+  }
+
+  .msc-deadline-text {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.1rem;
+    font-style: italic;
+    color: var(--text-primary);
+  }
+
+  .deadline-badge {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.65rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--danger);
+    border: 1px solid rgba(200,112,96,0.3);
+    padding: 0.35rem 0.75rem;
+    border-radius: 2px;
+  }
+
+  .msc-contenders {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+  }
+
+  @media (max-width: 600px) {
+    .msc-contenders { grid-template-columns: 1fr; }
+  }
+
+  .contender-card {
+    background: var(--bg-2);
+    border: 1px solid var(--border);
+    border-radius: 2px;
+    padding: 1.5rem;
+  }
+
+  .contender-card.primary { border-top: 2px solid var(--gold); }
+  .contender-card.secondary { border-top: 2px solid var(--build); }
+
+  .contender-name {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.15rem;
+    font-weight: 400;
+    color: var(--text-primary);
+    margin-bottom: 0.25rem;
+  }
+
+  .contender-score {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.65rem;
+    color: var(--text-muted);
+    margin-bottom: 1rem;
+    letter-spacing: 0.08em;
+  }
+
+  .contender-pros {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+  }
+
+  .contender-pros li {
+    font-size: 0.78rem;
+    color: var(--text-secondary);
+    padding-left: 1rem;
+    position: relative;
+    line-height: 1.4;
+  }
+
+  .contender-pros li::before {
+    content: '+';
+    position: absolute;
+    left: 0;
+    color: var(--gold);
+    font-size: 0.75rem;
+  }
+
+  .msc-actions {
+    background: var(--bg-2);
+    border: 1px solid var(--border);
+    border-radius: 2px;
+    padding: 1.5rem;
+  }
+
+  .action-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 1rem;
+    padding: 0.75rem 0;
+    border-bottom: 1px solid var(--border);
+    cursor: pointer;
+  }
+
+  .action-item:last-child { border-bottom: none; }
+  .action-item.done { opacity: 0.5; }
+
+  .action-check {
+    width: 16px;
+    height: 16px;
+    border: 1px solid var(--border);
+    border-radius: 50%;
+    flex-shrink: 0;
+    margin-top: 0.15rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.6rem;
+    transition: all 0.2s;
+  }
+
+  .action-item.done .action-check {
+    background: var(--gold);
+    border-color: var(--gold);
+    color: #000;
+  }
+
+  .action-text {
+    font-size: 0.83rem;
+    color: var(--text-secondary);
+    line-height: 1.5;
+  }
+
+  /* NOTES TAB */
+  .notes-area {
+    width: 100%;
+    min-height: 300px;
+    background: var(--bg-2);
+    border: 1px solid var(--border);
+    border-radius: 2px;
+    padding: 1.5rem;
+    color: var(--text-primary);
+    font-family: 'Outfit', sans-serif;
+    font-size: 0.88rem;
+    line-height: 1.7;
+    resize: vertical;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+
+  .notes-area:focus { border-color: var(--border-accent); }
+
+  .notes-save {
+    margin-top: 0.75rem;
+    padding: 0.6rem 1.5rem;
+    background: var(--gold-dim);
+    border: 1px solid var(--border-accent);
+    border-radius: 2px;
+    color: var(--gold);
+    font-family: 'DM Mono', monospace;
+    font-size: 0.65rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .notes-save:hover { background: var(--gold); color: #000; }
+
+  .notes-saved-msg {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.6rem;
+    color: var(--success);
+    letter-spacing: 0.1em;
+    margin-left: 1rem;
+    opacity: 0;
+    transition: opacity 0.3s;
+  }
+
+  /* UTILITY */
+  .spacer { height: 1.5rem; }
+  .spacer-sm { height: 0.75rem; }
+
+  .divider {
+    height: 1px;
+    background: var(--border);
+    margin: 2rem 0;
+  }
+
+  .week-progress {
+    background: var(--bg-2);
+    border: 1px solid var(--border);
+    border-radius: 2px;
+    padding: 1.25rem 1.5rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .week-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.6rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    margin-bottom: 0.75rem;
+  }
+
+  .week-dots {
+    display: flex;
+    gap: 0.4rem;
+    flex-wrap: wrap;
+  }
+
+  .week-dot {
+    width: 28px;
+    height: 28px;
+    border-radius: 2px;
+    border: 1px solid var(--border);
+    background: var(--bg-3);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'DM Mono', monospace;
+    font-size: 0.6rem;
+    color: var(--text-muted);
+    cursor: pointer;
+    transition: all 0.15s;
+    position: relative;
+  }
+
+  .week-dot:hover { border-color: var(--border-accent); }
+  .week-dot.today { border-color: var(--gold); color: var(--gold); }
+  .week-dot.strong { background: var(--gold); border-color: var(--gold); color: #000; }
+  .week-dot.partial { background: var(--gold-dim); border-color: var(--border-accent); color: var(--gold); }
+  .week-dot.missed { background: rgba(200,112,96,0.08); border-color: rgba(200,112,96,0.2); color: var(--danger); }
+
+  .scroll-fade {
+    animation: fadeUp 0.4s ease both;
+  }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(12px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-left">
+    <span class="header-title">May 2026</span>
+    <span class="header-sub">Paul Bassey · Monthly Plan</span>
+  </div>
+  <div class="header-right">
+    <span class="month-badge" id="days-remaining">— days remaining</span>
+    <button class="theme-toggle" onclick="toggleTheme()" title="Toggle theme">
+      <span id="theme-icon">☀</span>
+    </button>
+  </div>
+</header>
+
+<nav class="nav-tabs">
+  <button class="tab-btn active" onclick="switchTab('overview', this)">Overview</button>
+  <button class="tab-btn" onclick="switchTab('priorities', this)">Priorities</button>
+  <button class="tab-btn" onclick="switchTab('trading', this)">Trading</button>
+  <button class="tab-btn" onclick="switchTab('routine', this)">Routine</button>
+  <button class="tab-btn" onclick="switchTab('growth', this)">Growth</button>
+  <button class="tab-btn" onclick="switchTab('msc', this)">MSc</button>
+  <button class="tab-btn" onclick="switchTab('notes', this)">Notes</button>
+</nav>
+
+<main>
+
+  <!-- OVERVIEW TAB -->
+  <div class="tab-panel active scroll-fade" id="tab-overview">
+
+    <div class="month-statement">
+      <p>May is not a continuation of April. April was transit — managed survival under a dominant event. May is motion. The move is done. The environment is stable. The only remaining variable is whether the internal commitment matches the external conditions that now exist to support it.</p>
+      <div class="author">May 2026 · Reset Month</div>
+    </div>
+
+    <div class="hierarchy-grid">
+      <div class="h-card spine">
+        <div class="h-card-label">The Spine</div>
+        <div class="h-card-title">Trading</div>
+        <div class="h-card-desc">Everything financial runs through here. Execution discipline → profitable trades → withdrawal → apartment completion → debt cleared. The read quality is not the problem. Pulling the trigger is.</div>
+      </div>
+      <div class="h-card ground">
+        <div class="h-card-label">The Ground</div>
+        <div class="h-card-title">The 4AM Routine</div>
+        <div class="h-card-desc">Not a priority among priorities — the condition that makes the other priorities possible. A full uninterrupted prayer hour produces a qualitatively different day. This has been tested. It is known.</div>
+      </div>
+      <div class="h-card build">
+        <div class="h-card-label">The Build</div>
+        <div class="h-card-title">Growth & Substance</div>
+        <div class="h-card-desc">dAnTE operational architecture. AutoCAD to begin. MS Project to finish. ≥5 books. Body getting stronger. Mental stretch felt. The new layers added — almost physically.</div>
+      </div>
+      <div class="h-card events">
+        <div class="h-card-label">The Events</div>
+        <div class="h-card-title">Decisions & Milestones</div>
+        <div class="h-card-desc">Debt scheduled payment executed. MSc decision by May 31 — non-movable. Founding documents structured. IOSH enrolled. These happen once and they're done.</div>
+      </div>
+    </div>
+
+    <div class="end-state">
+      <div class="section-label">What a good May looks like at the end of it</div>
+      <div class="end-state-items">
+        <div class="end-item">
+          <div class="end-item-dot"></div>
+          <div class="end-item-text">Real trading profits. At least one meaningful withdrawal that moves the apartment forward.</div>
+        </div>
+        <div class="end-item">
+          <div class="end-item-dot"></div>
+          <div class="end-item-text">The apartment feels complete — or close enough that it no longer registers as incomplete.</div>
+        </div>
+        <div class="end-item">
+          <div class="end-item-dot"></div>
+          <div class="end-item-text">Grounded and in motion toward purpose. Not just busy — directionally moving.</div>
+        </div>
+        <div class="end-item">
+          <div class="end-item-dot"></div>
+          <div class="end-item-text">Mentally well-stretched. Fitter and stronger. Growth felt almost physically.</div>
+        </div>
+        <div class="end-item">
+          <div class="end-item-dot"></div>
+          <div class="end-item-text">The 4AM routine held consistently through the month.</div>
+        </div>
+        <div class="end-item">
+          <div class="end-item-dot"></div>
+          <div class="end-item-text">The MSc decision made. Not postponed past May 31.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="bc-grid">
+      <div class="bc-card baseline">
+        <div class="bc-label">Baseline Win</div>
+        <ul class="bc-list">
+          <li>Trading sessions running daily</li>
+          <li>Real profits, at least one withdrawal</li>
+          <li>Scheduled debt payment executed</li>
+          <li>Routine holding consistently</li>
+          <li>MSc decision made by May 31</li>
+          <li>Growth felt — not just logged</li>
+        </ul>
+      </div>
+      <div class="bc-card ceiling">
+        <div class="bc-label">Ceiling — if May performs fully</div>
+        <ul class="bc-list">
+          <li>All baseline wins, plus:</li>
+          <li>Debt fully cleared outside the structure</li>
+          <li>Apartment substantially complete</li>
+          <li>Routine unbreakable by end of month</li>
+          <li>AutoCAD foundation laid</li>
+          <li>≥5 books read</li>
+        </ul>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- PRIORITIES TAB -->
+  <div class="tab-panel" id="tab-priorities">
+
+    <div class="priority-section">
+      <div class="priority-section-header">
+        <span class="priority-section-title">The Spine</span>
+        <span class="priority-tag tag-spine">Daily Practice</span>
+      </div>
+      <div class="priority-items" id="spine-items">
+        <div class="priority-item" onclick="toggleItem(this)" data-key="p-trading-sessions">
+          <div class="priority-check">✓</div>
+          <div class="priority-content">
+            <div class="priority-name">Daily trading sessions — V75 (1s), live account</div>
+            <div class="priority-detail">Sessions run every trading day. Strategy documented. Live log active. The read quality is confirmed. Execution is the work.</div>
+            <div class="priority-meta">
+              <span class="meta-pill">Daily</span>
+              <span class="meta-pill">$5 live account — scale with profits</span>
+            </div>
+          </div>
+        </div>
+        <div class="priority-item" onclick="toggleItem(this)" data-key="p-execution">
+          <div class="priority-check">✓</div>
+          <div class="priority-content">
+            <div class="priority-name">Execution discipline — pull the trigger</div>
+            <div class="priority-detail">Marking structure and POI without entering is the active failure pattern. When the setup confirms, the entry follows. This is the discipline beneath the trading discipline.</div>
+            <div class="priority-meta">
+              <span class="meta-pill">Behavioural</span>
+            </div>
+          </div>
+        </div>
+        <div class="priority-item" onclick="toggleItem(this)" data-key="p-withdrawal">
+          <div class="priority-check">✓</div>
+          <div class="priority-content">
+            <div class="priority-name">First meaningful withdrawal — apartment fund</div>
+            <div class="priority-detail">Profits move to the apartment. The chain is: execution → profits → withdrawal → furniture → this place feels complete.</div>
+            <div class="priority-meta">
+              <span class="meta-pill">Milestone</span>
+              <span class="meta-pill stretch">Ceiling: debt cleared too</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="priority-section">
+      <div class="priority-section-header">
+        <span class="priority-section-title">The Ground</span>
+        <span class="priority-tag tag-ground">Daily Foundation</span>
+      </div>
+      <div class="priority-items">
+        <div class="priority-item" onclick="toggleItem(this)" data-key="p-4am">
+          <div class="priority-check">✓</div>
+          <div class="priority-content">
+            <div class="priority-name">4AM routine — held consistently through May</div>
+            <div class="priority-detail">Prayer (full hour, uninterrupted) → Bible → Workout → Meditation → Output. The apartment is now stable. The environment supports this. The only remaining variable is internal.</div>
+            <div class="priority-meta">
+              <span class="meta-pill">Daily</span>
+              <span class="meta-pill">Non-negotiable anchor</span>
+            </div>
+          </div>
+        </div>
+        <div class="priority-item" onclick="toggleItem(this)" data-key="p-infra">
+          <div class="priority-check">✓</div>
+          <div class="priority-content">
+            <div class="priority-name">Routine infrastructure — acquire what's needed</div>
+            <div class="priority-detail">Table/desk for reading, workout mat, dumbbells, gloves, mirror. These are not luxuries — they are the environment the routine requires to run without friction.</div>
+            <div class="priority-meta">
+              <span class="meta-pill">One-time setup</span>
+              <span class="meta-pill">Funded by first withdrawal</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="priority-section">
+      <div class="priority-section-header">
+        <span class="priority-section-title">The Build</span>
+        <span class="priority-tag tag-build">Ongoing Growth</span>
+      </div>
+      <div class="priority-items">
+        <div class="priority-item" onclick="toggleItem(this)" data-key="p-autocad">
+          <div class="priority-check">✓</div>
+          <div class="priority-content">
+            <div class="priority-name">AutoCAD — finally begin</div>
+            <div class="priority-detail">2012 was a long time ago. May is when that closes. Foundation laid this month. Civil 3D follows once AutoCAD has traction.</div>
+            <div class="priority-meta">
+              <span class="meta-pill">Software priority</span>
+              <span class="meta-pill">MS Project to finish in parallel</span>
+            </div>
+          </div>
+        </div>
+        <div class="priority-item" onclick="toggleItem(this)" data-key="p-books">
+          <div class="priority-check">✓</div>
+          <div class="priority-content">
+            <div class="priority-name">≥5 books — reading at pace</div>
+            <div class="priority-detail">No Excuses finishing now. Laws of Human Nature is long but dense — read it because it's the right book, not despite its length. The target is achievable.</div>
+            <div class="priority-meta">
+              <span class="meta-pill">Monthly target</span>
+            </div>
+          </div>
+        </div>
+        <div class="priority-item" onclick="toggleItem(this)" data-key="p-dante-arch">
+          <div class="priority-check">✓</div>
+          <div class="priority-content">
+            <div class="priority-name">dAnTE & Dante Craft — operational architecture</div>
+            <div class="priority-detail">Draft the system for operations. The framework for administration and production. Not a document to sign — a structure for how the companies actually run.</div>
+            <div class="priority-meta">
+              <span class="meta-pill">Project work</span>
+            </div>
+          </div>
+        </div>
+        <div class="priority-item" onclick="toggleItem(this)" data-key="p-body">
+          <div class="priority-check">✓</div>
+          <div class="priority-content">
+            <div class="priority-name">Physical — fitter, stronger, visibly changing</div>
+            <div class="priority-detail">Intense workout as part of the morning routine. The mirror is both motivation and accountability. The result should be visible by end of May.</div>
+            <div class="priority-meta">
+              <span class="meta-pill">Daily</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="priority-section">
+      <div class="priority-section-header">
+        <span class="priority-section-title">The Events</span>
+        <span class="priority-tag tag-events">Happen Once</span>
+      </div>
+      <div class="priority-items">
+        <div class="priority-item" onclick="toggleItem(this)" data-key="p-debt">
+          <div class="priority-check">✓</div>
+          <div class="priority-content">
+            <div class="priority-name">Debt — scheduled payment executed</div>
+            <div class="priority-detail">The structured payment goes. Keep moving. Ceiling scenario: full clearance outside the structure if trading performs at its best.</div>
+            <div class="priority-meta">
+              <span class="meta-pill">Baseline: scheduled payment</span>
+              <span class="meta-pill stretch">Ceiling: full clearance</span>
+            </div>
+          </div>
+        </div>
+        <div class="priority-item" onclick="toggleItem(this)" data-key="p-msc">
+          <div class="priority-check">✓</div>
+          <div class="priority-content">
+            <div class="priority-name">MSc decision — made by May 31</div>
+            <div class="priority-detail">Strathclyde vs UNIPORT. Two remaining actions: verify UNIPORT curriculum, request Strathclyde brochure. Decision deadline is non-movable.</div>
+            <div class="priority-meta">
+              <span class="meta-pill deadline">Hard deadline: May 31</span>
+            </div>
+          </div>
+        </div>
+        <div class="priority-item" onclick="toggleItem(this)" data-key="p-iosh">
+          <div class="priority-check">✓</div>
+          <div class="priority-content">
+            <div class="priority-name">IOSH Managing Safely — enrol</div>
+            <div class="priority-detail">After software foundation is laid, not before. Certification is more valuable when practical tool fluency backs it up.</div>
+            <div class="priority-meta">
+              <span class="meta-pill">After AutoCAD traction</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- TRADING TAB -->
+  <div class="tab-panel" id="tab-trading">
+
+    <div class="trading-spine">
+      <div class="trading-title">Volatility 75 (1s) — Live</div>
+      <p style="font-size:0.83rem; color: var(--text-secondary); line-height:1.6; margin-bottom:1rem;">The financial spine of May. Every apartment purchase, every debt payment, every piece of infrastructure for the routine — it runs through here. This is not a hobby month. This is when trading becomes real in result, not just in methodology.</p>
+      <div class="trading-chain">
+        <span class="chain-node">Execution Discipline</span>
+        <span class="chain-arrow">→</span>
+        <span class="chain-node">Profitable Trades</span>
+        <span class="chain-arrow">→</span>
+        <span class="chain-node">Withdrawal</span>
+        <span class="chain-arrow">→</span>
+        <span class="chain-node">Apartment Complete</span>
+        <span class="chain-arrow">→</span>
+        <span class="chain-node">Debt Cleared</span>
+      </div>
+    </div>
+
+    <div class="trading-grid">
+      <div class="trading-stat">
+        <div class="trading-stat-label">Platform</div>
+        <div class="trading-stat-value" style="font-size:1.1rem;">Deriv</div>
+      </div>
+      <div class="trading-stat">
+        <div class="trading-stat-label">Instrument</div>
+        <div class="trading-stat-value" style="font-size:1rem;">V75 (1s) Index</div>
+      </div>
+      <div class="trading-stat">
+        <div class="trading-stat-label">Starting Capital</div>
+        <div class="trading-stat-value gold">$5</div>
+      </div>
+      <div class="trading-stat">
+        <div class="trading-stat-label">Methodology</div>
+        <div class="trading-stat-value" style="font-size:1rem;">SMC / ICT / PA</div>
+      </div>
+      <div class="trading-stat">
+        <div class="trading-stat-label">Min Risk:Reward</div>
+        <div class="trading-stat-value gold">1 : 5</div>
+      </div>
+      <div class="trading-stat">
+        <div class="trading-stat-label">Win Rate Target</div>
+        <div class="trading-stat-value gold">≥ 70%</div>
+      </div>
+    </div>
+
+    <div class="trading-rules">
+      <div class="rules-title">May Trading Principles</div>
+      <ul class="rules-list">
+        <li data-n="01">The read quality is confirmed. Execution is the active development area. When the setup confirms, the entry follows.</li>
+        <li data-n="02">Mark the structure. Identify the POI. Wait for confirmation. Enter. No setup is more missed than the one you saw and didn't take.</li>
+        <li data-n="03">A missed trade after correct analysis is not neutral — it is a failure of follow-through. Name it as such.</li>
+        <li data-n="04">$5 is the starting point, not the limitation. Scale with profits. Withdraw with discipline.</li>
+        <li data-n="05">Daily sessions. Not most days. Every trading day. Consistency is the compound.</li>
+        <li data-n="06">The live log runs. Every trade recorded — entry, exit, read, result, what happened with execution.</li>
+        <li data-n="07">The first meaningful withdrawal goes to the apartment. The chain is real. Hold it.</li>
+      </ul>
+    </div>
+
+    <div class="spacer"></div>
+
+    <div class="week-progress">
+      <div class="week-label">May — Day tracker (click to mark)</div>
+      <div class="week-dots" id="may-days"></div>
+    </div>
+
+  </div>
+
+  <!-- ROUTINE TAB -->
+  <div class="tab-panel" id="tab-routine">
+
+    <div style="background: var(--bg-2); border: 1px solid var(--border-accent); border-left: 3px solid var(--gold); padding: 1rem 1.5rem; margin-bottom: 1.5rem; border-radius: 2px;">
+      <p style="font-size:0.83rem; color:var(--text-secondary); line-height:1.6;">The apartment is stable. The environment now supports this routine. The only remaining variable is internal — and the identified pattern is excessive flexibility with self. <em style="color:var(--text-primary);">In a bid to be a little flexible, I've learned to too easily let myself off the hook.</em> May is the month that pattern ends.</p>
+    </div>
+
+    <div class="section-label" style="margin-bottom:1rem;">Daily Structure — 4AM Start</div>
+
+    <div class="routine-blocks">
+      <div class="time-block anchor">
+        <div>
+          <div class="block-time">04:00</div>
+        </div>
+        <div>
+          <div class="block-name">Prayer — Full Hour</div>
+          <div class="block-note">Uninterrupted. Load-bearing act of the day. A shortened prayer hour produces a different day. This is known by experience, not theory.</div>
+        </div>
+        <div class="block-badge">Anchor</div>
+      </div>
+      <div class="time-block">
+        <div><div class="block-time">05:00</div></div>
+        <div>
+          <div class="block-name">Bible Study & Meditation on the Word</div>
+          <div class="block-note">Active reading, not passive consumption.</div>
+        </div>
+      </div>
+      <div class="time-block">
+        <div><div class="block-time">05:45</div></div>
+        <div>
+          <div class="block-name">Workout — Intense</div>
+          <div class="block-note">The exhilaration of intensity drives consistency. The mirror is the accountability. The result should be visible by end of month.</div>
+        </div>
+      </div>
+      <div class="time-block">
+        <div><div class="block-time">06:45</div></div>
+        <div>
+          <div class="block-name">Recovery, Shower, Nutrition</div>
+        </div>
+      </div>
+      <div class="time-block">
+        <div><div class="block-time">07:15</div></div>
+        <div>
+          <div class="block-name">Meditation & Stillness</div>
+          <div class="block-note">Distinct from prayer. Processing, not petitioning.</div>
+        </div>
+      </div>
+      <div class="time-block anchor">
+        <div><div class="block-time">07:45</div></div>
+        <div>
+          <div class="block-name">Output / Journaling / Deep Work</div>
+          <div class="block-note">Reading, writing, trading sessions, dAnTE work, AutoCAD. The morning's energy directed at the build.</div>
+        </div>
+        <div class="block-badge">Work block</div>
+      </div>
+      <div class="time-block">
+        <div><div class="block-time">~10:00</div></div>
+        <div>
+          <div class="block-name">Morning Complete</div>
+          <div class="block-note">Everything downstream is shaped by what happened in these six hours.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="divider"></div>
+
+    <div class="section-label" style="margin-bottom:1rem;">Routine Infrastructure — Acquire in May</div>
+    <div class="infrastructure-grid" id="infra-grid">
+      <div class="infra-item" onclick="toggleInfra(this)" data-key="infra-table">
+        <div class="infra-check">✓</div>
+        <div class="infra-name">Table / Desk for reading & study</div>
+      </div>
+      <div class="infra-item" onclick="toggleInfra(this)" data-key="infra-mat">
+        <div class="infra-check">✓</div>
+        <div class="infra-name">Workout mat</div>
+      </div>
+      <div class="infra-item" onclick="toggleInfra(this)" data-key="infra-dumbbells">
+        <div class="infra-check">✓</div>
+        <div class="infra-name">Dumbbells</div>
+      </div>
+      <div class="infra-item" onclick="toggleInfra(this)" data-key="infra-gloves">
+        <div class="infra-check">✓</div>
+        <div class="infra-name">Workout gloves</div>
+      </div>
+      <div class="infra-item" onclick="toggleInfra(this)" data-key="infra-mirror">
+        <div class="infra-check">✓</div>
+        <div class="infra-name">Mirror</div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- GROWTH TAB -->
+  <div class="tab-panel" id="tab-growth">
+
+    <div class="growth-columns">
+
+      <div>
+        <div class="growth-card" style="margin-bottom:1rem;">
+          <div class="growth-card-title">Reading</div>
+          <div class="growth-card-sub">Target: ≥5 books in May</div>
+          <div id="book-list">
+            <div class="book-item">
+              <div class="book-status reading"></div>
+              <div class="book-title">No Excuses — Brian Tracy</div>
+              <div class="book-note">~halfway</div>
+            </div>
+            <div class="book-item">
+              <div class="book-status queued"></div>
+              <div class="book-title">The Laws of Human Nature — Robert Greene</div>
+              <div class="book-note">long, dense, right</div>
+            </div>
+            <div class="book-item" id="book-slot-3" style="opacity:0.4; cursor:pointer;" onclick="addBook(3)">
+              <div class="book-status queued"></div>
+              <div class="book-title" style="color:var(--text-muted); font-style:italic;">+ Add book</div>
+            </div>
+            <div class="book-item" id="book-slot-4" style="opacity:0.4; cursor:pointer;" onclick="addBook(4)">
+              <div class="book-status queued"></div>
+              <div class="book-title" style="color:var(--text-muted); font-style:italic;">+ Add book</div>
+            </div>
+            <div class="book-item" id="book-slot-5" style="opacity:0.4; cursor:pointer;" onclick="addBook(5)">
+              <div class="book-status queued"></div>
+              <div class="book-title" style="color:var(--text-muted); font-style:italic;">+ Add book</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="growth-card">
+          <div class="growth-card-title">Physical</div>
+          <div class="growth-card-sub">Fitter, stronger, visibly changing</div>
+          <ul class="growth-list">
+            <li>Daily morning workout — intense, not moderate</li>
+            <li>Infrastructure in place: mat, dumbbells, gloves, mirror</li>
+            <li>The result should be visible by end of May</li>
+            <li>The exhilaration of intensity is the consistency driver</li>
+          </ul>
+        </div>
+      </div>
+
+      <div>
+        <div class="growth-card" style="margin-bottom:1rem;">
+          <div class="growth-card-title">Professional Skills</div>
+          <div class="growth-card-sub">Software first. Certification after traction.</div>
+          <ul class="growth-list">
+            <li><strong style="color:var(--text-primary);">AutoCAD</strong> — primary May software priority. Begin in May. 2012 was a long time ago. That closes now.</li>
+            <li><strong style="color:var(--text-primary);">MS Project</strong> — finish what's in progress</li>
+            <li><strong style="color:var(--text-primary);">Excel</strong> — deepen in parallel</li>
+            <li><strong style="color:var(--text-primary);">IOSH Managing Safely</strong> — enrol once AutoCAD has traction</li>
+            <li>Civil 3D follows AutoCAD once foundation is solid</li>
+          </ul>
+        </div>
+
+        <div class="growth-card">
+          <div class="growth-card-title">dAnTE Inc. — Operational Architecture</div>
+          <div class="growth-card-sub">Structure, not documents</div>
+          <ul class="growth-list">
+            <li>Draft the system for operations — how the companies actually run</li>
+            <li>Framework for administration across entities</li>
+            <li>Production frameworks for Dante Craft specifically</li>
+            <li>Not a document to sign — architecture for how decisions get made</li>
+            <li>Begin with Dante Craft as the operational entity</li>
+          </ul>
+        </div>
+      </div>
+
+    </div>
+
+  </div>
+
+  <!-- MSC TAB -->
+  <div class="tab-panel" id="tab-msc">
+
+    <div class="msc-deadline">
+      <div class="msc-deadline-text">The MSc decision is important work. It is not urgent — but May 31 is non-movable.</div>
+      <span class="deadline-badge">Deadline: May 31</span>
+    </div>
+
+    <div class="msc-contenders">
+      <div class="contender-card primary">
+        <div class="contender-name">University of Strathclyde</div>
+        <div class="contender-score">Score: 27/30 · Primary Recommendation</div>
+        <ul class="contender-pros">
+          <li>7/8 curriculum match against benchmark</li>
+          <li>Online delivery — work continuity maintained</li>
+          <li>Lowest cost UK option</li>
+          <li>Application open now</li>
+        </ul>
+      </div>
+      <div class="contender-card secondary">
+        <div class="contender-name">UNIPORT</div>
+        <div class="contender-score">Score: 20/30 provisional · Legitimate fallback</div>
+        <ul class="contender-pros">
+          <li>Zero relocation cost</li>
+          <li>Continued earnings while studying</li>
+          <li>Strong local network</li>
+          <li>Curriculum pending verification — est. 5–6/8</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="msc-actions">
+      <div class="section-label">Actions before May 31</div>
+      <div class="action-item" onclick="toggleAction(this)" data-key="msc-uniport">
+        <div class="action-check">✓</div>
+        <div class="action-text">Verify UNIPORT curriculum — one email or website check. Does it reach 6+/8 against the benchmark?</div>
+      </div>
+      <div class="action-item" onclick="toggleAction(this)" data-key="msc-strathclyde">
+        <div class="action-check">✓</div>
+        <div class="action-text">Request Strathclyde 2026/2027 programme brochure — confirm current curriculum and fees</div>
+      </div>
+      <div class="action-item" onclick="toggleAction(this)" data-key="msc-decision">
+        <div class="action-check">✓</div>
+        <div class="action-text">Make the decision — Strathclyde vs UNIPORT. Not postponed. Made.</div>
+      </div>
+      <div class="action-item" onclick="toggleAction(this)" data-key="msc-apply">
+        <div class="action-check">✓</div>
+        <div class="action-text">Begin application for chosen institution</div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- NOTES TAB -->
+  <div class="tab-panel" id="tab-notes">
+    <div class="section-label" style="margin-bottom:1rem;">Monthly notes — running record</div>
+    <textarea class="notes-area" id="notes-field" placeholder="Write here. Observations, decisions, what the month is actually teaching you..."></textarea>
+    <div style="display:flex; align-items:center; margin-top:0.75rem;">
+      <button class="notes-save" onclick="saveNotes()">Save Notes</button>
+      <span class="notes-saved-msg" id="notes-saved">Saved.</span>
+    </div>
+  </div>
+
+</main>
+
+<script>
+  // THEME
+  function toggleTheme() {
+    const html = document.documentElement;
+    const isDark = html.getAttribute('data-theme') === 'dark';
+    html.setAttribute('data-theme', isDark ? 'light' : 'dark');
+    document.getElementById('theme-icon').textContent = isDark ? '☾' : '☀';
+    localStorage.setItem('may2026-theme', isDark ? 'light' : 'dark');
+  }
+
+  // TABS
+  function switchTab(name, btn) {
+    document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    const panel = document.getElementById('tab-' + name);
+    panel.classList.add('active');
+    panel.classList.remove('scroll-fade');
+    void panel.offsetWidth;
+    panel.classList.add('scroll-fade');
+    btn.classList.add('active');
+  }
+
+  // TOGGLE ITEMS
+  function toggleItem(el) {
+    el.classList.toggle('done');
+    const key = el.dataset.key;
+    if (key) {
+      const state = JSON.parse(localStorage.getItem('may2026-checks') || '{}');
+      state[key] = el.classList.contains('done');
+      localStorage.setItem('may2026-checks', JSON.stringify(state));
+    }
+  }
+
+  function toggleInfra(el) {
+    el.classList.toggle('acquired');
+    const key = el.dataset.key;
+    if (key) {
+      const state = JSON.parse(localStorage.getItem('may2026-checks') || '{}');
+      state[key] = el.classList.contains('acquired');
+      localStorage.setItem('may2026-checks', JSON.stringify(state));
+    }
+  }
+
+  function toggleAction(el) {
+    el.classList.toggle('done');
+    const key = el.dataset.key;
+    if (key) {
+      const state = JSON.parse(localStorage.getItem('may2026-checks') || '{}');
+      state[key] = el.classList.contains('done');
+      localStorage.setItem('may2026-checks', JSON.stringify(state));
+    }
+  }
+
+  // MAY DAYS TRACKER
+  function buildMayDays() {
+    const container = document.getElementById('may-days');
+    const states = JSON.parse(localStorage.getItem('may2026-days') || '{}');
+    const today = new Date();
+    const isCurrentMonth = today.getMonth() === 4 && today.getFullYear() === 2026;
+
+    for (let d = 1; d <= 31; d++) {
+      const dot = document.createElement('div');
+      dot.className = 'week-dot';
+      dot.textContent = d;
+      dot.dataset.day = d;
+
+      const state = states[d];
+      if (state === 'strong') dot.classList.add('strong');
+      else if (state === 'partial') dot.classList.add('partial');
+      else if (state === 'missed') dot.classList.add('missed');
+
+      if (isCurrentMonth && today.getDate() === d && !state) dot.classList.add('today');
+
+      dot.addEventListener('click', () => cycleDayState(dot, d));
+      container.appendChild(dot);
+    }
+  }
+
+  function cycleDayState(dot, d) {
+    const states = JSON.parse(localStorage.getItem('may2026-days') || '{}');
+    const current = states[d] || 'none';
+    const cycle = { none: 'strong', strong: 'partial', partial: 'missed', missed: 'none' };
+    const next = cycle[current];
+    states[d] = next;
+    localStorage.setItem('may2026-days', JSON.stringify(states));
+
+    dot.classList.remove('strong', 'partial', 'missed', 'today');
+    if (next !== 'none') dot.classList.add(next);
+  }
+
+  // DAYS REMAINING
+  function updateDaysRemaining() {
+    const endOfMay = new Date(2026, 4, 31);
+    const today = new Date();
+    const diff = Math.ceil((endOfMay - today) / (1000 * 60 * 60 * 24));
+    const el = document.getElementById('days-remaining');
+    if (diff > 0) el.textContent = diff + ' days remaining';
+    else if (diff === 0) el.textContent = 'Last day of May';
+    else el.textContent = 'May closed';
+  }
+
+  // NOTES
+  function saveNotes() {
+    const val = document.getElementById('notes-field').value;
+    localStorage.setItem('may2026-notes', val);
+    const msg = document.getElementById('notes-saved');
+    msg.style.opacity = '1';
+    setTimeout(() => msg.style.opacity = '0', 2000);
+  }
+
+  // ADD BOOK PLACEHOLDER
+  function addBook(slot) {
+    const name = prompt('Book title:');
+    if (!name) return;
+    const el = document.getElementById('book-slot-' + slot);
+    if (!el) return;
+    el.style.opacity = '1';
+    el.style.cursor = 'default';
+    el.onclick = null;
+    el.querySelector('.book-status').style.background = 'var(--gold)';
+    el.querySelector('.book-title').textContent = name;
+    el.querySelector('.book-title').style.color = '';
+    el.querySelector('.book-title').style.fontStyle = '';
+    const books = JSON.parse(localStorage.getItem('may2026-books') || '{}');
+    books[slot] = name;
+    localStorage.setItem('may2026-books', JSON.stringify(books));
+  }
+
+  // INIT
+  function init() {
+    // Theme
+    const savedTheme = localStorage.getItem('may2026-theme') || 'dark';
+    document.documentElement.setAttribute('data-theme', savedTheme);
+    document.getElementById('theme-icon').textContent = savedTheme === 'dark' ? '☀' : '☾';
+
+    // Checks
+    const state = JSON.parse(localStorage.getItem('may2026-checks') || '{}');
+    document.querySelectorAll('[data-key]').forEach(el => {
+      if (state[el.dataset.key]) {
+        if (el.classList.contains('infra-item')) el.classList.add('acquired');
+        else if (el.classList.contains('action-item')) el.classList.add('done');
+        else el.classList.add('done');
+      }
+    });
+
+    // Notes
+    const savedNotes = localStorage.getItem('may2026-notes') || '';
+    document.getElementById('notes-field').value = savedNotes;
+
+    // Books
+    const savedBooks = JSON.parse(localStorage.getItem('may2026-books') || '{}');
+    [3,4,5].forEach(slot => {
+      if (savedBooks[slot]) {
+        const el = document.getElementById('book-slot-' + slot);
+        if (!el) return;
+        el.style.opacity = '1';
+        el.style.cursor = 'default';
+        el.onclick = null;
+        el.querySelector('.book-status').style.background = 'var(--gold)';
+        el.querySelector('.book-title').textContent = savedBooks[slot];
+        el.querySelector('.book-title').style.color = '';
+        el.querySelector('.book-title').style.fontStyle = '';
+      }
+    });
+
+    buildMayDays();
+    updateDaysRemaining();
+  }
+
+  init();
+</script>
+</body>
+</html>

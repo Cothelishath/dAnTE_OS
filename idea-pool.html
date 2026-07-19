@@ -1,0 +1,756 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@300;400&display=swap" rel="stylesheet">
+<title>Idea Pool — dAnTE</title>
+<style>
+:root{
+  --bg:#0a0a0a;--bg2:#111;--bg3:#181818;--bg4:#1e1e1e;
+  --border:#1e1e1e;--border2:#2a2a2a;--border3:#363636;
+  --gold:#c9a84c;--gold-dim:#7a5f28;--gold-glow:rgba(201,168,76,0.08);
+  --text:#ddd8ce;--text-dim:#777;--text-muted:#404040;
+  --red:#c0392b;--green:#4caf7d;--radius:6px;
+}
+.light{
+  --bg:#f2ede6;--bg2:#eae4dc;--bg3:#e0d9d0;--bg4:#d6cfc5;
+  --border:#d8d1c8;--border2:#c8c1b7;--border3:#b8b0a5;
+  --gold:#8a6020;--gold-dim:#b8902a;--gold-glow:rgba(138,96,32,0.07);
+  --text:#1a1714;--text-dim:#666;--text-muted:#aaa;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;-webkit-tap-highlight-color:transparent}
+body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;font-size:13px;line-height:1.5;display:flex;flex-direction:column;min-height:100vh}
+::-webkit-scrollbar{width:3px}::-webkit-scrollbar-thumb{background:var(--border3);border-radius:2px}
+
+/* HEADER */
+header{flex-shrink:0;background:var(--bg);border-bottom:1px solid var(--border);padding:12px 16px;display:flex;align-items:center;gap:10px;position:sticky;top:0;z-index:50}
+.logo{display:flex;flex-direction:column;gap:0;margin-right:auto}
+.logo-brand{font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:.22em;color:var(--gold);text-transform:uppercase}
+.logo-title{font-family:'Cormorant Garamond',serif;font-size:20px;font-weight:300;color:var(--text);letter-spacing:.04em;line-height:1.1}
+.logo-title em{color:var(--gold);font-style:italic}
+.hbtn{background:none;border:1px solid var(--border2);border-radius:var(--radius);color:var(--text-dim);font-family:'Inter',sans-serif;font-size:11px;padding:6px 11px;cursor:pointer;transition:all .18s;white-space:nowrap}
+.hbtn:hover{border-color:var(--gold);color:var(--gold)}
+.hbtn-gold{border-color:var(--gold);color:var(--gold)}
+.hbtn-gold:hover{background:var(--gold-glow)}
+
+/* CONTROLS BAR */
+.controls{padding:12px 16px;display:flex;gap:8px;flex-wrap:wrap;align-items:center;border-bottom:1px solid var(--border);background:var(--bg2);flex-shrink:0;position:sticky;top:57px;z-index:40}
+.search-wrap{flex:1;min-width:140px;position:relative}
+.search-inp{width:100%;background:var(--bg3);border:1px solid var(--border2);border-radius:var(--radius);color:var(--text);font-family:'Inter',sans-serif;font-size:12px;padding:8px 12px 8px 32px;outline:none;transition:border-color .18s}
+.search-inp:focus{border-color:var(--gold)}
+.search-inp::placeholder{color:var(--text-muted)}
+.search-icon{position:absolute;left:10px;top:50%;transform:translateY(-50%);color:var(--text-muted);font-size:13px;pointer-events:none}
+.filter-row{display:flex;gap:5px;flex-wrap:wrap}
+.fpill{padding:4px 11px;border-radius:12px;border:1px solid var(--border2);font-size:11px;cursor:pointer;color:var(--text-muted);transition:all .15s;white-space:nowrap;background:transparent}
+.fpill:hover{border-color:var(--text-dim);color:var(--text-dim)}
+.fpill.active{border-color:var(--gold);color:var(--gold);background:var(--gold-glow)}
+.sort-select{background:var(--bg3);border:1px solid var(--border2);border-radius:var(--radius);color:var(--text-dim);font-family:'JetBrains Mono',monospace;font-size:10px;padding:6px 9px;outline:none;cursor:pointer;letter-spacing:.06em}
+.sort-select:focus{border-color:var(--gold)}
+
+/* PICK BUTTON */
+.pick-btn{background:var(--gold);border:none;border-radius:var(--radius);color:#000;font-family:'Cormorant Garamond',serif;font-size:15px;font-weight:600;padding:7px 16px;cursor:pointer;transition:all .18s;letter-spacing:.04em;white-space:nowrap}
+.pick-btn:hover{background:var(--gold-dim);color:var(--text)}
+.pick-btn:active{transform:scale(.97)}
+
+/* MAIN */
+main{flex:1;padding:14px 16px 80px;max-width:700px;width:100%;margin:0 auto}
+
+/* STATS ROW */
+.stats-row{display:flex;gap:12px;margin-bottom:16px;flex-wrap:wrap}
+.stat{display:flex;flex-direction:column;gap:1px}
+.stat-num{font-family:'Cormorant Garamond',serif;font-size:22px;color:var(--gold);line-height:1}
+.stat-lbl{font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--text-muted);text-transform:uppercase;letter-spacing:.12em}
+.stats-div{width:1px;background:var(--border2);align-self:stretch}
+
+/* IDEA CARDS */
+.ideas-list{display:flex;flex-direction:column;gap:8px}
+.idea-card{background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:13px 14px;display:flex;align-items:flex-start;gap:12px;transition:all .18s;cursor:pointer;position:relative}
+.idea-card:hover{border-color:var(--border2)}
+.idea-card.engaged{opacity:.6}
+.idea-card.engaged .idea-title{text-decoration:line-through;color:var(--text-dim)}
+.idea-card.highlighted{border-color:var(--gold);background:var(--gold-glow);animation:pulse .5s ease}
+@keyframes pulse{0%{box-shadow:0 0 0 0 rgba(201,168,76,.3)}100%{box-shadow:0 0 0 8px rgba(201,168,76,0)}}
+
+.idea-check{width:20px;height:20px;border:1px solid var(--border3);border-radius:4px;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:11px;color:transparent;transition:all .15s;margin-top:1px;cursor:pointer}
+.idea-card.engaged .idea-check{background:var(--gold-dim);border-color:var(--gold-dim);color:var(--gold)}
+.idea-card.engaged .idea-check::after{content:'✓'}
+
+.idea-body{flex:1;min-width:0}
+.idea-title{font-size:13px;color:var(--text);line-height:1.4;font-weight:500;margin-bottom:4px;word-break:break-word}
+.idea-note{font-size:11px;color:var(--text-dim);line-height:1.5;margin-bottom:6px;word-break:break-word}
+.idea-meta{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.idea-cat{display:inline-flex;align-items:center;gap:3px;padding:2px 8px;border-radius:10px;font-size:10px;font-family:'JetBrains Mono',monospace;letter-spacing:.06em;border:1px solid var(--border2);color:var(--text-muted)}
+.idea-cat-dot{width:6px;height:6px;border-radius:50%;flex-shrink:0}
+.idea-engaged-tag{font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--gold-dim);letter-spacing:.1em;text-transform:uppercase}
+.idea-date{font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--text-muted)}
+
+.idea-actions{display:flex;gap:4px;opacity:0;transition:opacity .15s;flex-shrink:0}
+.idea-card:hover .idea-actions{opacity:1}
+.iact{background:none;border:none;color:var(--text-muted);cursor:pointer;font-size:12px;padding:4px 6px;border-radius:3px;transition:all .15s}
+.iact:hover{color:var(--gold);background:var(--gold-glow)}
+.iact.del:hover{color:var(--red);background:rgba(192,57,43,.08)}
+
+/* EMPTY */
+.empty{text-align:center;padding:60px 20px;color:var(--text-muted)}
+.empty-icon{font-size:40px;opacity:.3;margin-bottom:12px}
+.empty-title{font-family:'Cormorant Garamond',serif;font-size:18px;color:var(--text-dim);margin-bottom:6px}
+.empty-sub{font-size:12px;color:var(--text-muted);line-height:1.7}
+
+/* FAB */
+.fab{position:fixed;bottom:24px;right:20px;width:52px;height:52px;border-radius:50%;background:var(--gold);border:none;color:#000;font-size:24px;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 20px rgba(201,168,76,.3);transition:all .18s;z-index:60}
+.fab:hover{background:var(--gold-pale,#e8d5a3);transform:scale(1.06)}
+.fab:active{transform:scale(.96)}
+
+/* MODAL */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.82);z-index:200;display:flex;align-items:flex-end;justify-content:center;padding:0;backdrop-filter:blur(8px)}
+.modal-overlay.hidden{display:none}
+.modal{background:var(--bg2);border:1px solid var(--border2);border-radius:16px 16px 0 0;padding:20px 18px 32px;width:100%;max-width:600px;max-height:88vh;overflow-y:auto;display:flex;flex-direction:column;gap:13px}
+.modal-handle{width:36px;height:3px;background:var(--border3);border-radius:2px;margin:0 auto -4px}
+.modal-title{font-family:'Cormorant Garamond',serif;font-size:20px;font-weight:300;color:var(--text)}
+.field-label{font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--text-muted);margin-bottom:5px;display:block}
+.inp{width:100%;background:var(--bg3);border:1px solid var(--border2);border-radius:var(--radius);color:var(--text);font-family:'Inter',sans-serif;font-size:12px;padding:9px 12px;outline:none;transition:border-color .18s}
+.inp:focus{border-color:var(--gold)}
+.inp::placeholder{color:var(--text-muted)}
+textarea.inp{resize:vertical;min-height:68px;line-height:1.5}
+.cat-grid{display:flex;flex-wrap:wrap;gap:6px}
+.cat-opt{padding:5px 12px;border-radius:12px;border:1px solid var(--border2);font-size:11px;cursor:pointer;color:var(--text-muted);transition:all .15s;display:flex;align-items:center;gap:5px;background:transparent}
+.cat-opt:hover{border-color:var(--text-dim);color:var(--text)}
+.cat-opt.selected{border-color:var(--gold);color:var(--gold);background:var(--gold-glow)}
+.cat-dot{width:7px;height:7px;border-radius:50%}
+.modal-actions{display:flex;gap:8px;justify-content:flex-end;padding-top:4px}
+.btn{display:inline-flex;align-items:center;gap:5px;padding:8px 14px;border-radius:var(--radius);border:1px solid var(--border2);background:transparent;color:var(--text-dim);font-family:'Inter',sans-serif;font-size:12px;cursor:pointer;transition:all .18s}
+.btn:hover{border-color:var(--gold);color:var(--gold)}
+.btn-gold{border-color:var(--gold);color:var(--gold)}
+.btn-solid{background:var(--gold);border-color:var(--gold);color:#000;font-weight:500}
+.btn-solid:hover{opacity:.9}
+.btn-red{border-color:var(--red);color:var(--red)}
+
+/* PICK HIGHLIGHT TOAST */
+.toast{position:fixed;bottom:88px;left:50%;transform:translateX(-50%) translateY(6px);background:var(--bg3);border:1px solid var(--gold-dim);color:var(--gold);font-family:'JetBrains Mono',monospace;font-size:11px;padding:9px 18px;border-radius:20px;z-index:400;opacity:0;transition:all .25s;pointer-events:none;white-space:nowrap}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
+/* MANAGE CATS */
+.cat-manage-row{display:flex;align-items:center;gap:8px;padding:7px 0;border-bottom:1px solid var(--border)}
+.cat-color-inp{width:28px;height:28px;border-radius:50%;border:2px solid var(--border2);cursor:pointer;padding:0;flex-shrink:0}
+.cat-name-inp{flex:1;background:transparent;border:none;color:var(--text);font-family:'Inter',sans-serif;font-size:12px;outline:none;padding:2px 4px;border-radius:3px}
+.cat-name-inp:focus{background:var(--bg4)}
+.cat-del-btn{background:none;border:none;color:var(--text-muted);cursor:pointer;font-size:12px;padding:3px 6px;transition:color .15s}
+.cat-del-btn:hover{color:var(--red)}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">
+    <div class="logo-brand">dAnTE</div>
+    <div class="logo-title">Idea <em>Pool</em></div>
+  </div>
+  <button class="hbtn" onclick="toggleTheme()">☀︎</button>
+  <button class="hbtn" onclick="openCatManager()">⬡ Categories</button>
+  <button class="hbtn" onclick="exportData()">⬇</button>
+  <button class="hbtn" onclick="importData()">⬆</button>
+  <button class="hbtn hbtn-gold" onclick="saveData()">Save</button>
+</header>
+
+<div class="controls">
+  <div class="search-wrap">
+    <span class="search-icon">🔍</span>
+    <input class="search-inp" id="searchInp" placeholder="Search ideas..." oninput="renderList()">
+  </div>
+  <button class="pick-btn" onclick="pickRandom()" title="Pick a random idea for me">✦ Pick one</button>
+  <div class="filter-row" id="filterRow"></div>
+  <select class="sort-select" onchange="currentSort=this.value;renderList()">
+    <option value="newest">Newest</option>
+    <option value="oldest">Oldest</option>
+    <option value="az">A–Z</option>
+    <option value="unengaged">Unengaged first</option>
+    <option value="engaged">Engaged first</option>
+  </select>
+</div>
+
+<main>
+  <div class="stats-row" id="statsRow"></div>
+  <div class="ideas-list" id="ideasList"></div>
+  <div class="empty hidden" id="emptyState">
+    <div class="empty-icon">◎</div>
+    <div class="empty-title">The pool is empty</div>
+    <div class="empty-sub">Add anything you might want to work on.<br>When you can't decide, tap <strong>Pick one</strong> and start.</div>
+  </div>
+</main>
+
+<button class="fab" onclick="openAddModal()" title="Add idea">+</button>
+
+<!-- ADD / EDIT MODAL -->
+<div class="modal-overlay hidden" id="ideaModal">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-title" id="modalTitle">New idea</div>
+    <div>
+      <label class="field-label">What's the task or idea?</label>
+      <input class="inp" id="m-title" placeholder="Be specific enough to start without thinking...">
+    </div>
+    <div>
+      <label class="field-label">Notes <span style="font-size:9px;color:var(--text-muted);text-transform:none;letter-spacing:0">(optional — context, sub-tasks, links)</span></label>
+      <textarea class="inp" id="m-note" placeholder="Any extra context that makes starting easier..."></textarea>
+    </div>
+    <div>
+      <label class="field-label">Category</label>
+      <div class="cat-grid" id="catGrid"></div>
+    </div>
+    <div>
+      <label class="field-label">Estimated time</label>
+      <select class="inp" id="m-time" style="appearance:none;cursor:pointer">
+        <option value="">— unspecified</option>
+        <option value="< 15 min">Under 15 min</option>
+        <option value="30 min">30 min</option>
+        <option value="1 hr">1 hour</option>
+        <option value="2 hr">2 hours</option>
+        <option value="half day">Half day</option>
+        <option value="full day">Full day</option>
+        <option value="ongoing">Ongoing / open-ended</option>
+      </select>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-red" id="deleteBtn" onclick="deleteIdea()" style="display:none;margin-right:auto">Delete</button>
+      <button class="btn" onclick="closeModal()">Cancel</button>
+      <button class="btn btn-solid" onclick="saveIdea()">Save</button>
+    </div>
+  </div>
+</div>
+
+<!-- CATEGORY MANAGER MODAL -->
+<div class="modal-overlay hidden" id="catModal">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-title">Categories</div>
+    <div id="catManageList"></div>
+    <div style="display:flex;gap:8px;margin-top:4px;align-items:center">
+      <input class="inp" id="newCatName" placeholder="New category name..." style="flex:1">
+      <input type="color" id="newCatColor" value="#c9a84c" style="width:36px;height:36px;border:1px solid var(--border2);border-radius:50%;cursor:pointer;padding:2px;background:var(--bg3);flex-shrink:0">
+      <button class="btn btn-gold" onclick="addCategory()" style="white-space:nowrap">+ Add</button>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-solid" onclick="closeCatManager()">Done</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+<input type="file" id="importFile" accept=".json" style="display:none" onchange="handleImport(event)">
+
+<script>
+function uid(){return Date.now().toString(36)+Math.random().toString(36).slice(2,6)}
+
+let ideas=[];
+const PREFILL=[
+  // ── DANTE CRAFT ──────────────────────────────────────────
+  {title:'Write the Dante Craft capability statement — one page, what we do, who we do it for, what sets us apart',cat:'dante',time:'2 hr'},
+  {title:'Draft a reusable project proposal template for Dante Craft site bids',cat:'dante',time:'2 hr'},
+  {title:'Build a simple project tracker for active Dante Craft jobs',cat:'dante',time:'1 hr'},
+  {title:'Write the architect coordination milestone log — current status, next action, responsible party',cat:'dante',time:'30 min'},
+  {title:'Research and list 5 structural engineering firms in Port Harcourt for referral or sub-contract partnerships',cat:'dante',time:'1 hr'},
+  {title:'Draft a follow-up email template for after site visits or client meetings',cat:'dante',time:'30 min'},
+  {title:'Write out Dante Craft pricing logic — how jobs are quoted and what margins are protected',cat:'dante',time:'1 hr'},
+  {title:'List 10 potential project types Dante Craft can pursue in the next 12 months',cat:'dante',time:'30 min'},
+  {title:'Draft a one-paragraph company introduction for cold outreach',cat:'dante',time:'30 min'},
+  {title:'Write a simple onboarding checklist for when Dante Craft takes on a new project',cat:'dante',time:'1 hr'},
+  {title:'Create an invoice template with company branding and all required fields',cat:'dante',time:'1 hr'},
+  {title:'Research COREN registration requirements and map the next steps',cat:'dante',time:'1 hr'},
+  {title:'Map out the Dante Craft org structure — current and what it should look like in 2 years',cat:'dante',time:'30 min'},
+  {title:'Write a brief for the next project opportunity you want to pitch',cat:'dante',time:'1 hr'},
+  {title:'List all active and pending Dante Craft tasks and assign a deadline to each',cat:'dante',time:'30 min'},
+  {title:'Write a one-page site safety checklist relevant to current Dante Craft project type',cat:'dante',time:'1 hr'},
+  {title:'Draft a subcontractor agreement template — scope, payment terms, deliverables',cat:'dante',time:'2 hr'},
+  {title:'Write a risk register template for Dante Craft projects',cat:'dante',time:'1 hr'},
+  {title:'Research and list three funding or grant opportunities for engineering SMEs in Nigeria',cat:'dante',time:'1 hr'},
+  {title:'Write a client satisfaction questionnaire Dante Craft can use after project completion',cat:'dante',time:'30 min'},
+  {title:'Draft the Dante Craft LinkedIn company page copy',cat:'dante',time:'1 hr'},
+  {title:'Write project handover checklist — what Dante Craft delivers to client at close of job',cat:'dante',time:'30 min'},
+  {title:'Identify one niche within civil engineering you want Dante Craft to be known for and write a one-pager on it',cat:'dante',time:'1 hr'},
+  {title:'Write a simple cash flow projection for Dante Craft for the next three months',cat:'dante',time:'1 hr'},
+  {title:'Map all current Dante Craft contacts — clients, suppliers, professionals — into one reference list',cat:'dante',time:'30 min'},
+  {title:'Draft a terms and conditions document for Dante Craft service agreements',cat:'dante',time:'2 hr'},
+  {title:'Write a project closeout report template',cat:'dante',time:'1 hr'},
+  {title:'Identify one upcoming government or private infrastructure project to position Dante Craft toward',cat:'dante',time:'1 hr'},
+  {title:'Write the Dante Craft mission statement — one sentence, precise',cat:'dante',time:'30 min'},
+  {title:'Build a simple expense tracking sheet for Dante Craft project costs',cat:'dante',time:'30 min'},
+
+  // ── TRADING ───────────────────────────────────────────────
+  {title:'Write exact definition of a valid Order Block — conditions that qualify and disqualify it',cat:'trading',time:'1 hr'},
+  {title:'Write exact definition of a valid Fair Value Gap on V75-1s',cat:'trading',time:'30 min'},
+  {title:'Write exact definition of CHoCH vs BOS — the difference, when each matters',cat:'trading',time:'1 hr'},
+  {title:'Define your entry trigger in one sentence — what must happen before you press the button',cat:'trading',time:'30 min'},
+  {title:'Define your invalidation rule — what tells you the setup is wrong before entry',cat:'trading',time:'30 min'},
+  {title:'Define your stop placement logic — where it goes and why',cat:'trading',time:'30 min'},
+  {title:'Define your minimum RR requirement and write out the reasoning behind it',cat:'trading',time:'30 min'},
+  {title:'Backtest one setup type — find 20 historical examples on V75-1s and document results',cat:'trading',time:'half day'},
+  {title:'Review 10 past losses — what was the common thread across them?',cat:'trading',time:'1 hr'},
+  {title:'Write your pre-session routine as a checklist — what happens before you look at price',cat:'trading',time:'30 min'},
+  {title:'Write your post-session routine — what you record before closing the charts',cat:'trading',time:'30 min'},
+  {title:'Study one SMC concept from existing notes and rewrite it in your own words with exact conditions',cat:'trading',time:'1 hr'},
+  {title:'Build a simple trade log template — date, setup type, entry, stop, target, outcome, lesson',cat:'trading',time:'30 min'},
+  {title:'Identify and mark the 3 most significant liquidity levels on current V75-1s structure',cat:'trading',time:'30 min'},
+  {title:'Write out what a premium and discount array looks like on V75-1s specifically',cat:'trading',time:'30 min'},
+  {title:'Define what market structure shift means to you — in one paragraph with no ambiguity',cat:'trading',time:'30 min'},
+  {title:'Write out the difference between a mitigation block and a breaker block — exactly',cat:'trading',time:'30 min'},
+  {title:'Write a one-page summary of your full trading system as it stands today — honest, not aspirational',cat:'trading',time:'1 hr'},
+  {title:'Find and annotate 5 examples of a setup that worked on V75-1s in the last 30 days of data',cat:'trading',time:'1 hr'},
+  {title:'Find and annotate 5 examples of a setup that failed — what was different?',cat:'trading',time:'1 hr'},
+  {title:'Write out what confluence means in your system — what combinations carry weight',cat:'trading',time:'30 min'},
+  {title:'Define your session bias rules — how do you determine directional bias before each session?',cat:'trading',time:'30 min'},
+  {title:'Write a one-page study plan for the next four weeks of trading education',cat:'trading',time:'1 hr'},
+  {title:'Review your trading journal entries from the last month — what pattern do you notice?',cat:'trading',time:'30 min'},
+  {title:'Write out the five setups you understand best and rank them by confidence',cat:'trading',time:'30 min'},
+  {title:'Write out the five setups you understand least and rank them by confusion',cat:'trading',time:'30 min'},
+  {title:'Define what makes V75-1s different from other instruments — its character, its tendencies',cat:'trading',time:'30 min'},
+  {title:'Draw your ideal trade from entry to exit on paper — annotate every decision point',cat:'trading',time:'30 min'},
+  {title:'Write the rules for when you are NOT allowed to trade — the filter list',cat:'trading',time:'30 min'},
+  {title:'Write a post-mortem on one specific trade that still bothers you',cat:'trading',time:'30 min'},
+
+  // ── STUDY / CAREER ────────────────────────────────────────
+  {title:'Complete one AutoCAD module or tutorial — structural drawing focus',cat:'study',time:'1 hr'},
+  {title:'Draw one structural element from scratch in AutoCAD — beam, column, or slab detail',cat:'study',time:'2 hr'},
+  {title:'Read one chapter of IOSH Managing Safely study material',cat:'study',time:'1 hr'},
+  {title:'Watch and take notes on one Primavera P6 tutorial',cat:'study',time:'1 hr'},
+  {title:'Read one chapter of a project management or business book',cat:'study',time:'1 hr'},
+  {title:'Write a summary of the last thing you studied — in your own words, no notes',cat:'study',time:'30 min'},
+  {title:'Research MSc Engineering Management programmes — shortlist 3 institutions with entry requirements',cat:'study',time:'1 hr'},
+  {title:'Study one structural design standard or code section relevant to current Dante Craft work',cat:'study',time:'1 hr'},
+  {title:'Complete one Civil 3D tutorial module',cat:'study',time:'1 hr'},
+  {title:'Write up your current understanding of one engineering concept you use often but have never formally defined',cat:'study',time:'30 min'},
+  {title:'Research what prompt engineering monetisation could look like — write a one-page outline',cat:'study',time:'1 hr'},
+  {title:'Study the basics of structural load calculations and write out the key formulas with plain-English explanations',cat:'study',time:'1 hr'},
+  {title:'Research quantity surveying principles — how does a QS approach a project estimate?',cat:'study',time:'1 hr'},
+  {title:'Study one contract type used in Nigerian civil engineering — understand its terms and risks',cat:'study',time:'1 hr'},
+  {title:'Learn one keyboard shortcut set for AutoCAD and practice until automatic',cat:'study',time:'30 min'},
+  {title:'Research the basics of project finance — how large infrastructure projects are funded',cat:'study',time:'1 hr'},
+  {title:'Study one case study of a failed engineering project — what went wrong and why',cat:'study',time:'1 hr'},
+  {title:'Write a glossary of 20 engineering terms you use regularly but have never formally defined',cat:'study',time:'1 hr'},
+  {title:'Research Python basics — could you automate anything in your current workflow?',cat:'study',time:'1 hr'},
+  {title:'Study the basics of building information modelling — what is BIM, where is it going in Nigeria',cat:'study',time:'1 hr'},
+  {title:'Research the hospitality sector in Nigeria — what makes a resort project viable?',cat:'study',time:'1 hr'},
+  {title:'Study waste management infrastructure — what does a viable waste company need to operate?',cat:'study',time:'1 hr'},
+  {title:'Research energy sector opportunities in Nigeria relevant to the dAnTE energy subsidiary vision',cat:'study',time:'1 hr'},
+  {title:'Study the basics of reading a balance sheet — understand one real company financial statement',cat:'study',time:'1 hr'},
+  {title:'Research what it takes to register and operate an educational institution in Nigeria',cat:'study',time:'1 hr'},
+  {title:'Study negotiation — read one chapter or article and extract three techniques you can use this week',cat:'study',time:'30 min'},
+  {title:'Research what a conglomerate holding structure looks like legally in Nigeria',cat:'study',time:'1 hr'},
+  {title:'Study one leadership framework and assess how it maps to how you currently lead',cat:'study',time:'1 hr'},
+  {title:'Research the basics of brand building for a professional services firm',cat:'study',time:'30 min'},
+  {title:'Study one chapter or module on financial modelling for business',cat:'study',time:'1 hr'},
+
+  // ── WRITING ───────────────────────────────────────────────
+  {title:'Write a journal entry — what is actually going on right now, unfiltered',cat:'writing',time:'30 min'},
+  {title:'Write a letter to yourself one year from now — what do you want him to have done?',cat:'writing',time:'1 hr'},
+  {title:'Write your definition of success — not the inherited one, yours',cat:'writing',time:'1 hr'},
+  {title:'Write the dAnTE Inc. vision statement — what the conglomerate exists to do and become',cat:'writing',time:'1 hr'},
+  {title:'Write a profile of the person you are becoming — third person, present tense',cat:'writing',time:'30 min'},
+  {title:'Write out what rest means to you — what restores, what numbs, the difference between them',cat:'writing',time:'30 min'},
+  {title:'Write your values list — not aspirational, descriptive of how you already operate at your best',cat:'writing',time:'1 hr'},
+  {title:'Write your honest answer to: do I like what I do?',cat:'writing',time:'30 min'},
+  {title:'Write a one-page personal operating manual — how you work best, what depletes you, what you need',cat:'writing',time:'1 hr'},
+  {title:'Write about the crypto scar — what happened, what it cost, what it still drives in you',cat:'writing',time:'30 min'},
+  {title:'Write out the four roles — Son, Steward, Builder, Connoisseur — what each demands of you today',cat:'writing',time:'1 hr'},
+  {title:'Write your eulogy — what do you want said about you when the work is done?',cat:'writing',time:'1 hr'},
+  {title:'Write a letter to your co-directors at Dante Craft — what you expect, what you offer, what the vision is',cat:'writing',time:'1 hr'},
+  {title:'Write a reflection on the last site rotation — what was hard, what worked, what you want different',cat:'writing',time:'30 min'},
+  {title:'Write out your relationship principles — how you want to show up, what you will not compromise',cat:'writing',time:'1 hr'},
+  {title:'Write what depletion feels like versus what restoration feels like — build the vocabulary',cat:'writing',time:'30 min'},
+  {title:'Write a manifesto for dAnTE Inc. — what it stands for, what it will not do, what it is building toward',cat:'writing',time:'2 hr'},
+  {title:'Write a letter to the version of you from five years ago',cat:'writing',time:'30 min'},
+  {title:'Write out your philosophy on money — what it is for, what it is not for, how you want to relate to it',cat:'writing',time:'1 hr'},
+  {title:'Write out what you believe about faith and work — how they interact in your life specifically',cat:'writing',time:'1 hr'},
+  {title:'Write a one-paragraph description of each dAnTE Inc. subsidiary — what it does and why it exists',cat:'writing',time:'1 hr'},
+  {title:'Write a reflection on a relationship pattern you want to change — specific, not abstract',cat:'writing',time:'30 min'},
+  {title:'Write the story of how you came to be in engineering — what drew you, what has kept you',cat:'writing',time:'1 hr'},
+  {title:'Write your non-negotiables — the things that do not move regardless of circumstance',cat:'writing',time:'30 min'},
+  {title:'Write what you want your home to feel like — not look like, feel like',cat:'writing',time:'30 min'},
+
+  // ── PERSONAL DEV ──────────────────────────────────────────
+  {title:'Read for 30 minutes — any book currently in progress',cat:'personal',time:'30 min'},
+  {title:'Go through your tool suite and update any outdated information across dashboards',cat:'personal',time:'1 hr'},
+  {title:'Review Q3 plan — mark what is done, what is behind, what needs adjusting',cat:'personal',time:'30 min'},
+  {title:'Review July plan — honest mid-month or end-of-month assessment',cat:'personal',time:'30 min'},
+  {title:'Identify one thing you have been avoiding and write out exactly why',cat:'personal',time:'30 min'},
+  {title:'Map out your five-year financial picture — income streams, targets, vehicles',cat:'personal',time:'1 hr'},
+  {title:'Build a simple personal budget — income in, expenses out, what is left',cat:'personal',time:'1 hr'},
+  {title:'Research one investment vehicle available in Nigeria — understand it clearly before next step',cat:'personal',time:'1 hr'},
+  {title:'Write your ideal day in detail — hour by hour, as it runs when everything is working',cat:'personal',time:'30 min'},
+  {title:'List 10 things you are genuinely curious about and want to learn at some point in your life',cat:'personal',time:'30 min'},
+  {title:'Identify one hobby or skill you want to explore and take the first concrete step toward it',cat:'personal',time:'30 min'},
+  {title:'Audit your phone — which apps serve you, which drain you',cat:'personal',time:'30 min'},
+  {title:'Spend 30 minutes on something with no productive output — learn what that feels like',cat:'personal',time:'30 min'},
+  {title:'Research one musical instrument and whether learning it is something you want to pursue',cat:'personal',time:'30 min'},
+  {title:'Map your support network — who can you call, who calls you, who is missing from that picture',cat:'personal',time:'30 min'},
+  {title:'Write a reading list — books you want to read, why, and in what order',cat:'personal',time:'30 min'},
+  {title:'Identify three people you respect and write out specifically what you respect about each',cat:'personal',time:'30 min'},
+  {title:'Write out what a connoisseur life looks like — what are the things, the tastes, the standards',cat:'personal',time:'30 min'},
+  {title:'Plan one experience you want to have in the next 90 days — and take one step to make it real',cat:'personal',time:'30 min'},
+  {title:'Write out what friendship means to you and who in your life currently fits that definition',cat:'personal',time:'30 min'},
+  {title:'Identify one area where you consistently underestimate yourself and write out the evidence against that',cat:'personal',time:'30 min'},
+  {title:'Review your Ideal Week timetable — does it still reflect how you want to live?',cat:'personal',time:'30 min'},
+  {title:'Write a list of 25 things that bring you genuine enjoyment — without filtering for productivity',cat:'personal',time:'30 min'},
+  {title:'Identify the single highest-leverage habit you are not yet doing and plan how to add it',cat:'personal',time:'30 min'},
+  {title:'Write out what the orchestrating role looks like in practice — what do you actually do in that home office day?',cat:'personal',time:'30 min'},
+
+  // ── FAITH ─────────────────────────────────────────────────
+  {title:'Write a prayer — not a list of requests, a real conversation about where you are',cat:'faith',time:'30 min'},
+  {title:'Read one Psalm and write what it means to you right now',cat:'faith',time:'30 min'},
+  {title:'Write out what faith as a foundation looks like in your day — practically, not theoretically',cat:'faith',time:'30 min'},
+  {title:'Read one chapter of a spiritual growth book currently in progress',cat:'faith',time:'30 min'},
+  {title:'Write your honest answer to: what is God building in me right now?',cat:'faith',time:'30 min'},
+  {title:'Write about one time faith held when nothing else did — what happened, what it produced',cat:'faith',time:'30 min'},
+  {title:'Study one scripture that has been recurring in your mind and write a full reflection on it',cat:'faith',time:'30 min'},
+  {title:'Write out what stewardship means to you — of money, of time, of relationships, of gifts',cat:'faith',time:'1 hr'},
+  {title:'Write a gratitude log — not a list, a genuine accounting of what you have been given',cat:'faith',time:'30 min'},
+  {title:'Write out what receiving looks like for you spiritually — where is the block, what would openness feel like',cat:'faith',time:'30 min'},
+  {title:'Read one chapter of Proverbs and extract three principles applicable to your current season',cat:'faith',time:'30 min'},
+  {title:'Write a reflection on the 4AM prayer block — what it has produced, what it has protected',cat:'faith',time:'30 min'},
+
+  // ── LIFE / HOME ───────────────────────────────────────────
+  {title:'Update the apartment checklist — what is done, what is next, what is still undecided',cat:'life',time:'30 min'},
+  {title:'Research and price the next wave of apartment items needed',cat:'life',time:'30 min'},
+  {title:'Organise one physical space in the apartment — desk, wardrobe, or kitchen',cat:'life',time:'30 min'},
+  {title:'Set up a simple weekly grocery and spending plan',cat:'life',time:'30 min'},
+  {title:'Go through your clothes — what stays, what goes, what is needed',cat:'life',time:'30 min'},
+  {title:'Design your workspace mentally — where the trading screen goes, where the drawing table sits, what the light is like',cat:'life',time:'30 min'},
+  {title:'Plan the entrance to the apartment — light, hooks, shoe organiser, tone it sets',cat:'life',time:'30 min'},
+  {title:'Research and choose one kitchen item you have been putting off',cat:'life',time:'30 min'},
+  {title:'Cook one proper meal — not maintenance eating, an actual meal worth sitting down to',cat:'life',time:'1 hr'},
+  {title:'Create a simple cleaning and maintenance schedule for the apartment',cat:'life',time:'30 min'},
+  {title:'Research and plan one thing to do in Port Harcourt that is not work — a place, an experience, a meal',cat:'life',time:'30 min'},
+  {title:'Write a list of everything the apartment still needs to feel complete — then prioritise it',cat:'life',time:'30 min'},
+  {title:'Set up your physical filing system — documents, receipts, contracts, all in one place',cat:'life',time:'30 min'},
+  {title:'Plan one thing to do specifically for T — not reactive, chosen and prepared in advance',cat:'life',time:'30 min'},
+  {title:'Research and book one health check or appointment you have been postponing',cat:'life',time:'30 min'},
+];
+let categories=[
+  {id:'dante',  label:'Dante Craft',   color:'#c9a84c'},
+  {id:'trading',label:'Trading',       color:'#ffa050'},
+  {id:'study',  label:'Study',         color:'#4a8cc9'},
+  {id:'writing',label:'Writing',       color:'#8b6bff'},
+  {id:'faith',  label:'Faith',         color:'#a0c864'},
+  {id:'personal',label:'Personal Dev', color:'#4caf7d'},
+  {id:'life',   label:'Life / Home',   color:'#dc6496'},
+  {id:'other',  label:'Other',         color:'#666'},
+];
+let selectedCat='all';
+let currentSort='newest';
+let editId=null;
+let mSelectedCat=null;
+let isDark=true;
+
+// ── RENDER ────────────────────────────────────────────────
+function renderAll(){renderStats();renderFilters();renderList()}
+
+function renderStats(){
+  const total=ideas.length;
+  const eng=ideas.filter(i=>i.engaged).length;
+  const uneng=total-eng;
+  document.getElementById('statsRow').innerHTML=`
+    <div class="stat"><div class="stat-num">${total}</div><div class="stat-lbl">Ideas</div></div>
+    <div class="stats-div"></div>
+    <div class="stat"><div class="stat-num">${uneng}</div><div class="stat-lbl">Untouched</div></div>
+    <div class="stats-div"></div>
+    <div class="stat"><div class="stat-num">${eng}</div><div class="stat-lbl">Engaged</div></div>`;
+}
+
+function renderFilters(){
+  const row=document.getElementById('filterRow');
+  row.innerHTML='';
+  const all=document.createElement('div');
+  all.className='fpill'+(selectedCat==='all'?' active':'');
+  all.textContent='All'; all.onclick=()=>{selectedCat='all';renderFilters();renderList()};
+  row.appendChild(all);
+  categories.forEach(c=>{
+    if(!ideas.find(i=>i.cat===c.id)) return;
+    const p=document.createElement('div');
+    p.className='fpill'+(selectedCat===c.id?' active':'');
+    p.textContent=c.label;
+    p.onclick=()=>{selectedCat=c.id;renderFilters();renderList()};
+    row.appendChild(p);
+  });
+  const uncat=document.createElement('div');
+  uncat.className='fpill'+(selectedCat==='uncat'?' active':'');
+  uncat.textContent='Uncategorised';
+  uncat.style.display=ideas.find(i=>!i.cat)?'':'none';
+  uncat.onclick=()=>{selectedCat='uncat';renderFilters();renderList()};
+  row.appendChild(uncat);
+}
+
+function getFiltered(){
+  const q=document.getElementById('searchInp').value.trim().toLowerCase();
+  let list=ideas.filter(i=>{
+    if(selectedCat==='uncat') return !i.cat;
+    if(selectedCat!=='all'&&i.cat!==selectedCat) return false;
+    if(q&&!(i.title.toLowerCase().includes(q)||(i.note&&i.note.toLowerCase().includes(q)))) return false;
+    return true;
+  });
+  if(currentSort==='oldest') list=[...list].reverse();
+  else if(currentSort==='az') list=[...list].sort((a,b)=>a.title.localeCompare(b.title));
+  else if(currentSort==='unengaged') list=[...list].sort((a,b)=>(a.engaged?1:0)-(b.engaged?1:0));
+  else if(currentSort==='engaged') list=[...list].sort((a,b)=>(b.engaged?1:0)-(a.engaged?1:0));
+  return list;
+}
+
+function renderList(){
+  const list=document.getElementById('ideasList');
+  const empty=document.getElementById('emptyState');
+  const filtered=getFiltered();
+  list.innerHTML='';
+  if(!filtered.length){empty.classList.remove('hidden');return}
+  empty.classList.add('hidden');
+  filtered.forEach(idea=>{
+    const cat=categories.find(c=>c.id===idea.cat);
+    const card=document.createElement('div');
+    card.className='idea-card'+(idea.engaged?' engaged':'');
+    card.id='card-'+idea.id;
+    card.innerHTML=`
+      <div class="idea-check" onclick="toggleEngaged(event,'${idea.id}')" title="${idea.engaged?'Mark as not yet done':'Mark as engaged'}"></div>
+      <div class="idea-body" onclick="openEdit('${idea.id}')">
+        <div class="idea-title">${esc(idea.title)}</div>
+        ${idea.note?`<div class="idea-note">${esc(idea.note)}</div>`:''}
+        <div class="idea-meta">
+          ${cat?`<div class="idea-cat"><div class="idea-cat-dot" style="background:${cat.color}"></div>${cat.label}</div>`:''}
+          ${idea.time?`<div class="idea-cat" style="border-color:transparent;padding-left:0">⏱ ${idea.time}</div>`:''}
+          ${idea.engaged?`<div class="idea-engaged-tag">Previously engaged</div>`:''}
+        </div>
+      </div>
+      <div class="idea-actions">
+        <button class="iact" onclick="openEdit('${idea.id}')" title="Edit">✎</button>
+        <button class="iact del" onclick="confirmDelete(event,'${idea.id}')" title="Delete">✕</button>
+      </div>`;
+    list.appendChild(card);
+  });
+  renderStats();
+}
+
+function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}
+
+// ── TOGGLE ENGAGED ────────────────────────────────────────
+function toggleEngaged(e,id){
+  e.stopPropagation();
+  const idea=ideas.find(i=>i.id===id); if(!idea) return;
+  idea.engaged=!idea.engaged;
+  idea.engagedDate=idea.engaged?Date.now():null;
+  renderList(); saveData();
+}
+
+// ── PICK RANDOM ───────────────────────────────────────────
+function pickRandom(){
+  const pool=getFiltered().filter(i=>!i.engaged);
+  if(!pool.length){
+    const all=getFiltered();
+    if(!all.length){showToast('Pool is empty — add some ideas');return}
+    // All engaged — pick from all
+    const pick=all[Math.floor(Math.random()*all.length)];
+    highlightCard(pick.id,'All ideas have been engaged — here\'s one anyway');
+    return;
+  }
+  const pick=pool[Math.floor(Math.random()*pool.length)];
+  highlightCard(pick.id,'Picked for you ✦');
+}
+
+function highlightCard(id,msg){
+  document.querySelectorAll('.idea-card').forEach(c=>c.classList.remove('highlighted'));
+  const card=document.getElementById('card-'+id);
+  if(card){
+    card.classList.add('highlighted');
+    card.scrollIntoView({behavior:'smooth',block:'center'});
+    setTimeout(()=>card.classList.remove('highlighted'),3000);
+  }
+  showToast(msg);
+}
+
+// ── MODAL ─────────────────────────────────────────────────
+function openAddModal(){
+  editId=null;
+  document.getElementById('modalTitle').textContent='New idea';
+  document.getElementById('deleteBtn').style.display='none';
+  document.getElementById('m-title').value='';
+  document.getElementById('m-note').value='';
+  document.getElementById('m-time').value='';
+  mSelectedCat=null;
+  buildCatGrid();
+  document.getElementById('ideaModal').classList.remove('hidden');
+  setTimeout(()=>document.getElementById('m-title').focus(),80);
+}
+
+function openEdit(id){
+  const idea=ideas.find(i=>i.id===id); if(!idea) return;
+  editId=id;
+  document.getElementById('modalTitle').textContent='Edit idea';
+  document.getElementById('deleteBtn').style.display='';
+  document.getElementById('m-title').value=idea.title||'';
+  document.getElementById('m-note').value=idea.note||'';
+  document.getElementById('m-time').value=idea.time||'';
+  mSelectedCat=idea.cat||null;
+  buildCatGrid();
+  document.getElementById('ideaModal').classList.remove('hidden');
+}
+
+function buildCatGrid(){
+  const grid=document.getElementById('catGrid');
+  grid.innerHTML='';
+  categories.forEach(c=>{
+    const div=document.createElement('div');
+    div.className='cat-opt'+(mSelectedCat===c.id?' selected':'');
+    div.innerHTML=`<div class="cat-dot" style="background:${c.color}"></div>${c.label}`;
+    div.onclick=()=>{
+      mSelectedCat=mSelectedCat===c.id?null:c.id;
+      buildCatGrid();
+    };
+    grid.appendChild(div);
+  });
+}
+
+function saveIdea(){
+  const title=document.getElementById('m-title').value.trim();
+  if(!title){showToast('Give this idea a title');return}
+  const idea={
+    id:editId||uid(),
+    title,
+    note:document.getElementById('m-note').value.trim(),
+    cat:mSelectedCat,
+    time:document.getElementById('m-time').value,
+    engaged:editId?(ideas.find(i=>i.id===editId)||{}).engaged||false:false,
+    engagedDate:editId?(ideas.find(i=>i.id===editId)||{}).engagedDate||null:null,
+    created:editId?(ideas.find(i=>i.id===editId)||{}).created||Date.now():Date.now(),
+  };
+  if(editId) ideas=ideas.map(i=>i.id===editId?idea:i);
+  else ideas.unshift(idea);
+  closeModal(); renderAll(); saveData(); showToast('Saved');
+}
+
+function deleteIdea(){
+  if(!confirm('Remove this idea from the pool?')) return;
+  ideas=ideas.filter(i=>i.id!==editId);
+  closeModal(); renderAll(); saveData(); showToast('Removed');
+}
+
+function confirmDelete(e,id){
+  e.stopPropagation();
+  if(!confirm('Remove this idea?')) return;
+  ideas=ideas.filter(i=>i.id!==id);
+  renderAll(); saveData();
+}
+
+function closeModal(){document.getElementById('ideaModal').classList.add('hidden')}
+
+document.getElementById('ideaModal').addEventListener('click',e=>{
+  if(e.target===document.getElementById('ideaModal')) closeModal();
+});
+
+// ── CATEGORY MANAGER ──────────────────────────────────────
+function openCatManager(){
+  renderCatManager();
+  document.getElementById('catModal').classList.remove('hidden');
+}
+function closeCatManager(){
+  document.getElementById('catModal').classList.add('hidden');
+  renderAll(); saveData();
+}
+function renderCatManager(){
+  const list=document.getElementById('catManageList');
+  list.innerHTML='';
+  categories.forEach(c=>{
+    const row=document.createElement('div'); row.className='cat-manage-row';
+    const colorInp=document.createElement('input');
+    colorInp.type='color'; colorInp.value=c.color; colorInp.className='cat-color-inp';
+    colorInp.addEventListener('input',e=>{c.color=e.target.value});
+    const nameInp=document.createElement('input');
+    nameInp.className='cat-name-inp'; nameInp.value=c.label;
+    nameInp.addEventListener('change',e=>{c.label=e.target.value.trim()||c.label});
+    const delBtn=document.createElement('button');
+    delBtn.className='cat-del-btn'; delBtn.textContent='✕';
+    delBtn.onclick=()=>{
+      categories=categories.filter(x=>x.id!==c.id);
+      ideas.forEach(i=>{if(i.cat===c.id) i.cat=null});
+      renderCatManager();
+    };
+    row.appendChild(colorInp); row.appendChild(nameInp); row.appendChild(delBtn);
+    list.appendChild(row);
+  });
+}
+function addCategory(){
+  const name=document.getElementById('newCatName').value.trim();
+  if(!name){showToast('Enter a category name');return}
+  const color=document.getElementById('newCatColor').value;
+  categories.push({id:'cat_'+uid(),label:name,color});
+  document.getElementById('newCatName').value='';
+  renderCatManager();
+}
+document.getElementById('catModal').addEventListener('click',e=>{
+  if(e.target===document.getElementById('catModal')) closeCatManager();
+});
+
+// ── PERSISTENCE ───────────────────────────────────────────
+function saveData(){
+  localStorage.setItem('ideaPool',JSON.stringify({ideas,categories}));
+  showToast('Saved');
+}
+function loadData(){
+  const raw=localStorage.getItem('ideaPool');
+  if(raw){
+    try{
+      const d=JSON.parse(raw);
+      if(d.ideas) ideas=d.ideas;
+      if(d.categories&&d.categories.length) categories=d.categories;
+    }catch(e){}
+  }
+}
+function exportData(){
+  const blob=new Blob([JSON.stringify({ideas,categories},null,2)],{type:'application/json'});
+  const a=document.createElement('a'); a.href=URL.createObjectURL(blob);
+  a.download='idea-pool.json'; a.click(); showToast('Exported');
+}
+function importData(){document.getElementById('importFile').click()}
+function handleImport(e){
+  const file=e.target.files[0]; if(!file) return;
+  const r=new FileReader();
+  r.onload=ev=>{
+    try{
+      const d=JSON.parse(ev.target.result);
+      if(d.ideas) ideas=d.ideas;
+      if(d.categories&&d.categories.length) categories=d.categories;
+      renderAll(); saveData(); showToast('Imported');
+    }catch(err){showToast('Import failed')}
+  };
+  r.readAsText(file); e.target.value='';
+}
+function toggleTheme(){
+  isDark=!isDark;
+  document.body.classList.toggle('light',!isDark);
+  localStorage.setItem('ideaPoolTheme',isDark?'dark':'light');
+}
+function showToast(msg){
+  const t=document.getElementById('toast'); t.textContent=msg;
+  t.classList.add('show'); setTimeout(()=>t.classList.remove('show'),2200);
+}
+document.addEventListener('keydown',e=>{if(e.key==='Escape')closeModal()});
+
+// ── INIT ─────────────────────────────────────────────────
+const th=localStorage.getItem('ideaPoolTheme');
+if(th==='light'){isDark=false;document.body.classList.add('light')}
+loadData();
+// Seed with prefill ideas if pool is empty (first run)
+if(!ideas.length){
+  ideas=PREFILL.map((p,i)=>({
+    id:uid(),
+    title:p.title,
+    note:p.note||'',
+    cat:p.cat||null,
+    time:p.time||'',
+    engaged:false,
+    engagedDate:null,
+    created:Date.now()-((PREFILL.length-i)*1000)
+  }));
+}
+renderAll();
+</script>
+</body>
+</html>

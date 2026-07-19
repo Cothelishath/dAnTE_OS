@@ -1,0 +1,537 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Relationship Curriculum</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400;1,500&family=DM+Mono:wght@300;400;500&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+:root[data-theme="dark"]{
+  --bg:#09090b;--bg2:#111114;--bg3:#18181c;--bg4:#222228;
+  --border:rgba(255,255,255,0.06);--border-gold:rgba(201,168,76,0.22);
+  --text:#e8e3d8;--muted:#666;--soft:#999;
+  --gold:#c9a84c;--gold-dim:rgba(201,168,76,0.08);--gold-mid:rgba(201,168,76,0.18);
+  --found:#7a9fbf;--dev:#9abf7a;--integ:#bf9a7a;
+}
+:root[data-theme="light"]{
+  --bg:#f4f1eb;--bg2:#edeae2;--bg3:#e4e0d6;--bg4:#d8d3c8;
+  --border:rgba(0,0,0,0.07);--border-gold:rgba(140,100,20,0.22);
+  --text:#141210;--muted:#aaa;--soft:#666;
+  --gold:#8a6820;--gold-dim:rgba(138,104,32,0.07);--gold-mid:rgba(138,104,32,0.15);
+  --found:#2a5a7a;--dev:#3a6a2a;--integ:#7a4a2a;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{background:var(--bg);color:var(--text);font-family:'Jost',sans-serif;font-weight:300;line-height:1.7;min-height:100vh;transition:background 0.3s,color 0.3s;}
+
+/* HEADER */
+header{border-bottom:1px solid var(--border);padding:0 48px;display:flex;align-items:center;justify-content:space-between;height:60px;position:sticky;top:0;background:var(--bg);z-index:100;}
+.wordmark{font-family:'Cormorant Garamond',serif;font-size:1.2rem;font-style:italic;color:var(--gold);letter-spacing:0.03em;}
+.wordmark span{color:var(--text);font-style:normal;font-weight:300;font-size:0.95rem;}
+.header-right{display:flex;align-items:center;gap:12px;}
+.theme-btn{background:var(--bg3);border:1px solid var(--border);color:var(--muted);font-size:0.75rem;width:30px;height:30px;border-radius:50%;cursor:pointer;transition:all 0.2s;display:flex;align-items:center;justify-content:center;}
+.theme-btn:hover{border-color:var(--gold);color:var(--gold);}
+.progress-label{font-family:'DM Mono',monospace;font-size:0.55rem;letter-spacing:0.1em;text-transform:uppercase;color:var(--muted);}
+
+/* NAV */
+.nav-strip{display:flex;gap:0;border-bottom:1px solid var(--border);background:var(--bg2);overflow-x:auto;scrollbar-width:none;padding:0 48px;}
+.nav-strip::-webkit-scrollbar{display:none;}
+.nav-btn{padding:14px 18px;background:none;border:none;border-bottom:2px solid transparent;color:var(--muted);font-family:'DM Mono',monospace;font-size:0.52rem;letter-spacing:0.1em;text-transform:uppercase;cursor:pointer;white-space:nowrap;transition:all 0.2s;}
+.nav-btn:hover{color:var(--soft);}
+.nav-btn.active{color:var(--gold);border-bottom-color:var(--gold);}
+
+/* MAIN */
+main{max-width:900px;margin:0 auto;padding:48px 48px 100px;}
+.tab-panel{display:none;}
+.tab-panel.active{display:block;animation:rise 0.3s ease both;}
+@keyframes rise{from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:translateY(0);}}
+
+/* OVERVIEW */
+.overview-intro{margin-bottom:48px;}
+.section-eyebrow{font-family:'DM Mono',monospace;font-size:0.52rem;letter-spacing:0.16em;text-transform:uppercase;color:var(--gold);margin-bottom:12px;}
+.section-title{font-family:'Cormorant Garamond',serif;font-size:2.4rem;font-weight:400;line-height:1.2;color:var(--text);margin-bottom:20px;}
+.section-body{font-size:0.95rem;color:var(--soft);max-width:640px;line-height:1.8;}
+.gold-rule{height:1px;background:linear-gradient(90deg,var(--gold) 0%,transparent 60%);opacity:0.2;margin:36px 0;}
+
+/* TIER CARDS */
+.tier-grid{display:grid;gap:16px;margin-bottom:48px;}
+.tier-card{background:var(--bg2);border:1px solid var(--border);border-radius:4px;padding:24px 28px;position:relative;overflow:hidden;}
+.tier-card::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;}
+.tier-found::before{background:var(--found);}
+.tier-dev::before{background:var(--dev);}
+.tier-integ::before{background:var(--integ);}
+.tier-label{font-family:'DM Mono',monospace;font-size:0.5rem;letter-spacing:0.14em;text-transform:uppercase;margin-bottom:8px;}
+.tier-found .tier-label{color:var(--found);}
+.tier-dev .tier-label{color:var(--dev);}
+.tier-integ .tier-label{color:var(--integ);}
+.tier-name{font-family:'Cormorant Garamond',serif;font-size:1.3rem;font-weight:500;color:var(--text);margin-bottom:6px;}
+.tier-desc{font-size:0.85rem;color:var(--soft);line-height:1.7;}
+.tier-pillars{display:flex;flex-wrap:wrap;gap:6px;margin-top:14px;}
+.tier-pill{font-family:'DM Mono',monospace;font-size:0.5rem;letter-spacing:0.08em;text-transform:uppercase;padding:3px 10px;border-radius:20px;border:1px solid var(--border);color:var(--muted);}
+
+/* HOW IT WORKS */
+.method-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:20px;}
+.method-card{background:var(--bg2);border:1px solid var(--border);border-radius:4px;padding:20px 22px;}
+.method-num{font-family:'DM Mono',monospace;font-size:0.55rem;color:var(--gold);letter-spacing:0.1em;margin-bottom:8px;}
+.method-title{font-family:'Cormorant Garamond',serif;font-size:1.1rem;color:var(--text);margin-bottom:6px;}
+.method-desc{font-size:0.82rem;color:var(--soft);line-height:1.7;}
+
+/* PILLARS */
+.pillar-list{display:flex;flex-direction:column;gap:6px;margin-bottom:32px;}
+.pillar-item{background:var(--bg2);border:1px solid var(--border);border-radius:4px;overflow:hidden;transition:border-color 0.2s;}
+.pillar-item:hover{border-color:var(--border-gold);}
+.pillar-header{display:grid;grid-template-columns:40px 1fr auto;align-items:center;padding:16px 20px;cursor:pointer;gap:12px;}
+.pillar-num{font-family:'DM Mono',monospace;font-size:0.55rem;color:var(--muted);letter-spacing:0.08em;}
+.pillar-meta{display:flex;flex-direction:column;gap:3px;}
+.pillar-name{font-family:'Cormorant Garamond',serif;font-size:1.1rem;font-weight:500;color:var(--text);}
+.pillar-tier-tag{font-family:'DM Mono',monospace;font-size:0.48rem;letter-spacing:0.1em;text-transform:uppercase;display:inline-block;}
+.pillar-status{display:flex;align-items:center;gap:8px;}
+.status-dot{width:8px;height:8px;border-radius:50%;border:1.5px solid var(--border);flex-shrink:0;cursor:pointer;transition:all 0.2s;}
+.status-dot.active{background:var(--gold);border-color:var(--gold);}
+.pillar-toggle{font-family:'DM Mono',monospace;font-size:0.7rem;color:var(--muted);transition:transform 0.2s;margin-left:8px;}
+.pillar-item.open .pillar-toggle{transform:rotate(180deg);}
+.pillar-body{display:none;padding:0 20px 24px;border-top:1px solid var(--border);}
+.pillar-item.open .pillar-body{display:block;}
+.pillar-why{font-size:0.88rem;color:var(--soft);line-height:1.8;margin:16px 0 20px;font-style:italic;padding-left:12px;border-left:2px solid var(--border-gold);}
+.resource-section{margin-bottom:20px;}
+.resource-label{font-family:'DM Mono',monospace;font-size:0.5rem;letter-spacing:0.12em;text-transform:uppercase;color:var(--muted);margin-bottom:10px;}
+.resource-item{display:flex;gap:12px;padding:10px 14px;background:var(--bg3);border-radius:3px;margin-bottom:6px;}
+.resource-icon{font-size:0.9rem;flex-shrink:0;margin-top:2px;}
+.resource-info{}
+.resource-title{font-size:0.88rem;color:var(--text);font-weight:400;margin-bottom:2px;}
+.resource-author{font-family:'DM Mono',monospace;font-size:0.5rem;letter-spacing:0.08em;color:var(--muted);text-transform:uppercase;}
+.resource-note{font-size:0.8rem;color:var(--soft);margin-top:4px;line-height:1.6;}
+.practice-list{list-style:none;display:flex;flex-direction:column;gap:6px;}
+.practice-list li{font-size:0.85rem;color:var(--soft);padding:8px 12px;background:var(--bg3);border-radius:3px;line-height:1.6;}
+.practice-list li::before{content:'→ ';color:var(--gold);font-family:'DM Mono',monospace;font-size:0.75rem;}
+.bring-back{background:var(--gold-dim);border:1px solid var(--border-gold);border-radius:3px;padding:12px 16px;margin-top:16px;}
+.bring-back-label{font-family:'DM Mono',monospace;font-size:0.5rem;letter-spacing:0.12em;text-transform:uppercase;color:var(--gold);margin-bottom:8px;}
+.bring-back p{font-size:0.82rem;color:var(--soft);line-height:1.7;}
+
+/* PROGRESS TAB */
+.progress-overview{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:32px;}
+.prog-card{background:var(--bg2);border:1px solid var(--border);border-radius:4px;padding:20px;text-align:center;}
+.prog-val{font-family:'Cormorant Garamond',serif;font-size:2.2rem;font-weight:500;color:var(--gold);}
+.prog-label{font-family:'DM Mono',monospace;font-size:0.5rem;letter-spacing:0.1em;text-transform:uppercase;color:var(--muted);margin-top:4px;}
+.prog-bar-wrap{margin-bottom:32px;}
+.prog-bar-label{display:flex;justify-content:space-between;font-family:'DM Mono',monospace;font-size:0.52rem;letter-spacing:0.08em;text-transform:uppercase;color:var(--muted);margin-bottom:8px;}
+.prog-bar{height:4px;background:var(--bg4);border-radius:2px;overflow:hidden;}
+.prog-bar-fill{height:100%;background:var(--gold);border-radius:2px;transition:width 0.4s ease;}
+.notes-area{width:100%;min-height:200px;background:var(--bg2);border:1px solid var(--border);border-radius:4px;padding:16px 20px;color:var(--text);font-family:'Cormorant Garamond',serif;font-size:1rem;line-height:1.8;resize:vertical;outline:none;transition:border-color 0.2s;}
+.notes-area:focus{border-color:var(--border-gold);}
+.notes-area::placeholder{color:var(--muted);font-style:italic;}
+.save-notes-btn{margin-top:10px;padding:7px 18px;background:var(--gold-dim);border:1px solid var(--border-gold);border-radius:3px;color:var(--gold);font-family:'DM Mono',monospace;font-size:0.55rem;letter-spacing:0.08em;text-transform:uppercase;cursor:pointer;transition:all 0.2s;}
+.save-notes-btn:hover{background:var(--gold);color:#000;}
+
+@media(max-width:640px){
+  header,.nav-strip,main{padding-left:20px;padding-right:20px;}
+  .method-grid{grid-template-columns:1fr;}
+  .progress-overview{grid-template-columns:1fr 1fr;}
+}
+</style>
+</head>
+<body>
+<header>
+  <div class="wordmark">The Relationship Curriculum <span>/ Paul Bassey</span></div>
+  <div class="header-right">
+    <span class="progress-label" id="progress-label">0 of 11 started</span>
+    <button class="theme-btn" onclick="toggleTheme()"><span id="theme-icon">☀</span></button>
+  </div>
+</header>
+
+<nav class="nav-strip">
+  <button class="nav-btn active" onclick="switchTab('overview',this)">Overview</button>
+  <button class="nav-btn" onclick="switchTab('pillars',this)">The 11 Pillars</button>
+  <button class="nav-btn" onclick="switchTab('progress',this)">Progress & Notes</button>
+</nav>
+
+<main>
+
+<!-- OVERVIEW TAB -->
+<div class="tab-panel active" id="tab-overview">
+  <div class="overview-intro">
+    <div class="section-eyebrow">The work</div>
+    <div class="section-title">Learning to love<br>the way a man should.</div>
+    <div class="section-body">This is not a reading list. It is a curriculum — structured, sequenced, and built to produce change rather than just knowledge. Thirty minutes a day, five days a week. Read, reflect, bring it back. The other thirty minutes you apply it with a real person in real time.</div>
+  </div>
+
+  <div class="gold-rule"></div>
+
+  <div class="section-eyebrow" style="margin-bottom:16px;">Three tiers</div>
+  <div class="tier-grid">
+    <div class="tier-card tier-found">
+      <div class="tier-label">Tier I — Foundation</div>
+      <div class="tier-name">Build yourself first.</div>
+      <div class="tier-desc">You cannot lead what you haven't built. You cannot give what you don't have. These four pillars go deep into who you are before they touch how you relate to anyone else. Start here. Stay here until it's moving.</div>
+      <div class="tier-pillars">
+        <span class="tier-pill">Leadership of Self</span>
+        <span class="tier-pill">Emotional Intelligence</span>
+        <span class="tier-pill">Vulnerability & Intimacy</span>
+        <span class="tier-pill">Spiritual Foundation</span>
+      </div>
+    </div>
+    <div class="tier-card tier-dev">
+      <div class="tier-label">Tier II — Development</div>
+      <div class="tier-name">Build toward another person.</div>
+      <div class="tier-desc">Once the foundation is in motion, these four pillars expand your capacity outward — toward how you show up, speak, fight, and understand the person you're building with.</div>
+      <div class="tier-pillars">
+        <span class="tier-pill">Responsibility in Practice</span>
+        <span class="tier-pill">Communication</span>
+        <span class="tier-pill">Conflict & Repair</span>
+        <span class="tier-pill">Understanding Women</span>
+      </div>
+    </div>
+    <div class="tier-card tier-integ">
+      <div class="tier-label">Tier III — Integration</div>
+      <div class="tier-name">These are practised, not studied.</div>
+      <div class="tier-desc">The final three pillars cannot be learned from a book. They are the living out of everything that came before — in real moments, with a real person. The material here guides reflection. The practice is your actual life.</div>
+      <div class="tier-pillars">
+        <span class="tier-pill">Connection</span>
+        <span class="tier-pill">Presence & Attention</span>
+        <span class="tier-pill">Service & Sacrifice</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="gold-rule"></div>
+
+  <div class="section-eyebrow" style="margin-bottom:16px;">How this works</div>
+  <div class="method-grid">
+    <div class="method-card">
+      <div class="method-num">01</div>
+      <div class="method-title">30 minutes, daily</div>
+      <div class="method-desc">This is your curriculum time inside the relationship research block. Short enough to protect. Consistent enough to compound. Don't negotiate with it.</div>
+    </div>
+    <div class="method-card">
+      <div class="method-num">02</div>
+      <div class="method-title">One pillar at a time</div>
+      <div class="method-desc">You don't move to the next pillar until the current one has produced something in you — a shift in how you think, feel, or act. Not when you finish the book. When it's changed something.</div>
+    </div>
+    <div class="method-card">
+      <div class="method-num">03</div>
+      <div class="method-title">Bring it back</div>
+      <div class="method-desc">After each resource, come back here and we discuss it. What landed. What didn't. What it exposed. What question it left you with. This is where the thinking gets tested.</div>
+    </div>
+    <div class="method-card">
+      <div class="method-num">04</div>
+      <div class="method-title">Apply it the same day</div>
+      <div class="method-desc">The second 30 minutes of the research block is application — in real conversation, in real gestures, in how you show up. The curriculum lives in that gap between knowing and doing.</div>
+    </div>
+  </div>
+</div>
+
+<!-- PILLARS TAB -->
+<div class="tab-panel" id="tab-pillars">
+  <div class="section-eyebrow" style="margin-bottom:6px;">All 11 pillars</div>
+  <div style="font-size:0.85rem;color:var(--muted);margin-bottom:28px;">Click a pillar to expand. Mark as started when you begin.</div>
+  <div class="pillar-list" id="pillar-list"></div>
+</div>
+
+<!-- PROGRESS TAB -->
+<div class="tab-panel" id="tab-progress">
+  <div class="section-eyebrow" style="margin-bottom:20px;">Where you are</div>
+  <div class="progress-overview">
+    <div class="prog-card"><div class="prog-val" id="prog-started">0</div><div class="prog-label">Started</div></div>
+    <div class="prog-card"><div class="prog-val" id="prog-remaining">11</div><div class="prog-label">Remaining</div></div>
+    <div class="prog-card"><div class="prog-val">30m</div><div class="prog-label">Daily target</div></div>
+  </div>
+  <div class="prog-bar-wrap">
+    <div class="prog-bar-label"><span>Overall progress</span><span id="prog-pct">0%</span></div>
+    <div class="prog-bar"><div class="prog-bar-fill" id="prog-fill" style="width:0%"></div></div>
+  </div>
+  <div class="section-eyebrow" style="margin-bottom:12px;">Running notes</div>
+  <div style="font-size:0.82rem;color:var(--muted);margin-bottom:10px;">What's shifting. What's hard. What you're discovering. Write it here and it stays.</div>
+  <textarea class="notes-area" id="notes-area" placeholder="What has this curriculum been teaching you so far..."></textarea>
+  <button class="save-notes-btn" onclick="saveNotes()">Save Notes</button>
+</div>
+
+</main>
+
+<script>
+const PILLARS = [
+  {
+    id:'p1', num:'01', tier:'foundation', tierLabel:'Tier I — Foundation',
+    name:'Leadership of Self',
+    why:'Everything starts here. You cannot lead a relationship, set a tone, or be consistent for another person if you cannot lead yourself. This pillar is about discipline, integrity, and becoming the man who shows up the same way whether anyone is watching or not.',
+    books:[
+      {icon:'📖',title:'The Way of the Superior Man',author:'David Deida',note:'Provocative and not without flaws, but the core idea — that a man must be rooted in his own purpose and direction — is essential. Read critically. Take what is true.'},
+      {icon:'📖',title:'12 Rules for Life',author:'Jordan B. Peterson',note:'Rules 1, 2, and 6 especially. The chapter on telling the truth is worth the whole book.'},
+      {icon:'📖',title:'As a Man Thinketh',author:'James Allen',note:'Short. Old. Foundational. The inner life produces the outer reality. Read slowly.'},
+    ],
+    practice:[
+      'At the end of each day: one thing you led yourself well in. One thing you didn\'t.',
+      'Identify the one area where your self-leadership is most inconsistent — and bring it here.',
+      'Notice when you are performing versus being. Name it without judging it.',
+    ],
+    bringBack:'What does leading yourself actually require — in this season, not in theory? What is the area of greatest inconsistency between who you say you are and how you are living?',
+  },
+  {
+    id:'p2', num:'02', tier:'foundation', tierLabel:'Tier I — Foundation',
+    name:'Emotional Intelligence',
+    why:'You process internally. You are composed in the room. But composition is not the same as emotional literacy — knowing what you feel, naming it accurately, understanding what it is doing to your decisions, and reading what another person is feeling before they say it. This is the work.',
+    books:[
+      {icon:'📖',title:'Emotional Intelligence',author:'Daniel Goleman',note:'The foundational text. Chapters 1–5 are the most important. This is science, not self-help.'},
+      {icon:'📖',title:'Permission to Feel',author:'Marc Brackett',note:'More practical than Goleman on the naming and regulation side. The RULER framework is worth learning.'},
+      {icon:'📖',title:'Atlas of the Heart',author:'Brené Brown',note:'87 emotions mapped with precision. You may be surprised how many you have been misidentifying. Read this slowly, over time, not through.'},
+    ],
+    practice:[
+      'Name what you are feeling three times a day — precisely, not generally. Not "bad." What specifically.',
+      'When something bothers you, pause before responding. Ask: what is this feeling and what is it asking me to do?',
+      'Practise reading her — not to fix or respond, but to understand what she is carrying in a conversation.',
+    ],
+    bringBack:'What emotions have you been mislabelling? Where are emotions driving decisions you thought were rational? What does her emotional world look like to you right now — and how much of that is guesswork?',
+  },
+  {
+    id:'p3', num:'03', tier:'foundation', tierLabel:'Tier I — Foundation',
+    name:'Vulnerability & Intimacy',
+    why:'You said it yourself — you haven\'t yet learned how to be vulnerable. Vulnerability is not weakness displayed. It is truth told at the right time to the right person in the right way. Intimacy is the result of accumulated vulnerability over time. You cannot shortcut it. You can only practise it.',
+    books:[
+      {icon:'📖',title:'Daring Greatly',author:'Brené Brown',note:'The best modern treatment of vulnerability as strength rather than exposure. Read this before any other Brown.'},
+      {icon:'📖',title:'The Road Back to You',author:'Ian Morgan Cron & Suzanne Stabile',note:'Enneagram-based self-knowledge. Useful for understanding the specific way your personality both protects and limits you in intimacy.'},
+    ],
+    practice:[
+      'Say one true thing per day that costs you something to say. Start small. Build the muscle.',
+      'When you want to manage what she sees — notice it, name it, and ask what you are protecting.',
+      'Write one thing you have never said to anyone. Not to send. Just to know that you can.',
+    ],
+    bringBack:'What specifically do you protect people from seeing? What is the fear underneath the protection? Has any moment of vulnerability produced something better than protection would have?',
+  },
+  {
+    id:'p4', num:'04', tier:'foundation', tierLabel:'Tier I — Foundation',
+    name:'Spiritual Foundation of Relationships',
+    why:'You are a man of faith. That faith is not separate from how you love — it is the bedrock beneath it. What God says about covenant, sacrifice, and love redefines every secular framework. This pillar brings your faith and your relational life into the same room.',
+    books:[
+      {icon:'📖',title:'The Meaning of Marriage',author:'Timothy Keller',note:'The most complete treatment of what Christian marriage actually means. Chapter 3 on love is definitive.'},
+      {icon:'📖',title:'Love & Respect',author:'Emerson Eggerichs',note:'Biblically grounded. Built on Ephesians 5. Not perfect but practically useful for understanding the dynamic between men and women.'},
+      {icon:'📖',title:'Song of Solomon',author:'The Bible',note:'Read it as what it is — a celebration of love between a man and a woman. It is in the canon for a reason.'},
+    ],
+    practice:[
+      'Pray specifically about how you love — not just for the relationship, but for who you are becoming inside it.',
+      'What does loving her as Christ loved the church actually require of you this week — concretely?',
+      'Where is your faith informing how you show up in the relationship — and where is it not?',
+    ],
+    bringBack:'What does God\'s model of love require of you that you are not currently doing? What does covenant mean to you — not as a concept, as a commitment you would actually make and keep?',
+  },
+  {
+    id:'p5', num:'05', tier:'development', tierLabel:'Tier II — Development',
+    name:'Responsibility in Practice',
+    why:'Responsibility is not a feeling or an intention. It is a daily set of behaviours — showing up, following through, carrying weight without being asked, and doing the work even when there is no applause for it. This pillar is about what love looks like as action.',
+    books:[
+      {icon:'📖',title:'The Five Love Languages',author:'Gary Chapman',note:'You need to know her language. But more importantly, you need to know how to speak it even when it doesn\'t come naturally to you. That is responsibility.'},
+      {icon:'📖',title:'Hold Me Tight',author:'Dr. Sue Johnson',note:'Attachment theory applied to relationships. Understand why people pursue or withdraw — and which one you do.'},
+    ],
+    practice:[
+      'Do one thing for her this week that she didn\'t ask for and won\'t expect.',
+      'Identify where you have been waiting to feel ready rather than acting your way into readiness.',
+      'What have you said you would do that you haven\'t done — and what would it take to close that gap today?',
+    ],
+    bringBack:'What does responsibility in love look like for you this week — specifically, not generally? Where is your follow-through still inconsistent, and what is underneath that?',
+  },
+  {
+    id:'p6', num:'06', tier:'development', tierLabel:'Tier II — Development',
+    name:'Communication',
+    why:'Most relationship failures are communication failures dressed as other problems. This pillar covers not just what you say but how you listen, how you ask, how you navigate hard conversations without losing the relationship, and how you express what is true without weaponising it.',
+    books:[
+      {icon:'📖',title:'Difficult Conversations',author:'Stone, Patton & Heen',note:'Harvard Negotiation Project. The best book on hard conversations in any context. The chapter on the "third conversation" — identity — is essential.'},
+      {icon:'📖',title:'Nonviolent Communication',author:'Marshall Rosenberg',note:'A framework for expressing yourself without blame and hearing others without defensiveness. Life-changing if you practise it, not just read it.'},
+      {icon:'📖',title:'Just Listen',author:'Mark Goulston',note:'Specifically on listening. Most people listen to respond. This teaches you to listen to understand.'},
+    ],
+    practice:[
+      'In your next hard conversation: identify what you want to say and ask why before saying it.',
+      'Practise reflecting back what she said before responding — not as a technique, as proof you heard.',
+      'Write out a difficult thing you need to say. Rewrite it three times until it is true and not unkind.',
+    ],
+    bringBack:'What conversation are you avoiding and why? What does she need to hear from you that you haven\'t said? Where does communication break down for you — and what is happening inside you when it does?',
+  },
+  {
+    id:'p7', num:'07', tier:'development', tierLabel:'Tier II — Development',
+    name:'Conflict & Repair',
+    why:'Every relationship has conflict. The question is not whether it happens but what you do with it. This pillar teaches you how to fight without destroying, how to acknowledge a rupture, how to repair trust, and how to come back to each other without either person having to pretend the hard thing didn\'t happen.',
+    books:[
+      {icon:'📖',title:'The Seven Principles for Making Marriage Work',author:'John Gottman',note:'Gottman has studied couples for decades. He can predict divorce with high accuracy. This book is what the research actually says about what works.'},
+      {icon:'📖',title:'Getting the Love You Want',author:'Harville Hendrix',note:'Imago therapy. Why we choose who we choose and how our wounds show up in conflict. Confronting but worth it.'},
+    ],
+    practice:[
+      'After any conflict: what was I actually trying to protect — and was it worth what it cost?',
+      'Learn the difference between a complaint and a criticism. Practise making the former, not the latter.',
+      'Identify your conflict pattern — do you pursue, withdraw, or something else? What does she do? What happens when those two patterns meet?',
+    ],
+    bringBack:'How do you currently handle conflict — honestly, not aspirationally? What does repair look like for you — do you know how to do it, or do you just wait for things to settle? What would it mean to fight in a way that protects the relationship even when it doesn\'t protect you?',
+  },
+  {
+    id:'p8', num:'08', tier:'development', tierLabel:'Tier II — Development',
+    name:'Understanding Women',
+    why:'Not manipulation. Not tactics. Genuine knowledge of how she thinks, what she needs, what makes her feel safe and seen and chosen. This is not about women as a category — it is about learning one specific woman well enough that your love is actually received the way you intend it.',
+    books:[
+      {icon:'📖',title:'For Women Only / For Men Only',author:'Shaunti & Jeff Feldhahn',note:'Research-based. Practical. What men don\'t understand about women and vice versa. Read the men-only edition first.'},
+      {icon:'📖',title:'Queen',author:'T.D. Jakes',note:'A man writing about women with depth, respect, and biblical grounding. Worth the read.'},
+      {icon:'📚',title:'The Discovery Bank',author:'Built for you',note:'The relationship domain in the discovery bank — bring questions about her world here and discuss what you find.'},
+    ],
+    practice:[
+      'Learn one specific thing about her world this week that you didn\'t know before.',
+      'Ask one question from the discovery bank and sit with the answer — don\'t just collect it.',
+      'What does she need to feel safe — not generally, specifically with you? Ask or observe carefully.',
+    ],
+    bringBack:'What have you learned about her this week that surprised you? What do you still not understand about how she experiences love — and how will you find out? What does she need from you that you\'ve been guessing at rather than learning?',
+  },
+  {
+    id:'p9', num:'09', tier:'integration', tierLabel:'Tier III — Integration',
+    name:'Connection',
+    why:'Connection is the product of everything above it — built through vulnerability, sustained through responsibility and presence, repaired through conflict and communication skills. This pillar is about understanding how connection is created intentionally and not left to feeling or chance.',
+    books:[
+      {icon:'📖',title:'Hold Me Tight',author:'Dr. Sue Johnson',note:'Return to this one at this tier. The first time you read it you understand the theory. Now you apply it to real moments.'},
+      {icon:'📖',title:'The Relationship Cure',author:'John Gottman',note:'Bids for connection — what they are, how to recognise them, how to turn toward rather than away. This is the daily work of connection.'},
+    ],
+    practice:[
+      'Identify one moment each day where she made a bid for connection — and what you did with it.',
+      'Create one moment of deliberate connection this week that didn\'t happen by accident.',
+      'When connection breaks — how do you know? What does the absence of it feel like? How do you restore it?',
+    ],
+    bringBack:'What does connection feel like when it is present — and when did you last feel it fully? What consistently breaks it between you two — and what would it take to protect it better?',
+  },
+  {
+    id:'p10', num:'10', tier:'integration', tierLabel:'Tier III — Integration',
+    name:'Presence & Attention',
+    why:'Being physically present is not the same as being present. She can tell the difference and so can you. This pillar is about the discipline of full attention — being fully in the room, fully in the conversation, fully with the person in front of you without your mind already being elsewhere.',
+    books:[
+      {icon:'📖',title:'The Art of Communicating',author:'Thich Nhat Hanh',note:'Unusually practical for a contemplative text. The chapters on deep listening and loving speech are the core.'},
+      {icon:'📖',title:'Reclaiming Conversation',author:'Sherry Turkle',note:'What distraction — particularly devices — is doing to our capacity for genuine conversation and connection. Confronting.'},
+    ],
+    practice:[
+      'One conversation per day with phone face-down, not just silent.',
+      'When you feel the urge to fix or advise — pause, stay, just listen until she is finished.',
+      'What does your full attention feel like to receive? When did someone last give it to you — and what was that like?',
+    ],
+    bringBack:'Where are you most distracted in your relationship — and what is the distraction protecting you from? What does it cost her when you are physically present but mentally absent?',
+  },
+  {
+    id:'p11', num:'11', tier:'integration', tierLabel:'Tier III — Integration',
+    name:'Service & Sacrifice',
+    why:'Love at its full expression is not a feeling. It is a choice to give — time, attention, comfort, priority — even when it costs you, even when it is not returned in kind. This pillar is the completion of the curriculum. Not theory. Not technique. Just love as it is supposed to be lived.',
+    books:[
+      {icon:'📖',title:'The Meaning of Marriage',author:'Timothy Keller',note:'Return to Chapter 7 specifically — on the covenant of love. What you knew when you started this curriculum will have new weight now.'},
+      {icon:'📖',title:'1 Corinthians 13',author:'The Bible',note:'Read it once a week for the duration of this pillar. Not as a verse — as a standard to measure yourself against.'},
+    ],
+    practice:[
+      'Do one thing this week that costs you something — time, comfort, pride — for her benefit with no expectation of return.',
+      'Where do you keep score — consciously or not? Name it honestly.',
+      'What would it mean to love her the way you want to be loved — and are you doing that?',
+    ],
+    bringBack:'What has this curriculum asked of you that you weren\'t expecting? What has shifted — in how you think, feel, or act? What kind of man are you becoming, and what does this relationship need from that man?',
+  },
+];
+
+const TIER_COLORS = {foundation:'var(--found)',development:'var(--dev)',integration:'var(--integ)'};
+
+let started = JSON.parse(localStorage.getItem('rc-started')||'[]');
+
+function toggleTheme(){
+  const dark=document.documentElement.getAttribute('data-theme')==='dark';
+  document.documentElement.setAttribute('data-theme',dark?'light':'dark');
+  document.getElementById('theme-icon').textContent=dark?'☾':'☀';
+  localStorage.setItem('rc-theme',dark?'light':'dark');
+}
+
+function switchTab(name,btn){
+  document.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
+  document.getElementById('tab-'+name).classList.add('active');
+  btn.classList.add('active');
+  if(name==='progress')updateProgress();
+}
+
+function togglePillar(el){
+  el.classList.toggle('open');
+}
+
+function toggleStarted(id,dot){
+  const idx=started.indexOf(id);
+  if(idx>-1){started.splice(idx,1);}else{started.push(id);}
+  localStorage.setItem('rc-started',JSON.stringify(started));
+  dot.classList.toggle('active',started.includes(id));
+  updateProgressLabel();
+  updateProgress();
+}
+
+function updateProgressLabel(){
+  document.getElementById('progress-label').textContent=started.length+' of 11 started';
+}
+
+function updateProgress(){
+  const s=started.length;
+  document.getElementById('prog-started').textContent=s;
+  document.getElementById('prog-remaining').textContent=11-s;
+  const pct=Math.round((s/11)*100);
+  document.getElementById('prog-pct').textContent=pct+'%';
+  document.getElementById('prog-fill').style.width=pct+'%';
+}
+
+function saveNotes(){
+  localStorage.setItem('rc-notes',document.getElementById('notes-area').value);
+  const btn=document.querySelector('.save-notes-btn');
+  btn.textContent='Saved.';
+  setTimeout(()=>btn.textContent='Save Notes',2000);
+}
+
+function buildPillars(){
+  const list=document.getElementById('pillar-list');
+  PILLARS.forEach(p=>{
+    const isStarted=started.includes(p.id);
+    const tc=TIER_COLORS[p.tier];
+    const el=document.createElement('div');
+    el.className='pillar-item';
+    el.id='pillar-'+p.id;
+    el.innerHTML=`
+      <div class="pillar-header" onclick="togglePillar(this.closest('.pillar-item'))">
+        <div class="pillar-num">${p.num}</div>
+        <div class="pillar-meta">
+          <div class="pillar-name">${p.name}</div>
+          <div class="pillar-tier-tag" style="color:${tc};">${p.tierLabel}</div>
+        </div>
+        <div class="pillar-status">
+          <div class="status-dot${isStarted?' active':''}" title="Mark as started" onclick="event.stopPropagation();toggleStarted('${p.id}',this)"></div>
+          <span class="pillar-toggle">▾</span>
+        </div>
+      </div>
+      <div class="pillar-body">
+        <div class="pillar-why">${p.why}</div>
+        <div class="resource-section">
+          <div class="resource-label">Reading & Resources</div>
+          ${p.books.map(b=>`
+            <div class="resource-item">
+              <div class="resource-icon">${b.icon}</div>
+              <div class="resource-info">
+                <div class="resource-title">${b.title}</div>
+                <div class="resource-author">${b.author}</div>
+                <div class="resource-note">${b.note}</div>
+              </div>
+            </div>
+          `).join('')}
+        </div>
+        <div class="resource-section">
+          <div class="resource-label">Practice</div>
+          <ul class="practice-list">${p.practice.map(pr=>`<li>${pr}</li>`).join('')}</ul>
+        </div>
+        <div class="bring-back">
+          <div class="bring-back-label">Bring back to Claude</div>
+          <p>${p.bringBack}</p>
+        </div>
+      </div>`;
+    list.appendChild(el);
+  });
+}
+
+function init(){
+  const theme=localStorage.getItem('rc-theme')||'dark';
+  document.documentElement.setAttribute('data-theme',theme);
+  document.getElementById('theme-icon').textContent=theme==='dark'?'☀':'☾';
+  const notes=localStorage.getItem('rc-notes')||'';
+  document.getElementById('notes-area').value=notes;
+  buildPillars();
+  updateProgressLabel();
+  updateProgress();
+}
+
+init();
+</script>
+</body>
+</html>

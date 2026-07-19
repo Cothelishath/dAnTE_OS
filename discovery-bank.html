@@ -1,0 +1,661 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Discovery Bank</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400;1,500;1,600&family=DM+Mono:wght@300;400;500&family=Outfit:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+:root[data-theme="dark"]{
+  --bg:#090b0e;--bg-2:#0f1218;--bg-3:#161a22;--bg-4:#1e232e;
+  --border:rgba(255,255,255,0.06);--border-gold:rgba(200,164,80,0.2);
+  --text-primary:#ede8e0;--text-secondary:#8a8278;--text-muted:#4a4640;
+  --gold:#c8a450;--gold-dim:rgba(200,164,80,0.1);--gold-bright:#d8b460;
+  --faith:#7a9e8a;--self:#9a8abf;--relation:#c4788a;
+  --work:#7a9abf;--finance:#bf9a6a;--health:#bf7a7a;
+  --vision:#c8a450;--hard:#8a8a9e;--lead:#9ebf7a;
+  --mind:#7abfbf;--create:#bf9abf;--time:#a8bf9a;--gift:#bfa07a;
+}
+:root[data-theme="light"]{
+  --bg:#f4f0e8;--bg-2:#ece8de;--bg-3:#e2ddd2;--bg-4:#d8d2c4;
+  --border:rgba(0,0,0,0.07);--border-gold:rgba(140,100,20,0.2);
+  --text-primary:#14100a;--text-secondary:#6a6055;--text-muted:#a09888;
+  --gold:#8a6820;--gold-dim:rgba(138,104,32,0.08);--gold-bright:#9a7828;
+  --faith:#3a6a50;--self:#5a4a8a;--relation:#8a3858;
+  --work:#3a5a8a;--finance:#8a6030;--health:#8a3a3a;
+  --vision:#8a6820;--hard:#5a5a7a;--lead:#4a7a2a;
+  --mind:#2a7a7a;--create:#7a4a7a;--time:#4a6a3a;--gift:#7a5a2a;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{background:var(--bg);color:var(--text-primary);font-family:'Outfit',sans-serif;font-weight:300;min-height:100vh;transition:background 0.4s,color 0.4s;overflow-x:hidden;}
+header{position:sticky;top:0;z-index:100;background:var(--bg);border-bottom:1px solid var(--border);padding:0 2rem;display:flex;align-items:center;justify-content:space-between;height:58px;}
+.logo{display:flex;align-items:baseline;gap:0.75rem;}
+.logo-title{font-family:'Cormorant Garamond',serif;font-size:1.3rem;font-style:italic;font-weight:400;color:var(--gold);letter-spacing:0.02em;}
+.logo-sub{font-family:'DM Mono',monospace;font-size:0.55rem;letter-spacing:0.14em;text-transform:uppercase;color:var(--text-muted);}
+.header-right{display:flex;align-items:center;gap:1rem;}
+.theme-btn{width:30px;height:30px;border-radius:50%;border:1px solid var(--border);background:var(--bg-3);color:var(--text-secondary);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:0.75rem;transition:all 0.2s;}
+.theme-btn:hover{border-color:var(--gold);color:var(--gold);}
+.q-count-badge{font-family:'DM Mono',monospace;font-size:0.52rem;letter-spacing:0.1em;text-transform:uppercase;color:var(--text-muted);}
+.nav-strip{display:flex;padding:0 2rem;background:var(--bg-2);border-bottom:1px solid var(--border);overflow-x:auto;scrollbar-width:none;gap:0;}
+.nav-strip::-webkit-scrollbar{display:none;}
+.nav-btn{padding:0.75rem 1.1rem;background:none;border:none;border-bottom:2px solid transparent;color:var(--text-muted);font-family:'DM Mono',monospace;font-size:0.55rem;letter-spacing:0.1em;text-transform:uppercase;cursor:pointer;white-space:nowrap;transition:all 0.2s;}
+.nav-btn:hover{color:var(--text-secondary);}
+.nav-btn.active{color:var(--gold);border-bottom-color:var(--gold);}
+main{max-width:960px;margin:0 auto;padding:3rem 2rem 6rem;}
+.tab-panel{display:none;}
+.tab-panel.active{display:block;animation:rise 0.3s ease both;}
+@keyframes rise{from{opacity:0;transform:translateY(10px);}to{opacity:1;transform:translateY(0);}}
+.today-hero{text-align:center;padding:3rem 2rem 2rem;margin-bottom:2rem;}
+.today-date{font-family:'DM Mono',monospace;font-size:0.58rem;letter-spacing:0.2em;text-transform:uppercase;color:var(--text-muted);margin-bottom:1rem;}
+.today-question{font-family:'Cormorant Garamond',serif;font-size:2rem;font-weight:300;font-style:italic;color:var(--text-primary);line-height:1.4;max-width:620px;margin:0 auto 1.5rem;}
+.today-domain{font-family:'DM Mono',monospace;font-size:0.55rem;letter-spacing:0.15em;text-transform:uppercase;padding:0.25rem 0.75rem;border-radius:20px;display:inline-block;margin-bottom:0.5rem;}
+.today-depth{font-family:'DM Mono',monospace;font-size:0.52rem;letter-spacing:0.1em;text-transform:uppercase;color:var(--text-muted);margin-bottom:2rem;}
+.today-actions{display:flex;gap:0.75rem;justify-content:center;flex-wrap:wrap;margin-bottom:2.5rem;}
+.today-btn{padding:0.6rem 1.5rem;border-radius:2px;font-family:'DM Mono',monospace;font-size:0.6rem;letter-spacing:0.1em;text-transform:uppercase;cursor:pointer;transition:all 0.2s;border:1px solid var(--border);background:var(--bg-2);color:var(--text-secondary);}
+.today-btn:hover{border-color:var(--border-gold);color:var(--gold);}
+.today-btn.primary{background:var(--gold-dim);border-color:var(--border-gold);color:var(--gold);}
+.today-btn.primary:hover{background:var(--gold);color:#000;}
+.write-block{background:var(--bg-2);border:1px solid var(--border);border-radius:3px;padding:1.5rem;margin-bottom:1rem;}
+.write-label{font-family:'DM Mono',monospace;font-size:0.55rem;letter-spacing:0.12em;text-transform:uppercase;color:var(--text-muted);margin-bottom:0.75rem;}
+textarea.write-area{width:100%;min-height:160px;background:var(--bg-3);border:1px solid var(--border);border-radius:2px;padding:1rem 1.25rem;color:var(--text-primary);font-family:'Cormorant Garamond',serif;font-size:1.05rem;font-weight:300;line-height:1.75;resize:vertical;outline:none;transition:border-color 0.2s;}
+textarea.write-area:focus{border-color:var(--border-gold);}
+textarea.write-area::placeholder{color:var(--text-muted);font-style:italic;}
+.save-entry-btn{padding:0.55rem 1.4rem;background:var(--gold-dim);border:1px solid var(--border-gold);border-radius:2px;color:var(--gold);font-family:'DM Mono',monospace;font-size:0.58rem;letter-spacing:0.1em;text-transform:uppercase;cursor:pointer;transition:all 0.2s;}
+.save-entry-btn:hover{background:var(--gold);color:#000;}
+.saved-flash{font-family:'DM Mono',monospace;font-size:0.55rem;color:var(--faith);letter-spacing:0.1em;margin-left:0.75rem;opacity:0;transition:opacity 0.3s;}
+.mood-row{display:flex;gap:0.5rem;flex-wrap:wrap;margin-bottom:2rem;justify-content:center;}
+.mood-btn{padding:0.4rem 0.9rem;border-radius:20px;border:1px solid var(--border);background:var(--bg-2);font-family:'DM Mono',monospace;font-size:0.55rem;letter-spacing:0.08em;text-transform:uppercase;color:var(--text-muted);cursor:pointer;transition:all 0.2s;}
+.mood-btn:hover{border-color:var(--border-gold);color:var(--gold);}
+.mood-btn.active{background:var(--gold-dim);border-color:var(--border-gold);color:var(--gold);}
+.domain-tag{font-family:'DM Mono',monospace;font-size:0.52rem;letter-spacing:0.1em;text-transform:uppercase;padding:0.18rem 0.5rem;border-radius:20px;display:inline-block;}
+.q-card{background:var(--bg-2);border:1px solid var(--border);border-radius:3px;padding:1.4rem 1.6rem;margin-bottom:0.6rem;position:relative;cursor:pointer;transition:border-color 0.2s,transform 0.15s;}
+.q-card:hover{border-color:var(--border-gold);transform:translateX(3px);}
+.q-card::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;border-radius:3px 0 0 3px;}
+.q-card.depth-surface::before{opacity:0.4;}
+.q-card.depth-deep::before{opacity:0.7;}
+.q-card.depth-core::before{opacity:1;}
+.q-text{font-family:'Cormorant Garamond',serif;font-size:1.05rem;font-style:italic;font-weight:300;color:var(--text-primary);line-height:1.5;margin-bottom:0.6rem;}
+.q-meta{display:flex;align-items:center;gap:0.5rem;flex-wrap:wrap;}
+.depth-label{font-family:'DM Mono',monospace;font-size:0.5rem;letter-spacing:0.1em;text-transform:uppercase;padding:0.15rem 0.4rem;border-radius:2px;background:var(--bg-4);color:var(--text-muted);}
+.depth-label.surface{color:var(--text-muted);}
+.depth-label.deep{color:var(--gold);background:var(--gold-dim);}
+.depth-label.core{color:#fff;background:var(--gold);opacity:0.85;}
+.use-btn{margin-left:auto;background:none;border:1px solid var(--border);border-radius:2px;font-family:'DM Mono',monospace;font-size:0.5rem;letter-spacing:0.08em;text-transform:uppercase;color:var(--text-muted);cursor:pointer;padding:0.2rem 0.5rem;transition:all 0.15s;}
+.use-btn:hover{border-color:var(--gold);color:var(--gold);}
+.domain-section{margin-bottom:2.5rem;}
+.domain-header{display:flex;align-items:center;gap:1rem;margin-bottom:1.1rem;padding-bottom:0.75rem;border-bottom:1px solid var(--border);cursor:pointer;}
+.domain-name{font-family:'Cormorant Garamond',serif;font-size:1.2rem;font-weight:400;color:var(--text-primary);flex:1;}
+.domain-count{font-family:'DM Mono',monospace;font-size:0.55rem;color:var(--text-muted);letter-spacing:0.08em;}
+.domain-toggle{font-family:'DM Mono',monospace;font-size:0.7rem;color:var(--text-muted);transition:transform 0.2s;}
+.domain-section.collapsed .domain-toggle{transform:rotate(-90deg);}
+.domain-section.collapsed .domain-questions{display:none;}
+.search-wrap{position:relative;margin-bottom:2rem;}
+.search-input{width:100%;background:var(--bg-2);border:1px solid var(--border);border-radius:3px;padding:0.85rem 1.25rem 0.85rem 2.75rem;color:var(--text-primary);font-family:'Outfit',sans-serif;font-size:0.88rem;outline:none;transition:border-color 0.2s;}
+.search-input:focus{border-color:var(--border-gold);}
+.search-input::placeholder{color:var(--text-muted);}
+.search-icon{position:absolute;left:1rem;top:50%;transform:translateY(-50%);color:var(--text-muted);font-size:0.85rem;pointer-events:none;}
+.filter-row{display:flex;gap:0.5rem;flex-wrap:wrap;margin-bottom:1.5rem;}
+.filter-btn{padding:0.35rem 0.85rem;border-radius:20px;border:1px solid var(--border);background:var(--bg-2);font-family:'DM Mono',monospace;font-size:0.52rem;letter-spacing:0.08em;text-transform:uppercase;color:var(--text-muted);cursor:pointer;transition:all 0.15s;}
+.filter-btn:hover{border-color:var(--border-gold);color:var(--gold);}
+.filter-btn.active{background:var(--gold-dim);border-color:var(--border-gold);color:var(--gold);}
+.entry-item{background:var(--bg-2);border:1px solid var(--border);border-radius:3px;margin-bottom:0.75rem;overflow:hidden;}
+.entry-header{padding:0.8rem 1.2rem;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid var(--border);background:var(--bg-3);}
+.entry-date{font-family:'DM Mono',monospace;font-size:0.55rem;letter-spacing:0.1em;text-transform:uppercase;color:var(--text-muted);}
+.entry-body{padding:1.2rem;font-family:'Cormorant Garamond',serif;font-size:1rem;color:var(--text-secondary);line-height:1.75;white-space:pre-wrap;}
+.entry-question{font-family:'DM Mono',monospace;font-size:0.6rem;color:var(--text-muted);padding:0.6rem 1.2rem 0;font-style:normal;letter-spacing:0.04em;}
+.del-btn{background:none;border:none;font-family:'DM Mono',monospace;font-size:0.5rem;color:var(--text-muted);cursor:pointer;padding:0.2rem 0.4rem;border-radius:2px;transition:all 0.15s;}
+.del-btn:hover{color:#c07060;}
+.gold-rule{height:1px;background:linear-gradient(90deg,var(--gold) 0%,transparent 70%);opacity:0.18;margin:2rem 0;}
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.82);z-index:200;align-items:center;justify-content:center;}
+.modal-overlay.open{display:flex;}
+.modal{background:var(--bg-2);border:1px solid var(--border-gold);border-radius:3px;padding:2rem;width:90%;max-width:600px;max-height:90vh;overflow-y:auto;}
+.modal-q{font-family:'Cormorant Garamond',serif;font-size:1.3rem;font-style:italic;font-weight:300;color:var(--text-primary);line-height:1.5;margin-bottom:1.5rem;}
+.modal-label{font-family:'DM Mono',monospace;font-size:0.52rem;letter-spacing:0.1em;text-transform:uppercase;color:var(--text-muted);margin-bottom:0.5rem;display:block;}
+.modal-actions{display:flex;gap:0.75rem;justify-content:flex-end;margin-top:1rem;}
+.modal-cancel{padding:0.45rem 0.9rem;background:none;border:1px solid var(--border);border-radius:2px;color:var(--text-muted);font-family:'DM Mono',monospace;font-size:0.55rem;letter-spacing:0.07em;text-transform:uppercase;cursor:pointer;}
+.modal-save{padding:0.45rem 1.2rem;background:var(--gold-dim);border:1px solid var(--border-gold);border-radius:2px;color:var(--gold);font-family:'DM Mono',monospace;font-size:0.55rem;letter-spacing:0.07em;text-transform:uppercase;cursor:pointer;transition:all 0.2s;}
+.modal-save:hover{background:var(--gold);color:#000;}
+</style>
+</head>
+<body>
+<header>
+  <div class="logo">
+    <span class="logo-title">The Discovery Bank</span>
+    <span class="logo-sub">Questions for the examined life</span>
+  </div>
+  <div class="header-right">
+    <span class="q-count-badge" id="q-count-badge"></span>
+    <button class="theme-btn" onclick="toggleTheme()"><span id="theme-icon">☀</span></button>
+  </div>
+</header>
+<nav class="nav-strip">
+  <button class="nav-btn active" onclick="switchTab('today',this)">Today's Question</button>
+  <button class="nav-btn" onclick="switchTab('browse',this)">Browse All</button>
+  <button class="nav-btn" onclick="switchTab('feeling',this)">By Feeling</button>
+  <button class="nav-btn" onclick="switchTab('entries',this)">My Entries</button>
+</nav>
+<main>
+<div class="tab-panel active" id="tab-today">
+  <div class="today-hero">
+    <div class="today-date" id="today-date"></div>
+    <div class="today-domain" id="today-domain-tag"></div>
+    <div class="today-question" id="today-q">Loading...</div>
+    <div class="today-depth" id="today-depth"></div>
+    <div class="today-actions">
+      <button class="today-btn" onclick="shuffleToday()">Different question</button>
+      <button class="today-btn" onclick="pickByMood()">Pick by feeling</button>
+      <button class="today-btn primary" onclick="openWrite()">Write to this</button>
+    </div>
+  </div>
+  <div class="write-block" id="write-block" style="display:none;">
+    <div class="write-label" id="write-q-label"></div>
+    <textarea class="write-area" id="write-area" placeholder="Write honestly. Not for anyone else. Just the truth of where you are right now."></textarea>
+    <div style="display:flex;align-items:center;margin-top:0.75rem;">
+      <button class="save-entry-btn" onclick="saveEntry()">Save Entry</button>
+      <span class="saved-flash" id="save-flash">Saved.</span>
+    </div>
+  </div>
+</div>
+<div class="tab-panel" id="tab-browse">
+  <div class="search-wrap">
+    <span class="search-icon">⌕</span>
+    <input type="text" class="search-input" id="search-input" placeholder="Search questions..." oninput="filterQuestions()">
+  </div>
+  <div class="filter-row" id="depth-filters">
+    <button class="filter-btn active" onclick="setDepthFilter(this,'all')">All depths</button>
+    <button class="filter-btn" onclick="setDepthFilter(this,'surface')">Surface</button>
+    <button class="filter-btn" onclick="setDepthFilter(this,'deep')">Deep</button>
+    <button class="filter-btn" onclick="setDepthFilter(this,'core')">Core</button>
+  </div>
+  <div id="browse-content"></div>
+</div>
+<div class="tab-panel" id="tab-feeling">
+  <div style="text-align:center;margin-bottom:2rem;">
+    <div style="font-family:'Cormorant Garamond',serif;font-size:1.4rem;font-style:italic;color:var(--text-secondary);margin-bottom:1rem;">How are you right now?</div>
+    <div class="mood-row">
+      <button class="mood-btn" onclick="setMood(this,'lost')">Lost</button>
+      <button class="mood-btn" onclick="setMood(this,'stuck')">Stuck</button>
+      <button class="mood-btn" onclick="setMood(this,'tired')">Tired</button>
+      <button class="mood-btn" onclick="setMood(this,'afraid')">Afraid</button>
+      <button class="mood-btn" onclick="setMood(this,'angry')">Angry</button>
+      <button class="mood-btn" onclick="setMood(this,'hopeful')">Hopeful</button>
+      <button class="mood-btn" onclick="setMood(this,'flat')">Flat</button>
+      <button class="mood-btn" onclick="setMood(this,'restless')">Restless</button>
+      <button class="mood-btn" onclick="setMood(this,'guilty')">Guilty</button>
+      <button class="mood-btn" onclick="setMood(this,'proud')">Proud</button>
+      <button class="mood-btn" onclick="setMood(this,'unclear')">Unclear</button>
+      <button class="mood-btn" onclick="setMood(this,'full')">Full</button>
+      <button class="mood-btn" onclick="setMood(this,'grateful')">Grateful</button>
+      <button class="mood-btn" onclick="setMood(this,'tender')">Tender</button>
+    </div>
+  </div>
+  <div id="feeling-results"></div>
+</div>
+<div class="tab-panel" id="tab-entries">
+  <div style="font-family:'Cormorant Garamond',serif;font-size:1.2rem;font-style:italic;color:var(--text-secondary);margin-bottom:1.5rem;">Your written responses</div>
+  <div id="entries-list"></div>
+</div>
+</main>
+<div class="modal-overlay" id="modal">
+  <div class="modal">
+    <div class="modal-q" id="modal-q"></div>
+    <span class="modal-label">Your response</span>
+    <textarea class="write-area" id="modal-area" style="min-height:200px;" placeholder="Write honestly. Not for anyone else."></textarea>
+    <div class="modal-actions">
+      <button class="modal-cancel" onclick="closeModal()">Cancel</button>
+      <button class="modal-save" onclick="saveFromModal()">Save Entry</button>
+    </div>
+  </div>
+</div>
+<script>
+const DOMAINS = {
+  faith:    { name:'Faith & God',             color:'var(--faith)',    icon:'✦' },
+  self:     { name:'Self & Character',        color:'var(--self)',     icon:'◈' },
+  relation: { name:'Relationships & Love',    color:'var(--relation)', icon:'♡' },
+  work:     { name:'Work & Craft',            color:'var(--work)',     icon:'⌗' },
+  finance:  { name:'Finances & Freedom',      color:'var(--finance)',  icon:'◇' },
+  health:   { name:'Health & Body',           color:'var(--health)',   icon:'○' },
+  vision:   { name:'Vision & Legacy',         color:'var(--vision)',   icon:'△' },
+  lead:     { name:'Leadership',              color:'var(--lead)',     icon:'⬡' },
+  mind:     { name:'Mind & Learning',         color:'var(--mind)',     icon:'≋' },
+  create:   { name:'Creativity & Beauty',     color:'var(--create)',   icon:'✿' },
+  hard:     { name:'Hard Days & Failure',     color:'var(--hard)',     icon:'◎' },
+  time:     { name:'Time & Presence',         color:'var(--time)',     icon:'◷' },
+  gift:     { name:'Giving & Generosity',     color:'var(--gift)',     icon:'❋' },
+};
+
+const QUESTIONS = [
+  // ── FAITH ──
+  {id:'f1',domain:'faith',depth:'surface',text:'What did God say to me this morning — or what did I bring to Him?',moods:['lost','flat','full','hopeful']},
+  {id:'f2',domain:'faith',depth:'surface',text:'When did I last feel genuinely close to God — and what was different about that time?',moods:['flat','tired','lost']},
+  {id:'f3',domain:'faith',depth:'surface',text:'What am I grateful for today that I haven\'t acknowledged yet?',moods:['flat','tired','full','grateful']},
+  {id:'f4',domain:'faith',depth:'deep',text:'Is my faith currently a relationship or a performance? How would I know the difference?',moods:['lost','guilty','unclear']},
+  {id:'f5',domain:'faith',depth:'deep',text:'What do I believe God thinks of me right now — not what I know theologically, but what I actually feel?',moods:['guilty','afraid','lost','flat']},
+  {id:'f6',domain:'faith',depth:'deep',text:'Where am I using faith as a reason not to plan, rather than as the backing for a plan?',moods:['stuck','unclear','restless']},
+  {id:'f7',domain:'faith',depth:'deep',text:'What is God asking of me right now that I\'ve been pretending I haven\'t heard?',moods:['stuck','guilty','restless','unclear']},
+  {id:'f8',domain:'faith',depth:'core',text:'If I removed guilt and unworthiness from my approach to prayer — what would I actually say to God?',moods:['guilty','afraid','lost']},
+  {id:'f9',domain:'faith',depth:'core',text:'Do I believe the believer is the most advantaged person in the world — and does my life reflect that belief?',moods:['tired','lost','stuck','afraid']},
+  {id:'f10',domain:'faith',depth:'core',text:'What would it mean to fully trust God with the thing I\'m currently trying to control?',moods:['afraid','stuck','restless','angry']},
+  {id:'f11',domain:'faith',depth:'surface',text:'What scripture has been sitting with me recently — and why that one?',moods:['full','hopeful','flat','grateful']},
+  {id:'f12',domain:'faith',depth:'deep',text:'Am I seeking wisdom or seeking confirmation of what I\'ve already decided?',moods:['unclear','stuck','restless']},
+  {id:'f13',domain:'faith',depth:'surface',text:'What would worship look like for me today — not as a form, but as a posture?',moods:['flat','full','grateful','hopeful']},
+  {id:'f14',domain:'faith',depth:'deep',text:'What does it mean that I am favoured — and am I living like that\'s true?',moods:['lost','flat','afraid','tired']},
+  {id:'f15',domain:'faith',depth:'core',text:'Is there something I am carrying alone that I was never meant to carry without God?',moods:['tired','lost','afraid','stuck']},
+  {id:'f16',domain:'faith',depth:'deep',text:'What would it mean to receive from God today rather than only ask?',moods:['flat','full','grateful','tender']},
+  {id:'f17',domain:'faith',depth:'surface',text:'Where has God shown up recently in a way I didn\'t ask for but needed?',moods:['grateful','full','hopeful']},
+  {id:'f18',domain:'faith',depth:'core',text:'What does it cost me to believe fully — and am I willing to pay it?',moods:['afraid','stuck','unclear','lost']},
+
+  // ── SELF & CHARACTER ──
+  {id:'s1',domain:'self',depth:'surface',text:'What is one thing I did today that I couldn\'t do — or didn\'t do — a month ago?',moods:['flat','tired','full','hopeful']},
+  {id:'s2',domain:'self',depth:'surface',text:'What am I avoiding right now and what is the avoidance protecting me from?',moods:['stuck','tired','flat','afraid']},
+  {id:'s3',domain:'self',depth:'surface',text:'Where am I performing instead of being?',moods:['guilty','stuck','flat']},
+  {id:'s4',domain:'self',depth:'deep',text:'What does excessive flexibility with myself look like today — and where did the hook go?',moods:['guilty','tired','flat','stuck']},
+  {id:'s5',domain:'self',depth:'deep',text:'Am I living in a way that the person I want to be would recognise?',moods:['lost','guilty','flat','unclear']},
+  {id:'s6',domain:'self',depth:'deep',text:'What am I allowing circumstances to excuse that is actually a choice?',moods:['stuck','angry','tired','guilty']},
+  {id:'s7',domain:'self',depth:'deep',text:'What is the gap between what I say I value and what I actually spend time on?',moods:['guilty','unclear','stuck']},
+  {id:'s8',domain:'self',depth:'core',text:'What would the version of me I respect most do right now — in this moment, with what\'s in front of me?',moods:['lost','stuck','afraid','flat','tired']},
+  {id:'s9',domain:'self',depth:'core',text:'What am I afraid people would find if they looked closely — and is that fear shaping my choices?',moods:['afraid','guilty','stuck']},
+  {id:'s10',domain:'self',depth:'core',text:'What do I need to become before I would feel I have no excuse left?',moods:['restless','lost','unclear','hopeful']},
+  {id:'s11',domain:'self',depth:'surface',text:'What does composure look like for me today — and am I maintaining it?',moods:['angry','afraid','tired','stuck']},
+  {id:'s12',domain:'self',depth:'deep',text:'Where am I taking credit for outcomes my effort didn\'t actually earn?',moods:['proud','guilty','unclear']},
+  {id:'s13',domain:'self',depth:'core',text:'What is the one pattern in my behaviour that keeps costing me the most — and what is underneath it?',moods:['lost','stuck','guilty','tired']},
+  {id:'s14',domain:'self',depth:'surface',text:'What does the man I am becoming look like — and is today\'s version of me closer to him or further?',moods:['restless','hopeful','flat','unclear']},
+  {id:'s15',domain:'self',depth:'deep',text:'What would I need to stop lying to myself about in order to move forward?',moods:['stuck','guilty','lost','unclear']},
+  {id:'s16',domain:'self',depth:'deep',text:'Where is my pride protecting something that should be examined, not protected?',moods:['guilty','angry','stuck','afraid']},
+  {id:'s17',domain:'self',depth:'core',text:'What does coherence — thought, word, action, presentation all aligned — actually require of me today?',moods:['unclear','guilty','stuck','restless']},
+  {id:'s18',domain:'self',depth:'surface',text:'What am I proud of about myself that I rarely say out loud?',moods:['proud','flat','full','hopeful']},
+  {id:'s19',domain:'self',depth:'deep',text:'What part of my character am I still building, versus what part am I just managing?',moods:['restless','unclear','stuck']},
+  {id:'s20',domain:'self',depth:'core',text:'If I were the kind of man I intend to be, what would this day look like differently?',moods:['guilty','flat','stuck','lost']},
+
+  // ── RELATIONSHIPS & LOVE ──
+  {id:'r1',domain:'relation',depth:'surface',text:'Did I initiate something today — a message, a call, a plan — or did I wait to respond?',moods:['flat','guilty','stuck']},
+  {id:'r2',domain:'relation',depth:'surface',text:'When was the last time I made someone feel specifically seen — not generally appreciated, specifically seen?',moods:['flat','guilty','lost']},
+  {id:'r3',domain:'relation',depth:'surface',text:'What did she say recently that I filed away and haven\'t followed up on?',moods:['flat','guilty','stuck']},
+  {id:'r4',domain:'relation',depth:'deep',text:'Am I leaving because it\'s the right move or because staying is uncomfortable?',moods:['afraid','tired','angry','stuck']},
+  {id:'r5',domain:'relation',depth:'deep',text:'What does she experience of me that I don\'t intend her to experience — and what is causing it?',moods:['guilty','unclear','lost']},
+  {id:'r6',domain:'relation',depth:'deep',text:'Where am I prioritising my comfort over her need — and what would it cost to do it differently?',moods:['guilty','stuck','tired']},
+  {id:'r7',domain:'relation',depth:'deep',text:'What would I say if I had the words — right now, in this moment with her?',moods:['stuck','afraid','flat','lost','tender']},
+  {id:'r8',domain:'relation',depth:'deep',text:'Am I showing her who I am or managing what she sees of me?',moods:['guilty','afraid','flat']},
+  {id:'r9',domain:'relation',depth:'core',text:'Do I love her or do I love the idea of her? How would I know the difference from the inside?',moods:['unclear','lost','afraid']},
+  {id:'r10',domain:'relation',depth:'core',text:'What does fully committing to another person require of me that I haven\'t yet given — and am I willing to give it?',moods:['afraid','unclear','stuck','restless']},
+  {id:'r11',domain:'relation',depth:'core',text:'What does it mean to be fully known by someone — and what am I hiding that I\'d need to give up to have that?',moods:['afraid','guilty','lost']},
+  {id:'r12',domain:'relation',depth:'surface',text:'What is one specific thing I could do in the next 24 hours that she would feel — not notice, feel?',moods:['flat','guilty','hopeful','stuck','tender']},
+  {id:'r13',domain:'relation',depth:'deep',text:'When the conversation goes flat, what is the first thing that happens inside me — and what do I do with it?',moods:['afraid','stuck','flat','angry']},
+  {id:'r14',domain:'relation',depth:'core',text:'What does staying in the room when I want to leave actually require of me?',moods:['tired','afraid','angry','stuck']},
+  {id:'r15',domain:'relation',depth:'surface',text:'What does love in action look like for me today — not as a feeling, as a verb?',moods:['flat','guilty','tender','hopeful']},
+  {id:'r16',domain:'relation',depth:'deep',text:'What has this relationship asked of me that I have genuinely grown to meet?',moods:['proud','hopeful','full','grateful']},
+  {id:'r17',domain:'relation',depth:'deep',text:'Am I learning how to love or am I waiting to feel like I know how?',moods:['stuck','unclear','afraid','restless']},
+  {id:'r18',domain:'relation',depth:'core',text:'What would it mean to build a life with someone rather than beside someone?',moods:['restless','unclear','lost','hopeful']},
+  {id:'r19',domain:'relation',depth:'surface',text:'What would she say I\'m good at in this relationship — and do I believe her?',moods:['proud','unclear','flat']},
+  {id:'r20',domain:'relation',depth:'deep',text:'What does vulnerability actually cost me in a relationship — and is that price stopping me from being known?',moods:['afraid','stuck','guilty','unclear']},
+  {id:'r21',domain:'relation',depth:'deep',text:'What does it mean to lead in a relationship — not to control, to lead?',moods:['unclear','restless','lost','stuck']},
+  {id:'r22',domain:'relation',depth:'core',text:'What would it take for me to be the kind of man she doesn\'t have to manage her expectations around?',moods:['guilty','restless','lost','unclear']},
+  {id:'r23',domain:'relation',depth:'surface',text:'Have I said something affirming to her today — not out of obligation, out of truth?',moods:['flat','guilty','tender']},
+  {id:'r24',domain:'relation',depth:'deep',text:'What does care look like when she doesn\'t ask for it — am I learning to see that?',moods:['guilty','flat','unclear','stuck']},
+
+  // ── LEADERSHIP ──
+  {id:'l1',domain:'lead',depth:'surface',text:'Did I set the tone today or did I let the tone set me?',moods:['flat','tired','stuck']},
+  {id:'l2',domain:'lead',depth:'surface',text:'Where did I lead today and where did I follow when I should have led?',moods:['guilty','flat','unclear']},
+  {id:'l3',domain:'lead',depth:'deep',text:'What does leading myself look like right now — not as a concept, but in the next hour?',moods:['stuck','tired','lost','flat']},
+  {id:'l4',domain:'lead',depth:'deep',text:'Am I consistent in private in a way that would hold up in public?',moods:['guilty','afraid','unclear']},
+  {id:'l5',domain:'lead',depth:'deep',text:'Where am I waiting to feel ready rather than acting my way into readiness?',moods:['stuck','afraid','restless']},
+  {id:'l6',domain:'lead',depth:'deep',text:'What would I do differently in the hard moment if I had prepared for it the night before?',moods:['guilty','stuck','unclear']},
+  {id:'l7',domain:'lead',depth:'core',text:'What does solid in a way that\'s consistent with my vision regardless of circumstances actually look like — today, in this season?',moods:['lost','tired','flat','stuck']},
+  {id:'l8',domain:'lead',depth:'core',text:'Am I building people up or building structures — and which one does this season actually require?',moods:['unclear','restless','lost']},
+  {id:'l9',domain:'lead',depth:'surface',text:'What is the one decision I\'ve been postponing that only I can make?',moods:['stuck','restless','unclear','afraid']},
+  {id:'l10',domain:'lead',depth:'deep',text:'When I feel like bait on a hook in a difficult conversation — what is actually happening and what does leading through it look like?',moods:['afraid','stuck','angry','flat']},
+  {id:'l11',domain:'lead',depth:'surface',text:'What does a trustworthy man look like in my specific context — and am I being that today?',moods:['guilty','flat','unclear','stuck']},
+  {id:'l12',domain:'lead',depth:'deep',text:'Where am I abdicating responsibility by calling it humility?',moods:['guilty','unclear','stuck','afraid']},
+  {id:'l13',domain:'lead',depth:'core',text:'What does it mean to lead from the front when I\'m still figuring it out — and is that incompatible with leading well?',moods:['afraid','unclear','restless','lost']},
+  {id:'l14',domain:'lead',depth:'deep',text:'What does accountability without self-abasement look like for me?',moods:['guilty','angry','afraid','stuck']},
+  {id:'l15',domain:'lead',depth:'surface',text:'Who have I led well recently — and what made that possible?',moods:['proud','hopeful','full']},
+
+  // ── WORK & CRAFT ──
+  {id:'w1',domain:'work',depth:'surface',text:'What did I actually build today — something completable and complete?',moods:['flat','tired','guilty']},
+  {id:'w2',domain:'work',depth:'surface',text:'What is the one task that, if done today, would make everything else feel secondary?',moods:['stuck','restless','unclear']},
+  {id:'w3',domain:'work',depth:'deep',text:'Is Dante Craft growing because of deliberate effort or am I just thinking about growing it?',moods:['guilty','stuck','flat']},
+  {id:'w4',domain:'work',depth:'deep',text:'What skill am I developing right now that will matter in three years — and am I actually developing it or just intending to?',moods:['restless','stuck','unclear']},
+  {id:'w5',domain:'work',depth:'deep',text:'What is the difference between being busy and doing the work that compounds?',moods:['tired','flat','stuck','guilty']},
+  {id:'w6',domain:'work',depth:'core',text:'What would Dante Craft look like in five years if I worked on it today the way I know I should?',moods:['restless','hopeful','lost','unclear']},
+  {id:'w7',domain:'work',depth:'core',text:'Am I building a company or building a reputation — and is there a gap between the two?',moods:['unclear','restless','lost']},
+  {id:'w8',domain:'work',depth:'surface',text:'What did the trading session today reveal about my discipline — not the market, my discipline?',moods:['guilty','flat','stuck']},
+  {id:'w9',domain:'work',depth:'deep',text:'Where is preparation dressed as avoidance in my work right now?',moods:['stuck','guilty','afraid']},
+  {id:'w10',domain:'work',depth:'surface',text:'What does professional excellence look like for me today — not in theory, in the actual task in front of me?',moods:['flat','stuck','restless']},
+  {id:'w11',domain:'work',depth:'deep',text:'Am I treating my engineering career as infrastructure for dAnTE Inc. or as a distraction from it?',moods:['unclear','restless','stuck','flat']},
+  {id:'w12',domain:'work',depth:'deep',text:'What would it mean to be the best version of myself on site — not just competent, but excellent?',moods:['restless','hopeful','flat','unclear']},
+  {id:'w13',domain:'work',depth:'core',text:'What does the work I\'m most proud of share in common — and am I doing more of that or less?',moods:['lost','unclear','restless','proud']},
+  {id:'w14',domain:'work',depth:'surface',text:'What is one thing I can do this week that compounds — that the version of me in three years will be glad I did?',moods:['restless','hopeful','flat','stuck']},
+  {id:'w15',domain:'work',depth:'deep',text:'What would mastery look like for me — not perfection, mastery — and what is standing between me and it?',moods:['restless','unclear','lost']},
+
+  // ── FINANCES & FREEDOM ──
+  {id:'fi1',domain:'finance',depth:'surface',text:'What financial decision am I making today from scarcity rather than strategy?',moods:['afraid','stuck','angry']},
+  {id:'fi2',domain:'finance',depth:'deep',text:'What does financial freedom actually mean for me — in numbers, in lifestyle, in what it enables?',moods:['restless','hopeful','unclear']},
+  {id:'fi3',domain:'finance',depth:'deep',text:'Am I building toward financial independence or just managing financial survival?',moods:['stuck','tired','flat']},
+  {id:'fi4',domain:'finance',depth:'core',text:'What is the version of financial freedom that would make me free to give generously — and what separates me from it right now?',moods:['restless','hopeful','lost']},
+  {id:'fi5',domain:'finance',depth:'surface',text:'Did I make a financial choice today that the person I want to be would make?',moods:['guilty','flat','stuck']},
+  {id:'fi6',domain:'finance',depth:'deep',text:'What does money mean to me — security, power, freedom, or something else — and is that healthy?',moods:['unclear','afraid','restless']},
+  {id:'fi7',domain:'finance',depth:'surface',text:'What is one financial habit I am building or should be building right now?',moods:['stuck','restless','hopeful']},
+  {id:'fi8',domain:'finance',depth:'deep',text:'What is the money story I inherited — and is it serving me or limiting me?',moods:['lost','unclear','stuck']},
+  {id:'fi9',domain:'finance',depth:'core',text:'What would it look like to steward what I have well today, even if it\'s small?',moods:['guilty','flat','afraid','stuck']},
+  {id:'fi10',domain:'finance',depth:'deep',text:'Where am I spending in ways that contradict my values — and what is that spending buying me emotionally?',moods:['guilty','unclear','stuck']},
+  {id:'fi11',domain:'finance',depth:'surface',text:'What does financial discipline look like for me this week — one concrete decision?',moods:['stuck','restless','flat']},
+  {id:'fi12',domain:'finance',depth:'core',text:'What is the number that represents enough — and have I ever defined it clearly?',moods:['restless','unclear','hopeful','lost']},
+
+  // ── HEALTH & BODY ──
+  {id:'h1',domain:'health',depth:'surface',text:'What did I give my body today — did I nourish it or negotiate with it?',moods:['guilty','flat','tired']},
+  {id:'h2',domain:'health',depth:'deep',text:'What is the morning routine protecting — and what happens to everything else when it doesn\'t hold?',moods:['guilty','tired','flat','stuck']},
+  {id:'h3',domain:'health',depth:'core',text:'What does the body I want to have in five years require of the body I\'m giving today?',moods:['restless','flat','tired','hopeful']},
+  {id:'h4',domain:'health',depth:'surface',text:'What is the most honest assessment of my energy right now — and what is it asking for?',moods:['tired','flat','stuck']},
+  {id:'h5',domain:'health',depth:'deep',text:'What relationship do I have with rest — do I earn it, resent it, or receive it?',moods:['tired','guilty','flat','unclear']},
+  {id:'h6',domain:'health',depth:'surface',text:'Did I move my body today in a way that respected it?',moods:['guilty','flat','tired']},
+  {id:'h7',domain:'health',depth:'deep',text:'What physical habit would compound the most over the next six months — and what is stopping me from starting it?',moods:['restless','stuck','hopeful']},
+  {id:'h8',domain:'health',depth:'core',text:'What does it mean that my body is infrastructure — and am I maintaining the infrastructure or neglecting it?',moods:['guilty','flat','tired','stuck']},
+  {id:'h9',domain:'health',depth:'surface',text:'What would a man who takes his physical stewardship seriously do today that I have been skipping?',moods:['guilty','flat','tired']},
+  {id:'h10',domain:'health',depth:'deep',text:'What is the stress doing to my body right now — and am I paying attention or just pushing through?',moods:['tired','afraid','stuck','angry']},
+
+  // ── VISION & LEGACY ──
+  {id:'v1',domain:'vision',depth:'surface',text:'What am I building today that will matter in ten years?',moods:['flat','tired','hopeful','restless']},
+  {id:'v2',domain:'vision',depth:'deep',text:'What does the life I want actually look like — not the aspirational version, the real one?',moods:['lost','unclear','restless']},
+  {id:'v3',domain:'vision',depth:'deep',text:'Is the educational institution for underprivileged youth a real intention or is it still just a beautiful idea?',moods:['guilty','unclear','restless','stuck']},
+  {id:'v4',domain:'vision',depth:'core',text:'What would a man who has lived fully leave behind — and am I building toward that?',moods:['lost','restless','hopeful','unclear']},
+  {id:'v5',domain:'vision',depth:'core',text:'What do I want people to say about me at fifty — and does how I\'m living today point toward that?',moods:['lost','unclear','flat','restless']},
+  {id:'v6',domain:'vision',depth:'deep',text:'What would I do differently today if I fully believed the long horizon was real?',moods:['flat','tired','stuck','lost']},
+  {id:'v7',domain:'vision',depth:'surface',text:'What is one thing the 20-year vision requires that I can do or decide today?',moods:['restless','hopeful','flat','stuck']},
+  {id:'v8',domain:'vision',depth:'deep',text:'What does dAnTE Inc. mean to me beyond the financial outcome — what is the soul of it?',moods:['restless','unclear','lost','hopeful']},
+  {id:'v9',domain:'vision',depth:'core',text:'What does leaving a trail of lives awakened mean in practice — not as a mission statement, as a daily posture?',moods:['lost','restless','hopeful','unclear']},
+  {id:'v10',domain:'vision',depth:'deep',text:'What is the thing I am most afraid of not building before my time runs out?',moods:['afraid','restless','lost','unclear']},
+  {id:'v11',domain:'vision',depth:'surface',text:'What does the next quarter need to look like for the long vision to stay real?',moods:['restless','stuck','hopeful','flat']},
+  {id:'v12',domain:'vision',depth:'core',text:'What kind of man do I need to be for the institutions I want to build to actually stand?',moods:['restless','unclear','lost','hopeful']},
+
+  // ── MIND & LEARNING ──
+  {id:'m1',domain:'mind',depth:'surface',text:'What is one thing I learned today — not consumed, actually learned?',moods:['flat','full','hopeful']},
+  {id:'m2',domain:'mind',depth:'deep',text:'What book or idea has been sitting with me and hasn\'t been fully processed yet?',moods:['restless','full','hopeful','unclear']},
+  {id:'m3',domain:'mind',depth:'deep',text:'Where is my thinking still borrowed rather than my own?',moods:['unclear','lost','stuck']},
+  {id:'m4',domain:'mind',depth:'core',text:'What do I believe about the world that I haven\'t examined in a long time?',moods:['restless','unclear','full']},
+  {id:'m5',domain:'mind',depth:'surface',text:'What question am I sitting with that I haven\'t yet tried to answer?',moods:['restless','unclear','full','hopeful']},
+  {id:'m6',domain:'mind',depth:'deep',text:'What would a committed autodidact do differently with the time I have?',moods:['guilty','restless','stuck','flat']},
+  {id:'m7',domain:'mind',depth:'surface',text:'What did I read or listen to recently that changed something, even slightly, in how I think?',moods:['full','hopeful','flat']},
+  {id:'m8',domain:'mind',depth:'deep',text:'Am I consuming more than I\'m producing — and what does that imbalance cost me?',moods:['guilty','stuck','flat','restless']},
+  {id:'m9',domain:'mind',depth:'core',text:'What is the idea I keep returning to — and what does it keep trying to tell me?',moods:['restless','unclear','full','hopeful']},
+  {id:'m10',domain:'mind',depth:'surface',text:'What would I teach someone today from what I know — and am I living by it?',moods:['proud','flat','full','hopeful']},
+  {id:'m11',domain:'mind',depth:'deep',text:'What mental habit serves me — and which one is slowly working against me?',moods:['unclear','stuck','restless','guilty']},
+  {id:'m12',domain:'mind',depth:'core',text:'What would it mean to have a truly original thought — not just a recombination of what I\'ve read?',moods:['restless','full','hopeful','unclear']},
+
+  // ── CREATIVITY & BEAUTY ──
+  {id:'c1',domain:'create',depth:'surface',text:'What beautiful thing did I notice today — or make — that I haven\'t named yet?',moods:['flat','tired','full','grateful']},
+  {id:'c2',domain:'create',depth:'deep',text:'Where have I been too functional and not enough alive to the beauty around me?',moods:['flat','tired','lost','guilty']},
+  {id:'c3',domain:'create',depth:'core',text:'What does it mean that beauty is a standard of living and not a luxury — and how does my life reflect that?',moods:['lost','unclear','flat']},
+  {id:'c4',domain:'create',depth:'surface',text:'What would I make or build purely for the joy of it — if no one would ever see it?',moods:['flat','full','hopeful','restless']},
+  {id:'c5',domain:'create',depth:'deep',text:'Where does expression want to happen in me that I keep suppressing?',moods:['restless','stuck','flat','unclear']},
+  {id:'c6',domain:'create',depth:'surface',text:'What does creative expression look like for me — not what it should be, what it actually is?',moods:['full','hopeful','flat','unclear']},
+  {id:'c7',domain:'create',depth:'deep',text:'What does the world feel like when I\'m not paying attention to its beauty — and is that the world I want to live in?',moods:['flat','tired','lost']},
+  {id:'c8',domain:'create',depth:'core',text:'What would it mean for my work — all of it — to have an aesthetic, not just a function?',moods:['restless','hopeful','unclear','full']},
+
+  // ── HARD DAYS & FAILURE ──
+  {id:'hd1',domain:'hard',depth:'surface',text:'What is the one true thing I can say about today — even if everything else went wrong?',moods:['tired','flat','lost','guilty','angry']},
+  {id:'hd2',domain:'hard',depth:'surface',text:'What would I tell a man in my exact position right now — and why am I not telling it to myself?',moods:['lost','tired','stuck','afraid']},
+  {id:'hd3',domain:'hard',depth:'deep',text:'What is this failure actually teaching me — not the lesson I\'m supposed to say, the one I\'m actually learning?',moods:['guilty','angry','lost','afraid']},
+  {id:'hd4',domain:'hard',depth:'deep',text:'Am I in a slump or am I resting? How would I know the difference honestly?',moods:['tired','flat','stuck','guilty']},
+  {id:'hd5',domain:'hard',depth:'deep',text:'What am I holding onto that I need to put down — not to give up, but to move forward?',moods:['tired','stuck','angry','guilty','lost']},
+  {id:'hd6',domain:'hard',depth:'core',text:'What does it mean that circumstances are information and not permission to stop — right now, in this specific situation?',moods:['tired','lost','stuck','afraid','flat']},
+  {id:'hd7',domain:'hard',depth:'core',text:'What remains true about who I am even on the days when nothing else holds?',moods:['lost','tired','afraid','flat','guilty']},
+  {id:'hd8',domain:'hard',depth:'surface',text:'What is the minimum viable move I can make right now — the smallest thing that still counts as forward?',moods:['tired','stuck','flat','afraid','lost']},
+  {id:'hd9',domain:'hard',depth:'deep',text:'What would I need to forgive — in myself, in someone else — to move forward from here?',moods:['angry','guilty','stuck','lost']},
+  {id:'hd10',domain:'hard',depth:'core',text:'Is the exhaustion I feel from the striving or from doing it without God?',moods:['tired','lost','flat','guilty']},
+  {id:'hd11',domain:'hard',depth:'deep',text:'What does resilience look like for me specifically — not as a concept, as a behaviour I can actually do?',moods:['tired','stuck','lost','afraid']},
+  {id:'hd12',domain:'hard',depth:'surface',text:'What is the honest inventory of today — not the worst reading, not the best, the honest one?',moods:['flat','tired','guilty','stuck']},
+  {id:'hd13',domain:'hard',depth:'core',text:'What do hard days reveal about me that easy days hide — and is what they reveal something I want to change?',moods:['lost','tired','afraid','guilty']},
+
+  // ── TIME & PRESENCE ──
+  {id:'t1',domain:'time',depth:'surface',text:'Was I present today — or was I somewhere else while being here?',moods:['flat','guilty','tired','lost']},
+  {id:'t2',domain:'time',depth:'surface',text:'What did I spend time on today that I wouldn\'t defend if asked?',moods:['guilty','flat','stuck']},
+  {id:'t3',domain:'time',depth:'deep',text:'What does it mean to fully inhabit the present moment while building toward a long horizon — and am I doing that?',moods:['restless','unclear','stuck','flat']},
+  {id:'t4',domain:'time',depth:'deep',text:'Where am I living in the future at the expense of today?',moods:['restless','afraid','lost','unclear']},
+  {id:'t5',domain:'time',depth:'deep',text:'Where am I living in the past at the expense of today?',moods:['stuck','tired','lost','angry']},
+  {id:'t6',domain:'time',depth:'core',text:'What would it mean to be fully alive in this season — not waiting for the next one?',moods:['lost','flat','restless','unclear']},
+  {id:'t7',domain:'time',depth:'surface',text:'What is one thing I want to be fully present for today — and what would that actually require of me?',moods:['flat','restless','hopeful','tender']},
+  {id:'t8',domain:'time',depth:'deep',text:'Am I using busyness to avoid presence — and what am I avoiding being present to?',moods:['guilty','stuck','afraid','flat']},
+  {id:'t9',domain:'time',depth:'core',text:'What does a full, inhabited life look like — not a productive one, a full one?',moods:['lost','restless','unclear','hopeful']},
+  {id:'t10',domain:'time',depth:'surface',text:'What moment from this week do I want to hold — and did I let myself hold it when it was happening?',moods:['grateful','full','tender','flat']},
+  {id:'t11',domain:'time',depth:'deep',text:'What am I postponing that I cannot actually afford to postpone?',moods:['stuck','afraid','restless','guilty']},
+  {id:'t12',domain:'time',depth:'core',text:'If I had full awareness that time is a gift and not a given — what would change about how I spend today?',moods:['lost','flat','restless','hopeful']},
+
+  // ── GIVING & GENEROSITY ──
+  {id:'g1',domain:'gift',depth:'surface',text:'What did I give today — time, attention, a word, a gesture — that cost me something?',moods:['flat','guilty','tender','full']},
+  {id:'g2',domain:'gift',depth:'surface',text:'Who in my life is carrying something I could make lighter — and have I offered?',moods:['flat','guilty','stuck','tender']},
+  {id:'g3',domain:'gift',depth:'deep',text:'What does it mean that autonomy — the freedom to give freely — is one of my deepest values? Am I moving toward that or away from it?',moods:['restless','unclear','lost','hopeful']},
+  {id:'g4',domain:'gift',depth:'deep',text:'What does generosity look like when I have very little — and am I practising it?',moods:['guilty','stuck','afraid','flat']},
+  {id:'g5',domain:'gift',depth:'core',text:'What does it mean to know what it is to want and not have — and how does that shape how I want to give?',moods:['lost','tender','hopeful','unclear']},
+  {id:'g6',domain:'gift',depth:'surface',text:'When did I last do something for someone with no expectation of return — and what did that feel like?',moods:['full','grateful','tender','flat']},
+  {id:'g7',domain:'gift',depth:'deep',text:'What is the gift I most want to give the world — not a thing, a way of being or building?',moods:['restless','hopeful','unclear','lost']},
+  {id:'g8',domain:'gift',depth:'deep',text:'Where am I withholding — not because I have nothing to give, but because I\'m afraid of what giving costs?',moods:['afraid','guilty','stuck','flat']},
+  {id:'g9',domain:'gift',depth:'core',text:'What would it look like to build institutions that make people believe they deserve better — and what does that start with in me?',moods:['restless','hopeful','unclear','lost']},
+  {id:'g10',domain:'gift',depth:'surface',text:'What does love as a gift — given freely, not earned — look like for me today?',moods:['tender','flat','guilty','hopeful']},
+];
+
+const MOOD_WEIGHTS = {
+  lost:     ['faith','self','hard','vision','lead','time'],
+  stuck:    ['self','lead','work','hard','relation','time'],
+  tired:    ['hard','health','self','faith','lead','time'],
+  afraid:   ['self','relation','lead','hard','faith','finance'],
+  angry:    ['relation','hard','self','lead'],
+  hopeful:  ['vision','work','faith','mind','gift'],
+  flat:     ['self','faith','hard','lead','relation','time'],
+  restless: ['vision','work','lead','mind','finance','gift'],
+  guilty:   ['self','relation','faith','hard','lead','gift'],
+  proud:    ['self','vision','work','faith'],
+  unclear:  ['vision','self','lead','faith','mind','time'],
+  full:     ['faith','mind','create','vision','gift'],
+  grateful: ['faith','gift','time','create'],
+  tender:   ['relation','gift','faith','time'],
+};
+
+let currentQ = null;
+let activeDepthFilter = 'all';
+let activeSearchTerm = '';
+let activeMood = null;
+
+function toggleTheme(){
+  const h=document.documentElement;
+  const dark=h.getAttribute('data-theme')==='dark';
+  h.setAttribute('data-theme',dark?'light':'dark');
+  document.getElementById('theme-icon').textContent=dark?'☾':'☀';
+  localStorage.setItem('db-theme',dark?'light':'dark');
+}
+
+function switchTab(name,btn){
+  document.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
+  document.getElementById('tab-'+name).classList.add('active');
+  btn.classList.add('active');
+  if(name==='browse')renderBrowse();
+  if(name==='entries')renderEntries();
+  window.scrollTo(0,0);
+}
+
+function setTodayQuestion(q){
+  currentQ=q;
+  const d=DOMAINS[q.domain];
+  document.getElementById('today-date').textContent=new Date().toLocaleDateString('en-GB',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
+  document.getElementById('today-domain-tag').textContent=d.icon+' '+d.name;
+  document.getElementById('today-domain-tag').style.cssText=`background:${d.color}18;border:1px solid ${d.color}40;color:${d.color};`;
+  document.getElementById('today-q').textContent=q.text;
+  document.getElementById('today-depth').textContent=q.depth==='surface'?'Opening question':(q.depth==='deep'?'Depth question':'Core question — sit with this one');
+  document.getElementById('write-q-label').textContent=q.text;
+  document.getElementById('write-area').value='';
+  document.getElementById('write-block').style.display='none';
+}
+
+function shuffleToday(){
+  const pool=QUESTIONS.filter(q=>q!==currentQ);
+  setTodayQuestion(pool[Math.floor(Math.random()*pool.length)]);
+}
+
+function pickByMood(){
+  switchTab('feeling',document.querySelectorAll('.nav-btn')[2]);
+}
+
+function openWrite(){
+  const wb=document.getElementById('write-block');
+  wb.style.display=wb.style.display==='none'?'block':'none';
+  if(wb.style.display==='block')document.getElementById('write-area').focus();
+}
+
+function setMood(btn,mood){
+  document.querySelectorAll('.mood-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  activeMood=mood;
+  renderFeelingResults(mood);
+}
+
+function renderFeelingResults(mood){
+  const pool=QUESTIONS.filter(q=>q.moods.includes(mood));
+  const core=pool.filter(q=>q.depth==='core');
+  const deep=pool.filter(q=>q.depth==='deep');
+  const surface=pool.filter(q=>q.depth==='surface');
+  const selected=[
+    ...(core.length?[core[Math.floor(Math.random()*core.length)]]:[] ),
+    ...(deep.length?[deep[Math.floor(Math.random()*deep.length)]]:[] ),
+    ...(deep.length>1?[deep[Math.floor(Math.random()*deep.length)]]:[] ),
+    ...(surface.length?[surface[Math.floor(Math.random()*surface.length)]]:[] ),
+  ].filter((q,i,a)=>a.indexOf(q)===i).slice(0,4);
+  const c=document.getElementById('feeling-results');
+  if(!selected.length){c.innerHTML='<div style="font-size:0.82rem;color:var(--text-muted);text-align:center;padding:2rem;">No questions for this feeling yet.</div>';return;}
+  c.innerHTML=`<div style="font-family:'DM Mono',monospace;font-size:0.55rem;letter-spacing:0.12em;text-transform:uppercase;color:var(--text-muted);margin-bottom:1rem;">Questions for when you feel ${mood}</div>`+
+    selected.map(q=>qCard(q,true)).join('');
+}
+
+function renderBrowse(){
+  const term=activeSearchTerm.toLowerCase();
+  const c=document.getElementById('browse-content');
+  c.innerHTML='';
+  Object.keys(DOMAINS).forEach(domKey=>{
+    const d=DOMAINS[domKey];
+    let qs=QUESTIONS.filter(q=>{
+      if(q.domain!==domKey)return false;
+      if(activeDepthFilter!=='all'&&q.depth!==activeDepthFilter)return false;
+      if(term&&!q.text.toLowerCase().includes(term))return false;
+      return true;
+    });
+    if(!qs.length)return;
+    const sec=document.createElement('div');
+    sec.className='domain-section';
+    sec.innerHTML=`
+      <div class="domain-header" onclick="toggleSection(this.parentElement)">
+        <span style="font-size:1.1rem;color:${d.color};">${d.icon}</span>
+        <span class="domain-name">${d.name}</span>
+        <span class="domain-count">${qs.length} question${qs.length!==1?'s':''}</span>
+        <span class="domain-toggle">▾</span>
+      </div>
+      <div class="domain-questions">${qs.map(q=>qCard(q,true)).join('')}</div>`;
+    c.appendChild(sec);
+  });
+}
+
+function toggleSection(sec){sec.classList.toggle('collapsed');}
+
+function filterQuestions(){
+  activeSearchTerm=document.getElementById('search-input').value;
+  renderBrowse();
+}
+
+function setDepthFilter(btn,depth){
+  document.querySelectorAll('#depth-filters .filter-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  activeDepthFilter=depth;
+  renderBrowse();
+}
+
+function qCard(q,showUse=false){
+  const d=DOMAINS[q.domain];
+  const depthLabel=q.depth==='surface'?'Opening':q.depth==='deep'?'Deep':'Core';
+  return `<div class="q-card depth-${q.depth}" style="border-left-color:${d.color};" onclick="useQuestion('${q.id}')">
+    <div class="q-text">${q.text}</div>
+    <div class="q-meta">
+      <span class="domain-tag" style="background:${d.color}18;border:1px solid ${d.color}40;color:${d.color};">${d.icon} ${d.name}</span>
+      <span class="depth-label ${q.depth}">${depthLabel}</span>
+      ${showUse?`<button class="use-btn" onclick="event.stopPropagation();useQuestion('${q.id}')">Write to this</button>`:''}
+    </div>
+  </div>`;
+}
+
+function useQuestion(id){
+  const q=QUESTIONS.find(x=>x.id===id);
+  if(!q)return;
+  currentQ=q;
+  document.getElementById('modal-q').textContent=q.text;
+  document.getElementById('modal-area').value='';
+  document.getElementById('modal').classList.add('open');
+}
+
+function saveEntry(){
+  const text=document.getElementById('write-area').value.trim();
+  if(!text||!currentQ)return;
+  saveToEntries(currentQ,text);
+  document.getElementById('write-area').value='';
+  const f=document.getElementById('save-flash');
+  f.style.opacity='1';setTimeout(()=>f.style.opacity='0',2200);
+}
+
+function saveFromModal(){
+  const text=document.getElementById('modal-area').value.trim();
+  if(!text||!currentQ)return;
+  saveToEntries(currentQ,text);
+  closeModal();
+}
+
+function saveToEntries(q,text){
+  const entries=JSON.parse(localStorage.getItem('db-entries')||'[]');
+  entries.unshift({id:'e'+Date.now(),qid:q.id,qtext:q.text,domain:q.domain,depth:q.depth,date:new Date().toISOString(),text});
+  localStorage.setItem('db-entries',JSON.stringify(entries));
+}
+
+function renderEntries(){
+  const entries=JSON.parse(localStorage.getItem('db-entries')||'[]');
+  const c=document.getElementById('entries-list');
+  if(!entries.length){
+    c.innerHTML='<div style="font-family:\'Cormorant Garamond\',serif;font-size:1rem;font-style:italic;color:var(--text-muted);text-align:center;padding:3rem;">Nothing written yet. Use a question and write your first response.</div>';
+    return;
+  }
+  c.innerHTML=entries.map((e,i)=>{
+    const d=DOMAINS[e.domain];
+    const dt=new Date(e.date);
+    const ds=dt.toLocaleDateString('en-GB',{weekday:'short',day:'numeric',month:'long',year:'numeric'});
+    return `<div class="entry-item">
+      <div class="entry-header">
+        <div style="display:flex;align-items:center;gap:0.6rem;">
+          <span class="domain-tag" style="background:${d.color}18;border:1px solid ${d.color}40;color:${d.color};">${d.icon} ${d.name}</span>
+          <span class="entry-date">${ds}</span>
+        </div>
+        <button class="del-btn" onclick="deleteEntry(${i})">Delete</button>
+      </div>
+      <div class="entry-question">${e.qtext}</div>
+      <div class="entry-body">${e.text}</div>
+    </div>`;
+  }).join('');
+}
+
+function deleteEntry(i){
+  if(!confirm('Delete this entry?'))return;
+  const entries=JSON.parse(localStorage.getItem('db-entries')||'[]');
+  entries.splice(i,1);
+  localStorage.setItem('db-entries',JSON.stringify(entries));
+  renderEntries();
+}
+
+function closeModal(){document.getElementById('modal').classList.remove('open');}
+
+function init(){
+  const theme=localStorage.getItem('db-theme')||'dark';
+  document.documentElement.setAttribute('data-theme',theme);
+  document.getElementById('theme-icon').textContent=theme==='dark'?'☀':'☾';
+  const dayOfYear=Math.floor((new Date()-new Date(new Date().getFullYear(),0,0))/86400000);
+  setTodayQuestion(QUESTIONS[dayOfYear%QUESTIONS.length]);
+  document.getElementById('modal').addEventListener('click',e=>{if(e.target.id==='modal')closeModal();});
+  document.getElementById('q-count-badge').textContent=QUESTIONS.length+' questions';
+}
+
+init();
+</script>
+</body>
+</html>

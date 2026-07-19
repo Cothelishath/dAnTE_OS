@@ -1,0 +1,961 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@300;400&display=swap" rel="stylesheet">
+<title>Night Calls — dAnTE</title>
+<style>
+:root{
+  --bg:#0a0908;--bg2:#120f0e;--bg3:#1a1614;--bg4:#221d1a;
+  --border:#221d1a;--border2:#2e2724;--border3:#3a322e;
+  --gold:#c9956b;--gold-dim:#8a5f3e;--gold-glow:rgba(201,149,107,0.1);
+  --rose:#dc6496;--rose-dim:#a04870;--rose-glow:rgba(220,100,150,0.1);
+  --text:#e8ddd2;--text-dim:#8a7d72;--text-muted:#4a4038;
+  --radius:6px;
+}
+.light{
+  --bg:#f5efe6;--bg2:#ede4d8;--bg3:#e3d8c8;--bg4:#d9ccb8;
+  --border:#d8cdba;--border2:#c8baa3;--border3:#b8a78d;
+  --gold:#8a5f3e;--gold-dim:#b8825a;--gold-glow:rgba(138,95,62,0.08);
+  --rose:#a04870;--rose-dim:#c46490;--rose-glow:rgba(160,72,112,0.08);
+  --text:#241e16;--text-dim:#665a4c;--text-muted:#a89886;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;-webkit-tap-highlight-color:transparent}
+body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;font-size:13px;line-height:1.6;display:flex;flex-direction:column;min-height:100vh}
+::-webkit-scrollbar{width:3px}::-webkit-scrollbar-thumb{background:var(--border3);border-radius:2px}
+
+header{flex-shrink:0;background:var(--bg);border-bottom:1px solid var(--border);padding:12px 16px;display:flex;align-items:center;gap:10px;position:sticky;top:0;z-index:50}
+.logo{display:flex;flex-direction:column;gap:0;margin-right:auto}
+.logo-brand{font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:.22em;color:var(--rose);text-transform:uppercase}
+.logo-title{font-family:'Cormorant Garamond',serif;font-size:20px;font-weight:300;color:var(--text);letter-spacing:.04em;line-height:1.1}
+.logo-title em{color:var(--rose);font-style:italic}
+.hbtn{background:none;border:1px solid var(--border2);border-radius:var(--radius);color:var(--text-dim);font-family:'Inter',sans-serif;font-size:11px;padding:6px 11px;cursor:pointer;transition:all .18s;white-space:nowrap}
+.hbtn:hover{border-color:var(--rose);color:var(--rose)}
+.hbtn-rose{border-color:var(--rose);color:var(--rose)}
+.hbtn-rose:hover{background:var(--rose-glow)}
+
+.controls{padding:12px 16px;display:flex;gap:8px;flex-wrap:wrap;align-items:center;border-bottom:1px solid var(--border);background:var(--bg2);flex-shrink:0;position:sticky;top:57px;z-index:40}
+.search-wrap{flex:1;min-width:140px;position:relative}
+.search-inp{width:100%;background:var(--bg3);border:1px solid var(--border2);border-radius:var(--radius);color:var(--text);font-family:'Inter',sans-serif;font-size:12px;padding:8px 12px 8px 32px;outline:none;transition:border-color .18s}
+.search-inp:focus{border-color:var(--rose)}
+.search-inp::placeholder{color:var(--text-muted)}
+.search-icon{position:absolute;left:10px;top:50%;transform:translateY(-50%);color:var(--text-muted);font-size:13px;pointer-events:none}
+.filter-row{display:flex;gap:5px;flex-wrap:wrap}
+.fpill{padding:4px 11px;border-radius:12px;border:1px solid var(--border2);font-size:11px;cursor:pointer;color:var(--text-muted);transition:all .15s;white-space:nowrap;background:transparent}
+.fpill:hover{border-color:var(--text-dim);color:var(--text-dim)}
+.fpill.active{border-color:var(--rose);color:var(--rose);background:var(--rose-glow)}
+
+.pick-btn{background:var(--rose);border:none;border-radius:var(--radius);color:#1a1416;font-family:'Cormorant Garamond',serif;font-size:15px;font-weight:600;padding:7px 16px;cursor:pointer;transition:all .18s;letter-spacing:.04em;white-space:nowrap}
+.pick-btn:hover{background:var(--rose-dim);color:#fff}
+.pick-btn:active{transform:scale(.97)}
+
+main{flex:1;padding:14px 16px 80px;max-width:700px;width:100%;margin:0 auto}
+
+.stats-row{display:flex;gap:12px;margin-bottom:16px;flex-wrap:wrap}
+.stat{display:flex;flex-direction:column;gap:1px}
+.stat-num{font-family:'Cormorant Garamond',serif;font-size:22px;color:var(--rose);line-height:1}
+.stat-lbl{font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--text-muted);text-transform:uppercase;letter-spacing:.12em}
+.stats-div{width:1px;background:var(--border2);align-self:stretch}
+
+.topics-list{display:flex;flex-direction:column;gap:8px}
+.topic-card{background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:13px 14px;display:flex;align-items:flex-start;gap:12px;transition:all .18s;cursor:pointer;position:relative}
+.topic-card:hover{border-color:var(--border2)}
+.topic-card.discussed{opacity:.55}
+.topic-card.discussed .topic-q{text-decoration:line-through;color:var(--text-dim)}
+.topic-card.highlighted{border-color:var(--rose);background:var(--rose-glow);animation:pulse .5s ease}
+@keyframes pulse{0%{box-shadow:0 0 0 0 rgba(220,100,150,.3)}100%{box-shadow:0 0 0 8px rgba(220,100,150,0)}}
+
+.topic-check{width:20px;height:20px;border:1px solid var(--border3);border-radius:4px;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:11px;color:transparent;transition:all .15s;margin-top:1px;cursor:pointer}
+.topic-card.discussed .topic-check{background:var(--rose-dim);border-color:var(--rose-dim);color:#1a1416}
+.topic-card.discussed .topic-check::after{content:'✓'}
+.topic-body{flex:1;min-width:0}
+.topic-q{font-size:13px;color:var(--text);line-height:1.5;font-weight:500;margin-bottom:4px}
+.topic-meta{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.topic-cat{display:inline-flex;align-items:center;gap:3px;padding:2px 8px;border-radius:10px;font-size:10px;font-family:'JetBrains Mono',monospace;letter-spacing:.06em;border:1px solid var(--border2);color:var(--text-muted)}
+.topic-cat-dot{width:6px;height:6px;border-radius:50%;flex-shrink:0}
+.topic-discussed-tag{font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--rose-dim);letter-spacing:.1em;text-transform:uppercase}
+.topic-notes-preview{font-size:11px;color:var(--text-dim);font-style:italic;margin-top:4px;line-height:1.5}
+
+.topic-actions{display:flex;gap:4px;opacity:0;transition:opacity .15s;flex-shrink:0}
+.topic-card:hover .topic-actions{opacity:1}
+.tact{background:none;border:none;color:var(--text-muted);cursor:pointer;font-size:12px;padding:4px 6px;border-radius:3px;transition:all .15s}
+.tact:hover{color:var(--rose);background:var(--rose-glow)}
+
+.empty{text-align:center;padding:60px 20px;color:var(--text-muted)}
+.empty-icon{font-size:40px;opacity:.3;margin-bottom:12px}
+.empty-title{font-family:'Cormorant Garamond',serif;font-size:18px;color:var(--text-dim);margin-bottom:6px}
+.empty-sub{font-size:12px;color:var(--text-muted);line-height:1.7}
+
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.82);z-index:200;display:flex;align-items:flex-end;justify-content:center;padding:0;backdrop-filter:blur(8px)}
+.modal-overlay.hidden{display:none}
+.modal{background:var(--bg2);border:1px solid var(--border2);border-radius:16px 16px 0 0;padding:20px 18px 32px;width:100%;max-width:600px;max-height:88vh;overflow-y:auto;display:flex;flex-direction:column;gap:13px}
+.modal-handle{width:36px;height:3px;background:var(--border3);border-radius:2px;margin:0 auto -4px}
+.modal-title{font-family:'Cormorant Garamond',serif;font-size:19px;font-weight:300;color:var(--text);line-height:1.4}
+.field-label{font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--text-muted);margin-bottom:5px;display:block}
+.inp{width:100%;background:var(--bg3);border:1px solid var(--border2);border-radius:var(--radius);color:var(--text);font-family:'Inter',sans-serif;font-size:12px;padding:9px 12px;outline:none;transition:border-color .18s}
+.inp:focus{border-color:var(--rose)}
+.inp::placeholder{color:var(--text-muted)}
+textarea.inp{resize:vertical;min-height:80px;line-height:1.5}
+.modal-actions{display:flex;gap:8px;justify-content:flex-end;padding-top:4px}
+.btn{display:inline-flex;align-items:center;gap:5px;padding:8px 14px;border-radius:var(--radius);border:1px solid var(--border2);background:transparent;color:var(--text-dim);font-family:'Inter',sans-serif;font-size:12px;cursor:pointer;transition:all .18s}
+.btn:hover{border-color:var(--rose);color:var(--rose)}
+.btn-solid{background:var(--rose);border-color:var(--rose);color:#1a1416;font-weight:500}
+.btn-solid:hover{opacity:.9}
+.btn-red{border-color:#c0392b;color:#c0392b}
+
+.fab{position:fixed;bottom:24px;right:20px;width:52px;height:52px;border-radius:50%;background:var(--rose);border:none;color:#1a1416;font-size:24px;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 20px rgba(220,100,150,.3);transition:all .18s;z-index:60}
+.fab:hover{transform:scale(1.06)}
+
+.toast{position:fixed;bottom:88px;left:50%;transform:translateX(-50%) translateY(6px);background:var(--bg3);border:1px solid var(--rose-dim);color:var(--rose);font-family:'JetBrains Mono',monospace;font-size:11px;padding:9px 18px;border-radius:20px;z-index:400;opacity:0;transition:all .25s;pointer-events:none;white-space:nowrap}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
+.sort-select{background:var(--bg3);border:1px solid var(--border2);border-radius:var(--radius);color:var(--text-dim);font-family:'JetBrains Mono',monospace;font-size:10px;padding:6px 9px;outline:none;cursor:pointer;letter-spacing:.06em}
+.sort-select:focus{border-color:var(--rose)}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">
+    <div class="logo-brand">dAnTE · For T</div>
+    <div class="logo-title">Night <em>Calls</em></div>
+  </div>
+  <button class="hbtn" onclick="toggleTheme()">☀︎</button>
+  <button class="hbtn" onclick="exportData()">⬇</button>
+  <button class="hbtn" onclick="importData()">⬆</button>
+  <button class="hbtn hbtn-rose" onclick="saveData()">Save</button>
+</header>
+
+<div class="controls">
+  <div class="search-wrap">
+    <span class="search-icon">🔍</span>
+    <input class="search-inp" id="searchInp" placeholder="Search topics..." oninput="renderList()">
+  </div>
+  <button class="pick-btn" onclick="pickRandom()" title="Pick a topic for tonight">✦ Tonight's topic</button>
+  <div class="filter-row" id="filterRow"></div>
+  <select class="sort-select" onchange="currentSort=this.value;renderList()">
+    <option value="default">Default order</option>
+    <option value="az">A–Z</option>
+    <option value="undiscussed">Undiscussed first</option>
+    <option value="discussed">Discussed first</option>
+  </select>
+</div>
+
+<main>
+  <div class="stats-row" id="statsRow"></div>
+  <div class="topics-list" id="topicsList"></div>
+  <div class="empty hidden" id="emptyState">
+    <div class="empty-icon">♡</div>
+    <div class="empty-title">No topics found</div>
+    <div class="empty-sub">Try a different search or filter.</div>
+  </div>
+</main>
+
+<button class="fab" onclick="openAddModal()" title="Add topic">+</button>
+
+<div class="modal-overlay hidden" id="topicModal">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-title" id="modalTitle">Add a topic</div>
+    <div>
+      <label class="field-label">The talking point</label>
+      <textarea class="inp" id="m-text" placeholder="Write the question or topic..."></textarea>
+    </div>
+    <div>
+      <label class="field-label">Category</label>
+      <div class="filter-row" id="catGrid" style="margin-bottom:0"></div>
+    </div>
+    <div>
+      <label class="field-label">Notes from the conversation <span style="font-size:9px;color:var(--text-muted);text-transform:none;letter-spacing:0">(optional)</span></label>
+      <textarea class="inp" id="m-notes" placeholder="What came up? Anything worth remembering..."></textarea>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-red" id="deleteBtn" onclick="deleteTopic()" style="display:none;margin-right:auto">Delete</button>
+      <button class="btn" onclick="closeModal()">Cancel</button>
+      <button class="btn btn-solid" onclick="saveTopic()">Save</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+<input type="file" id="importFile" accept=".json" style="display:none" onchange="handleImport(event)">
+
+<script>
+function uid(){return Date.now().toString(36)+Math.random().toString(36).slice(2,6)}
+
+let categories=[
+  {id:'self',label:'Knowing Self',color:'#dc6496'},
+  {id:'faith',label:'Faith',color:'#a0c864'},
+  {id:'love',label:'Love & Romance',color:'#ff6b9d'},
+  {id:'commsex',label:'Sex & Intimacy',color:'#c9956b'},
+  {id:'comm',label:'Communication',color:'#4a8cc9'},
+  {id:'conflict',label:'Conflict & Boundaries',color:'#c0392b'},
+  {id:'family',label:'Family & In-Laws',color:'#8b6bff'},
+  {id:'friends',label:'Friends & Community',color:'#4caf7d'},
+  {id:'marriage',label:'Marriage Vision',color:'#c9a84c'},
+  {id:'finance',label:'Finances',color:'#ffa050'},
+  {id:'work',label:'Work & Purpose',color:'#4a8cc9'},
+  {id:'home',label:'Home & Lifestyle',color:'#a0c864'},
+  {id:'children',label:'Children & Parenting',color:'#dc9664'},
+  {id:'world',label:'The World & Views',color:'#666'},
+  {id:'giving',label:'Giving & Generosity',color:'#c9a84c'},
+  {id:'fun',label:'Fun & Play',color:'#ff8c64'},
+];
+
+let topics=[];
+let selectedCat='all';
+let currentSort='default';
+let editId=null;
+let mSelectedCat=null;
+let isDark=true;
+
+// ── 500 TALKING POINTS ────────────────────────────────────
+const PREFILL=[
+// KNOWING SELF (1-40)
+{q:'What does a perfect ordinary Tuesday look like for you?',cat:'self'},
+{q:'What is something about yourself you wish more people understood?',cat:'self'},
+{q:'When do you feel most like yourself?',cat:'self'},
+{q:'What is a fear you carry that you rarely speak about?',cat:'self'},
+{q:'What is something you tolerate that you actually should not?',cat:'self'},
+{q:'What is a fantasy expectation you have about relationships that you know is not realistic?',cat:'self'},
+{q:'What does rest actually look like for you — not what you think it should look like?',cat:'self'},
+{q:'What is one thing your younger self would be surprised you became?',cat:'self'},
+{q:'What is a belief about yourself you are actively trying to change?',cat:'self'},
+{q:'What makes you feel most loved — be specific, not general?',cat:'self'},
+{q:'What is something you need that you find hard to ask for?',cat:'self'},
+{q:'When do you feel most insecure, and what helps in that moment?',cat:'self'},
+{q:'What is a value you hold that you did not choose — it was given to you?',cat:'self'},
+{q:'What is your relationship with anger — how do you experience it, how do you express it?',cat:'self'},
+{q:'What is something you are proud of that you rarely tell people about?',cat:'self'},
+{q:'What is a pattern from your childhood that still shows up in how you relate to people?',cat:'self'},
+{q:'How do you know when you are not okay, before anyone else can tell?',cat:'self'},
+{q:'What is something you have outgrown that you are still holding onto?',cat:'self'},
+{q:'What does feeling safe with someone actually feel like for you?',cat:'self'},
+{q:'What is one thing you wish someone had told you when you were younger?',cat:'self'},
+{q:'What is your relationship with vulnerability — do you find it easy or hard, and why?',cat:'self'},
+{q:'What is a part of yourself you are still discovering?',cat:'self'},
+{q:'How do you define success for your own life, separate from what others expect?',cat:'self'},
+{q:'What is something that quietly hurts your feelings that you rarely mention?',cat:'self'},
+{q:'What does being understood feel like to you, when it actually happens?',cat:'self'},
+{q:'What is a limiting belief you hold about your own capability?',cat:'self'},
+{q:'What is something about your body or appearance you wish you felt more at peace with?',cat:'self'},
+{q:'What does it mean to you to be a good person — what are the actual standards in your mind?',cat:'self'},
+{q:'What is your default coping mechanism when overwhelmed, and is it serving you?',cat:'self'},
+{q:'What is a compliment you received once that you still think about?',cat:'self'},
+{q:'How do you want to be remembered by the people closest to you?',cat:'self'},
+{q:'What is the difference between who you are at work and who you are at home?',cat:'self'},
+{q:'What is something you need to forgive yourself for?',cat:'self'},
+{q:'What gives you a sense of purpose on an ordinary day, not a special one?',cat:'self'},
+{q:'What is your honest relationship with rejection — how do you handle it?',cat:'self'},
+{q:'What is one thing about you that has not changed since childhood?',cat:'self'},
+{q:'What does feeling proud of yourself actually require — what is the bar?',cat:'self'},
+{q:'What is a habit you have that you think others might not notice but matters to you?',cat:'self'},
+{q:'What is your honest relationship with control — do you need it, fear losing it, or something else?',cat:'self'},
+{q:'What is something you want for yourself that has nothing to do with this relationship?',cat:'self'},
+
+// FAITH (41-70)
+{q:'What does your faith mean to you right now, in this season specifically?',cat:'faith'},
+{q:'How has your faith changed since we started dating?',cat:'faith'},
+{q:'What role do you want faith to play in our home — practically, not theoretically?',cat:'faith'},
+{q:'What does it mean to you for two people to be equally yoked spiritually?',cat:'faith'},
+{q:'What is a spiritual practice you want to build together?',cat:'faith'},
+{q:'How do you want to handle disagreements about faith or doctrine, if they come up?',cat:'faith'},
+{q:'What is a moment your faith carried you when nothing else did?',cat:'faith'},
+{q:'How do you want to raise children in faith, if we have them — what does that look like day to day?',cat:'faith'},
+{q:'What is something about church or community you want and currently do not have?',cat:'faith'},
+{q:'How do you experience God differently than I do — what does that teach me about you?',cat:'faith'},
+{q:'What is a scripture or spiritual truth that has shaped how you see this relationship?',cat:'faith'},
+{q:'What do you believe about prayer together as a couple — do we do it, how often, what does it look like?',cat:'faith'},
+{q:'What does stewardship mean to you — of time, money, gifts?',cat:'faith'},
+{q:'What is a doubt or question about faith you have never said out loud to me?',cat:'faith'},
+{q:'How do you want our home to feel spiritually — what is the atmosphere we are building?',cat:'faith'},
+{q:'What does grace mean to you practically — in how you treat yourself and others?',cat:'faith'},
+{q:'What is your view on tithing and giving — what feels right to you?',cat:'faith'},
+{q:'How do you want to handle a season where one of us is struggling spiritually and the other is not?',cat:'faith'},
+{q:'What does it mean for marriage to be a covenant, not just a contract, to you?',cat:'faith'},
+{q:'What spiritual gifts do you think you have, and how do you want to use them?',cat:'faith'},
+{q:'What is something about the way I express faith that you appreciate?',cat:'faith'},
+{q:'What does surrender mean to you — in faith and in relationship?',cat:'faith'},
+{q:'How important is shared denomination or theological alignment to you, specifically?',cat:'faith'},
+{q:'What is a faith-based boundary you want our relationship to hold to?',cat:'faith'},
+{q:'What does worship look like for you outside of a Sunday service?',cat:'faith'},
+{q:'How do you want to process suffering or hardship together when it comes — through what lens?',cat:'faith'},
+{q:'What is your honest relationship with doubt — is it allowed, is it dangerous, is it normal?',cat:'faith'},
+{q:'What does it mean to you that faith is the foundation rather than a department of life?',cat:'faith'},
+{q:'How do we keep faith alive in our relationship during busy or difficult seasons?',cat:'faith'},
+{q:'What is one thing you want God to do in our relationship this year specifically?',cat:'faith'},
+
+// LOVE & ROMANCE (71-105)
+{q:'What made you fall for me — be specific, not the general answer?',cat:'love'},
+{q:'What is a small thing I do that makes you feel loved that I might not realise matters?',cat:'love'},
+{q:'How do you like to be pursued — what does that look like for you specifically?',cat:'love'},
+{q:'What is a memory of us that you replay when you need to smile?',cat:'love'},
+{q:'What does romance mean to you beyond grand gestures — the daily version?',cat:'love'},
+{q:'How do you want to be celebrated on your birthday, specifically — not generally?',cat:'love'},
+{q:'What is something romantic you have never told me you wanted?',cat:'love'},
+{q:'How do you experience falling deeper in love over time — what does that feel like for you?',cat:'love'},
+{q:'What is a love story — ours or someone else\'s — that moves you, and why?',cat:'love'},
+{q:'What does feeling desired look like for you, specifically?',cat:'love'},
+{q:'How do you want us to keep romance alive once life gets routine?',cat:'love'},
+{q:'What is the most loved you have ever felt in our relationship, and what made that moment?',cat:'love'},
+{q:'What is a way I could surprise you that would actually land — not generic, specific to you?',cat:'love'},
+{q:'How do you feel about public displays of affection — what is your comfort range?',cat:'love'},
+{q:'What does being chosen, daily, mean to you?',cat:'love'},
+{q:'What is something you find attractive about how I think, not just how I look?',cat:'love'},
+{q:'How do you want anniversaries to be marked — what matters to you about that day?',cat:'love'},
+{q:'What is a love language gesture from me you wish happened more often?',cat:'love'},
+{q:'How do you experience jealousy, if at all — what triggers it and what helps?',cat:'love'},
+{q:'What does it mean to you to be someone\'s safe place?',cat:'love'},
+{q:'What is a quality of mine you did not expect to fall for but did?',cat:'love'},
+{q:'How do you want flirtation to remain part of our relationship long term?',cat:'love'},
+{q:'What is something playful about us you want us to never lose?',cat:'love'},
+{q:'How do you experience tenderness — what does it look like when someone is tender with you?',cat:'love'},
+{q:'What is your honest definition of romantic compatibility?',cat:'love'},
+{q:'What is a love letter you would write me if you sat down right now — what would the first line be?',cat:'love'},
+{q:'How do you want affection to evolve as we grow older together?',cat:'love'},
+{q:'What does it mean to you that someone notices the small things about you?',cat:'love'},
+{q:'What is a moment you felt unconditionally accepted by me?',cat:'love'},
+{q:'How do you experience longing — missing someone, wanting them present?',cat:'love'},
+{q:'What is something about commitment that excites you rather than scares you?',cat:'love'},
+{q:'How do you want us to keep choosing each other deliberately, not just by default?',cat:'love'},
+{q:'What is the difference between how you show love and how you want to receive it?',cat:'love'},
+{q:'What is a fear about love you have carried from before us?',cat:'love'},
+{q:'How do you experience being missed — what does it mean when someone misses you?',cat:'love'},
+{q:'What does it mean to you to build a love story rather than just live one?',cat:'love'},
+{q:'What is a song, scent, or place that makes you think of us?',cat:'love'},
+{q:'How do you want to express love during hard seasons, not just easy ones?',cat:'love'},
+{q:'What is one thing about loving you that has surprised me — would you want to hear it?',cat:'love'},
+{q:'What does growing old together actually look like in your imagination?',cat:'love'},
+
+// SEX & INTIMACY (106-135)
+{q:'What does intimacy mean to you beyond the physical — what builds it?',cat:'commsex'},
+{q:'What helps you feel emotionally safe enough to be physically vulnerable?',cat:'commsex'},
+{q:'How do you want communication about sex to work between us — direct, gentle, in the moment, after?',cat:'commsex'},
+{q:'What is something you wish you understood better about your own desire?',cat:'commsex'},
+{q:'How do stress and tiredness affect your desire, and how should we navigate that together?',cat:'commsex'},
+{q:'What does feeling desired physically mean to you specifically?',cat:'commsex'},
+{q:'What is a boundary around intimacy that matters to you?',cat:'commsex'},
+{q:'How do you want affection and physical touch to show up outside of sex?',cat:'commsex'},
+{q:'What is something about your body you want me to understand and be sensitive to?',cat:'commsex'},
+{q:'How do you experience closeness after intimacy — what do you need in that moment?',cat:'commsex'},
+{q:'What does consent and checking in look like for you, practically, within a committed relationship?',cat:'commsex'},
+{q:'How do you want us to handle differences in desire or timing without either of us feeling rejected?',cat:'commsex'},
+{q:'What is something from past experiences or upbringing that shapes how you view sex within marriage?',cat:'commsex'},
+{q:'How do you define a healthy sexual relationship within a Christian marriage?',cat:'commsex'},
+{q:'What does it mean to you for sex to be an act of worship or connection, not just physical release?',cat:'commsex'},
+{q:'How do you want to keep growing in intimacy as the years pass?',cat:'commsex'},
+{q:'What is something you are curious about but have not asked?',cat:'commsex'},
+{q:'How do you experience trust as it relates to physical intimacy?',cat:'commsex'},
+{q:'What helps you feel comfortable being fully seen, physically and emotionally, at the same time?',cat:'commsex'},
+{q:'How do you want us to handle seasons of mismatched desire with grace rather than resentment?',cat:'commsex'},
+
+// COMMUNICATION (136-170)
+{q:'What is the way I communicate that lands best for you — and what does not?',cat:'comm'},
+{q:'How do you want to be approached when I have something hard to say?',cat:'comm'},
+{q:'What does feeling truly listened to mean to you, specifically?',cat:'comm'},
+{q:'What is something I do during conversation that frustrates you, even slightly?',cat:'comm'},
+{q:'How do you process things internally before you are ready to talk about them?',cat:'comm'},
+{q:'What is the difference between venting and wanting solutions, for you?',cat:'comm'},
+{q:'How do you want me to respond when you are upset but cannot articulate why yet?',cat:'comm'},
+{q:'What does it mean to you to feel emotionally safe in a conversation?',cat:'comm'},
+{q:'How do you experience silence in a relationship — comfortable or unsettling, and when?',cat:'comm'},
+{q:'What is a topic you find hard to bring up with me, and why?',cat:'comm'},
+{q:'How do you want us to check in with each other daily, beyond just logistics?',cat:'comm'},
+{q:'What helps you open up when you are naturally inclined to withdraw?',cat:'comm'},
+{q:'How do you want feedback delivered when something I did hurt you?',cat:'comm'},
+{q:'What does honesty cost you sometimes — what makes it hard to be fully honest?',cat:'comm'},
+{q:'How do you want us to handle misunderstandings before they grow into something bigger?',cat:'comm'},
+{q:'What is your communication style under stress — do you go quiet, get sharp, something else?',cat:'comm'},
+{q:'How do you experience being interrupted or not fully heard?',cat:'comm'},
+{q:'What does it mean to you when I remember details from our conversations?',cat:'comm'},
+{q:'How do you want us to talk about money without it becoming tense?',cat:'comm'},
+{q:'What is something you need me to ask you more often?',cat:'comm'},
+{q:'How do you want disagreements to be voiced — immediately, or after some processing time?',cat:'comm'},
+{q:'What does active listening actually look like to you, practically?',cat:'comm'},
+{q:'How do you experience tone — does how something is said matter more than what is said, for you?',cat:'comm'},
+{q:'What is a conversation we have not had yet that we probably should?',cat:'comm'},
+{q:'How do you want apologies to be made — what makes an apology feel genuine to you?',cat:'comm'},
+{q:'What does it mean to you to have a daily check-in ritual, even briefly?',cat:'comm'},
+{q:'How do you experience being teased — what is playful and what crosses a line?',cat:'comm'},
+{q:'What helps you trust that I am being fully honest with you?',cat:'comm'},
+{q:'How do you want to communicate needs before resentment builds?',cat:'comm'},
+{q:'What is something about how your family communicated growing up that you want to keep or break?',cat:'comm'},
+{q:'How do you experience receiving constructive criticism from someone you love?',cat:'comm'},
+{q:'What does it mean to you for both people to feel equally heard in a conversation?',cat:'comm'},
+{q:'How do you want us to communicate when one of us is exhausted and not at our best?',cat:'comm'},
+{q:'What is a word or phrase that, when I use it, immediately makes you feel closer to me?',cat:'comm'},
+{q:'How do you experience being asked direct questions versus being given space to share on your own?',cat:'comm'},
+
+// CONFLICT & BOUNDARIES (171-200)
+{q:'What does a healthy argument look like to you — not avoiding conflict, but having it well?',cat:'conflict'},
+{q:'What is a boundary you need me to respect that you have not clearly stated?',cat:'conflict'},
+{q:'How do you want repair to happen after we have hurt each other?',cat:'conflict'},
+{q:'What is something that, once said in anger, is hard for you to let go of?',cat:'conflict'},
+{q:'How do you experience being wrong — is it easy or hard for you to admit it?',cat:'conflict'},
+{q:'What does forgiveness actually require for you — what makes it real versus performative?',cat:'conflict'},
+{q:'How do you want us to handle a disagreement about parenting, finances, or family, before it happens?',cat:'conflict'},
+{q:'What is a line that, if crossed, would be very hard for you to come back from?',cat:'conflict'},
+{q:'How do you experience criticism of your family from me, even if gentle?',cat:'conflict'},
+{q:'What helps you de-escalate when you are upset?',cat:'conflict'},
+{q:'How do you want time-outs during conflict to work — do you need space or closeness?',cat:'conflict'},
+{q:'What is a boundary with extended family that matters to you?',cat:'conflict'},
+{q:'How do you experience being compared to someone else, even in passing?',cat:'conflict'},
+{q:'What does it mean to you to fight fair — what rules do you want us to hold to?',cat:'conflict'},
+{q:'How do you want us to handle a disagreement that cannot be resolved immediately?',cat:'conflict'},
+{q:'What is a boundary around your time or energy that you need me to honour?',cat:'conflict'},
+{q:'How do you experience being told no by me — does it feel like rejection or healthy boundary?',cat:'conflict'},
+{q:'What is a pattern in conflict between us that you want us to break?',cat:'conflict'},
+{q:'How do you want disagreements about faith, money, or family handled when our families disagree with us?',cat:'conflict'},
+{q:'What does accountability look like to you when one of us has genuinely wronged the other?',cat:'conflict'},
+{q:'How do you experience silent treatment, even briefly — does it feel like punishment?',cat:'conflict'},
+{q:'What is a boundary you want with friends of the opposite sex, for both of us?',cat:'conflict'},
+{q:'How do you want financial disagreements to be resolved when we cannot agree?',cat:'conflict'},
+{q:'What does it mean to disagree and still feel respected in the disagreement?',cat:'conflict'},
+{q:'How do you experience an apology that feels incomplete or insincere?',cat:'conflict'},
+{q:'What is a boundary around social media or phone use that matters to you?',cat:'conflict'},
+{q:'How do you want us to protect our relationship from outside opinions during conflict?',cat:'conflict'},
+{q:'What does it mean for both of us to take responsibility, even when one person is more at fault?',cat:'conflict'},
+{q:'How do you experience feeling unheard during an argument — what happens internally?',cat:'conflict'},
+{q:'What is one boundary you need to set with me that you have been avoiding?',cat:'conflict'},
+
+// FAMILY & IN-LAWS (201-230)
+{q:'What is your relationship with your parents like, and how do you want that to look once we are married?',cat:'family'},
+{q:'How do you want in-laws involved in our decision-making, if at all?',cat:'family'},
+{q:'What is a family tradition you want to carry into our home?',cat:'family'},
+{q:'What is a family pattern you want to deliberately not repeat?',cat:'family'},
+{q:'How do you experience your parents\' marriage — what did it teach you, good or bad?',cat:'family'},
+{q:'What does honouring parents mean to you practically, especially as you build your own home?',cat:'family'},
+{q:'How do you want holidays and festive seasons divided between families?',cat:'family'},
+{q:'What is a boundary you need with my family that I should know about?',cat:'family'},
+{q:'How do you experience financial expectations from extended family?',cat:'family'},
+{q:'What is your relationship with your siblings like, and how does it shape you?',cat:'family'},
+{q:'How do you want us to handle disagreements with in-laws as a united front?',cat:'family'},
+{q:'What is something about my family you appreciate, and something you find challenging?',cat:'family'},
+{q:'How do you experience being the child still, even as an adult, around your parents?',cat:'family'},
+{q:'What does it mean to you to leave and cleave — to build a primary loyalty to this new family?',cat:'family'},
+{q:'How do you want us to support aging parents in the future, practically and financially?',cat:'family'},
+{q:'What is a family wound you are still healing from?',cat:'family'},
+{q:'How do you experience family obligations that feel heavier than they should?',cat:'family'},
+{q:'What does it mean to you for our home to have its own identity, separate from both families of origin?',cat:'family'},
+{q:'How do you want godparents or family elders involved in our children\'s lives, if at all?',cat:'family'},
+{q:'What is something your parents got right that you want to learn from?',cat:'family'},
+{q:'How do you experience family gatherings — energising or draining, and why?',cat:'family'},
+{q:'What is a difficult family relationship you carry, and how does it affect you?',cat:'family'},
+{q:'How do you want us to communicate family news and decisions — together first, or individually first?',cat:'family'},
+{q:'What does it mean to you for me to defend you, even to my own family, when needed?',cat:'family'},
+{q:'How do you experience financial requests from family — comfortable, obligated, resentful?',cat:'family'},
+{q:'What is a way you want to honour your parents that is different from how you grew up seeing it done?',cat:'family'},
+{q:'How do you want us to set expectations early with both families about visits and involvement?',cat:'family'},
+{q:'What is something about co-parenting with extended family input you feel strongly about?',cat:'family'},
+{q:'How do you experience loyalty conflicts — when your family and I see something differently?',cat:'family'},
+{q:'What is a hope you have for how our families will relate to each other over time?',cat:'family'},
+
+// FRIENDS & COMMUNITY (231-255)
+{q:'Who are the friends you consider essential to your life, and why?',cat:'friends'},
+{q:'How do you want friendships to be maintained once we are married and busier?',cat:'friends'},
+{q:'What does a healthy friendship with someone of the opposite sex look like to you?',cat:'friends'},
+{q:'How do you experience loneliness, even within a relationship — what helps?',cat:'friends'},
+{q:'What is a friendship you have lost that you still think about?',cat:'friends'},
+{q:'How do you want us to build community together — church, social, professional?',cat:'friends'},
+{q:'What does it mean to you to have couple friends versus individual friends?',cat:'friends'},
+{q:'How do you experience friendships that have drifted — does it bother you or feel natural?',cat:'friends'},
+{q:'What is something you need from friendship that romantic relationship cannot provide?',cat:'friends'},
+{q:'How do you want to handle a friend of mine you do not particularly like?',cat:'friends'},
+{q:'What does being a good friend mean to you, and are you currently living that out?',cat:'friends'},
+{q:'How do you experience vulnerability with friends versus with me — is there a difference?',cat:'friends'},
+{q:'What is a community or group you wish you were more connected to?',cat:'friends'},
+{q:'How do you want us to invest in couple friendships that can support our marriage?',cat:'friends'},
+{q:'What does accountability from friends look like for you — do you have it, do you want it?',cat:'friends'},
+{q:'How do you experience friendships that require more effort than they return?',cat:'friends'},
+{q:'What is a quality you look for in the people you keep close?',cat:'friends'},
+{q:'How do you want to balance time with friends and time as a couple, practically?',cat:'friends'},
+{q:'What is something about my friendships you have questions about or want to understand better?',cat:'friends'},
+{q:'How do you experience being a third wheel or an outsider in a group — does it happen, how do you handle it?',cat:'friends'},
+{q:'What does mentorship mean to you — do you have mentors, do you want to be one?',cat:'friends'},
+{q:'How do you want our home to be a place that welcomes others — open or more private?',cat:'friends'},
+{q:'What is a friendship you have that has shaped who you are significantly?',cat:'friends'},
+{q:'How do you experience disagreements between your friends and me, if they happen?',cat:'friends'},
+{q:'What is one way you want to be more intentional about community as we build this life together?',cat:'friends'},
+
+// MARRIAGE VISION (256-290)
+{q:'What does a thriving marriage look like to you, practically, ten years from now?',cat:'marriage'},
+{q:'What is one non-negotiable you have for our marriage?',cat:'marriage'},
+{q:'How do you define partnership in marriage — what does that actually mean day to day?',cat:'marriage'},
+{q:'What is a marriage you have observed that you admire, and what makes it work?',cat:'marriage'},
+{q:'How do you want decision-making to work between us — joint on everything, or divided by domain?',cat:'marriage'},
+{q:'What does headship and submission mean to you in a marriage, practically and not just theologically?',cat:'marriage'},
+{q:'How do you want us to handle seasons where one person is carrying more than the other?',cat:'marriage'},
+{q:'What is something you fear about marriage that you have not said out loud?',cat:'marriage'},
+{q:'How do you experience commitment — what makes it feel solid rather than fragile?',cat:'marriage'},
+{q:'What does it mean to you for marriage to be a team rather than two individuals living parallel lives?',cat:'marriage'},
+{q:'How do you want our marriage to grow rather than plateau over time?',cat:'marriage'},
+{q:'What is a marriage vow that means the most to you, and why?',cat:'marriage'},
+{q:'How do you want us to keep dating each other after marriage?',cat:'marriage'},
+{q:'What does it mean to you to build a legacy together, beyond just children?',cat:'marriage'},
+{q:'How do you experience the idea of becoming one — what does that actually look like practically?',cat:'marriage'},
+{q:'What is a season of marriage you anticipate being hardest, and how do we prepare for it?',cat:'marriage'},
+{q:'How do you want roles to be defined between us — traditional, modern, a blend specific to us?',cat:'marriage'},
+{q:'What does it mean to you for both people to keep growing individually within the marriage?',cat:'marriage'},
+{q:'How do you experience the idea of permanence — does it feel comforting or like pressure?',cat:'marriage'},
+{q:'What is your view on counselling — should we go before, during, regardless of whether there is a crisis?',cat:'marriage'},
+{q:'How do you want marriage milestones — five years, ten years — to be marked?',cat:'marriage'},
+{q:'What does it mean for marriage to be sacred rather than just a social contract?',cat:'marriage'},
+{q:'How do you experience the responsibility of being someone\'s whole life partner?',cat:'marriage'},
+{q:'What is a way you want us to protect our marriage from outside pressures and opinions?',cat:'marriage'},
+{q:'How do you want us to handle the season when the excitement of newness fades into routine?',cat:'marriage'},
+{q:'What does it mean to you for marriage to require daily choosing, not just one big decision?',cat:'marriage'},
+{q:'How do you experience the idea of two becoming a family unit with its own culture?',cat:'marriage'},
+{q:'What is something about marriage you are most looking forward to?',cat:'marriage'},
+{q:'How do you want us to define what success in marriage looks like — not the wedding, the marriage itself?',cat:'marriage'},
+{q:'What does it mean to you that marriage is meant to refine both people, not just satisfy them?',cat:'marriage'},
+{q:'How do you experience trust as the foundation of marriage — what builds it, what breaks it?',cat:'marriage'},
+{q:'What is your view on prenuptial conversations about money, property, and expectations?',cat:'marriage'},
+{q:'How do you want intimacy — emotional, spiritual, physical — to deepen across decades?',cat:'marriage'},
+{q:'What does it mean to you for our marriage to be a witness to others, not just private to us?',cat:'marriage'},
+
+// FINANCES (291-320)
+{q:'What is your honest relationship with money — anxious, confident, avoidant, something else?',cat:'finance'},
+{q:'How do you want finances structured in marriage — joint, separate, a hybrid?',cat:'finance'},
+{q:'What is a money habit from your upbringing that you want to keep or break?',cat:'finance'},
+{q:'How do you want major financial decisions to be made — together always, or with some independence?',cat:'finance'},
+{q:'What does financial security mean to you, specifically, not generally?',cat:'finance'},
+{q:'How do you experience financial disagreements — do they trigger something deeper for you?',cat:'finance'},
+{q:'What is a financial goal you want us to work toward together?',cat:'finance'},
+{q:'How do you want us to handle one partner earning significantly more than the other?',cat:'finance'},
+{q:'What does generosity look like to you financially — giving to family, church, others?',cat:'finance'},
+{q:'How do you experience debt — your own past or potential, and how should we approach it together?',cat:'finance'},
+{q:'What is a spending habit of mine that concerns you, even slightly?',cat:'finance'},
+{q:'How do you want us to budget for big life events — weddings, children, relocations?',cat:'finance'},
+{q:'What does financial transparency mean to you practically — full access, regular check-ins, something else?',cat:'finance'},
+{q:'How do you experience risk with money — are you naturally conservative or willing to bet on growth?',cat:'finance'},
+{q:'What is your view on supporting extended family financially, and to what extent?',cat:'finance'},
+{q:'How do you want us to save for retirement or long-term financial independence?',cat:'finance'},
+{q:'What does it mean to you for money to be a tool rather than a source of identity or security?',cat:'finance'},
+{q:'How do you experience financial stress — what does it look like for you internally?',cat:'finance'},
+{q:'What is a financial mistake you have made that taught you something important?',cat:'finance'},
+{q:'How do you want us to handle financial setbacks — job loss, business failure, unexpected costs?',cat:'finance'},
+{q:'What does tithing or giving look like for you financially, and how do we align on it?',cat:'finance'},
+{q:'How do you experience the idea of one person managing the household budget versus both?',cat:'finance'},
+{q:'What is a big purchase you want us to discuss together before deciding?',cat:'finance'},
+{q:'How do you want investments and business ventures to be approached — jointly, or with autonomy?',cat:'finance'},
+{q:'What does financial freedom look like in your imagination of our future?',cat:'finance'},
+{q:'How do you experience comparing our finances to others — does it create pressure for you?',cat:'finance'},
+{q:'What is one financial fear you carry about the future?',cat:'finance'},
+{q:'How do you want children\'s financial education to be handled, if we have them?',cat:'finance'},
+{q:'What does it mean to you for both partners to contribute, even if not equally in amount?',cat:'finance'},
+{q:'How do you experience financial planning — exciting, stressful, something you avoid?',cat:'finance'},
+
+// WORK & PURPOSE (321-345)
+{q:'What does meaningful work look like to you, beyond just income?',cat:'work'},
+{q:'How do you want us to support each other\'s career ambitions, practically?',cat:'work'},
+{q:'What is a sacrifice you would be willing to make for my career, and what would be too much?',cat:'work'},
+{q:'How do you experience ambition — yours and mine — does it ever feel competitive?',cat:'work'},
+{q:'What does work-life balance actually mean to you, specifically?',cat:'work'},
+{q:'How do you want us to handle a season where work demands threaten our relationship time?',cat:'work'},
+{q:'What is your honest view on relocating for either of our careers?',cat:'work'},
+{q:'How do you experience pride in my work — does it matter to you, and how do you show it?',cat:'work'},
+{q:'What does purpose mean to you beyond your job title?',cat:'work'},
+{q:'How do you want us to celebrate each other\'s professional wins?',cat:'work'},
+{q:'What is a career fear you carry that you have not fully voiced?',cat:'work'},
+{q:'How do you experience burnout — what does it look like for you, and what helps?',cat:'work'},
+{q:'What does it mean to you for one partner to build a business while the other has stable employment?',cat:'work'},
+{q:'How do you want us to handle decisions about whether one of us stays home, if we have children?',cat:'work'},
+{q:'What is your vision for your own career or calling over the next decade?',cat:'work'},
+{q:'How do you experience your identity being tied to your work, if at all?',cat:'work'},
+{q:'What does support look like for you when work is genuinely hard?',cat:'work'},
+{q:'How do you want us to navigate disagreement about how much risk a career or business decision should carry?',cat:'work'},
+{q:'What is a professional dream you have that you have not pursued yet?',cat:'work'},
+{q:'How do you experience the tension between providing and being present?',cat:'work'},
+
+// HOME & LIFESTYLE (346-370)
+{q:'What does home feel like to you — not look like, feel like?',cat:'home'},
+{q:'How do you want our living space to reflect both of us, not just one person\'s taste?',cat:'home'},
+{q:'What is a household responsibility you genuinely enjoy, and one you dread?',cat:'home'},
+{q:'How do you want chores and home management divided between us?',cat:'home'},
+{q:'What does hospitality mean to you — how often do you want to host people in our home?',cat:'home'},
+{q:'How do you experience clutter or disorganisation — does it affect your mood?',cat:'home'},
+{q:'What is a lifestyle habit of mine you appreciate, and one you find challenging?',cat:'home'},
+{q:'How do you want weekends structured — full of activity, restful, a mix?',cat:'home'},
+{q:'What does it mean to you for our home to feel like a sanctuary from the outside world?',cat:'home'},
+{q:'How do you experience routines — do they comfort you or feel constraining?',cat:'home'},
+{q:'What is a daily ritual you want us to build into our life together?',cat:'home'},
+{q:'How do you want pets, if any, to be part of our household?',cat:'home'},
+{q:'What does it mean to you for our home to have personality and not just function?',cat:'home'},
+{q:'How do you experience moving or relocating — exciting or stressful, and why?',cat:'home'},
+{q:'What is a lifestyle change you want to make that we have not discussed?',cat:'home'},
+{q:'How do you want travel to be part of our shared life?',cat:'home'},
+{q:'What does it mean to you to have a home that is genuinely restful, not another source of obligation?',cat:'home'},
+{q:'How do you experience seasons of change in living situations — adaptable or unsettled?',cat:'home'},
+{q:'What is a household standard that matters more to you than it might seem to others?',cat:'home'},
+{q:'How do you want our home to be a place children, if we have them, remember fondly?',cat:'home'},
+
+// CHILDREN & PARENTING (371-400)
+{q:'Do you want children, and if so, how many, and on what kind of timeline?',cat:'children'},
+{q:'What kind of parent do you want to be — what values do you want to model above all?',cat:'children'},
+{q:'How do you want discipline to work — what approach feels right to you?',cat:'children'},
+{q:'What is a parenting pattern from your own upbringing you want to repeat or avoid?',cat:'children'},
+{q:'How do you want us to divide parenting responsibilities, practically?',cat:'children'},
+{q:'What does it mean to you for both parents to be equally present, even with different roles?',cat:'children'},
+{q:'How do you experience the idea of sacrifice that comes with raising children?',cat:'children'},
+{q:'What is your view on how much screen time or technology children should have, generally?',cat:'children'},
+{q:'How do you want children to be raised in faith, practically — what does that look like weekly?',cat:'children'},
+{q:'What does it mean to you for children to see a healthy marriage modelled, not just be told about it?',cat:'children'},
+{q:'How do you experience fears about parenting — what worries you most?',cat:'children'},
+{q:'What is your view on schooling — public, private, homeschool, and why?',cat:'children'},
+{q:'How do you want us to handle disagreements about parenting in front of the children versus privately?',cat:'children'},
+{q:'What does it mean to you to raise children who are both disciplined and emotionally secure?',cat:'children'},
+{q:'How do you experience the balance between career and parenting — what tradeoffs feel acceptable?',cat:'children'},
+{q:'What is something you want to teach your children that you were not taught yourself?',cat:'children'},
+{q:'How do you want extended family involved in raising our children?',cat:'children'},
+{q:'What does it mean to you for children to be a joy and not just a responsibility?',cat:'children'},
+{q:'How do you experience the idea of not having children, or facing fertility struggles, if that were our story?',cat:'children'},
+{q:'What is a value you hope your children inherit from watching how we love each other?',cat:'children'},
+{q:'How do you want financial planning for children\'s education and future to work?',cat:'children'},
+{q:'What does it mean to you to give children both structure and freedom?',cat:'children'},
+{q:'How do you experience the idea of adoption or fostering, if biological children are not possible or are added to?',cat:'children'},
+{q:'What is one thing you hope never to say to your children that was said to you?',cat:'children'},
+{q:'How do you want us to handle the transition from couple to parents without losing our relationship?',cat:'children'},
+
+// THE WORLD & VIEWS (401-430)
+{q:'What is a current issue in the world that you feel strongly about?',cat:'world'},
+{q:'How do you want us to engage with political differences, if we have them?',cat:'world'},
+{q:'What is something about the state of the world that worries you for our potential children?',cat:'world'},
+{q:'How do you experience news consumption — does it affect your mood or outlook?',cat:'world'},
+{q:'What is a cause or issue you wish you were more actively involved in?',cat:'world'},
+{q:'How do you want us to model good citizenship or civic engagement?',cat:'world'},
+{q:'What is a belief about how the world works that has changed for you over the years?',cat:'world'},
+{q:'How do you experience cultural differences — within Nigeria, or globally — and what fascinates you?',cat:'world'},
+{q:'What is something about technology and its growth that excites or concerns you?',cat:'world'},
+{q:'How do you want us to think about our footprint — environmental, social, economic?',cat:'world'},
+{q:'What is a historical event or period that you find yourself drawn to understanding?',cat:'world'},
+{q:'How do you experience disagreement with people who see the world very differently than you?',cat:'world'},
+{q:'What does it mean to you to raise children who think critically about the world rather than just absorb it?',cat:'world'},
+{q:'How do you want us to engage with social media\'s influence on how we see ourselves and others?',cat:'world'},
+{q:'What is something about Nigerian society specifically that you hope changes in your lifetime?',cat:'world'},
+
+// GIVING & GENEROSITY (431-450)
+{q:'What does generosity look like to you when no one is watching?',cat:'giving'},
+{q:'How do you experience receiving help — easy or difficult, and why?',cat:'giving'},
+{q:'What is a cause you want us to give to consistently, not just occasionally?',cat:'giving'},
+{q:'How do you want us to model generosity for our children, beyond just giving money?',cat:'giving'},
+{q:'What is a time someone\'s generosity changed your circumstances or outlook?',cat:'giving'},
+{q:'How do you experience the tension between giving generously and protecting our own resources?',cat:'giving'},
+{q:'What does it mean to you to give your time, not just money, to people who need it?',cat:'giving'},
+{q:'How do you want us to handle requests for help that strain us financially or emotionally?',cat:'giving'},
+{q:'What is a form of generosity that comes naturally to you, and one that does not?',cat:'giving'},
+{q:'How do you experience the idea that generosity should be sacrificial, not just convenient?',cat:'giving'},
+{q:'What does it mean to you for our home to be known as a generous one?',cat:'giving'},
+{q:'How do you want mentorship or pouring into younger people to be part of our life together?',cat:'giving'},
+{q:'What is one way you want to give back to your own community of origin?',cat:'giving'},
+{q:'How do you experience gratitude — does it come naturally, or is it something you practice?',cat:'giving'},
+{q:'What does legacy giving look like to you — what do you want to leave behind for others?',cat:'giving'},
+
+// FUN & PLAY (451-500)
+{q:'What is something fun we have not done together that you want to try?',cat:'fun'},
+{q:'When do you feel most playful, and what brings that out in you?',cat:'fun'},
+{q:'What is a game, hobby, or activity you wish I would join you in more?',cat:'fun'},
+{q:'What is the funniest memory we have made together so far?',cat:'fun'},
+{q:'How do you want us to make space for spontaneity, even with busy schedules?',cat:'fun'},
+{q:'What is a trip or experience that is on your dream list?',cat:'fun'},
+{q:'How do you experience laughter together — what consistently makes you laugh with me?',cat:'fun'},
+{q:'What is a tradition, just for fun, that you want us to start?',cat:'fun'},
+{q:'How do you want date nights to evolve — what makes a date feel special versus routine?',cat:'fun'},
+{q:'What is something silly about yourself you do not often show people?',cat:'fun'},
+{q:'How do you experience play as an adult — does it come easily or does it feel unfamiliar?',cat:'fun'},
+{q:'What is a skill or hobby you want to learn together?',cat:'fun'},
+{q:'How do you want celebrations — small wins, not just big ones — to be marked between us?',cat:'fun'},
+{q:'What is a place you have never been that you dream of visiting with me?',cat:'fun'},
+{q:'How do you experience competitiveness — do you enjoy games and contests between us?',cat:'fun'},
+{q:'What is a song that always puts you in a good mood?',cat:'fun'},
+{q:'How do you want surprise and adventure to remain part of our long-term relationship?',cat:'fun'},
+{q:'What is something you loved doing as a child that you have stopped doing as an adult?',cat:'fun'},
+{q:'How do you experience humour in our relationship — what kind of jokes land best with you?',cat:'fun'},
+{q:'What is one new thing — food, activity, place — you want us to try this month?',cat:'fun'},
+// ADDITIONAL — KNOWING SELF
+{q:'What does it mean to you to be truly known by someone, beyond surface understanding?',cat:'self'},
+{q:'What is something about your past that you have not fully processed?',cat:'self'},
+{q:'How do you experience disappointment in yourself — what helps you move through it?',cat:'self'},
+{q:'What is a strength of yours that you underestimate?',cat:'self'},
+{q:'How do you define personal growth — what does it look like for you specifically?',cat:'self'},
+// ADDITIONAL — FAITH
+{q:'How do you want us to handle a season where you feel spiritually dry?',cat:'faith'},
+{q:'What does it mean to you for faith to be tested, not just professed?',cat:'faith'},
+{q:'How do you experience the idea of calling — do you feel you have one, and what is it?',cat:'faith'},
+{q:'What is a worship song or hymn that has carried real meaning for you?',cat:'faith'},
+{q:'How do you want fasting or spiritual discipline to be part of our shared rhythm?',cat:'faith'},
+// ADDITIONAL — LOVE
+{q:'What is something about the way I love you that you want to make sure never changes?',cat:'love'},
+{q:'How do you experience the difference between infatuation and lasting love?',cat:'love'},
+{q:'What does it mean to you for love to be a daily decision rather than only a feeling?',cat:'love'},
+{q:'How do you want us to mark the ordinary days, not just the special ones?',cat:'love'},
+{q:'What is something you have learned about loving well from watching other couples?',cat:'love'},
+// ADDITIONAL — SEX & INTIMACY
+{q:'How do you experience emotional intimacy as a precursor to physical closeness?',cat:'commsex'},
+{q:'What is something about physical affection — non-sexual — that matters deeply to you?',cat:'commsex'},
+{q:'How do you want us to keep romance and physical connection alive through busy seasons?',cat:'commsex'},
+// ADDITIONAL — COMMUNICATION
+{q:'What does it mean to you when I check in just to ask how your day truly was?',cat:'comm'},
+{q:'How do you experience being asked "what do you need right now" during a hard moment?',cat:'comm'},
+{q:'What is a communication habit you want us to build that we do not currently have?',cat:'comm'},
+{q:'How do you want disagreements about communication style itself to be resolved?',cat:'comm'},
+// ADDITIONAL — CONFLICT & BOUNDARIES
+{q:'How do you want us to handle conflict that happens in front of others?',cat:'conflict'},
+{q:'What does it mean to you for boundaries to be revisited as the relationship grows, not fixed forever?',cat:'conflict'},
+{q:'How do you experience the moment right after a conflict ends — what do you need then?',cat:'conflict'},
+// ADDITIONAL — FAMILY
+{q:'What is a way your family expresses love that is different from how mine does?',cat:'family'},
+{q:'How do you want us to navigate a family member who consistently overstays boundaries?',cat:'family'},
+{q:'What does it mean to you to build new traditions distinct from both families of origin?',cat:'family'},
+// ADDITIONAL — FRIENDS
+{q:'What is a way friendship has taught you something about how to love a spouse well?',cat:'friends'},
+{q:'How do you want us to be intentional about not losing our individual friendships after marriage?',cat:'friends'},
+// ADDITIONAL — MARRIAGE
+{q:'What does it mean to you for marriage to require humility above almost any other virtue?',cat:'marriage'},
+{q:'How do you experience the idea that marriage is meant to make you more like Christ, not just happy?',cat:'marriage'},
+{q:'What is a marriage milestone you are especially looking forward to?',cat:'marriage'},
+{q:'How do you want us to keep our marriage a priority above career, even in ambitious seasons?',cat:'marriage'},
+{q:'What does it mean to you for both people to feel like they are growing, not shrinking, inside the marriage?',cat:'marriage'},
+// ADDITIONAL — FINANCES
+{q:'How do you experience financial sacrifice for a shared long-term goal?',cat:'finance'},
+{q:'What is your honest view on lifestyle inflation as income grows?',cat:'finance'},
+{q:'How do you want us to handle differing risk appetites in business or investment decisions?',cat:'finance'},
+// ADDITIONAL — WORK
+{q:'What does it mean to you for work to serve the family rather than the reverse?',cat:'work'},
+{q:'How do you experience pride versus humility in talking about professional achievements?',cat:'work'},
+// ADDITIONAL — HOME
+{q:'What is a small daily comfort in our home that matters more to you than it might seem?',cat:'home'},
+{q:'How do you want our home to reflect our faith without it feeling performative?',cat:'home'},
+// ADDITIONAL — CHILDREN
+{q:'What does it mean to you for children to feel safe expressing big emotions in our home?',cat:'children'},
+{q:'How do you want us to talk to children about money, work, and values as they grow?',cat:'children'},
+{q:'What is a hope you have for the relationship our children will have with each other, if more than one?',cat:'children'},
+// ADDITIONAL — WORLD
+{q:'How do you want us to engage with injustice we witness, even when it does not directly affect us?',cat:'world'},
+{q:'What is a way you hope the world is different by the time our grandchildren are adults?',cat:'world'},
+// ADDITIONAL — GIVING
+{q:'What does it mean to you to give anonymously, expecting nothing in return?',cat:'giving'},
+{q:'How do you want generosity to be modelled for our children through action, not just instruction?',cat:'giving'},
+// ADDITIONAL — FUN
+{q:'What is a tradition from your childhood, just for joy, that you want to recreate?',cat:'fun'},
+{q:'How do you experience rest together — does it look like activity or stillness for you?',cat:'fun'},
+{q:'What is something we have never laughed about that probably should be funny to us?',cat:'fun'},
+{q:'How do you want curiosity and wonder to remain part of how we explore the world together?',cat:'fun'},
+];
+
+function renderAll(){renderStats();renderFilters();renderList()}
+
+function renderStats(){
+  const total=topics.length;
+  const disc=topics.filter(t=>t.discussed).length;
+  document.getElementById('statsRow').innerHTML=`
+    <div class="stat"><div class="stat-num">${total}</div><div class="stat-lbl">Topics</div></div>
+    <div class="stats-div"></div>
+    <div class="stat"><div class="stat-num">${total-disc}</div><div class="stat-lbl">Not yet</div></div>
+    <div class="stats-div"></div>
+    <div class="stat"><div class="stat-num">${disc}</div><div class="stat-lbl">Discussed</div></div>`;
+}
+
+function renderFilters(){
+  const row=document.getElementById('filterRow');
+  row.innerHTML='';
+  const all=document.createElement('div');
+  all.className='fpill'+(selectedCat==='all'?' active':'');
+  all.textContent='All';
+  all.onclick=()=>{selectedCat='all';renderFilters();renderList()};
+  row.appendChild(all);
+  categories.forEach(c=>{
+    if(!topics.find(t=>t.cat===c.id)) return;
+    const p=document.createElement('div');
+    p.className='fpill'+(selectedCat===c.id?' active':'');
+    p.textContent=c.label;
+    p.onclick=()=>{selectedCat=c.id;renderFilters();renderList()};
+    row.appendChild(p);
+  });
+}
+
+function getFiltered(){
+  const q=document.getElementById('searchInp').value.trim().toLowerCase();
+  let list=topics.filter(t=>{
+    if(selectedCat!=='all'&&t.cat!==selectedCat) return false;
+    if(q&&!t.q.toLowerCase().includes(q)) return false;
+    return true;
+  });
+  if(currentSort==='az') list=[...list].sort((a,b)=>a.q.localeCompare(b.q));
+  else if(currentSort==='undiscussed') list=[...list].sort((a,b)=>(a.discussed?1:0)-(b.discussed?1:0));
+  else if(currentSort==='discussed') list=[...list].sort((a,b)=>(b.discussed?1:0)-(a.discussed?1:0));
+  return list;
+}
+
+function renderList(){
+  const list=document.getElementById('topicsList');
+  const empty=document.getElementById('emptyState');
+  const filtered=getFiltered();
+  list.innerHTML='';
+  if(!filtered.length){empty.classList.remove('hidden');return}
+  empty.classList.add('hidden');
+  filtered.forEach(t=>{
+    const cat=categories.find(c=>c.id===t.cat);
+    const card=document.createElement('div');
+    card.className='topic-card'+(t.discussed?' discussed':'');
+    card.id='card-'+t.id;
+    card.innerHTML=`
+      <div class="topic-check" onclick="toggleDiscussed(event,'${t.id}')"></div>
+      <div class="topic-body" onclick="openEdit('${t.id}')">
+        <div class="topic-q">${esc(t.q)}</div>
+        <div class="topic-meta">
+          ${cat?`<div class="topic-cat"><div class="topic-cat-dot" style="background:${cat.color}"></div>${cat.label}</div>`:''}
+          ${t.discussed?`<div class="topic-discussed-tag">Discussed</div>`:''}
+        </div>
+        ${t.notes?`<div class="topic-notes-preview">${esc(t.notes)}</div>`:''}
+      </div>
+      <div class="topic-actions">
+        <button class="tact" onclick="event.stopPropagation();openEdit('${t.id}')">✎</button>
+        <button class="tact" onclick="event.stopPropagation();confirmDelete('${t.id}')">✕</button>
+      </div>`;
+    list.appendChild(card);
+  });
+  renderStats();
+}
+
+function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}
+
+function toggleDiscussed(e,id){
+  e.stopPropagation();
+  const t=topics.find(x=>x.id===id); if(!t) return;
+  t.discussed=!t.discussed;
+  renderList(); saveData();
+}
+
+function pickRandom(){
+  const pool=getFiltered().filter(t=>!t.discussed);
+  if(!pool.length){
+    const all=getFiltered();
+    if(!all.length){showToast('No topics found');return}
+    const pick=all[Math.floor(Math.random()*all.length)];
+    highlight(pick.id,'All topics covered here — pick again');
+    return;
+  }
+  const pick=pool[Math.floor(Math.random()*pool.length)];
+  highlight(pick.id,'Tonight\'s topic ♡');
+}
+
+function highlight(id,msg){
+  document.querySelectorAll('.topic-card').forEach(c=>c.classList.remove('highlighted'));
+  const card=document.getElementById('card-'+id);
+  if(card){
+    card.classList.add('highlighted');
+    card.scrollIntoView({behavior:'smooth',block:'center'});
+    setTimeout(()=>card.classList.remove('highlighted'),3500);
+  }
+  showToast(msg);
+}
+
+function openAddModal(){
+  editId=null;
+  document.getElementById('modalTitle').textContent='Add a topic';
+  document.getElementById('deleteBtn').style.display='none';
+  document.getElementById('m-text').value='';
+  document.getElementById('m-notes').value='';
+  mSelectedCat=null;
+  buildCatGrid();
+  document.getElementById('topicModal').classList.remove('hidden');
+}
+
+function openEdit(id){
+  const t=topics.find(x=>x.id===id); if(!t) return;
+  editId=id;
+  document.getElementById('modalTitle').textContent=t.q;
+  document.getElementById('deleteBtn').style.display='';
+  document.getElementById('m-text').value=t.q;
+  document.getElementById('m-notes').value=t.notes||'';
+  mSelectedCat=t.cat;
+  buildCatGrid();
+  document.getElementById('topicModal').classList.remove('hidden');
+}
+
+function buildCatGrid(){
+  const grid=document.getElementById('catGrid');
+  grid.innerHTML='';
+  categories.forEach(c=>{
+    const div=document.createElement('div');
+    div.className='fpill'+(mSelectedCat===c.id?' active':'');
+    div.textContent=c.label;
+    div.onclick=()=>{mSelectedCat=mSelectedCat===c.id?null:c.id;buildCatGrid()};
+    grid.appendChild(div);
+  });
+}
+
+function saveTopic(){
+  const q=document.getElementById('m-text').value.trim();
+  if(!q){showToast('Write the topic');return}
+  const data={
+    id:editId||uid(),
+    q,
+    cat:mSelectedCat,
+    notes:document.getElementById('m-notes').value.trim(),
+    discussed:editId?(topics.find(x=>x.id===editId)||{}).discussed||false:false,
+  };
+  if(editId) topics=topics.map(x=>x.id===editId?data:x);
+  else topics.unshift(data);
+  closeModal(); renderAll(); saveData(); showToast('Saved');
+}
+
+function deleteTopic(){
+  if(!confirm('Remove this topic?')) return;
+  topics=topics.filter(x=>x.id!==editId);
+  closeModal(); renderAll(); saveData(); showToast('Removed');
+}
+function confirmDelete(id){
+  if(!confirm('Remove this topic?')) return;
+  topics=topics.filter(x=>x.id!==id);
+  renderAll(); saveData();
+}
+function closeModal(){document.getElementById('topicModal').classList.add('hidden')}
+document.getElementById('topicModal').addEventListener('click',e=>{
+  if(e.target===document.getElementById('topicModal')) closeModal();
+});
+
+function saveData(){
+  localStorage.setItem('couplesPool',JSON.stringify({topics,categories}));
+  showToast('Saved');
+}
+function loadData(){
+  const raw=localStorage.getItem('couplesPool');
+  if(raw){try{const d=JSON.parse(raw);if(d.topics)topics=d.topics;if(d.categories&&d.categories.length)categories=d.categories;}catch(e){}}
+}
+function exportData(){
+  const blob=new Blob([JSON.stringify({topics,categories},null,2)],{type:'application/json'});
+  const a=document.createElement('a');a.href=URL.createObjectURL(blob);
+  a.download='night-calls.json';a.click();showToast('Exported');
+}
+function importData(){document.getElementById('importFile').click()}
+function handleImport(e){
+  const file=e.target.files[0];if(!file)return;
+  const r=new FileReader();
+  r.onload=ev=>{try{const d=JSON.parse(ev.target.result);if(d.topics)topics=d.topics;if(d.categories)categories=d.categories;renderAll();showToast('Imported');}catch(err){showToast('Import failed')}};
+  r.readAsText(file);e.target.value='';
+}
+function toggleTheme(){
+  isDark=!isDark;document.body.classList.toggle('light',!isDark);
+  localStorage.setItem('couplesPoolTheme',isDark?'dark':'light');
+}
+function showToast(msg){
+  const t=document.getElementById('toast');t.textContent=msg;
+  t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2200);
+}
+document.addEventListener('keydown',e=>{if(e.key==='Escape')closeModal()});
+
+const th=localStorage.getItem('couplesPoolTheme');
+if(th==='light'){isDark=false;document.body.classList.add('light')}
+loadData();
+if(!topics.length){
+  topics=PREFILL.map((p,i)=>({id:uid(),q:p.q,cat:p.cat,notes:'',discussed:false}));
+}
+renderAll();
+</script>
+</body>
+</html>

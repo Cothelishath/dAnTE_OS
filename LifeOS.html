@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>dAnTE Life OS | Command Center</title>
+    <style>
+        :root {
+            --bg: #0a0c0c;
+            --card-bg: #121616;
+            --border: #1f2626;
+            --text: #e2e8e6;
+            --dim: #6a8080;
+            --acc: #6aaa90;
+            --gold: #c9a84c;
+            --rose: #c47888;
+            --blue: #6a9ab8;
+            --font: 'Inter', system-ui, -apple-system, sans-serif;
+        }
+        body {
+            background: var(--bg);
+            color: var(--text);
+            font-family: var(--font);
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+        h1 {
+            font-weight: 300;
+            letter-spacing: 2px;
+            color: var(--acc);
+            margin-bottom: 5px;
+        }
+        .subtitle {
+            font-size: 0.8rem;
+            color: var(--dim);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            width: 100%;
+            max-width: 1200px;
+        }
+        .quadrant {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 20px;
+            transition: transform 0.2s ease;
+        }
+        .quadrant:hover {
+            transform: translateY(-5px);
+        }
+        .quadrant h2 {
+            font-size: 1rem;
+            margin-top: 0;
+            padding-bottom: 10px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .q-exec { border-top: 4px solid var(--acc); }
+        .q-lab { border-top: 4px solid var(--gold); }
+        .q-growth { border-top: 4px solid var(--blue); }
+        .q-soul { border-top: 4px solid var(--rose); }
+        .q-ventures { border-top: 4px solid var(--text); }
+
+        .tool-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        .tool-item {
+            display: flex;
+            align-items: center;
+            padding: 8px 0;
+            text-decoration: none;
+            color: var(--text);
+            font-size: 0.9rem;
+            transition: color 0.2s;
+            border-bottom: 1px solid rgba(255,255,255,0.03);
+        }
+        .tool-item:hover {
+            color: var(--acc);
+        }
+        .tool-item span {
+            margin-right: 10px;
+            font-size: 1.1rem;
+        }
+        .footer {
+            margin-top: 50px;
+            font-size: 0.7rem;
+            color: var(--dim);
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>dAnTE LIFE OS</h1>
+        <div class="subtitle">Son &middot; Steward &middot; Builder &middot; Connoisseur</div>
+    </header>
+
+    <div class="grid">
+        <!-- EXECUTION -->
+        <div class="quadrant q-exec">
+            <h2><span>⚡ Execution</span></h2>
+            <div class="tool-list">
+                <a class="tool-item" href="quickening-fixed-3.html"><span>📈</span> The Quickening</a>
+                <a class="tool-item" href="the-day-merged.html"><span>📄</span> The Day</a>
+                <a class="tool-item" href="finance-tracker-1.html"><span>💸</span> Finance Tracker</a>
+                <a class="tool-item" href="habit-tracker-1.html"><span>✅</span> Habit Tracker</a>
+                <a class="tool-item" href="july-2026-plan.html"><span>📅</span> July Plan</a>
+            </div>
+        </div>
+
+        <!-- THE LAB -->
+        <div class="quadrant q-lab">
+            <h2><span>🧪 The Lab</span></h2>
+            <div class="tool-list">
+                <a class="tool-item" href="trading-lab-2.html"><span>🔬</span> Trading Lab</a>
+                <a class="tool-item" href="trading-journal.html"><span>📖</span> Trading Journal</a>
+                <a class="tool-item" href="trading-strategy.html"><span>⚙️</span> Strategy</a>
+                <a class="tool-item" href="v75-reversal-setup.html"><span>📉</span> V75 Reversals</a>
+                <a class="tool-item" href="trading-curriculum.html"><span>📚</span> Curriculum</a>
+            </div>
+        </div>
+
+        <!-- GROWTH -->
+        <div class="quadrant q-growth">
+            <h2><span>📘 Growth</span></h2>
+            <div class="tool-list">
+                <a class="tool-item" href="software-curriculum.html"><span>🏗️</span> Civil Softwares</a>
+                <a class="tool-item" href="business-entrepreneurship-curriculum.html"><span>💼</span> Business</a>
+                <a class="tool-item" href="personal-development-curriculum.html"><span>🌟</span> Self-Dev</a>
+                <a class="tool-item" href="financial-literacy-curriculum.html"><span>💰</span> Fin-Lit</a>
+            </div>
+        </div>
+
+        <!-- FOUNDATION -->
+        <div class="quadrant q-soul">
+            <h2><span>🌸 Foundation</span></h2>
+            <div class="tool-list">
+                <a class="tool-item" href="identity-papers.html"><span>📘</span> Identity</a>
+                <a class="tool-item" href="clarity-document.html"><span>🔍</span> Clarity</a>
+                <a class="tool-item" href="life-plan.html"><span>🌍</span> Life Plan</a>
+                <a class="tool-item" href="declaration-ceremony.html"><span>✝️</span> Declaration</a>
+            </div>
+        </div>
+
+        <!-- VENTURES -->
+        <div class="quadrant q-ventures">
+            <h2><span>🏗️ Ventures</span></h2>
+            <div class="tool-list">
+                <a class="tool-item" href="DanteCraft_Dashboard.html"><span>🏢</span> Dante Craft Hub</a>
+                <a class="tool-item" href="founding-dante-craft.html"><span>📜</span> Founding Doc</a>
+                <a class="tool-item" href="founding-dante-inc.html"><span>🌐</span> dAnTE Inc.</a>
+            </div>
+        </div>
+    </div>
+
+    <div class="footer">
+        dAnTE Inc. &middot; Personal OS &middot; 2026
+    </div>
+
+</body>
+</html>

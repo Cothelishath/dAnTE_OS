@@ -1,0 +1,691 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@300;400&display=swap" rel="stylesheet">
+<title>For T — dAnTE</title>
+<style>
+:root{
+  --bg:#0e0a0a;--bg2:#150f0f;--bg3:#1c1414;--bg4:#231b1b;
+  --border:#231b1b;--border2:#2e2222;--border3:#3d2e2e;
+  --rose:#c9758a;--rose-dim:#8a4a5a;--rose-glow:rgba(201,117,138,0.09);
+  --rose-pale:#e8c4cc;--rose-deep:#6a3040;
+  --gold:#c9a87c;--gold-dim:#8a6840;--gold-glow:rgba(201,168,124,0.08);
+  --text:#ede0d8;--text-dim:#8a7570;--text-muted:#4a3838;
+  --red:#c0392b;--radius:6px;
+}
+.light{
+  --bg:#faf4f0;--bg2:#f2e8e2;--bg3:#e8dcd4;--bg4:#ddd0c6;
+  --border:#e0d0c8;--border2:#cfc0b4;--border3:#bfafa0;
+  --rose:#8a3a50;--rose-dim:#b86478;--rose-glow:rgba(138,58,80,0.07);
+  --rose-pale:#5a2030;--rose-deep:#c8a0a8;
+  --gold:#7a5028;--gold-dim:#a87848;--gold-glow:rgba(122,80,40,0.07);
+  --text:#1e1410;--text-dim:#6a5850;--text-muted:#a89888;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;-webkit-tap-highlight-color:transparent}
+body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;font-size:13px;line-height:1.5;display:flex;flex-direction:column;min-height:100vh}
+::-webkit-scrollbar{width:3px}::-webkit-scrollbar-thumb{background:var(--border3);border-radius:2px}
+
+/* HEADER */
+header{flex-shrink:0;background:var(--bg);border-bottom:1px solid var(--border);padding:12px 16px;display:flex;align-items:center;gap:10px;position:sticky;top:0;z-index:50}
+.logo{display:flex;flex-direction:column;gap:0;margin-right:auto}
+.logo-sub{font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:.22em;color:var(--rose);text-transform:uppercase}
+.logo-title{font-family:'Cormorant Garamond',serif;font-size:20px;font-weight:300;color:var(--text);letter-spacing:.06em;line-height:1.1}
+.logo-title em{color:var(--rose);font-style:italic}
+.hbtn{background:none;border:1px solid var(--border2);border-radius:var(--radius);color:var(--text-dim);font-family:'Inter',sans-serif;font-size:11px;padding:6px 11px;cursor:pointer;transition:all .18s;white-space:nowrap}
+.hbtn:hover{border-color:var(--rose);color:var(--rose)}
+.hbtn-rose{border-color:var(--rose);color:var(--rose)}
+.hbtn-rose:hover{background:var(--rose-glow)}
+
+/* TABS */
+.tab-bar{flex-shrink:0;display:flex;background:var(--bg2);border-bottom:1px solid var(--border);padding:0 16px;gap:0;overflow-x:auto}
+.tab{padding:10px 13px;font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--text-muted);cursor:pointer;border-bottom:2px solid transparent;transition:all .18s;white-space:nowrap;flex-shrink:0}
+.tab:hover{color:var(--text-dim)}
+.tab.active{color:var(--rose);border-bottom-color:var(--rose)}
+
+main{flex:1;padding:16px;max-width:680px;width:100%;margin:0 auto;padding-bottom:60px}
+.page{display:none}
+.page.active{display:block}
+
+/* SECTION LABEL */
+.section-label{font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--text-muted);letter-spacing:.14em;text-transform:uppercase;margin-bottom:6px;display:block}
+.section-note{font-size:11px;color:var(--text-muted);font-style:italic;margin-bottom:12px;line-height:1.6;border-left:2px solid var(--border2);padding-left:10px}
+.section-divider{height:1px;background:var(--border);margin:18px 0}
+
+/* CARDS */
+.card{background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:14px 15px;margin-bottom:10px;position:relative;transition:border-color .18s}
+.card:hover{border-color:var(--border2)}
+.card.done{opacity:.5}
+.card-top{display:flex;align-items:flex-start;gap:10px}
+.card-check{width:18px;height:18px;border:1px solid var(--border3);border-radius:4px;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:10px;color:transparent;cursor:pointer;transition:all .15s;margin-top:1px}
+.card.done .card-check{background:var(--rose-dim);border-color:var(--rose-dim);color:var(--rose-pale)}
+.card.done .card-check::after{content:'✓'}
+.card-body{flex:1;min-width:0}
+.card-title{font-size:13px;color:var(--text);font-weight:500;line-height:1.4;outline:none}
+.card-title:focus{background:var(--bg3);border-radius:3px;padding:1px 4px;margin:-1px -4px}
+.card.done .card-title{text-decoration:line-through;color:var(--text-dim)}
+.card-meta{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-top:4px}
+.card-tag{font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--rose-dim);border:1px solid var(--rose-dim);border-radius:3px;padding:1px 6px;white-space:nowrap}
+.card-date{font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--text-muted)}
+.card-note{font-size:11px;color:var(--text-dim);font-style:italic;margin-top:5px;line-height:1.6;outline:none}
+.card-note:focus{background:var(--bg3);border-radius:3px;padding:2px 4px;margin-top:3px}
+.card-note:empty::before{content:attr(data-placeholder);color:var(--text-muted);pointer-events:none}
+.card-link{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--rose);text-decoration:none;margin-top:4px;display:block;word-break:break-all}
+.card-link:hover{text-decoration:underline}
+.card-actions{display:flex;gap:4px;opacity:0;transition:opacity .15s;flex-shrink:0;margin-top:1px}
+.card:hover .card-actions{opacity:1}
+.cact{background:none;border:none;color:var(--text-muted);cursor:pointer;font-size:12px;padding:3px 5px;border-radius:3px;transition:all .15s}
+.cact:hover{color:var(--rose);background:var(--rose-glow)}
+.cact.del:hover{color:var(--red);background:rgba(192,57,43,.08)}
+
+/* IMAGE CARD */
+.img-card{background:var(--bg2);border:1px solid var(--border);border-radius:10px;overflow:hidden;margin-bottom:10px;transition:border-color .18s}
+.img-card:hover{border-color:var(--border2)}
+.img-thumb{width:100%;max-height:260px;object-fit:cover;display:block;background:var(--bg3)}
+.img-card-body{padding:10px 14px 12px}
+.img-card-title{font-size:13px;color:var(--text);font-weight:500;outline:none;margin-bottom:4px}
+.img-card-title:focus{background:var(--bg3);border-radius:3px;padding:1px 4px;margin:-1px -4px}
+.img-card-actions{display:flex;gap:8px;align-items:center;margin-top:6px;flex-wrap:wrap}
+.img-link-inp{flex:1;min-width:120px;background:var(--bg3);border:1px solid var(--border2);border-radius:var(--radius);color:var(--text-dim);font-family:'JetBrains Mono',monospace;font-size:10px;padding:5px 9px;outline:none}
+.img-link-inp:focus{border-color:var(--rose-dim)}
+.img-link-inp::placeholder{color:var(--text-muted)}
+
+/* DATE CARD */
+.date-card{background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:13px 15px;margin-bottom:8px;display:flex;align-items:center;gap:12px;transition:border-color .18s}
+.date-card:hover{border-color:var(--border2)}
+.date-pip{width:36px;height:36px;border-radius:8px;background:var(--rose-glow);border:1px solid var(--rose-deep);display:flex;flex-direction:column;align-items:center;justify-content:center;flex-shrink:0}
+.date-pip-day{font-family:'Cormorant Garamond',serif;font-size:16px;color:var(--rose);line-height:1;font-weight:300}
+.date-pip-mon{font-family:'JetBrains Mono',monospace;font-size:8px;color:var(--rose-dim);text-transform:uppercase;letter-spacing:.06em}
+.date-body{flex:1;min-width:0}
+.date-title{font-size:13px;color:var(--text);font-weight:500;outline:none}
+.date-title:focus{background:var(--bg3);border-radius:3px;padding:1px 4px;margin:-1px -4px}
+.date-note{font-size:11px;color:var(--text-dim);font-style:italic;margin-top:2px;outline:none}
+.date-note:focus{background:var(--bg3);border-radius:3px;padding:1px 4px;margin-top:1px}
+.date-note:empty::before{content:'Add a note...';color:var(--text-muted);pointer-events:none}
+.date-recurring{font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--rose-dim);margin-top:2px}
+.date-actions{display:flex;gap:4px;opacity:0;transition:opacity .15s}
+.date-card:hover .date-actions{opacity:1}
+.days-until{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--gold-dim);white-space:nowrap;text-align:right}
+
+/* NOTES PAGE */
+.note-block{background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:14px 15px;margin-bottom:10px}
+.note-block-title{font-family:'Cormorant Garamond',serif;font-size:15px;color:var(--text);letter-spacing:.03em;outline:none;margin-bottom:6px;font-weight:300}
+.note-block-title:focus{background:var(--bg3);border-radius:3px;padding:1px 4px;margin:-1px -4px}
+.note-block-body{font-size:12px;color:var(--text-dim);line-height:1.8;outline:none;min-height:40px}
+.note-block-body:focus{color:var(--text)}
+.note-block-body:empty::before{content:attr(data-placeholder);color:var(--text-muted);pointer-events:none}
+.note-block-meta{font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--text-muted);margin-top:8px}
+.note-block-actions{display:flex;gap:4px;opacity:0;transition:opacity .15s;justify-content:flex-end;margin-top:4px}
+.note-block:hover .note-block-actions{opacity:1}
+
+/* ADD ROWS */
+.add-row{display:flex;gap:6px;margin-top:8px;flex-wrap:wrap}
+.add-inp{flex:1;min-width:120px;background:var(--bg3);border:1px solid var(--border2);border-radius:var(--radius);color:var(--text);font-family:'Inter',sans-serif;font-size:12px;padding:8px 11px;outline:none;transition:border-color .18s}
+.add-inp:focus{border-color:var(--rose-dim)}
+.add-inp::placeholder{color:var(--text-muted)}
+.add-tag{width:80px;background:var(--bg3);border:1px solid var(--border2);border-radius:var(--radius);color:var(--text-dim);font-family:'JetBrains Mono',monospace;font-size:11px;padding:8px 7px;outline:none;text-align:center;flex-shrink:0;transition:border-color .18s}
+.add-tag:focus{border-color:var(--rose-dim)}
+.add-tag::placeholder{color:var(--text-muted);font-size:10px}
+.add-date-inp{width:110px;background:var(--bg3);border:1px solid var(--border2);border-radius:var(--radius);color:var(--text);font-family:'JetBrains Mono',monospace;font-size:11px;padding:8px 7px;outline:none;flex-shrink:0}
+.add-date-inp:focus{border-color:var(--rose-dim)}
+.add-btn{background:var(--rose-glow);border:1px solid var(--rose-dim);border-radius:var(--radius);color:var(--rose);font-size:16px;padding:0 13px;cursor:pointer;transition:all .15s;flex-shrink:0}
+.add-btn:hover{background:var(--rose);color:#fff}
+.add-check-row{display:flex;align-items:center;gap:6px;margin-top:6px}
+.add-check-lbl{font-size:11px;color:var(--text-muted);display:flex;align-items:center;gap:5px;cursor:pointer}
+
+.empty-note{font-size:11px;color:var(--text-muted);font-style:italic;padding:10px 2px;line-height:1.7}
+.action-row{display:flex;gap:12px;margin-top:10px}
+.action-btn{font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--text-muted);background:none;border:none;cursor:pointer;letter-spacing:.08em;text-transform:uppercase;padding:2px 0}
+.action-btn:hover{color:var(--rose)}
+.action-btn.red:hover{color:var(--red)}
+
+/* IMAGE GRID */
+.img-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:10px}
+
+/* MODAL */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.82);z-index:200;display:flex;align-items:flex-end;justify-content:center;padding:0;backdrop-filter:blur(8px)}
+.modal-overlay.hidden{display:none}
+.modal{background:var(--bg2);border:1px solid var(--border2);border-radius:16px 16px 0 0;padding:20px 18px 32px;width:100%;max-width:600px;max-height:90vh;overflow-y:auto;display:flex;flex-direction:column;gap:13px}
+.modal-handle{width:36px;height:3px;background:var(--border3);border-radius:2px;margin:0 auto -4px}
+.modal-title{font-family:'Cormorant Garamond',serif;font-size:20px;font-weight:300;color:var(--text)}
+.field-label{font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--text-muted);margin-bottom:5px;display:block}
+.m-inp{width:100%;background:var(--bg3);border:1px solid var(--border2);border-radius:var(--radius);color:var(--text);font-family:'Inter',sans-serif;font-size:12px;padding:9px 12px;outline:none;transition:border-color .18s}
+.m-inp:focus{border-color:var(--rose-dim)}
+.m-inp::placeholder{color:var(--text-muted)}
+textarea.m-inp{resize:vertical;min-height:70px;line-height:1.5}
+.modal-actions{display:flex;gap:8px;justify-content:flex-end}
+.btn{display:inline-flex;align-items:center;gap:5px;padding:8px 14px;border-radius:var(--radius);border:1px solid var(--border2);background:transparent;color:var(--text-dim);font-family:'Inter',sans-serif;font-size:12px;cursor:pointer;transition:all .18s}
+.btn:hover{border-color:var(--rose);color:var(--rose)}
+.btn-rose{background:var(--rose);border-color:var(--rose);color:#fff;font-weight:500}
+.btn-rose:hover{opacity:.9;color:#fff}
+.btn-del{border-color:var(--red);color:var(--red)}
+.btn-del:hover{background:rgba(192,57,43,.08)}
+
+/* TOAST */
+.toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%) translateY(6px);background:var(--bg3);border:1px solid var(--rose-dim);color:var(--rose);font-family:'JetBrains Mono',monospace;font-size:11px;padding:9px 18px;border-radius:20px;z-index:400;opacity:0;transition:all .25s;pointer-events:none;white-space:nowrap}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
+/* FAB */
+.fab{position:fixed;bottom:24px;right:20px;width:50px;height:50px;border-radius:50%;background:var(--rose);border:none;color:#fff;font-size:22px;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 20px rgba(201,117,138,.3);transition:all .18s;z-index:60}
+.fab:hover{transform:scale(1.06)}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">
+    <div class="logo-sub">Private · dAnTE</div>
+    <div class="logo-title">For <em>T</em></div>
+  </div>
+  <button class="hbtn" onclick="toggleTheme()">☀︎</button>
+  <button class="hbtn" onclick="exportData()">⬇</button>
+  <button class="hbtn" onclick="document.getElementById('importFile').click()">⬆</button>
+  <button class="hbtn hbtn-rose" onclick="saveData()">Save</button>
+</header>
+
+<div class="tab-bar">
+  <div class="tab active" onclick="switchTab('dates')">Dates</div>
+  <div class="tab" onclick="switchTab('likes')">She Likes</div>
+  <div class="tab" onclick="switchTab('buy')">To Get Her</div>
+  <div class="tab" onclick="switchTab('try')">Try Together</div>
+  <div class="tab" onclick="switchTab('learn')">Learn About</div>
+  <div class="tab" onclick="switchTab('work')">Work On</div>
+  <div class="tab" onclick="switchTab('notes')">Notes</div>
+</div>
+
+<main>
+
+  <!-- DATES & ANNIVERSARIES -->
+  <div class="page active" id="page-dates">
+    <div class="section-note" style="margin-bottom:14px">Anniversaries, special dates, planned dinners and events. The recurring ones show days until next occurrence.</div>
+    <div id="datesList"></div>
+    <div class="add-row" style="flex-wrap:wrap">
+      <input class="add-date-inp" id="dateVal" type="date">
+      <input class="add-inp" id="dateTitle" placeholder="What is this date?" onkeydown="if(event.key==='Enter')addDate()">
+      <button class="add-btn" onclick="addDate()">+</button>
+    </div>
+    <div class="add-check-row">
+      <label class="add-check-lbl"><input type="checkbox" id="dateRecurring"> Recurring yearly</label>
+      <label class="add-check-lbl" style="margin-left:10px"><input type="checkbox" id="datePlanned"> Planned event</label>
+    </div>
+    <div class="action-row">
+      <button class="action-btn red" onclick="clearDoneDates()">Clear done</button>
+    </div>
+  </div>
+
+  <!-- SHE LIKES -->
+  <div class="page" id="page-likes">
+    <div class="section-note" style="margin-bottom:14px">Her preferences, tastes, things that make her light up. Foods, places, music, experiences, things about herself she loves. A reference for knowing her.</div>
+    <div id="likesList"></div>
+    <div class="add-row">
+      <input class="add-tag" id="likesTag" placeholder="category">
+      <input class="add-inp" id="likesInput" placeholder="Something she likes..." onkeydown="if(event.key==='Enter')addLike()">
+      <button class="add-btn" onclick="addLike()">+</button>
+    </div>
+    <div class="action-row">
+      <button class="action-btn red" onclick="clearSection('likes')">Clear all</button>
+    </div>
+  </div>
+
+  <!-- TO GET HER -->
+  <div class="page" id="page-buy">
+    <div class="section-note" style="margin-bottom:14px">Things to buy, things seen, dresses and style. Add a vendor link where you found it. Tick it when done.</div>
+    <div id="buyList"></div>
+    <div class="add-row">
+      <input class="add-tag" id="buyTag" placeholder="type">
+      <input class="add-inp" id="buyInput" placeholder="Item or idea..." onkeydown="if(event.key==='Enter')addBuy()">
+      <button class="add-btn" onclick="addBuy()">+</button>
+    </div>
+    <div style="margin-top:6px;display:flex;gap:6px">
+      <input class="add-inp" id="buyLink" placeholder="Vendor / website link (optional)" style="font-size:11px">
+      <button class="add-btn" onclick="document.getElementById('buyImgFile').click()" title="Upload image" style="font-size:13px">📷</button>
+    </div>
+    <input type="file" id="buyImgFile" accept="image/*" style="display:none" onchange="handleBuyImage(event)">
+    <div class="action-row">
+      <button class="action-btn red" onclick="clearDoneBuy()">Clear bought</button>
+    </div>
+  </div>
+
+  <!-- TRY TOGETHER -->
+  <div class="page" id="page-try">
+    <div class="section-note" style="margin-bottom:14px">Experiences, activities, restaurants, trips, things you want to do with her. Ideas, not obligations.</div>
+    <div id="tryList"></div>
+    <div class="add-row">
+      <input class="add-tag" id="tryTag" placeholder="type">
+      <input class="add-inp" id="tryInput" placeholder="Something to try together..." onkeydown="if(event.key==='Enter')addTry()">
+      <button class="add-btn" onclick="addTry()">+</button>
+    </div>
+    <div class="action-row">
+      <button class="action-btn red" onclick="clearDoneTry()">Clear done</button>
+    </div>
+  </div>
+
+  <!-- LEARN ABOUT -->
+  <div class="page" id="page-learn">
+    <div class="section-note" style="margin-bottom:14px">Things you noticed and want to understand better. Questions about her. Things she said that deserve more attention. The practice of paying close attention.</div>
+    <div id="learnList"></div>
+    <div class="add-row">
+      <input class="add-inp" id="learnInput" placeholder="Something to learn or understand about her..." onkeydown="if(event.key==='Enter')addLearn()">
+      <button class="add-btn" onclick="addLearn()">+</button>
+    </div>
+    <div class="action-row">
+      <button class="action-btn red" onclick="clearDoneLearn()">Clear resolved</button>
+    </div>
+  </div>
+
+  <!-- WORK ON -->
+  <div class="page" id="page-work">
+    <div class="section-note" style="margin-bottom:14px">Things she has raised, things you have noticed, patterns to address. Not a ledger — a commitment to doing better.</div>
+    <div id="workList"></div>
+    <div class="add-row">
+      <input class="add-inp" id="workInput" placeholder="Something to work on..." onkeydown="if(event.key==='Enter')addWork()">
+      <button class="add-btn" onclick="addWork()">+</button>
+    </div>
+    <div class="action-row">
+      <button class="action-btn red" onclick="clearDoneWork()">Clear resolved</button>
+    </div>
+  </div>
+
+  <!-- NOTES -->
+  <div class="page" id="page-notes">
+    <div class="section-note" style="margin-bottom:14px">Anything that doesn't fit elsewhere. Captured in the moment. Things she said, things you thought about her during the day, things worth remembering.</div>
+    <div id="notesList"></div>
+    <button class="add-btn" onclick="addNote()" style="width:100%;padding:10px;font-size:13px;font-family:'Cormorant Garamond',serif;letter-spacing:.04em;margin-top:4px">+ New note</button>
+  </div>
+
+</main>
+
+<!-- ITEM MODAL (for editing) -->
+<div class="modal-overlay hidden" id="itemModal">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-title" id="itemModalTitle">Edit</div>
+    <div><label class="field-label">Title</label><input class="m-inp" id="im-title" placeholder=""></div>
+    <div><label class="field-label">Tag / Category</label><input class="m-inp" id="im-tag" placeholder=""></div>
+    <div><label class="field-label">Note</label><textarea class="m-inp" id="im-note" placeholder="Add a note..."></textarea></div>
+    <div><label class="field-label">Link / URL</label><input class="m-inp" id="im-link" placeholder="https://..."></div>
+    <div class="modal-actions">
+      <button class="btn btn-del" id="im-del" onclick="deleteItemModal()">Delete</button>
+      <button class="btn" onclick="closeItemModal()">Cancel</button>
+      <button class="btn btn-rose" onclick="saveItemModal()">Save</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+<input type="file" id="importFile" accept=".json" style="display:none" onchange="handleImport(event)">
+
+<script>
+function uid(){return Math.random().toString(36).slice(2,9)}
+function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}
+function today(){return new Date()}
+
+// ── STATE ─────────────────────────────────────────────────
+let state={
+  dates:[],   // {id,title,date,recurring,planned,note,done}
+  likes:[],   // {id,title,tag,note,done}
+  buy:[],     // {id,title,tag,note,link,image,done}
+  try_:[],    // {id,title,tag,note,done}
+  learn:[],   // {id,title,note,done}
+  work:[],    // {id,title,note,done}
+  notes:[],   // {id,title,body,created}
+};
+let isDark=true;
+let editSection=null;
+let editId=null;
+let currentTab='dates';
+
+// ── TABS ──────────────────────────────────────────────────
+function switchTab(tab){
+  currentTab=tab;
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  event.target.classList.add('active');
+  document.getElementById('page-'+tab).classList.add('active');
+  renderTab(tab);
+}
+function renderTab(tab){
+  if(tab==='dates') renderDates();
+  else if(tab==='likes') renderList('likes');
+  else if(tab==='buy') renderBuy();
+  else if(tab==='try') renderList('try_');
+  else if(tab==='learn') renderList('learn');
+  else if(tab==='work') renderList('work');
+  else if(tab==='notes') renderNotes();
+}
+
+// ── DATES ─────────────────────────────────────────────────
+function daysUntil(dateStr, recurring){
+  const now=new Date(); now.setHours(0,0,0,0);
+  const d=new Date(dateStr+'T12:00:00');
+  if(recurring){
+    d.setFullYear(now.getFullYear());
+    if(d<now) d.setFullYear(now.getFullYear()+1);
+  }
+  return Math.ceil((d-now)/86400000);
+}
+function formatDateDisplay(dateStr){
+  const d=new Date(dateStr+'T12:00:00');
+  const months=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  return {day:d.getDate(),mon:months[d.getMonth()]};
+}
+
+function renderDates(){
+  const list=document.getElementById('datesList');
+  list.innerHTML='';
+  if(!state.dates.length){list.innerHTML='<div class="empty-note">No dates saved yet.<br>Anniversaries, dinners, plans — anything worth remembering.</div>';return}
+  const sorted=[...state.dates].sort((a,b)=>{
+    const da=daysUntil(a.date,a.recurring);
+    const db=daysUntil(b.date,b.recurring);
+    return da-db;
+  });
+  sorted.forEach(d=>{
+    const {day,mon}=formatDateDisplay(d.date);
+    const until=daysUntil(d.date,d.recurring);
+    const card=document.createElement('div');
+    card.className='date-card'+(d.done?' done':'');
+    card.innerHTML=`
+      <div class="date-pip">
+        <div class="date-pip-day">${day}</div>
+        <div class="date-pip-mon">${mon}</div>
+      </div>
+      <div class="date-body">
+        <div class="date-title" contenteditable="true" onblur="inlineUpdate('dates','${d.id}','title',this.innerText)">${esc(d.title)}</div>
+        <div class="date-note" contenteditable="true" data-placeholder="Add a note..." onblur="inlineUpdate('dates','${d.id}','note',this.innerText)">${esc(d.note||'')}</div>
+        <div class="date-recurring">${d.recurring?'↻ Recurring yearly':''}${d.planned?'📅 Planned event':''}</div>
+      </div>
+      <div style="display:flex;flex-direction:column;align-items:flex-end;gap:4px">
+        <div class="days-until">${until===0?'Today':until===1?'Tomorrow':until>0?until+'d away':Math.abs(until)+'d ago'}</div>
+        <div class="date-actions">
+          <button class="cact" onclick="toggleDone('dates','${d.id}')">✓</button>
+          <button class="cact del" onclick="deleteItem('dates','${d.id}')">✕</button>
+        </div>
+      </div>`;
+    list.appendChild(card);
+  });
+}
+
+function addDate(){
+  const val=document.getElementById('dateVal').value;
+  const title=document.getElementById('dateTitle').value.trim();
+  if(!val||!title) return;
+  const recurring=document.getElementById('dateRecurring').checked;
+  const planned=document.getElementById('datePlanned').checked;
+  state.dates.push({id:uid(),title,date:val,recurring,planned,note:'',done:false});
+  document.getElementById('dateTitle').value='';
+  document.getElementById('dateVal').value='';
+  document.getElementById('dateRecurring').checked=false;
+  document.getElementById('datePlanned').checked=false;
+  renderDates(); saveData(); showToast('Saved');
+}
+function clearDoneDates(){state.dates=state.dates.filter(d=>!d.done);renderDates();saveData()}
+
+// ── GENERIC LIST ──────────────────────────────────────────
+const LIST_EMPTY={
+  likes:'Nothing saved yet. What makes her smile?',
+  try_:'Nothing here yet. What would she love to try?',
+  learn:'Nothing here yet. What do you want to understand better about her?',
+  work:'Nothing here yet. What are you working on?',
+};
+const LIST_CONTAINER={likes:'likesList',try_:'tryList',learn:'learnList',work:'workList'};
+
+function renderList(section){
+  const listId=LIST_CONTAINER[section];
+  const container=document.getElementById(listId);
+  if(!container) return;
+  const items=state[section]||[];
+  container.innerHTML='';
+  if(!items.length){container.innerHTML=`<div class="empty-note">${LIST_EMPTY[section]||''}</div>`;return}
+  items.forEach(item=>{
+    const card=document.createElement('div');
+    card.className='card'+(item.done?' done':'');
+    card.innerHTML=`
+      <div class="card-top">
+        <div class="card-check" onclick="toggleDone('${section}','${item.id}')"></div>
+        <div class="card-body">
+          <div class="card-title" contenteditable="true" onblur="inlineUpdate('${section}','${item.id}','title',this.innerText)">${esc(item.title)}</div>
+          <div class="card-meta">
+            ${item.tag?`<div class="card-tag">${esc(item.tag)}</div>`:''}
+          </div>
+          <div class="card-note" contenteditable="true" data-placeholder="Add a note..." onblur="inlineUpdate('${section}','${item.id}','note',this.innerText)">${esc(item.note||'')}</div>
+        </div>
+        <div class="card-actions">
+          <button class="cact del" onclick="deleteItem('${section}','${item.id}')">✕</button>
+        </div>
+      </div>`;
+    container.appendChild(card);
+  });
+}
+
+function addLike(){
+  const text=document.getElementById('likesInput').value.trim(); if(!text) return;
+  const tag=document.getElementById('likesTag').value.trim();
+  state.likes.push({id:uid(),title:text,tag,note:'',done:false});
+  document.getElementById('likesInput').value=''; document.getElementById('likesTag').value='';
+  renderList('likes'); saveData();
+}
+function addTry(){
+  const text=document.getElementById('tryInput').value.trim(); if(!text) return;
+  const tag=document.getElementById('tryTag').value.trim();
+  state.try_.push({id:uid(),title:text,tag,note:'',done:false});
+  document.getElementById('tryInput').value=''; document.getElementById('tryTag').value='';
+  renderList('try_'); saveData();
+}
+function addLearn(){
+  const text=document.getElementById('learnInput').value.trim(); if(!text) return;
+  state.learn.push({id:uid(),title:text,note:'',done:false});
+  document.getElementById('learnInput').value='';
+  renderList('learn'); saveData();
+}
+function addWork(){
+  const text=document.getElementById('workInput').value.trim(); if(!text) return;
+  state.work.push({id:uid(),title:text,note:'',done:false});
+  document.getElementById('workInput').value='';
+  renderList('work'); saveData();
+}
+
+function clearSection(sec){if(!confirm('Clear all?'))return;state[sec]=[];renderList(sec);saveData()}
+function clearDoneTry(){state.try_=state.try_.filter(t=>!t.done);renderList('try_');saveData()}
+function clearDoneLearn(){state.learn=state.learn.filter(t=>!t.done);renderList('learn');saveData()}
+function clearDoneWork(){state.work=state.work.filter(t=>!t.done);renderList('work');saveData()}
+
+// ── BUY / STYLE ───────────────────────────────────────────
+function renderBuy(){
+  const container=document.getElementById('buyList');
+  container.innerHTML='';
+  if(!state.buy.length){container.innerHTML='<div class="empty-note">Nothing saved yet.<br>Things to buy her, dresses seen, gifts spotted.</div>';return}
+  state.buy.forEach(item=>{
+    if(item.image){
+      // Image card
+      const card=document.createElement('div');
+      card.className='img-card'+(item.done?' done':'');
+      card.innerHTML=`
+        <img class="img-thumb" src="${item.image}" alt="${esc(item.title)}">
+        <div class="img-card-body">
+          <div class="img-card-title" contenteditable="true" onblur="inlineUpdate('buy','${item.id}','title',this.innerText)">${esc(item.title||'Untitled')}</div>
+          ${item.tag?`<div class="card-tag" style="display:inline-block;margin-bottom:4px">${esc(item.tag)}</div>`:''}
+          ${item.note?`<div style="font-size:11px;color:var(--text-dim);font-style:italic;margin-bottom:4px">${esc(item.note)}</div>`:''}
+          <div class="img-card-actions">
+            <input class="img-link-inp" value="${esc(item.link||'')}" placeholder="Add vendor link..." onchange="inlineUpdate('buy','${item.id}','link',this.value)">
+            ${item.link?`<a class="card-link" href="${esc(item.link)}" target="_blank" rel="noopener" style="font-size:10px">→ Open</a>`:''}
+            <button class="cact" onclick="toggleDone('buy','${item.id}')" title="Mark bought">✓</button>
+            <button class="cact del" onclick="deleteItem('buy','${item.id}')">✕</button>
+          </div>
+        </div>`;
+      container.appendChild(card);
+    } else {
+      // Regular card
+      const card=document.createElement('div');
+      card.className='card'+(item.done?' done':'');
+      card.innerHTML=`
+        <div class="card-top">
+          <div class="card-check" onclick="toggleDone('buy','${item.id}')"></div>
+          <div class="card-body">
+            <div class="card-title" contenteditable="true" onblur="inlineUpdate('buy','${item.id}','title',this.innerText)">${esc(item.title)}</div>
+            <div class="card-meta">
+              ${item.tag?`<div class="card-tag">${esc(item.tag)}</div>`:''}
+            </div>
+            ${item.note?`<div class="card-note">${esc(item.note)}</div>`:''}
+            ${item.link?`<a class="card-link" href="${esc(item.link)}" target="_blank" rel="noopener">↗ ${esc(item.link)}</a>`:''}
+          </div>
+          <div class="card-actions">
+            <button class="cact del" onclick="deleteItem('buy','${item.id}')">✕</button>
+          </div>
+        </div>`;
+      container.appendChild(card);
+    }
+  });
+}
+
+function addBuy(){
+  const text=document.getElementById('buyInput').value.trim(); if(!text) return;
+  const tag=document.getElementById('buyTag').value.trim();
+  const link=document.getElementById('buyLink').value.trim();
+  state.buy.push({id:uid(),title:text,tag,note:'',link,image:null,done:false});
+  document.getElementById('buyInput').value='';
+  document.getElementById('buyTag').value='';
+  document.getElementById('buyLink').value='';
+  renderBuy(); saveData();
+}
+
+function handleBuyImage(e){
+  const file=e.target.files[0]; if(!file) return;
+  const title=document.getElementById('buyInput').value.trim()||'Style / Dress';
+  const tag=document.getElementById('buyTag').value.trim();
+  const link=document.getElementById('buyLink').value.trim();
+  const r=new FileReader();
+  r.onload=ev=>{
+    state.buy.push({id:uid(),title,tag,note:'',link,image:ev.target.result,done:false});
+    document.getElementById('buyInput').value='';
+    document.getElementById('buyTag').value='';
+    document.getElementById('buyLink').value='';
+    renderBuy(); saveData(); showToast('Image saved');
+  };
+  r.readAsDataURL(file); e.target.value='';
+}
+function clearDoneBuy(){state.buy=state.buy.filter(t=>!t.done);renderBuy();saveData()}
+
+// ── NOTES ─────────────────────────────────────────────────
+function renderNotes(){
+  const container=document.getElementById('notesList');
+  container.innerHTML='';
+  if(!state.notes.length){container.innerHTML='<div class="empty-note">Nothing here yet.<br>Things she said, things you thought about her during the day, things worth remembering.</div>';return}
+  [...state.notes].reverse().forEach(n=>{
+    const block=document.createElement('div');
+    block.className='note-block';
+    const d=new Date(n.created);
+    const dateStr=d.toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'});
+    block.innerHTML=`
+      <div class="note-block-title" contenteditable="true" onblur="updateNote('${n.id}','title',this.innerText)">${esc(n.title)}</div>
+      <div class="note-block-body" contenteditable="true" data-placeholder="Write anything..." onblur="updateNote('${n.id}','body',this.innerText)">${esc(n.body||'')}</div>
+      <div class="note-block-meta">${dateStr}</div>
+      <div class="note-block-actions">
+        <button class="cact del" onclick="deleteNote('${n.id}')">✕</button>
+      </div>`;
+    container.appendChild(block);
+  });
+}
+
+function addNote(){
+  const now=Date.now();
+  state.notes.push({id:uid(),title:'Note — '+new Date(now).toLocaleDateString('en-GB',{day:'numeric',month:'short'}),body:'',created:now});
+  renderNotes(); saveData();
+  // Focus the new note's body
+  setTimeout(()=>{
+    const blocks=document.querySelectorAll('.note-block-body');
+    if(blocks.length) blocks[0].focus();
+  },50);
+}
+function updateNote(id,field,val){
+  const n=state.notes.find(x=>x.id===id);
+  if(n){n[field]=val.trim();saveData()}
+}
+function deleteNote(id){
+  state.notes=state.notes.filter(x=>x.id!==id);
+  renderNotes(); saveData();
+}
+
+// ── SHARED HELPERS ────────────────────────────────────────
+function toggleDone(section,id){
+  const arr=state[section];
+  const item=arr.find(x=>x.id===id);
+  if(item){item.done=!item.done;renderTab(currentTab);saveData()}
+}
+function deleteItem(section,id){
+  state[section]=state[section].filter(x=>x.id!==id);
+  renderTab(currentTab); saveData();
+}
+function inlineUpdate(section,id,field,val){
+  const item=(state[section]||[]).find(x=>x.id===id);
+  if(item){item[field]=val.trim();saveData()}
+}
+
+// ── EDIT MODAL ────────────────────────────────────────────
+function closeItemModal(){document.getElementById('itemModal').classList.add('hidden')}
+function deleteItemModal(){
+  if(!confirm('Delete this item?')) return;
+  deleteItem(editSection,editId);
+  closeItemModal();
+}
+function saveItemModal(){
+  const item=(state[editSection]||[]).find(x=>x.id===editId);
+  if(item){
+    item.title=document.getElementById('im-title').value.trim();
+    item.tag=document.getElementById('im-tag').value.trim();
+    item.note=document.getElementById('im-note').value.trim();
+    item.link=document.getElementById('im-link').value.trim();
+    saveData(); renderTab(currentTab);
+  }
+  closeItemModal();
+}
+document.getElementById('itemModal').addEventListener('click',e=>{
+  if(e.target===document.getElementById('itemModal')) closeItemModal();
+});
+
+// ── PERSISTENCE ───────────────────────────────────────────
+function saveData(){
+  localStorage.setItem('forT',JSON.stringify(state));
+  showToast('Saved');
+}
+function loadData(){
+  const raw=localStorage.getItem('forT');
+  if(raw){try{
+    const d=JSON.parse(raw);
+    ['dates','likes','buy','try_','learn','work','notes'].forEach(k=>{if(d[k])state[k]=d[k]});
+  }catch(e){}}
+}
+function exportData(){
+  const blob=new Blob([JSON.stringify(state,null,2)],{type:'application/json'});
+  const a=document.createElement('a');a.href=URL.createObjectURL(blob);
+  a.download='for-t.json';a.click();showToast('Exported');
+}
+function handleImport(e){
+  const file=e.target.files[0];if(!file)return;
+  const r=new FileReader();
+  r.onload=ev=>{try{
+    const d=JSON.parse(ev.target.result);
+    ['dates','likes','buy','try_','learn','work','notes'].forEach(k=>{if(d[k])state[k]=d[k]});
+    renderTab(currentTab); showToast('Imported');
+  }catch(err){showToast('Import failed')}};
+  r.readAsText(file); e.target.value='';
+}
+function toggleTheme(){
+  isDark=!isDark;document.body.classList.toggle('light',!isDark);
+  localStorage.setItem('forTTheme',isDark?'dark':'light');
+}
+function showToast(msg){
+  const t=document.getElementById('toast');t.textContent=msg;
+  t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2000);
+}
+
+const th=localStorage.getItem('forTTheme');
+if(th==='light'){isDark=false;document.body.classList.add('light')}
+loadData();
+renderDates();
+</script>
+</body>
+</html>

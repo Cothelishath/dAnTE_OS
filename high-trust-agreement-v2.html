@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@300;400&display=swap" rel="stylesheet">
+<title>High-Trust Agreement — dAnTE</title>
+<style>
+:root{
+  --bg:#0a0a0a;--bg2:#111;--bg3:#181818;
+  --border:#1e1e1e;--border2:#2a2a2a;--border3:#363636;
+  --gold:#c9a84c;--gold-dim:#7a5f28;--gold-glow:rgba(201,168,76,0.08);
+  --text:#ddd8ce;--text-dim:#777;--text-muted:#454545;
+  --green:#4caf7d;--radius:6px;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;font-size:13px;line-height:1.6;-webkit-tap-highlight-color:transparent}
+::-webkit-scrollbar{width:3px}::-webkit-scrollbar-thumb{background:var(--border3)}
+
+header{padding:18px 16px 14px;border-bottom:1px solid var(--border);position:sticky;top:0;background:var(--bg);z-index:20}
+.brand{font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:.22em;color:var(--gold);text-transform:uppercase}
+.title{font-family:'Cormorant Garamond',serif;font-size:23px;font-weight:300;color:var(--text);letter-spacing:.03em;margin-top:2px}
+.title em{color:var(--gold);font-style:italic}
+.hrow{display:flex;gap:8px;margin-top:10px}
+.hbtn{background:none;border:1px solid var(--border2);border-radius:var(--radius);color:var(--text-dim);font-family:'Inter',sans-serif;font-size:11px;padding:5px 10px;cursor:pointer}
+.hbtn:hover{border-color:var(--gold);color:var(--gold)}
+
+main{max-width:700px;margin:0 auto;padding:14px 16px 70px}
+.page{display:none}
+.page.active{display:block}
+
+/* LIST VIEW */
+.area-card{background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:13px 14px;margin-bottom:8px;cursor:pointer;display:flex;align-items:center;gap:10px}
+.area-card:hover{border-color:var(--gold-dim)}
+.area-num{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--gold-dim);flex-shrink:0;width:20px}
+.area-info{flex:1;min-width:0}
+.area-name{font-family:'Cormorant Garamond',serif;font-size:16px;font-weight:600;color:var(--text)}
+.area-flagship{font-size:11px;color:var(--text-muted);margin-top:2px}
+.area-arrow{color:var(--text-muted);font-size:13px}
+.add-area-card{border-style:dashed;color:var(--text-muted);justify-content:center;font-family:'JetBrains Mono',monospace;font-size:11px}
+
+/* DETAIL VIEW */
+.back-row{display:flex;align-items:center;gap:8px;margin-bottom:14px;cursor:pointer;color:var(--text-dim)}
+.back-row:hover{color:var(--gold)}
+.detail-head{margin-bottom:16px}
+.detail-name{font-family:'Cormorant Garamond',serif;font-size:24px;font-weight:300;color:var(--text);letter-spacing:.02em}
+.detail-flagship{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--gold);margin-top:4px;letter-spacing:.04em}
+
+.r-block{background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:14px 15px;margin-bottom:10px}
+.r-label{font-family:'JetBrains Mono',monospace;font-size:9.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--gold);margin-bottom:8px}
+.r-text{font-size:13px;color:var(--text);line-height:1.65;outline:none;min-height:20px}
+.r-text:focus{background:var(--gold-glow);border-radius:4px;padding:4px;margin:-4px}
+.r-text:empty::before{content:'Tap to write...';color:var(--text-muted);font-style:italic}
+
+.action-row{display:flex;gap:12px;margin-top:12px}
+.action-btn{font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--text-muted);background:none;border:none;cursor:pointer;letter-spacing:.08em;text-transform:uppercase}
+.action-btn:hover{color:var(--gold)}
+.action-btn.red:hover{color:#c0392b}
+.saved-note{font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--text-muted);margin-top:10px;text-align:center}
+
+.field{margin-bottom:11px}
+.field-label{font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--text-muted);letter-spacing:.1em;text-transform:uppercase;margin-bottom:5px;display:block}
+.inp,textarea.inp{width:100%;background:var(--bg3);border:1px solid var(--border2);border-radius:var(--radius);color:var(--text);font-family:'Inter',sans-serif;font-size:12px;padding:8px 11px;outline:none}
+textarea.inp{min-height:70px;resize:vertical}
+.btn{background:var(--gold-glow);border:1px solid var(--gold-dim);border-radius:var(--radius);color:var(--gold);font-family:'JetBrains Mono',monospace;font-size:10px;padding:8px 14px;cursor:pointer}
+.btn-main{background:var(--green);border:none;color:#fff;font-family:'Cormorant Garamond',serif;font-size:14px;font-weight:600;padding:9px 16px;border-radius:var(--radius);cursor:pointer}
+
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.6);display:none;align-items:flex-start;justify-content:center;z-index:100;padding:40px 16px;overflow-y:auto}
+.modal-overlay.show{display:flex}
+.modal-box{background:var(--bg2);border:1px solid var(--border2);border-radius:10px;padding:18px;max-width:460px;width:100%}
+.modal-title{font-family:'Cormorant Garamond',serif;font-size:17px;color:var(--text);margin-bottom:12px}
+.toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%) translateY(10px);background:var(--gold);color:#000;font-family:'JetBrains Mono',monospace;font-size:11px;padding:9px 18px;border-radius:20px;opacity:0;pointer-events:none;transition:all .25s;z-index:200}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+.page-note{font-size:11px;color:var(--text-muted);font-style:italic;margin-bottom:14px;border-left:2px solid var(--border2);padding-left:10px;line-height:1.6}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="brand">dAnTE · 2026-07-08 v2</div>
+  <div class="title">High-Trust <em>Agreement</em></div>
+  <div class="hrow">
+    <button class="hbtn" onclick="exportJSON()">Export</button>
+    <button class="hbtn" onclick="document.getElementById('importFile').click()">Import</button>
+  </div>
+</header>
+<input type="file" id="importFile" accept=".json" style="display:none" onchange="handleImport(event)">
+
+<main>
+  <div class="page active" id="page-list"></div>
+  <div class="page" id="page-detail"></div>
+</main>
+
+<div class="modal-overlay" id="modalOverlay"><div class="modal-box" id="modalBox"></div></div>
+<div id="toast" class="toast"></div>
+
+<script>
+function uid(){return Math.random().toString(36).slice(2,9)}
+function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}
+function showToast(m){const t=document.getElementById('toast');t.textContent=m;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),1800)}
+
+// ── SEEDED CONTENT — a baseline to modify, not a prescription ──
+const DEFAULT_AREAS = [
+  {
+    id:'faith', name:'Faith', flagship:'The 4AM prayer block',
+    results:"The block holds uninterrupted at least 6 of 7 days weekly. When it breaks, it breaks for a named, specific reason — travel, a genuine emergency — never a quiet, unexamined drift.",
+    roles:"Son territory, exclusively. Not Builder — this is not planning time for Dante Craft. Not Steward — this is not review or strategy time. If Builder or Steward shows up here, the block has already failed even if the clock time was technically kept.",
+    rules:"No phone in the room during the block. No notebook or planning, even if an idea shows up — it gets written down after, not worked on during. The block starts at 4AM regardless of how the previous day went.",
+    resources:"A bedtime the night before that actually makes 4AM possible — the dependency most easily left unstated, and the one that actually determines whether tomorrow's block is real. A physical space that's quiet and unclaimed at that hour.",
+    rewards:"The days that follow an uninterrupted block already have a different character — this is already observed, not theoretical. The cost of skipping isn't dramatic or immediate; it's a day running on its own resources instead of a foundation."
+  },
+  {
+    id:'health', name:'Health', flagship:'Physical movement / exercise',
+    results:"Movement held at least 4 times weekly, adapted to whatever's actually available on site rotation — not abandoned because ideal conditions aren't present.",
+    roles:"Steward. The body is the infrastructure every other role depends on — this isn't Connoisseur indulgence or Builder output, it's maintenance of the base layer.",
+    rules:"Movement happens in reduced form during rotation (a walk, bodyweight work) rather than an all-or-nothing standard that guarantees failure away from a gym. No day is skipped for lack of ideal conditions — only for genuine physical incapacity.",
+    resources:"Whatever's actually available in each context, named honestly per context rather than assuming one setup. Time carved out before energy is already spent elsewhere in the day.",
+    rewards:"A body that isn't the bottleneck on everything else being built. What rest actually means here is still an open question — this agreement protects the space to keep discovering that, rather than presuming an answer (see Mental & Emotional)."
+  },
+  {
+    id:'career', name:'Career / Engineering', flagship:'Conduct across site, software learning, and professional time',
+    results:"Whatever professional context — site, a software learning block, contract execution — the engagement matches the standard you'd want it judged by, not just what's minimally required to pass.",
+    roles:"Builder, explicitly. Not Steward's planning/vision work, not Son's personal/relational time. Builder shows up here as competence and execution.",
+    rules:"Software learning time is protected the same way site work is — not treated as optional 'extra' cut first when the day is full. Site conduct holds the same standard whether or not anyone senior is watching that day.",
+    resources:"Actual connectivity and energy constraints during rotations, named honestly rather than pretended away — the standard adapts to what's genuinely possible in a depleting remote posting.",
+    rewards:"Competence compounds — the fluency and conduct built now is the actual infrastructure Dante Craft depends on later. Skipping it doesn't cost today; it costs the version of Dante Craft years from now that needed this specific competence already built."
+  },
+  {
+    id:'trading', name:'Trading', flagship:'Study and skill development',
+    results:"A defined study session — Intake, Processing, or Testing mode — happens on whatever cadence is set. The Result is the skill-building process running, not just trades taken.",
+    roles:"Builder — building the skill itself. Not Connoisseur (this isn't leisure), and not the mechanical ruleset-following, which already lives as its own system in Trading Lab. This agreement is about becoming a better trader, not any single trade.",
+    rules:"Mode is declared before opening any chart or resource — Intake, Processing, or Testing — and the session ends according to that mode's own definition, not when it feels done.",
+    resources:"Uninterrupted study time, separate from live-trading screen time. Studying and executing are different activities and need protecting from bleeding into each other.",
+    rewards:"A ruleset that's actually tested and revised on evidence, rather than one that's just believed — that's the entire difference between a system that improves and one that stays fixed regardless of what the data says."
+  },
+  {
+    id:'growth', name:'Personal Growth', flagship:'Study routine — applies to any topic',
+    results:"Whatever topic is currently active, a defined session happens and produces something retained — a note, a synthesis, a changed understanding — not just time spent consuming.",
+    roles:"Builder and Connoisseur together — Builder in building understanding methodically, Connoisseur in choosing what's actually worth deep engagement versus surface consumption.",
+    rules:"Mode declared before starting, same Intake/Processing/Testing structure already proven in trading study — not passive consumption in the background.",
+    resources:"A single active topic at a time, not several simultaneously. This agreement fails the same way everything spread-thin fails, if applied to five topics at once.",
+    rewards:"Depth in one thing at a time compounds into real fluency. Switching topics constantly produces the feeling of learning without the actual asset of having learned."
+  },
+  {
+    id:'relationships', name:'Relationships — T', flagship:'Presence and conflict management',
+    results:"In time spent with T, attention is actually with her — not partially with Dante Craft, not partially with trading. When disagreement arises, it's engaged directly rather than avoided or endured silently.",
+    roles:"Honestly — none of the four named roles (Son, Steward, Builder, Connoisseur) is quite 'partner.' That gap is worth naming rather than forcing a fit. This agreement operates in that unnamed space until it has its own name.",
+    rules:"Leading conversations rather than waiting to respond — already self-identified as the specific pattern to work on. Conflict gets named when it's small, not left to compound into something that erupts later.",
+    resources:"Actual undistracted time — phone away, not mid-multitask. A small amount held consistently is worth more than a large amount held rarely.",
+    rewards:"The relationship gets to be a place of ease rather than another site of performance or management. The cost of drifting here doesn't show up immediately — which is exactly why it needs a deliberate agreement rather than whatever's left over."
+  },
+  {
+    id:'home', name:'Home', flagship:'Setting up and maintaining the Port Harcourt apartment',
+    results:"The apartment functions as an actual home-office-capable space matching the 10-year vision — chart ambient, drawings on a work table — not a temporary holding pattern that never gets finished.",
+    roles:"Steward — maintaining an environment that serves everything else. Not Builder; this isn't the thing being built, it's where the building happens.",
+    rules:"Setup tasks get finished, not left in a permanent 'almost done' state that never quite becomes the environment described in the vision.",
+    resources:"Actual budget and time allocated specifically for this, not whatever's left over after everything else is funded.",
+    rewards:"A physical space matching the vision makes the vision easier to believe daily, not just describe. An unfinished space quietly undercuts belief in the whole vision even when nothing's technically wrong with it."
+  },
+  {
+    id:'finance', name:'Finance', flagship:'Financial responsibility — tracking, then learning, then investment',
+    results:"Tracking happens consistently. Financial literacy actively grows, not just gets tracked and ignored. Investment decisions follow only once the first two are genuinely solid — not run in parallel with tracking that's still inconsistent.",
+    roles:"Steward — stewardship of resources, not Builder's growth-at-all-costs instinct or Connoisseur's enjoyment instinct.",
+    rules:"Investment decisions don't happen while tracking is currently lapsed. Track, then learn, then invest is a real order, not just a list.",
+    resources:"Actual time set aside for financial learning specifically, separate from just checking balances.",
+    rewards:"Financial clarity removes an entire category of background anxiety that otherwise taxes every other area quietly. The cost of skipping this isn't one bad decision — it's the accumulated fog of never quite knowing where things stand."
+  },
+  {
+    id:'recreation', name:'Recreation', flagship:'Still being discovered — no fixed activity yet',
+    results:"At least one activity attempted per period, purely for enjoyment, with an honest note afterward on whether it actually felt like recreation or like another obligation. The Result here is the discovery process itself — what actually works isn't established yet.",
+    roles:"Connoisseur — the role that exists specifically to know what's actually enjoyed, distinct from what's productive.",
+    rules:"No activity here is allowed to smuggle in a productive justification. If it has to be useful to count, it isn't actually recreation.",
+    resources:"Time explicitly not already claimed by anything else. Recreation placed into leftover time isn't recreation — it's whatever's left after everything that mattered got fed first.",
+    rewards:"Learning what restores you here compounds across every other area — but that payoff doesn't arrive until the discovery itself happens, which is the whole point of this agreement existing yet."
+  },
+  {
+    id:'mental', name:'Mental & Emotional', flagship:'Distinguishing genuine rest from avoidance',
+    results:"A log exists of what was called 'rest' and whether it was followed by feeling more capable or less. The Result is honest tracking of this distinction — not a resolved definition, which doesn't exist yet.",
+    roles:"Steward — protecting the internal state everything else depends on.",
+    rules:"Numbing is named as numbing when noticed, even without changing the behavior yet. The rule is honesty about what's happening, not an immediate fix.",
+    resources:"A place to actually note this — the Life Review monthly rest question is a natural home — rather than it staying only a private, unexamined impression.",
+    rewards:"Knowing the real difference between rest and numbing eventually removes a large, currently-invisible drain. Right now the reward is simply no longer lying to yourself about which one just happened."
+  },
+  {
+    id:'community', name:'Community & Social', flagship:'Still being discovered — lightly tended for now',
+    results:"At least one instance of showing up for someone outside the closest circle per period, noted honestly. Discovery-oriented, since this isn't an established practice yet.",
+    roles:"Son, in the broader sense of belonging to something beyond the self — also adjacent to Contribution.",
+    rules:"Doesn't count if it's purely transactional or networking-flavored. The rule protects against turning this into another Builder task.",
+    resources:"Actual awareness of who's around — a rotating, depleting site schedule can make this the first thing that quietly disappears. The resource here is attention, not time exactly.",
+    rewards:"Same as Recreation — the payoff is contingent on the discovery happening at all. Right now the reward is simply establishing that this area exists and is being tended, however lightly."
+  },
+  {
+    id:'creativity', name:'Creativity', flagship:'An operating mode for life, not confined to a hobby',
+    results:"Problems across any area get at least one moment of genuinely original thinking rather than defaulting immediately to the first known pattern. Separately, hands-on physical making happens on its own terms, as one expression of this — not the whole of it.",
+    roles:"Builder — specifically the flavor of Builder that makes something new, rather than executing something already specified.",
+    rules:"The hands-on / model-making thread stays explicitly non-digital, as already decided. This rule protects it from becoming another screen-based task disguised as a hobby.",
+    resources:"Unstructured time with no required outcome. Creativity required to produce a specific result on a deadline stops being this and becomes Builder's ordinary work instead.",
+    rewards:"A mind that treats creative thinking as a default mode solves problems the purely procedural approach can't reach. Skipping this doesn't cause visible failure — it just quietly caps how far competence alone can take you."
+  },
+  {
+    id:'contribution', name:'Contribution & Legacy', flagship:'Dante Craft toward the dAnTE 20-year vision',
+    results:"This month's effort visibly compounds toward the 20-year vision rather than being a disconnected detour — checkable via the Life Review contribution question already built.",
+    roles:"Builder and Steward together — building the thing, and stewarding it responsibly toward something beyond personal gain.",
+    rules:"A detour gets named as a detour when it happens, not quietly reclassified as progress after the fact.",
+    resources:"Time protected specifically for dAnTE-level thinking, distinct from day-to-day contract execution. Strategic thinking needs its own unclaimed time or only urgent things ever happen.",
+    rewards:"What's built compounds toward something that outlasts any single year. The cost of losing sight of this is a lot of hard work that adds up to activity without accumulation."
+  }
+];
+
+// ── STATE ────────────────────────────────────────────────
+let state = { areas: JSON.parse(JSON.stringify(DEFAULT_AREAS)) };
+let activeAreaId = null;
+
+function loadData(){
+  const s = localStorage.getItem('highTrustState');
+  if(s){ try{ const d=JSON.parse(s); if(d.areas) state.areas = d.areas; }catch(e){} }
+}
+function autosave(){ localStorage.setItem('highTrustState', JSON.stringify(state)); }
+
+function exportJSON(){
+  const blob = new Blob([JSON.stringify(state,null,2)], {type:'application/json'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a'); a.href=url; a.download='high-trust-agreement-export.json'; a.click();
+  URL.revokeObjectURL(url); showToast('Exported');
+}
+function handleImport(e){
+  const file = e.target.files[0]; if(!file) return;
+  const r = new FileReader();
+  r.onload = ev=>{ try{
+    const d = JSON.parse(ev.target.result);
+    if(d.areas) state.areas = d.areas;
+    autosave(); renderList(); showToast('Imported');
+  }catch(err){ showToast('Import failed'); } };
+  r.readAsText(file); e.target.value='';
+}
+
+// ── LIST VIEW ────────────────────────────────────────────
+function renderList(){
+  document.getElementById('page-detail').classList.remove('active');
+  document.getElementById('page-list').classList.add('active');
+  const c = document.getElementById('page-list');
+  c.innerHTML = `<div class="page-note">Tap an area to read or edit its agreement. Only that area shows — nothing else competes for attention.</div>`;
+  state.areas.forEach((a,idx)=>{
+    const card = document.createElement('div');
+    card.className = 'area-card';
+    card.onclick = ()=>openArea(a.id);
+    card.innerHTML = `<div class="area-num">${String(idx+1).padStart(2,'0')}</div>
+      <div class="area-info"><div class="area-name">${esc(a.name)}</div><div class="area-flagship">${esc(a.flagship)}</div></div>
+      <div class="area-arrow">›</div>`;
+    c.appendChild(card);
+  });
+  const addCard = document.createElement('div');
+  addCard.className = 'area-card add-area-card';
+  addCard.onclick = openAddAreaModal;
+  addCard.innerHTML = `+ Add area`;
+  c.appendChild(addCard);
+}
+
+// ── DETAIL VIEW ──────────────────────────────────────────
+function openArea(id){
+  activeAreaId = id;
+  document.getElementById('page-list').classList.remove('active');
+  document.getElementById('page-detail').classList.add('active');
+  renderDetail();
+}
+function areaById(id){ return state.areas.find(a=>a.id===id); }
+
+function renderDetail(){
+  const a = areaById(activeAreaId);
+  const c = document.getElementById('page-detail');
+  if(!a){ c.innerHTML = '<div class="page-note">Area not found.</div>'; return; }
+  c.innerHTML = `
+    <div class="back-row" onclick="renderList()">‹ All areas</div>
+    <div class="detail-head">
+      <div class="detail-name" contenteditable="true" onblur="updateAreaField('${a.id}','name',this.innerText)">${esc(a.name)}</div>
+      <div class="detail-flagship" contenteditable="true" onblur="updateAreaField('${a.id}','flagship',this.innerText)">${esc(a.flagship)}</div>
+    </div>
+    ${rBlock(a,'results','Results')}
+    ${rBlock(a,'roles','Roles')}
+    ${rBlock(a,'rules','Rules')}
+    ${rBlock(a,'resources','Resources')}
+    ${rBlock(a,'rewards','Rewards')}
+    <div class="action-row">
+      <button class="action-btn red" onclick="deleteArea('${a.id}')">Delete this area</button>
+    </div>
+    <div class="saved-note">Autosaves as you type — no save button needed.</div>
+  `;
+}
+function rBlock(a,field,label){
+  return `<div class="r-block">
+    <div class="r-label">${label}</div>
+    <div class="r-text" contenteditable="true" onblur="updateAreaField('${a.id}','${field}',this.innerText)">${esc(a[field])}</div>
+  </div>`;
+}
+function updateAreaField(id,field,value){
+  const a = areaById(id); if(!a) return;
+  a[field] = value.trim();
+  autosave();
+}
+function deleteArea(id){
+  if(!confirm('Delete this area and its agreement? This cannot be undone.')) return;
+  state.areas = state.areas.filter(a=>a.id!==id);
+  autosave(); renderList();
+}
+
+// ── ADD NEW AREA ─────────────────────────────────────────
+function openAddAreaModal(){
+  const box = document.getElementById('modalBox');
+  box.innerHTML = `<div class="modal-title">New Area</div>
+    <div class="field"><span class="field-label">Area name</span><input class="inp" id="na-name" placeholder="e.g. Writing, Certifications..."></div>
+    <div class="field"><span class="field-label">Flagship activity</span><input class="inp" id="na-flagship" placeholder="The one thing this agreement is about"></div>
+    <div class="action-row" style="margin-top:2px">
+      <button class="btn-main" onclick="addArea()">Add</button>
+      <button class="btn" onclick="closeModal()">Cancel</button>
+    </div>`;
+  document.getElementById('modalOverlay').classList.add('show');
+}
+function addArea(){
+  const name = document.getElementById('na-name').value.trim();
+  const flagship = document.getElementById('na-flagship').value.trim();
+  if(!name) return;
+  const newArea = {
+    id: 'area_'+uid(), name, flagship: flagship||'Not yet defined',
+    results:'', roles:'', rules:'', resources:'', rewards:''
+  };
+  state.areas.push(newArea);
+  autosave(); closeModal(); renderList();
+  showToast('Area added — fill in the five Rs whenever ready');
+}
+function closeModal(){ document.getElementById('modalOverlay').classList.remove('show'); }
+
+loadData();
+renderList();
+</script>
+</body>
+</html>

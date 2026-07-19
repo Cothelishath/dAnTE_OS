@@ -1,0 +1,1315 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Trading Journal — Edge Refinement System</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;1,400&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:#0b0c0e; --s1:#111316; --s2:#181a1e; --s3:#1e2126;
+  --border:rgba(255,255,255,0.06); --border-g:rgba(100,180,120,0.28);
+  --text:#dedad4; --dim:#5a5650; --mid:#9a9288;
+  --g:#64b478; --gb:#84d498; --gd:#3a7048;
+  --r:#c46a5a; --gold:#d4af5a; --blue:#6a8aaa; --plat:#88c8e8; --amber:#d4944a;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{background:var(--bg);color:var(--text);font-family:'Space Mono',monospace;font-size:12px;line-height:1.6;min-height:100vh;overflow-x:hidden;}
+body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellipse 50% 40% at 5% 5%,rgba(100,180,120,0.03) 0%,transparent 60%),radial-gradient(ellipse 40% 30% at 95% 95%,rgba(106,138,170,0.03) 0%,transparent 60%);pointer-events:none;z-index:0;}
+
+/* NAV */
+.nav{position:sticky;top:0;z-index:50;background:rgba(11,12,14,0.97);backdrop-filter:blur(12px);border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 16px;overflow-x:auto;}
+.nav-brand{font-family:'Playfair Display',serif;font-size:13px;font-style:italic;color:var(--g);padding:13px 14px 13px 0;border-right:1px solid var(--border);margin-right:6px;white-space:nowrap;flex-shrink:0;}
+.nav-clock{font-size:8px;color:var(--dim);padding:0 10px;border-right:1px solid var(--border);margin-right:4px;white-space:nowrap;flex-shrink:0;}
+.nav-clock .ct{font-size:12px;color:var(--g);font-weight:700;}
+.nt{font-size:8px;letter-spacing:0.14em;text-transform:uppercase;color:var(--dim);padding:15px 10px;cursor:pointer;border-bottom:2px solid transparent;transition:all 0.2s;white-space:nowrap;flex-shrink:0;}
+.nt:hover{color:var(--mid);}
+.nt.active{color:var(--g);border-bottom-color:var(--g);}
+.nav-right{margin-left:auto;display:flex;gap:10px;align-items:center;flex-shrink:0;padding-left:8px;}
+.ns{display:flex;flex-direction:column;align-items:flex-end;}
+.nsl{font-size:7px;letter-spacing:0.1em;color:var(--dim);text-transform:uppercase;}
+.nsv{font-size:11px;font-weight:700;}
+.nsv.pos{color:var(--gb);} .nsv.neg{color:var(--r);} .nsv.neu{color:var(--mid);}
+
+/* PAGES */
+.page{display:none;padding:22px 16px 80px;max-width:800px;margin:0 auto;position:relative;z-index:1;}
+.page.active{display:block;}
+
+/* SECTION */
+.sec{margin-bottom:18px;}
+.sh{font-size:7px;letter-spacing:0.26em;text-transform:uppercase;color:var(--gd);padding-bottom:7px;border-bottom:1px solid var(--border-g);margin-bottom:11px;}
+
+/* FORM */
+.frow{display:grid;gap:8px;margin-bottom:8px;}
+.frow.c2{grid-template-columns:1fr 1fr;}
+.frow.c3{grid-template-columns:1fr 1fr 1fr;}
+.frow.c4{grid-template-columns:1fr 1fr 1fr 1fr;}
+.fg{display:flex;flex-direction:column;gap:3px;}
+.fl{font-size:7px;letter-spacing:0.18em;text-transform:uppercase;color:var(--dim);}
+.fi{background:var(--s1);border:1px solid var(--border);border-radius:3px;color:var(--text);font-family:'Space Mono',monospace;font-size:10px;padding:7px 10px;outline:none;width:100%;transition:border-color 0.2s;}
+.fi:focus{border-color:rgba(100,180,120,0.4);}
+.fi::placeholder{color:rgba(218,218,212,0.18);}
+select.fi{cursor:pointer;}
+select.fi option{background:var(--s2);}
+.fta{background:var(--s1);border:1px solid var(--border);border-radius:3px;color:var(--text);font-family:'Playfair Display',serif;font-size:13px;font-style:italic;padding:9px 11px;outline:none;resize:vertical;width:100%;min-height:72px;line-height:1.65;transition:border-color 0.2s;}
+.fta:focus{border-color:rgba(100,180,120,0.4);}
+.fta::placeholder{color:rgba(218,218,212,0.16);}
+
+/* TAGS / MULTI SELECT */
+.tag-group{display:flex;flex-wrap:wrap;gap:4px;margin-bottom:8px;}
+.tag{font-size:8px;padding:3px 9px;border:1px solid var(--border);border-radius:2px;cursor:pointer;color:var(--dim);transition:all 0.18s;user-select:none;}
+.tag:hover{border-color:rgba(100,180,120,0.3);color:var(--mid);}
+.tag.sel{border-color:var(--g);background:rgba(100,180,120,0.1);color:var(--gb);}
+.tag.sel-r{border-color:var(--r);background:rgba(196,106,90,0.1);color:var(--r);}
+.tag.sel-amber{border-color:var(--amber);background:rgba(212,148,74,0.1);color:var(--amber);}
+
+/* RESULT BTNS */
+.res-row{display:flex;gap:6px;margin-bottom:8px;}
+.rb{flex:1;background:var(--s1);border:1px solid var(--border);border-radius:3px;color:var(--dim);font-family:'Space Mono',monospace;font-size:8px;letter-spacing:0.1em;padding:8px;cursor:pointer;text-align:center;transition:all 0.18s;}
+.rb:hover{border-color:rgba(255,255,255,0.12);}
+.rb.win{border-color:rgba(100,180,120,0.5);background:rgba(100,180,120,0.08);color:var(--gb);}
+.rb.loss{border-color:rgba(196,106,90,0.5);background:rgba(196,106,90,0.08);color:var(--r);}
+.rb.be{border-color:rgba(136,200,232,0.4);background:rgba(136,200,232,0.06);color:var(--plat);}
+.rb.obs{border-color:rgba(212,175,90,0.4);background:rgba(212,175,90,0.06);color:var(--gold);}
+
+/* IMAGE UPLOAD */
+.img-zone{border:1px dashed rgba(100,180,120,0.25);border-radius:3px;padding:16px;text-align:center;cursor:pointer;transition:all 0.2s;background:var(--s1);position:relative;margin-bottom:6px;}
+.img-zone:hover{border-color:rgba(100,180,120,0.45);}
+.img-zone input{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%;}
+.img-zone-txt{font-size:9px;color:var(--dim);margin-top:4px;}
+.img-previews{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:8px;}
+.img-prev{position:relative;border-radius:3px;overflow:hidden;border:1px solid var(--border);}
+.img-prev img{width:100%;display:block;max-height:160px;object-fit:cover;}
+.img-prev-bar{background:rgba(11,12,14,0.85);display:flex;justify-content:space-between;align-items:center;padding:3px 7px;font-size:7px;color:var(--dim);}
+.img-del{cursor:pointer;color:var(--r);}
+.img-cap{background:var(--s2);border:none;border-top:1px solid var(--border);color:var(--dim);font-family:'Space Mono',monospace;font-size:8px;padding:4px 7px;width:100%;outline:none;}
+
+/* VOICE */
+.voice-wrap{background:var(--s1);border:1px solid var(--border);border-radius:3px;padding:10px 12px;margin-bottom:8px;}
+.voice-ctrl{display:flex;align-items:center;gap:8px;margin-bottom:6px;}
+.vbtn{background:rgba(100,180,120,0.1);border:1px solid rgba(100,180,120,0.28);border-radius:2px;color:var(--g);font-family:'Space Mono',monospace;font-size:8px;letter-spacing:0.1em;padding:6px 12px;cursor:pointer;transition:all 0.2s;display:flex;align-items:center;gap:5px;}
+.vbtn:hover{background:rgba(100,180,120,0.16);}
+.vbtn.rec{background:rgba(196,106,90,0.12);border-color:rgba(196,106,90,0.4);color:var(--r);animation:recPulse 1.2s infinite;}
+.vstatus{font-size:8px;color:var(--dim);flex:1;}
+.vstatus.on{color:var(--g);}
+.vclr{background:none;border:1px solid var(--border);border-radius:2px;color:var(--dim);font-family:'Space Mono',monospace;font-size:7px;padding:3px 8px;cursor:pointer;transition:all 0.2s;}
+.vtxt{background:var(--bg);border:1px solid var(--border);border-radius:2px;min-height:44px;padding:7px 9px;font-family:'Playfair Display',serif;font-size:12px;font-style:italic;color:var(--text);line-height:1.6;white-space:pre-wrap;}
+.vapp{background:none;border:1px solid var(--border);border-radius:2px;color:var(--dim);font-family:'Space Mono',monospace;font-size:7px;letter-spacing:0.1em;padding:3px 8px;cursor:pointer;margin-top:5px;transition:all 0.2s;}
+.vapp:hover{border-color:var(--border-g);color:var(--g);}
+
+/* SAVE BTN */
+.sbtn{width:100%;background:linear-gradient(135deg,rgba(100,180,120,0.1),rgba(100,180,120,0.04));border:1px solid rgba(100,180,120,0.32);border-radius:3px;color:var(--g);font-family:'Space Mono',monospace;font-size:8px;letter-spacing:0.2em;text-transform:uppercase;padding:12px;cursor:pointer;transition:all 0.2s;margin-top:6px;}
+.sbtn:hover{background:linear-gradient(135deg,rgba(100,180,120,0.18),rgba(100,180,120,0.07));border-color:var(--g);box-shadow:0 0 16px rgba(100,180,120,0.08);}
+
+/* JOURNAL LIST */
+.jlist{display:flex;flex-direction:column;gap:6px;max-height:540px;overflow-y:auto;}
+.jlist::-webkit-scrollbar{width:2px;}
+.jlist::-webkit-scrollbar-thumb{background:rgba(100,180,120,0.28);border-radius:1px;}
+.jcard{background:var(--s1);border:1px solid var(--border);border-radius:4px;overflow:hidden;transition:border-color 0.2s;}
+.jcard:hover{border-color:rgba(100,180,120,0.18);}
+.jcard-head{display:grid;grid-template-columns:80px 1fr auto auto auto;gap:8px;align-items:center;padding:9px 12px;cursor:pointer;}
+.jh-date{font-size:8px;color:var(--dim);}
+.jh-pair{font-size:9px;color:var(--text);}
+.jh-type{font-size:7px;padding:2px 6px;border-radius:2px;white-space:nowrap;}
+.jh-type.trade{background:rgba(100,180,120,0.1);color:var(--g);border:1px solid rgba(100,180,120,0.22);}
+.jh-type.study{background:rgba(212,175,90,0.1);color:var(--gold);border:1px solid rgba(212,175,90,0.22);}
+.jh-type.obs{background:rgba(106,138,170,0.1);color:var(--blue);border:1px solid rgba(106,138,170,0.22);}
+.jh-result{font-size:9px;font-weight:700;}
+.jh-result.win{color:var(--gb);} .jh-result.loss{color:var(--r);} .jh-result.be{color:var(--plat);} .jh-result.open{color:var(--dim);} .jh-result.obs{color:var(--gold);}
+.jh-confs{font-size:8px;color:var(--dim);}
+.jcard-body{display:none;padding:10px 12px;border-top:1px solid var(--border);}
+.jcard.exp .jcard-body{display:block;}
+.jds{margin-bottom:10px;}
+.jdl{font-size:7px;letter-spacing:0.16em;text-transform:uppercase;color:var(--gd);margin-bottom:4px;}
+.jdt{font-family:'Playfair Display',serif;font-size:12px;font-style:italic;color:var(--text);line-height:1.6;}
+.jconf-tags{display:flex;flex-wrap:wrap;gap:3px;}
+.jct{font-size:7px;padding:2px 7px;border:1px solid rgba(100,180,120,0.22);background:rgba(100,180,120,0.05);border-radius:2px;color:var(--gd);}
+.jimgs{display:grid;grid-template-columns:1fr 1fr;gap:5px;margin-top:7px;}
+.jimg-w{border-radius:2px;overflow:hidden;border:1px solid var(--border);}
+.jimg-w img{width:100%;display:block;max-height:140px;object-fit:cover;}
+.jimg-cap{font-size:7px;color:var(--dim);padding:3px 6px;background:var(--s2);}
+.jdel{background:none;border:1px solid rgba(196,106,90,0.28);border-radius:2px;color:var(--r);font-family:'Space Mono',monospace;font-size:7px;padding:3px 9px;cursor:pointer;margin-top:8px;transition:all 0.2s;}
+.jdel:hover{background:rgba(196,106,90,0.08);}
+
+/* EDGE / STATS */
+.stat-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:16px;}
+.stat-box{background:var(--s1);border:1px solid var(--border);border-radius:4px;padding:10px 12px;}
+.sbl{font-size:7px;letter-spacing:0.13em;text-transform:uppercase;color:var(--dim);margin-bottom:3px;}
+.sbv{font-family:'Playfair Display',serif;font-size:20px;font-weight:400;line-height:1;}
+.sbv.pos{color:var(--gb);} .sbv.neg{color:var(--r);} .sbv.neu{color:var(--mid);}
+
+.edge-section{background:var(--s1);border:1px solid var(--border);border-radius:4px;padding:14px 16px;margin-bottom:10px;}
+.edge-title{font-size:8px;letter-spacing:0.18em;text-transform:uppercase;color:var(--g);margin-bottom:10px;}
+.edge-row{display:flex;align-items:center;gap:10px;margin-bottom:6px;font-size:9px;}
+.edge-label{color:var(--mid);min-width:140px;flex-shrink:0;}
+.edge-bar-wrap{flex:1;height:4px;background:rgba(255,255,255,0.05);border-radius:2px;overflow:hidden;}
+.edge-bar{height:100%;border-radius:2px;transition:width 0.5s ease;}
+.edge-bar.pos{background:linear-gradient(90deg,var(--gd),var(--gb));}
+.edge-bar.neg{background:linear-gradient(90deg,#7a3028,var(--r));}
+.edge-stat{font-size:8px;color:var(--dim);min-width:60px;text-align:right;}
+.edge-stat.pos{color:var(--gb);} .edge-stat.neg{color:var(--r);}
+
+/* STRATEGY DOC */
+.strategy-doc{background:var(--s1);border:1px solid var(--border-g);border-radius:4px;padding:16px 18px;}
+.strat-section{margin-bottom:16px;padding-bottom:16px;border-bottom:1px solid var(--border);}
+.strat-section:last-child{border-bottom:none;margin-bottom:0;padding-bottom:0;}
+.strat-label{font-size:7px;letter-spacing:0.22em;text-transform:uppercase;color:var(--gd);margin-bottom:8px;}
+.strat-content{font-family:'Playfair Display',serif;font-size:13px;font-style:italic;color:var(--text);line-height:1.8;}
+.strat-rule{display:flex;align-items:flex-start;gap:8px;margin-bottom:5px;font-size:10px;color:var(--text);}
+.strat-rule-num{color:var(--gd);flex-shrink:0;font-size:9px;margin-top:1px;}
+.strat-tag{font-size:7px;padding:2px 7px;border-radius:2px;display:inline-block;margin:2px;}
+.strat-tag.green{background:rgba(100,180,120,0.1);border:1px solid rgba(100,180,120,0.22);color:var(--gb);}
+.strat-tag.red{background:rgba(196,106,90,0.1);border:1px solid rgba(196,106,90,0.22);color:var(--r);}
+.strat-tag.amber{background:rgba(212,148,74,0.1);border:1px solid rgba(212,148,74,0.22);color:var(--amber);}
+.strat-update{font-size:8px;color:var(--dim);margin-top:10px;font-style:italic;}
+
+/* STUDY GUIDE */
+.guide-card{background:var(--s1);border:1px solid var(--border);border-radius:4px;margin-bottom:8px;overflow:hidden;}
+.guide-head{display:flex;align-items:center;gap:10px;padding:11px 14px;cursor:pointer;border-bottom:1px solid transparent;transition:all 0.2s;}
+.guide-head:hover{background:rgba(255,255,255,0.02);}
+.guide-card.open .guide-head{border-bottom-color:var(--border);}
+.guide-num{font-size:9px;color:var(--gd);flex-shrink:0;font-weight:700;}
+.guide-title{font-family:'Playfair Display',serif;font-size:14px;flex:1;}
+.guide-arrow{font-size:10px;color:var(--dim);transition:transform 0.2s;}
+.guide-card.open .guide-arrow{transform:rotate(90deg);}
+.guide-body{display:none;padding:12px 14px;}
+.guide-card.open .guide-body{display:block;}
+.guide-step{display:flex;gap:10px;margin-bottom:10px;align-items:flex-start;}
+.guide-step-num{background:rgba(100,180,120,0.12);border:1px solid rgba(100,180,120,0.22);border-radius:50%;width:18px;height:18px;display:flex;align-items:center;justify-content:center;font-size:7px;color:var(--g);flex-shrink:0;margin-top:1px;}
+.guide-step-content{flex:1;}
+.guide-step-title{font-size:10px;color:var(--text);margin-bottom:2px;}
+.guide-step-desc{font-size:9px;color:var(--dim);line-height:1.6;}
+.guide-step-why{font-size:8px;color:var(--gd);font-style:italic;margin-top:3px;}
+.guide-checklist{margin-top:8px;}
+.gc-item{display:flex;align-items:center;gap:7px;font-size:9px;color:var(--mid);padding:4px 0;border-bottom:1px solid rgba(255,255,255,0.03);}
+.gc-item:last-child{border-bottom:none;}
+.gc-box{width:11px;height:11px;border:1px solid rgba(100,180,120,0.3);border-radius:2px;flex-shrink:0;}
+.guide-note{background:rgba(212,175,90,0.06);border:1px solid rgba(212,175,90,0.18);border-radius:2px;padding:8px 10px;margin-top:8px;font-size:9px;color:var(--amber);line-height:1.6;}
+
+/* FILTER */
+.filter-row{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px;}
+.filter-btn{font-size:7px;letter-spacing:0.1em;text-transform:uppercase;padding:4px 10px;border:1px solid var(--border);border-radius:2px;cursor:pointer;color:var(--dim);transition:all 0.18s;}
+.filter-btn:hover{border-color:rgba(100,180,120,0.28);color:var(--mid);}
+.filter-btn.active{border-color:var(--g);background:rgba(100,180,120,0.08);color:var(--g);}
+
+.empty{text-align:center;padding:24px;font-family:'Playfair Display',serif;font-style:italic;font-size:14px;color:var(--dim);}
+.divider{border:none;border-top:1px solid var(--border);margin:16px 0;}
+
+.toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%) translateY(44px);background:var(--s2);border:1px solid var(--border-g);color:var(--g);font-size:8px;letter-spacing:0.1em;padding:8px 16px;border-radius:2px;transition:transform 0.4s cubic-bezier(0.34,1.56,0.64,1);z-index:999;white-space:nowrap;}
+.toast.show{transform:translateX(-50%) translateY(0);}
+
+@keyframes recPulse{0%,100%{box-shadow:0 0 0 0 rgba(196,106,90,0.5)}50%{box-shadow:0 0 7px rgba(196,106,90,0.25)}}
+@media(max-width:480px){.frow.c3,.frow.c4{grid-template-columns:1fr 1fr;}.stat-grid{grid-template-columns:1fr 1fr;}.img-previews,.jimgs{grid-template-columns:1fr;}.jcard-head{grid-template-columns:70px 1fr auto auto;}.jh-confs{display:none;}}
+</style>
+</head>
+<body>
+
+<nav class="nav">
+  <div class="nav-brand">Trade Journal</div>
+  <div class="nav-clock"><div class="ct" id="clk">--:--:--</div><div id="clkd" style="font-size:7px">--</div></div>
+  <div class="nt active" onclick="showPage('log',this)">Log Entry</div>
+  <div class="nt" onclick="showPage('journal',this)">Journal</div>
+  <div class="nt" onclick="showPage('edge',this)">Edge</div>
+  <div class="nt" onclick="showPage('strategy',this)">Strategy</div>
+  <div class="nt" onclick="showPage('guide',this)">Study Guide</div>
+  <div class="nav-right">
+    <div class="ns"><span class="nsl">Win Rate</span><span class="nsv neu" id="navWR">—</span></div>
+    <div class="ns"><span class="nsl">Net P&L</span><span class="nsv neu" id="navPL">—</span></div>
+  </div>
+</nav>
+
+<!-- ═══════ LOG ENTRY ═══════ -->
+<div class="page active" id="page-log">
+
+  <!-- Entry Type -->
+  <div class="sec">
+    <div class="sh">Entry Type</div>
+    <div class="res-row" id="entryTypeRow">
+      <div class="rb" onclick="setEntryType('trade')">📊 Trade</div>
+      <div class="rb" onclick="setEntryType('study')">📖 Study Session</div>
+      <div class="rb" onclick="setEntryType('obs')">👁 Market Observation</div>
+    </div>
+  </div>
+
+  <!-- Core Details -->
+  <div class="sec">
+    <div class="sh">Session Details</div>
+    <div class="frow c3">
+      <div class="fg"><div class="fl">Date</div><input class="fi" id="eDate" type="date"></div>
+      <div class="fg"><div class="fl">Time (WAT)</div><input class="fi" id="eTime" type="time"></div>
+      <div class="fg"><div class="fl">Session</div>
+        <select class="fi" id="eSession">
+          <option value="">Select Session</option>
+          <option>Asian (00:00–08:00 WAT)</option>
+          <option>London Open (08:00–11:00 WAT)</option>
+          <option>London (09:00–17:00 WAT)</option>
+          <option>NY Open (13:00–16:00 WAT)</option>
+          <option>NY (14:00–22:00 WAT)</option>
+          <option>London Close (15:00–17:00 WAT)</option>
+          <option>Kill Zone — London</option>
+          <option>Kill Zone — NY AM</option>
+          <option>Kill Zone — NY PM</option>
+          <option>Off-session / Overlap</option>
+        </select>
+      </div>
+    </div>
+    <div class="frow c3">
+      <div class="fg"><div class="fl">Instrument</div>
+        <select class="fi" id="eInstr">
+          <option value="">Select</option>
+          <optgroup label="Volatility Indices">
+            <option>Volatility 75 (1s)</option>
+            <option>Volatility 75</option>
+            <option>Volatility 100 (1s)</option>
+            <option>Volatility 25</option>
+            <option>Volatility 25 (1s)</option>
+            <option>Volatility 10</option>
+            <option>Volatility 10 (1s)</option>
+            <option>Volatility 50</option>
+            <option>Volatility 50 (1s)</option>
+          </optgroup>
+          <optgroup label="Crash / Boom">
+            <option>Boom 1000</option>
+            <option>Boom 500</option>
+            <option>Crash 1000</option>
+            <option>Crash 500</option>
+          </optgroup>
+          <optgroup label="Step / Range">
+            <option>Step Index</option>
+            <option>Range Break 100</option>
+            <option>Range Break 200</option>
+          </optgroup>
+          <optgroup label="Jump Indices">
+            <option>Jump 10</option>
+            <option>Jump 25</option>
+            <option>Jump 50</option>
+            <option>Jump 75</option>
+            <option>Jump 100</option>
+          </optgroup>
+        </select>
+      </div>
+      <div class="fg"><div class="fl">Timeframe (Analysis)</div>
+        <select class="fi" id="eTF">
+          <option value="">Select</option>
+          <option>M1</option><option>M5</option><option>M15</option><option>M30</option>
+          <option>H1</option><option>H4</option><option>D1</option><option>W1</option>
+        </select>
+      </div>
+      <div class="fg"><div class="fl">Entry TF</div>
+        <select class="fi" id="eEntryTF">
+          <option value="">Select</option>
+          <option>M1</option><option>M5</option><option>M15</option><option>M30</option>
+          <option>H1</option><option>H4</option>
+        </select>
+      </div>
+    </div>
+  </div>
+
+  <!-- HTF Bias -->
+  <div class="sec">
+    <div class="sh">Higher Timeframe Bias</div>
+    <div class="frow c2">
+      <div class="fg"><div class="fl">HTF Trend</div>
+        <select class="fi" id="eHTF">
+          <option value="">Select</option>
+          <option>Bullish — Strong</option><option>Bullish — Weak</option>
+          <option>Bearish — Strong</option><option>Bearish — Weak</option>
+          <option>Ranging / Consolidation</option><option>Unclear / Mixed</option>
+        </select>
+      </div>
+      <div class="fg"><div class="fl">Market Phase</div>
+        <select class="fi" id="ePhase">
+          <option value="">Select</option>
+          <option>Trending — Impulsive</option><option>Trending — Pullback</option>
+          <option>Accumulation</option><option>Distribution</option>
+          <option>Ranging — Tight</option><option>Ranging — Wide</option>
+          <option>Post-expansion consolidation</option>
+        </select>
+      </div>
+    </div>
+    <div class="fg" style="margin-bottom:8px"><div class="fl">HTF Key Levels Identified</div><input class="fi" id="eHTFLevels" placeholder="e.g. Major resistance at 8450, previous day high at 8320..."></div>
+  </div>
+
+  <!-- Setup -->
+  <div class="sec">
+    <div class="sh">Setup & Structure</div>
+    <div class="fg" style="margin-bottom:6px"><div class="fl">Setup Type</div>
+      <select class="fi" id="eSetup">
+        <option value="">Select Primary Setup</option>
+        <optgroup label="SMC / ICT">
+          <option>Order Block (OB) — Bullish</option><option>Order Block (OB) — Bearish</option>
+          <option>Fair Value Gap (FVG) — Bullish</option><option>Fair Value Gap (FVG) — Bearish</option>
+          <option>Breaker Block — Bullish</option><option>Breaker Block — Bearish</option>
+          <option>Mitigation Block</option><option>Propulsion Block</option>
+          <option>Liquidity Sweep + Reversal</option><option>Liquidity Grab + Continuation</option>
+          <option>CHoCH (Change of Character)</option><option>BOS (Break of Structure)</option>
+          <option>CISD (Change in State of Delivery)</option>
+        </optgroup>
+        <optgroup label="Price Action">
+          <option>Pin Bar / Rejection Wick</option><option>Engulfing — Bullish</option>
+          <option>Engulfing — Bearish</option><option>Inside Bar Breakout</option>
+          <option>Double Top</option><option>Double Bottom</option>
+          <option>Head & Shoulders</option><option>Inverse Head & Shoulders</option>
+          <option>Wedge — Rising</option><option>Wedge — Falling</option>
+          <option>Channel Breakout</option>
+        </optgroup>
+        <optgroup label="S/R & S&D">
+          <option>S/R Flip — Support to Resistance</option>
+          <option>S/R Flip — Resistance to Support</option>
+          <option>Supply Zone Rejection</option><option>Demand Zone Bounce</option>
+          <option>Round Number Reaction</option>
+        </optgroup>
+        <optgroup label="Other">
+          <option>Trend Continuation Pullback</option>
+          <option>Range Boundary Play</option>
+          <option>News / Volatility Spike</option>
+          <option>Custom / Developing Setup</option>
+        </optgroup>
+      </select>
+    </div>
+    <div class="fg" style="margin-bottom:8px"><div class="fl">Entry Model / Trigger</div>
+      <select class="fi" id="eModel">
+        <option value="">Select Entry Trigger</option>
+        <option>M1 / M5 CHoCH at POI</option>
+        <option>Engulfing candle at POI</option>
+        <option>Wick rejection at level</option>
+        <option>FVG fill + rejection</option>
+        <option>BOS confirmation</option>
+        <option>Liquidity swept + close above/below</option>
+        <option>Displacement candle</option>
+        <option>Lower TF structure shift</option>
+        <option>Break and retest</option>
+        <option>Market order at key level</option>
+        <option>Limit order at POI</option>
+      </select>
+    </div>
+    <div class="fg"><div class="fl">Direction</div>
+      <select class="fi" id="eDir">
+        <option value="">Select</option>
+        <option>BUY / Long</option><option>SELL / Short</option><option>Observation only</option>
+      </select>
+    </div>
+  </div>
+
+  <!-- Confluences -->
+  <div class="sec">
+    <div class="sh">Confluences Present <span id="confCount" style="color:var(--g);margin-left:8px">0 selected</span></div>
+    <div style="font-size:8px;color:var(--dim);margin-bottom:8px;font-style:italic;">Select all that were present at time of analysis — not just the ones that supported the trade.</div>
+
+    <div style="font-size:7px;letter-spacing:0.14em;color:var(--gd);text-transform:uppercase;margin-bottom:5px;">Structure &amp; Market Profile</div>
+    <div class="tag-group" id="conf-structure">
+      <div class="tag" data-key="htf-aligned" onclick="togTag(this,'conf')">HTF trend aligned</div>
+      <div class="tag" data-key="msb" onclick="togTag(this,'conf')">Market structure break (MSB)</div>
+      <div class="tag" data-key="choch" onclick="togTag(this,'conf')">CHoCH confirmed</div>
+      <div class="tag" data-key="bos" onclick="togTag(this,'conf')">BOS confirmed</div>
+      <div class="tag" data-key="premium-discount" onclick="togTag(this,'conf')">Premium / Discount zone</div>
+      <div class="tag" data-key="ranging" onclick="togTag(this,'conf')">Range boundary</div>
+    </div>
+
+    <div style="font-size:7px;letter-spacing:0.14em;color:var(--gd);text-transform:uppercase;margin-bottom:5px;margin-top:8px;">Points of Interest (POI)</div>
+    <div class="tag-group" id="conf-poi">
+      <div class="tag" data-key="ob" onclick="togTag(this,'conf')">Order Block (OB)</div>
+      <div class="tag" data-key="fvg" onclick="togTag(this,'conf')">Fair Value Gap (FVG)</div>
+      <div class="tag" data-key="breaker" onclick="togTag(this,'conf')">Breaker Block</div>
+      <div class="tag" data-key="supply-demand" onclick="togTag(this,'conf')">Supply / Demand zone</div>
+      <div class="tag" data-key="sr-level" onclick="togTag(this,'conf')">Key S/R level</div>
+      <div class="tag" data-key="round-number" onclick="togTag(this,'conf')">Round number</div>
+      <div class="tag" data-key="prev-high-low" onclick="togTag(this,'conf')">Previous day high / low</div>
+      <div class="tag" data-key="weekly-level" onclick="togTag(this,'conf')">Weekly level</div>
+    </div>
+
+    <div style="font-size:7px;letter-spacing:0.14em;color:var(--gd);text-transform:uppercase;margin-bottom:5px;margin-top:8px;">Liquidity</div>
+    <div class="tag-group" id="conf-liq">
+      <div class="tag" data-key="liq-swept" onclick="togTag(this,'conf')">Liquidity swept</div>
+      <div class="tag" data-key="liq-pool-above" onclick="togTag(this,'conf')">Liquidity pool above (SSL)</div>
+      <div class="tag" data-key="liq-pool-below" onclick="togTag(this,'conf')">Liquidity pool below (BSL)</div>
+      <div class="tag" data-key="equal-highs" onclick="togTag(this,'conf')">Equal highs targeted</div>
+      <div class="tag" data-key="equal-lows" onclick="togTag(this,'conf')">Equal lows targeted</div>
+      <div class="tag" data-key="stop-hunt" onclick="togTag(this,'conf')">Stop hunt / false break</div>
+    </div>
+
+    <div style="font-size:7px;letter-spacing:0.14em;color:var(--gd);text-transform:uppercase;margin-bottom:5px;margin-top:8px;">Entry Quality</div>
+    <div class="tag-group" id="conf-entry">
+      <div class="tag" data-key="kill-zone" onclick="togTag(this,'conf')">Kill zone / session open</div>
+      <div class="tag" data-key="low-tf-confirm" onclick="togTag(this,'conf')">Lower TF confirmation</div>
+      <div class="tag" data-key="displacement" onclick="togTag(this,'conf')">Displacement candle</div>
+      <div class="tag" data-key="clean-candle" onclick="togTag(this,'conf')">Clean entry candle</div>
+      <div class="tag" data-key="rr-min-2" onclick="togTag(this,'conf')">R:R minimum 1:2</div>
+      <div class="tag" data-key="risk-ok" onclick="togTag(this,'conf')">Risk within rules</div>
+      <div class="tag" data-key="no-major-sr-ahead" onclick="togTag(this,'conf')">No major S/R blocking TP</div>
+    </div>
+
+    <div style="font-size:7px;letter-spacing:0.14em;color:var(--gd);text-transform:uppercase;margin-bottom:5px;margin-top:8px;">Against Trade (Mark if present)</div>
+    <div class="tag-group" id="conf-against">
+      <div class="tag" data-key="htf-against" onclick="togTagNeg(this)">HTF trend against</div>
+      <div class="tag" data-key="sr-blocking" onclick="togTagNeg(this)">S/R blocking TP path</div>
+      <div class="tag" data-key="choppy-pa" onclick="togTagNeg(this)">Choppy price action</div>
+      <div class="tag" data-key="no-liq-swept" onclick="togTagNeg(this)">Liquidity not yet swept</div>
+      <div class="tag" data-key="fomo" onclick="togTagNeg(this)">FOMO / chased entry</div>
+      <div class="tag" data-key="wide-spread" onclick="togTagNeg(this)">Unusually wide spread</div>
+    </div>
+  </div>
+
+  <!-- Trade Levels (for actual trades) -->
+  <div class="sec" id="tradeLevels">
+    <div class="sh">Trade Levels</div>
+    <div class="frow c4">
+      <div class="fg"><div class="fl">Entry</div><input class="fi" id="eEntry" type="number" placeholder="0.00" step="0.01"></div>
+      <div class="fg"><div class="fl">Stop Loss</div><input class="fi" id="eSL" type="number" placeholder="0.00" step="0.01"></div>
+      <div class="fg"><div class="fl">Take Profit</div><input class="fi" id="eTP" type="number" placeholder="0.00" step="0.01"></div>
+      <div class="fg"><div class="fl">R:R Ratio</div><input class="fi" id="eRR" placeholder="—" readonly style="color:var(--g)"></div>
+    </div>
+    <div class="frow c3">
+      <div class="fg"><div class="fl">Position Size ($)</div><input class="fi" id="eSize" type="number" placeholder="0.50" step="0.50"></div>
+      <div class="fg"><div class="fl">Exit Price</div><input class="fi" id="eExit" type="number" placeholder="0.00" step="0.01"></div>
+      <div class="fg"><div class="fl">P&L ($)</div><input class="fi" id="ePL" type="number" placeholder="0.00" step="0.01" style="color:var(--g)"></div>
+    </div>
+
+    <div class="sh" style="margin-top:12px">Trade Result</div>
+    <div class="res-row" id="resultRow">
+      <div class="rb" onclick="setResult('WIN')">✓ WIN</div>
+      <div class="rb" onclick="setResult('LOSS')">✕ LOSS</div>
+      <div class="rb" onclick="setResult('BE')">— B/E</div>
+      <div class="rb" onclick="setResult('OPEN')">↻ OPEN</div>
+    </div>
+
+    <div class="fg" style="margin-bottom:8px"><div class="fl">Trade Management — What Did You Do</div>
+      <select class="fi" id="eMgmt">
+        <option value="">Select</option>
+        <option>Held to TP — no adjustments</option>
+        <option>Moved SL to BE after partial move</option>
+        <option>Partial TP taken, remainder to full TP</option>
+        <option>Moved SL too early — stopped out</option>
+        <option>Closed manually in profit (before TP)</option>
+        <option>Closed manually at loss (before SL)</option>
+        <option>Let loss run — did not respect SL</option>
+        <option>Added to position</option>
+        <option>Reduced position mid-trade</option>
+      </select>
+    </div>
+  </div>
+
+  <!-- Emotional / Psychological -->
+  <div class="sec">
+    <div class="sh">Psychological State</div>
+    <div class="frow c2">
+      <div class="fg"><div class="fl">State Before Entry</div>
+        <select class="fi" id="eEmotion">
+          <option value="">Select</option>
+          <option>Calm and focused</option><option>Patient — waited for criteria</option>
+          <option>Slightly anxious</option><option>Fearful — almost didn't enter</option>
+          <option>Overconfident</option><option>Greedy — moved TP or over-sized</option>
+          <option>FOMO — chased the move</option><option>Revenge trading</option>
+          <option>Distracted / unfocused</option><option>Detached — mechanical execution</option>
+        </select>
+      </div>
+      <div class="fg"><div class="fl">Rules Adherence</div>
+        <select class="fi" id="eAdherence">
+          <option value="">Select</option>
+          <option>Full — every rule followed</option>
+          <option>Mostly — minor deviation</option>
+          <option>Partial — broke one key rule</option>
+          <option>Poor — broke multiple rules</option>
+          <option>N/A — study / observation only</option>
+        </select>
+      </div>
+    </div>
+  </div>
+
+  <!-- Analysis & Voice -->
+  <div class="sec">
+    <div class="sh">Analysis, Reasoning & Lessons</div>
+    <div class="voice-wrap">
+      <div class="voice-ctrl">
+        <button class="vbtn" id="vBtn" onclick="togVoice()">🎙 Record</button>
+        <div class="vstatus" id="vStat">Press to speak your analysis</div>
+        <button class="vclr" onclick="clrVoice()">Clear</button>
+      </div>
+      <div class="vtxt" id="vTxt">—</div>
+      <button class="vapp" onclick="appVoice()">↓ Append to analysis</button>
+    </div>
+    <div class="fg" style="margin-bottom:8px"><div class="fl">Pre-Trade / Pre-Session Analysis</div><textarea class="fta" id="eAnalysis" rows="4" placeholder="What did you see? What was price telling you? What was your thesis before entering or beginning the session..."></textarea></div>
+    <div class="fg" style="margin-bottom:8px"><div class="fl">What Happened — Narrative</div><textarea class="fta" id="eNarrative" rows="4" placeholder="What actually happened? How did price behave? Did it follow your thesis or deviate? Describe the market story as it unfolded..."></textarea></div>
+    <div class="fg" style="margin-bottom:8px"><div class="fl">Lessons &amp; Insights — What Will You Do Differently</div><textarea class="fta" id="eLessons" rows="3" placeholder="What did this teach you? What rule does this reinforce or reveal? What would you change about the entry, management, or analysis..."></textarea></div>
+    <div class="fg"><div class="fl">Rule This Entry Validates or Invalidates</div><textarea class="fta" id="eRule" rows="2" placeholder="e.g. 'Always wait for liquidity sweep before entering at OB' — or — 'This proves I should not trade against HTF trend even with clean LTF setup'..."></textarea></div>
+  </div>
+
+  <!-- Images -->
+  <div class="sec">
+    <div class="sh">Chart Screenshots</div>
+    <div class="frow c2">
+      <div>
+        <div style="font-size:7px;letter-spacing:0.14em;text-transform:uppercase;color:var(--dim);margin-bottom:5px">Before — Setup</div>
+        <div class="img-zone" onclick="document.getElementById('fBefore').click()"><input type="file" id="fBefore" accept="image/*" onchange="hdlImg(this,'before')" style="display:none"><div style="font-size:18px">📸</div><div class="img-zone-txt">Tap to upload setup screenshot</div></div>
+        <div id="pBefore"></div>
+      </div>
+      <div>
+        <div style="font-size:7px;letter-spacing:0.14em;text-transform:uppercase;color:var(--dim);margin-bottom:5px">After — Result</div>
+        <div class="img-zone" onclick="document.getElementById('fAfter').click()"><input type="file" id="fAfter" accept="image/*" onchange="hdlImg(this,'after')" style="display:none"><div style="font-size:18px">📸</div><div class="img-zone-txt">Tap to upload result screenshot</div></div>
+        <div id="pAfter"></div>
+      </div>
+    </div>
+    <div class="fg"><div class="fl">Additional Chart Notes / Annotations</div><textarea class="fta" id="eChartNotes" rows="2" placeholder="Describe what you annotated or what the chart clearly shows..."></textarea></div>
+  </div>
+
+  <button class="sbtn" onclick="saveEntry()">— Save Entry —</button>
+</div>
+
+<!-- ═══════ JOURNAL ═══════ -->
+<div class="page" id="page-journal">
+  <div class="filter-row" id="journalFilters">
+    <div class="filter-btn active" onclick="filterJournal('all',this)">All</div>
+    <div class="filter-btn" onclick="filterJournal('trade',this)">Trades</div>
+    <div class="filter-btn" onclick="filterJournal('study',this)">Study</div>
+    <div class="filter-btn" onclick="filterJournal('obs',this)">Observations</div>
+    <div class="filter-btn" onclick="filterJournal('WIN',this)">Wins</div>
+    <div class="filter-btn" onclick="filterJournal('LOSS',this)">Losses</div>
+  </div>
+  <div class="sec">
+    <div class="frow c3">
+      <div class="fg"><select class="fi" id="fjInstr" onchange="renderJournal()"><option value="">All Instruments</option><option>Volatility 75 (1s)</option><option>Volatility 100 (1s)</option><option>Volatility 25</option><option>Boom 1000</option><option>Crash 1000</option><option>Step Index</option></select></div>
+      <div class="fg"><select class="fi" id="fjSetup" onchange="renderJournal()"><option value="">All Setups</option><option>Order Block (OB) — Bullish</option><option>Order Block (OB) — Bearish</option><option>Fair Value Gap (FVG) — Bullish</option><option>Fair Value Gap (FVG) — Bearish</option><option>Liquidity Sweep + Reversal</option><option>CHoCH (Change of Character)</option><option>BOS (Break of Structure)</option></select></div>
+      <div class="fg"><input class="fi" id="fjSearch" placeholder="Search..." oninput="renderJournal()"></div>
+    </div>
+  </div>
+  <div class="jlist" id="jList"><div class="empty">No entries yet. Begin logging to build your journal.</div></div>
+</div>
+
+<!-- ═══════ EDGE ═══════ -->
+<div class="page" id="page-edge">
+  <div class="stat-grid">
+    <div class="stat-box"><div class="sbl">Total Entries</div><div class="sbv neu" id="eTot">0</div></div>
+    <div class="stat-box"><div class="sbl">Win Rate</div><div class="sbv neu" id="eWR">—</div></div>
+    <div class="stat-box"><div class="sbl">Net P&L</div><div class="sbv neu" id="eNetPL">$0</div></div>
+    <div class="stat-box"><div class="sbl">Avg R:R</div><div class="sbv neu" id="eAvgRR">—</div></div>
+  </div>
+  <div class="stat-grid">
+    <div class="stat-box"><div class="sbl">Best Trade</div><div class="sbv pos" id="eBest">—</div></div>
+    <div class="stat-box"><div class="sbl">Worst Trade</div><div class="sbv neg" id="eWorst">—</div></div>
+    <div class="stat-box"><div class="sbl">Avg Confluences</div><div class="sbv neu" id="eAvgConf">—</div></div>
+    <div class="stat-box"><div class="sbl">Rules Broken</div><div class="sbv neu" id="eRulesBroken">—</div></div>
+  </div>
+
+  <div class="edge-section">
+    <div class="edge-title">Confluence Win Rate — What's Actually Working</div>
+    <div id="confEdge"><div class="empty" style="padding:12px">Log at least 10 trades to see confluence data.</div></div>
+  </div>
+
+  <div class="edge-section">
+    <div class="edge-title">Setup Win Rate</div>
+    <div id="setupEdge"><div class="empty" style="padding:12px">Log trades to see setup performance.</div></div>
+  </div>
+
+  <div class="edge-section">
+    <div class="edge-title">Session Performance</div>
+    <div id="sessionEdge"><div class="empty" style="padding:12px">Log trades to see session data.</div></div>
+  </div>
+
+  <div class="edge-section">
+    <div class="edge-title">Emotional State → Outcome</div>
+    <div id="emotionEdge"><div class="empty" style="padding:12px">Log trades to see emotional patterns.</div></div>
+  </div>
+
+  <div class="edge-section">
+    <div class="edge-title">Instrument Performance</div>
+    <div id="instrEdge"><div class="empty" style="padding:12px">Log trades across instruments to compare.</div></div>
+  </div>
+
+  <div class="edge-section">
+    <div class="edge-title">Rules Adherence → Outcome</div>
+    <div id="rulesEdge"><div class="empty" style="padding:12px">Log trades to see adherence patterns.</div></div>
+  </div>
+</div>
+
+<!-- ═══════ STRATEGY ═══════ -->
+<div class="page" id="page-strategy">
+  <div class="sec">
+    <div class="sh">Living Strategy Document — Updates as You Learn</div>
+    <div style="font-size:9px;color:var(--dim);margin-bottom:14px;font-style:italic;line-height:1.7;">This document reflects your current understanding of your edge. It begins with a sensible SMC/PA foundation and updates its emphasis based on what your logged data shows is working. Review it weekly. Edit the base rules below as your understanding deepens.</div>
+  </div>
+
+  <div class="strategy-doc" id="strategyDoc">
+
+    <div class="strat-section">
+      <div class="strat-label">Instrument &amp; Market Focus</div>
+      <div class="strat-content" id="strat-instruments">Primary: Volatility 75 (1s). Secondary: Volatility 100 (1s), Volatility 25. These are synthetic, 24/7 markets driven by algorithmic price delivery. They respond well to SMC concepts — liquidity, order blocks, and fair value gaps — because the algorithm seeks liquidity before delivering price.</div>
+    </div>
+
+    <div class="strat-section">
+      <div class="strat-label">Core Edge — What I Am Trading</div>
+      <div class="strat-content" id="strat-edge">I am trading the reaction of price to institutional footprints — specifically the points where the algorithm returns to collect orders (order blocks, FVGs) after creating displacement. My edge is the confluence of: HTF trend alignment + liquidity sweep + return to premium/discount + lower timeframe confirmation of a shift in delivery.</div>
+      <div class="strat-update" id="strat-edge-data">Data note: Log more trades to see what confluences are actually producing wins.</div>
+    </div>
+
+    <div class="strat-section">
+      <div class="strat-label">Entry Rules — What Must Be True to Enter</div>
+      <div id="strat-rules">
+        <div class="strat-rule"><div class="strat-rule-num">1.</div><div>HTF bias must be clear and aligned with the trade direction. If the higher timeframe is ranging or unclear, do not trade.</div></div>
+        <div class="strat-rule"><div class="strat-rule-num">2.</div><div>Price must be at a defined Point of Interest (POI) — order block, FVG, supply/demand zone, or key S/R level. No POI, no trade.</div></div>
+        <div class="strat-rule"><div class="strat-rule-num">3.</div><div>Liquidity must have been swept before the entry. Entering before a sweep means entering in the direction of the hunt — wrong side of the move.</div></div>
+        <div class="strat-rule"><div class="strat-rule-num">4.</div><div>Lower timeframe must confirm a shift in delivery (CHoCH, BOS, or displacement candle) before entering. Do not anticipate — wait for confirmation.</div></div>
+        <div class="strat-rule"><div class="strat-rule-num">5.</div><div>Minimum R:R of 1:2 must be available before entry. If TP target is blocked by a major level, the trade does not qualify.</div></div>
+        <div class="strat-rule"><div class="strat-rule-num">6.</div><div>Risk per trade must not exceed [define your %]. Position size must be calculated before entry, not estimated.</div></div>
+      </div>
+    </div>
+
+    <div class="strat-section">
+      <div class="strat-label">What Works — Data Supported</div>
+      <div id="strat-works"><div class="strat-update">Log at least 10 trades for data-driven insights to appear here.</div></div>
+    </div>
+
+    <div class="strat-section">
+      <div class="strat-label">What to Avoid — Invalidation Conditions</div>
+      <div id="strat-avoid">
+        <div style="margin-bottom:4px"><span class="strat-tag red">✕ No trade</span> if HTF trend is unclear or ranging</div>
+        <div style="margin-bottom:4px"><span class="strat-tag red">✕ No trade</span> if liquidity has not been swept</div>
+        <div style="margin-bottom:4px"><span class="strat-tag red">✕ No trade</span> if there is major S/R blocking the TP path</div>
+        <div style="margin-bottom:4px"><span class="strat-tag red">✕ No trade</span> if emotional state is revenge, FOMO, or overconfident</div>
+        <div style="margin-bottom:4px"><span class="strat-tag red">✕ No trade</span> if R:R is below 1:2</div>
+        <div style="margin-bottom:4px"><span class="strat-tag amber">⚠ Caution</span> during sessions with historically poor performance</div>
+      </div>
+      <div id="strat-avoid-data" class="strat-update">Data note: Your worst patterns will appear here as you log more trades.</div>
+    </div>
+
+    <div class="strat-section">
+      <div class="strat-label">Trade Management Rules</div>
+      <div id="strat-mgmt">
+        <div class="strat-rule"><div class="strat-rule-num">1.</div><div>Place SL below/above the most recent significant swing — not at a round number.</div></div>
+        <div class="strat-rule"><div class="strat-rule-num">2.</div><div>Move SL to break-even once price has moved 1R in your favour.</div></div>
+        <div class="strat-rule"><div class="strat-rule-num">3.</div><div>Do not move TP to a closer target out of fear once in a trade.</div></div>
+        <div class="strat-rule"><div class="strat-rule-num">4.</div><div>If the thesis is invalidated by price action — exit. Do not hold hoping for recovery.</div></div>
+      </div>
+    </div>
+
+    <div class="strat-section">
+      <div class="strat-label">Current Development Focus</div>
+      <div class="strat-content" id="strat-focus">Strategy is in active development. Primary focus: defining the specific entry model that produces the most consistent results on Volatility 75 (1s). Current working hypothesis: liquidity sweep + return to OB/FVG + M1 CHoCH is the highest-probability setup.</div>
+      <div class="strat-update" id="strat-focus-data"></div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ═══════ STUDY GUIDE ═══════ -->
+<div class="page" id="page-guide">
+
+  <div style="font-size:9px;color:var(--dim);margin-bottom:16px;line-height:1.75;font-style:italic;border-left:2px solid var(--g);padding-left:10px;">This guide tells you exactly what to capture at every stage of your trading process — before, during and after. Every data point exists for a reason: to help you identify your edge, remove your weaknesses, and build rules you can trust. Follow it consistently and it will show you what's working.</div>
+
+  <!-- PRE-SESSION -->
+  <div class="guide-card open" id="gc1">
+    <div class="guide-head" onclick="togGuide('gc1')">
+      <div class="guide-num">01</div>
+      <div class="guide-title">Pre-Session Analysis — Before You Look for Trades</div>
+      <div class="guide-arrow">▶</div>
+    </div>
+    <div class="guide-body">
+      <div class="guide-step">
+        <div class="guide-step-num">1</div>
+        <div class="guide-step-content">
+          <div class="guide-step-title">Mark the HTF (H4 / D1) first</div>
+          <div class="guide-step-desc">Before anything else, go to your highest relevant timeframe. Identify: the dominant trend direction, the last significant high and low, any major unmitigated order blocks or FVGs, and which side of the range price is currently on (premium or discount).</div>
+          <div class="guide-step-why">Why: Every lower timeframe setup must make sense in the context of HTF delivery. Trading against this is trading against the algorithm's current programme.</div>
+        </div>
+      </div>
+      <div class="guide-step">
+        <div class="guide-step-num">2</div>
+        <div class="guide-step-content">
+          <div class="guide-step-title">Identify key levels for the session</div>
+          <div class="guide-step-desc">Mark: previous day high and low, previous week high and low, any obvious liquidity pools (equal highs/lows), significant round numbers, and your POIs (order blocks, FVGs, S/D zones) on H1.</div>
+          <div class="guide-step-why">Why: The algorithm seeks liquidity. Knowing where it sits tells you where price is likely to move toward before reversing.</div>
+        </div>
+      </div>
+      <div class="guide-step">
+        <div class="guide-step-num">3</div>
+        <div class="guide-step-content">
+          <div class="guide-step-title">Form your bias — and write it down</div>
+          <div class="guide-step-desc">State clearly: "Today I am looking for BUYS / SELLS / no trade because [reason]." Log this in your pre-session analysis field. This creates accountability — you will later compare what you thought with what actually happened.</div>
+          <div class="guide-step-why">Why: Writing the bias before seeing intraday moves removes hindsight bias. It also forces clarity of thought before execution.</div>
+        </div>
+      </div>
+      <div class="guide-checklist">
+        <div class="gc-item"><div class="gc-box"></div>HTF trend identified and recorded</div>
+        <div class="gc-item"><div class="gc-box"></div>Key levels and POIs marked on chart</div>
+        <div class="gc-item"><div class="gc-box"></div>Liquidity pools identified above and below</div>
+        <div class="gc-item"><div class="gc-box"></div>Session bias written before looking for entries</div>
+        <div class="gc-item"><div class="gc-box"></div>Instrument and session selected</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SETUP IDENTIFICATION -->
+  <div class="guide-card" id="gc2">
+    <div class="guide-head" onclick="togGuide('gc2')">
+      <div class="guide-num">02</div>
+      <div class="guide-title">Setup Identification — Is There a Valid Trade?</div>
+      <div class="guide-arrow">▶</div>
+    </div>
+    <div class="guide-body">
+      <div class="guide-step">
+        <div class="guide-step-num">1</div>
+        <div class="guide-step-content">
+          <div class="guide-step-title">Is price at a defined POI?</div>
+          <div class="guide-step-desc">Price must be interacting with a pre-identified level — not one you've drawn after the fact. The POI should be: an order block, FVG, supply/demand zone, or key S/R. If you're drawing levels after price has already moved to them, that is retrospective bias — not analysis.</div>
+          <div class="guide-step-why">Why: Chasing price away from a POI is one of the most common causes of poor entries and blown trades.</div>
+        </div>
+      </div>
+      <div class="guide-step">
+        <div class="guide-step-num">2</div>
+        <div class="guide-step-content">
+          <div class="guide-step-title">Has liquidity been swept?</div>
+          <div class="guide-step-desc">Before a genuine reversal, the algorithm typically sweeps the obvious liquidity — the stop losses sitting above equal highs or below equal lows. Ask: has the sweep happened? Is price now rejecting from the POI after the sweep? If liquidity hasn't been taken, price may still be hunting — wait.</div>
+          <div class="guide-step-why">Why: Entries before a liquidity sweep often become the liquidity that gets swept. Patience here directly prevents avoidable losses.</div>
+        </div>
+      </div>
+      <div class="guide-step">
+        <div class="guide-step-num">3</div>
+        <div class="guide-step-content">
+          <div class="guide-step-title">Does lower timeframe confirm a shift?</div>
+          <div class="guide-step-desc">Drop to your entry timeframe (M1 or M5). Look for: a CHoCH (price breaks a structural high/low in the opposite direction), a displacement candle (strong impulsive move), or a BOS. This is your trigger — not the POI itself. The POI tells you where. The LTF confirmation tells you when.</div>
+          <div class="guide-step-why">Why: POIs alone do not guarantee reversals. The LTF confirmation is the evidence the algorithm has changed its current delivery programme.</div>
+        </div>
+      </div>
+      <div class="guide-step">
+        <div class="guide-step-num">4</div>
+        <div class="guide-step-content">
+          <div class="guide-step-title">Calculate the R:R before entering</div>
+          <div class="guide-step-desc">Identify: entry, SL (below/above the POI or swing), and TP (next significant level or liquidity pool). Calculate R:R. If it is below 1:2, the trade does not qualify. Check: is there any major S/R or opposing POI blocking the TP path? If yes, either adjust TP or skip the trade.</div>
+          <div class="guide-step-why">Why: A positive R:R means you can be wrong more often than right and still be profitable. Entries with poor R:R erode account even with a high win rate.</div>
+        </div>
+      </div>
+      <div class="guide-checklist">
+        <div class="gc-item"><div class="gc-box"></div>Price is at a pre-identified POI (not drawn after the fact)</div>
+        <div class="gc-item"><div class="gc-box"></div>Liquidity has been swept before the entry</div>
+        <div class="gc-item"><div class="gc-box"></div>LTF confirmation of structural shift present</div>
+        <div class="gc-item"><div class="gc-box"></div>R:R calculated and is at least 1:2</div>
+        <div class="gc-item"><div class="gc-box"></div>No major S/R blocking the TP path</div>
+        <div class="gc-item"><div class="gc-box"></div>Setup aligns with HTF bias from pre-session</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ENTRY LOGGING -->
+  <div class="guide-card" id="gc3">
+    <div class="guide-head" onclick="togGuide('gc3')">
+      <div class="guide-num">03</div>
+      <div class="guide-title">Entry Logging — What to Record at Entry</div>
+      <div class="guide-arrow">▶</div>
+    </div>
+    <div class="guide-body">
+      <div class="guide-step">
+        <div class="guide-step-num">1</div>
+        <div class="guide-step-content">
+          <div class="guide-step-title">Record all session and instrument data</div>
+          <div class="guide-step-desc">Date, time, session (London open, NY open, kill zone etc.), instrument, analysis timeframe, entry timeframe. This is not optional — it becomes the data that shows you which sessions and instruments you trade best.</div>
+        </div>
+      </div>
+      <div class="guide-step">
+        <div class="guide-step-num">2</div>
+        <div class="guide-step-content">
+          <div class="guide-step-title">Select every confluence present — including opposing ones</div>
+          <div class="guide-step-desc">Check every confluence that was present at entry — not just the ones that supported your trade. Mark the "against" confluences too. This data reveals whether trades with more opposing factors actually lose more often, which becomes a rule.</div>
+          <div class="guide-step-why">Why: Only logging supporting confluences creates a biased record. The full picture is what produces actionable insight.</div>
+        </div>
+      </div>
+      <div class="guide-step">
+        <div class="guide-step-num">3</div>
+        <div class="guide-step-content">
+          <div class="guide-step-title">Take a screenshot before entry</div>
+          <div class="guide-step-desc">Capture the chart at the moment of entry or analysis — before price has moved. This is your "before" image. It shows your actual read, not a retrospective interpretation. Annotate clearly: mark your POI, SL, TP, and the liquidity you identified.</div>
+        </div>
+      </div>
+      <div class="guide-step">
+        <div class="guide-step-num">4</div>
+        <div class="guide-step-content">
+          <div class="guide-step-title">Write your pre-trade analysis</div>
+          <div class="guide-step-desc">In 3–5 sentences: what you see, why you're entering, where you're wrong (SL), where you're right (TP), and what would make you exit early. Voice note works — append it to analysis. Write this before or immediately at entry, not after the trade closes.</div>
+        </div>
+      </div>
+      <div class="guide-step">
+        <div class="guide-step-num">5</div>
+        <div class="guide-step-content">
+          <div class="guide-step-title">Record your emotional state honestly</div>
+          <div class="guide-step-desc">This is not to judge you — it is to identify patterns. Trades entered in FOMO or revenge consistently underperform. The data will show this. But only if you record it honestly.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- POST-TRADE -->
+  <div class="guide-card" id="gc4">
+    <div class="guide-head" onclick="togGuide('gc4')">
+      <div class="guide-num">04</div>
+      <div class="guide-title">Post-Trade Review — After the Trade Closes</div>
+      <div class="guide-arrow">▶</div>
+    </div>
+    <div class="guide-body">
+      <div class="guide-step">
+        <div class="guide-step-num">1</div>
+        <div class="guide-step-content">
+          <div class="guide-step-title">Record the result and P&L</div>
+          <div class="guide-step-desc">Win, loss, break-even, or still open. Actual exit price and P&L in dollars. Do not approximate — exact figures only. This feeds your edge statistics.</div>
+        </div>
+      </div>
+      <div class="guide-step">
+        <div class="guide-step-num">2</div>
+        <div class="guide-step-content">
+          <div class="guide-step-title">Take a screenshot after close</div>
+          <div class="guide-step-desc">Capture the chart showing the full trade from entry to exit. Your "after" image. Compare it against your "before" — did price follow your thesis? What did you miss?</div>
+        </div>
+      </div>
+      <div class="guide-step">
+        <div class="guide-step-num">3</div>
+        <div class="guide-step-content">
+          <div class="guide-step-title">Write the narrative of what happened</div>
+          <div class="guide-step-desc">Describe exactly what price did — not what you wanted it to do. Then describe how you managed the trade. Then compare: was your pre-trade thesis correct? Did price deliver as you anticipated? If not — why not? What did the algorithm actually do?</div>
+          <div class="guide-step-why">Why: This narrative is where learning lives. Without it, you just have results. With it, you understand causation.</div>
+        </div>
+      </div>
+      <div class="guide-step">
+        <div class="guide-step-num">4</div>
+        <div class="guide-step-content">
+          <div class="guide-step-title">Extract one rule or lesson</div>
+          <div class="guide-step-desc">Every trade must produce one explicit statement: what it confirmed, refuted, or revealed about your approach. Write it in the "Rule this entry validates or invalidates" field. Over time, these become your rulebook.</div>
+          <div class="guide-step-why">Why: Random logging produces random insight. Explicit rule extraction converts experience into structured knowledge.</div>
+        </div>
+      </div>
+      <div class="guide-step">
+        <div class="guide-step-num">5</div>
+        <div class="guide-step-content">
+          <div class="guide-step-title">Rate your rules adherence</div>
+          <div class="guide-step-desc">Did you follow your rules? All of them? Which one did you break, if any? This is separate from whether you won or lost — a rules violation that wins is still a problem because it rewards bad behaviour. Log adherence independently of outcome.</div>
+        </div>
+      </div>
+      <div class="guide-checklist">
+        <div class="gc-item"><div class="gc-box"></div>Result and P&L recorded exactly</div>
+        <div class="gc-item"><div class="gc-box"></div>"After" screenshot taken and annotated</div>
+        <div class="gc-item"><div class="gc-box"></div>Narrative written — what price actually did</div>
+        <div class="gc-item"><div class="gc-box"></div>One rule or lesson explicitly extracted</div>
+        <div class="gc-item"><div class="gc-box"></div>Rules adherence rated honestly</div>
+        <div class="gc-item"><div class="gc-box"></div>Emotional state recorded</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- STUDY SESSIONS -->
+  <div class="guide-card" id="gc5">
+    <div class="guide-head" onclick="togGuide('gc5')">
+      <div class="guide-num">05</div>
+      <div class="guide-title">Study Sessions — Setups You Watched But Didn't Take</div>
+      <div class="guide-arrow">▶</div>
+    </div>
+    <div class="guide-body">
+      <div class="guide-step">
+        <div class="guide-step-num">1</div>
+        <div class="guide-step-content">
+          <div class="guide-step-title">Why log setups you didn't take?</div>
+          <div class="guide-step-desc">These are often the most instructive entries in your journal. A setup you observed, analysed, and correctly identified — but did not take — shows you that your analysis was right even when your execution was absent. Over time, this builds the confidence to pull the trigger when criteria are met.</div>
+          <div class="guide-step-why">Conversely: a setup you correctly avoided because criteria weren't met is equally valuable — it validates your patience.</div>
+        </div>
+      </div>
+      <div class="guide-step">
+        <div class="guide-step-num">2</div>
+        <div class="guide-step-content">
+          <div class="guide-step-title">What to record for study entries</div>
+          <div class="guide-step-desc">Select "Study Session" or "Market Observation" as entry type. Record: instrument, session, HTF context, what setup appeared, what confluences were present, why you did or didn't take it, and what actually happened. Screenshot the setup and the outcome.</div>
+        </div>
+      </div>
+      <div class="guide-step">
+        <div class="guide-step-num">3</div>
+        <div class="guide-step-content">
+          <div class="guide-step-title">Backtesting sessions</div>
+          <div class="guide-step-desc">When backtesting — scrolling back through historical price — log each potential setup using the same fields. Mark the entry type as "Study Session." Use the same confluence checklist, the same setup classification, and record what the outcome was. Backtesting data feeds the same edge statistics as live data.</div>
+          <div class="guide-step-why">Why: Consistent categorisation means all data — live, demo, and backtest — contributes to understanding your strategy's actual performance across conditions.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- WEEKLY REVIEW -->
+  <div class="guide-card" id="gc6">
+    <div class="guide-head" onclick="togGuide('gc6')">
+      <div class="guide-num">06</div>
+      <div class="guide-title">Weekly Review — Reading Your Own Data</div>
+      <div class="guide-arrow">▶</div>
+    </div>
+    <div class="guide-body">
+      <div class="guide-step">
+        <div class="guide-step-num">1</div>
+        <div class="guide-step-content">
+          <div class="guide-step-title">Go to the Edge tab every Sunday</div>
+          <div class="guide-step-desc">Review: which confluences produced the highest win rate, which setups performed best, which sessions were most profitable, and what your emotional patterns show. This is not a feeling exercise — it is a data exercise. Let the numbers tell you the truth.</div>
+        </div>
+      </div>
+      <div class="guide-step">
+        <div class="guide-step-num">2</div>
+        <div class="guide-step-content">
+          <div class="guide-step-title">Update the Strategy Document</div>
+          <div class="guide-step-desc">Based on the week's data, adjust one thing in your strategy. Not everything — one thing. Add a rule, refine a condition, or remove something you thought was important but the data doesn't support. Small, deliberate refinements compound over months into a precise edge.</div>
+        </div>
+      </div>
+      <div class="guide-step">
+        <div class="guide-step-num">3</div>
+        <div class="guide-step-content">
+          <div class="guide-step-title">Ask these questions every week</div>
+          <div class="guide-step-desc">Which trades followed all my rules? Which didn't? Of the rule-following trades, what was the win rate? Are my losses coming from rule violations or from valid setups that simply didn't work? What was I most uncertain about this week?</div>
+          <div class="guide-step-why">This distinction — loss from violation vs. loss from valid setup — is critical. Only the former is fixable through discipline. The latter requires strategy refinement.</div>
+        </div>
+      </div>
+      <div class="guide-note">The goal is not a perfect win rate. The goal is a clear, repeatable edge that you understand deeply enough to trust — even through losing streaks — because you know exactly what conditions produce your wins.</div>
+    </div>
+  </div>
+
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ── STATE ──
+const STORE = 'tj_v2';
+let entries = [];
+let entryType = '';
+let tradeResult = '';
+let confSel = {};
+let imgs = {before:null, after:null};
+let recognition = null, isRec = false, transcript = '';
+let journalFilter = 'all';
+
+function init() {
+  load(); clock(); setInterval(clock,1000); setNow(); updateNavStats();
+}
+
+function load() {
+  try { const s = localStorage.getItem(STORE); if(s) entries = JSON.parse(s); } catch(e) {}
+}
+
+function save() { try { localStorage.setItem(STORE, JSON.stringify(entries)); } catch(e) {} }
+
+// ── CLOCK ──
+function clock() {
+  const d = new Date();
+  document.getElementById('clk').textContent = `${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}:${String(d.getSeconds()).padStart(2,'0')}`;
+  const days = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'], months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  document.getElementById('clkd').textContent = `${days[d.getDay()]} ${d.getDate()} ${months[d.getMonth()]}`;
+}
+
+function setNow() {
+  const d = new Date();
+  document.getElementById('eDate').value = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+  document.getElementById('eTime').value = `${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`;
+}
+
+// ── INTERACTIONS ──
+function setEntryType(t) {
+  entryType = t;
+  document.querySelectorAll('#entryTypeRow .rb').forEach(b => b.classList.remove('win','loss','be','obs'));
+  const btns = document.querySelectorAll('#entryTypeRow .rb');
+  if(t==='trade') btns[0].classList.add('win');
+  else if(t==='study') btns[1].classList.add('be');
+  else btns[2].classList.add('obs');
+  document.getElementById('tradeLevels').style.display = t==='trade' ? 'block' : 'none';
+}
+
+function setResult(r) {
+  tradeResult = r;
+  document.querySelectorAll('#resultRow .rb').forEach(b => b.classList.remove('win','loss','be','obs'));
+  if(r==='WIN') document.querySelectorAll('#resultRow .rb')[0].classList.add('win');
+  else if(r==='LOSS') document.querySelectorAll('#resultRow .rb')[1].classList.add('loss');
+  else if(r==='BE') document.querySelectorAll('#resultRow .rb')[2].classList.add('be');
+  else document.querySelectorAll('#resultRow .rb')[3].classList.add('obs');
+}
+
+function togTag(el, group) {
+  el.classList.toggle('sel');
+  confSel[el.dataset.key] = el.classList.contains('sel');
+  updateConfCount();
+}
+
+function togTagNeg(el) {
+  el.classList.toggle('sel-r');
+  confSel[el.dataset.key] = el.classList.contains('sel-r') ? 'against' : false;
+  updateConfCount();
+}
+
+function updateConfCount() {
+  const n = Object.values(confSel).filter(v => v && v !== false).length;
+  document.getElementById('confCount').textContent = `${n} selected`;
+}
+
+// ── RR CALC ──
+['eEntry','eSL','eTP'].forEach(id => document.getElementById(id)?.addEventListener('input', calcRR));
+function calcRR() {
+  const e = parseFloat(document.getElementById('eEntry').value);
+  const sl = parseFloat(document.getElementById('eSL').value);
+  const tp = parseFloat(document.getElementById('eTP').value);
+  if(e && sl && tp) { const risk = Math.abs(e-sl), reward = Math.abs(tp-e); if(risk > 0) document.getElementById('eRR').value = `1:${(reward/risk).toFixed(2)}`; }
+}
+
+// ── IMAGES ──
+function hdlImg(input, slot) {
+  const file = input.files[0]; if(!file) return;
+  const reader = new FileReader();
+  reader.onload = ev => { imgs[slot] = ev.target.result; renderImgPrev(slot, ev.target.result); };
+  reader.readAsDataURL(file);
+}
+
+function renderImgPrev(slot, src) {
+  document.getElementById('p' + slot.charAt(0).toUpperCase() + slot.slice(1)).innerHTML =
+    `<div class="img-prev" style="margin-top:5px"><img src="${src}"><div class="img-prev-bar"><span>${slot.toUpperCase()}</span><span class="img-del" onclick="clrImg('${slot}')">✕</span></div><input class="img-cap" placeholder="Annotate this screenshot..." id="cap-${slot}"></div>`;
+}
+
+function clrImg(slot) { imgs[slot]=null; document.getElementById('p' + slot.charAt(0).toUpperCase() + slot.slice(1)).innerHTML=''; }
+
+// ── VOICE ──
+function togVoice() {
+  if(isRec) { stopVoice(); return; }
+  if(!('webkitSpeechRecognition' in window || 'SpeechRecognition' in window)) { document.getElementById('vStat').textContent = 'Not supported — use Chrome.'; return; }
+  const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+  recognition = new SR(); recognition.continuous = true; recognition.interimResults = true; recognition.lang = 'en-GB';
+  recognition.onstart = () => { isRec=true; document.getElementById('vBtn').classList.add('rec'); document.getElementById('vBtn').textContent='■ Stop'; document.getElementById('vStat').textContent='Listening...'; document.getElementById('vStat').classList.add('on'); };
+  recognition.onresult = e => { let interim='',final=''; for(let i=e.resultIndex;i<e.results.length;i++) { if(e.results[i].isFinal) final+=e.results[i][0].transcript+' '; else interim+=e.results[i][0].transcript; } transcript+=final; document.getElementById('vTxt').textContent=(transcript+interim)||'—'; };
+  recognition.onerror = () => stopVoice();
+  recognition.onend = () => stopVoice();
+  recognition.start();
+}
+
+function stopVoice() { if(recognition) recognition.stop(); isRec=false; document.getElementById('vBtn').classList.remove('rec'); document.getElementById('vBtn').textContent='🎙 Record'; document.getElementById('vStat').textContent='Stopped.'; document.getElementById('vStat').classList.remove('on'); }
+function clrVoice() { transcript=''; document.getElementById('vTxt').textContent='—'; }
+function appVoice() { if(!transcript.trim()) return; const ta=document.getElementById('eAnalysis'); ta.value=(ta.value?ta.value+'\n\n':'')+transcript.trim(); toast('Appended to analysis.'); }
+
+// ── SAVE ENTRY ──
+function saveEntry() {
+  const instr = document.getElementById('eInstr').value;
+  if(!entryType) { toast('Select entry type (Trade, Study, or Observation).'); return; }
+  if(!instr) { toast('Select an instrument.'); return; }
+  const capB = document.getElementById('cap-before')?.value||'';
+  const capA = document.getElementById('cap-after')?.value||'';
+  const posConfs = Object.entries(confSel).filter(([k,v])=>v&&v!=='against').map(([k])=>k);
+  const negConfs = Object.entries(confSel).filter(([k,v])=>v==='against').map(([k])=>k);
+  const entry = {
+    id: Date.now(), type: entryType,
+    date: document.getElementById('eDate').value,
+    time: document.getElementById('eTime').value,
+    session: document.getElementById('eSession').value,
+    instrument: instr,
+    tf: document.getElementById('eTF').value,
+    entryTF: document.getElementById('eEntryTF').value,
+    htf: document.getElementById('eHTF').value,
+    phase: document.getElementById('ePhase').value,
+    htfLevels: document.getElementById('eHTFLevels').value,
+    setup: document.getElementById('eSetup').value,
+    model: document.getElementById('eModel').value,
+    direction: document.getElementById('eDir').value,
+    confluences: posConfs, againstConfs: negConfs,
+    entry: document.getElementById('eEntry').value,
+    sl: document.getElementById('eSL').value,
+    tp: document.getElementById('eTP').value,
+    rr: document.getElementById('eRR').value,
+    size: document.getElementById('eSize').value,
+    exit: document.getElementById('eExit').value,
+    pl: document.getElementById('ePL').value,
+    result: tradeResult || (entryType!=='trade'?'obs':'OPEN'),
+    management: document.getElementById('eMgmt').value,
+    emotion: document.getElementById('eEmotion').value,
+    adherence: document.getElementById('eAdherence').value,
+    analysis: document.getElementById('eAnalysis').value,
+    narrative: document.getElementById('eNarrative').value,
+    lessons: document.getElementById('eLessons').value,
+    rule: document.getElementById('eRule').value,
+    chartNotes: document.getElementById('eChartNotes').value,
+    voiceTranscript: transcript,
+    imgBefore: imgs.before, capBefore: capB,
+    imgAfter: imgs.after, capAfter: capA
+  };
+  entries.unshift(entry);
+  save(); updateNavStats(); updateStrategyData();
+  resetForm(); toast('Entry saved.');
+}
+
+function resetForm() {
+  ['eEntry','eSL','eTP','eRR','eSize','eExit','ePL','eAnalysis','eNarrative','eLessons','eRule','eChartNotes','eHTFLevels'].forEach(id => { const el=document.getElementById(id); if(el) el.value=''; });
+  ['eSession','eInstr','eTF','eEntryTF','eHTF','ePhase','eSetup','eModel','eDir','eMgmt','eEmotion','eAdherence'].forEach(id => { const el=document.getElementById(id); if(el) el.value=''; });
+  document.querySelectorAll('.tag.sel').forEach(t => t.classList.remove('sel'));
+  document.querySelectorAll('.tag.sel-r').forEach(t => t.classList.remove('sel-r'));
+  document.querySelectorAll('#entryTypeRow .rb').forEach(b => b.classList.remove('win','loss','be','obs'));
+  document.querySelectorAll('#resultRow .rb').forEach(b => b.classList.remove('win','loss','be','obs'));
+  confSel={}; entryType=''; tradeResult=''; imgs={before:null,after:null}; transcript='';
+  document.getElementById('pBefore').innerHTML=''; document.getElementById('pAfter').innerHTML='';
+  document.getElementById('vTxt').textContent='—'; document.getElementById('confCount').textContent='0 selected';
+  document.getElementById('tradeLevels').style.display='block';
+  setNow();
+}
+
+// ── JOURNAL ──
+function filterJournal(f, el) {
+  journalFilter = f;
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+  el.classList.add('active');
+  renderJournal();
+}
+
+function renderJournal() {
+  const list = document.getElementById('jList');
+  const fi = document.getElementById('fjInstr').value;
+  const fs = document.getElementById('fjSetup').value;
+  const fq = document.getElementById('fjSearch').value.toLowerCase();
+  let filtered = entries.filter(e => {
+    if(journalFilter!=='all' && journalFilter!=='WIN' && journalFilter!=='LOSS' && journalFilter!==e.type) return false;
+    if((journalFilter==='WIN'||journalFilter==='LOSS') && e.result!==journalFilter) return false;
+    if(fi && e.instrument!==fi) return false;
+    if(fs && e.setup!==fs) return false;
+    if(fq && !(e.analysis||'').toLowerCase().includes(fq) && !(e.narrative||'').toLowerCase().includes(fq) && !(e.lessons||'').toLowerCase().includes(fq)) return false;
+    return true;
+  });
+  if(!filtered.length) { list.innerHTML='<div class="empty">No entries match.</div>'; return; }
+  list.innerHTML = filtered.map(e => {
+    const rc = e.result==='WIN'?'win':e.result==='LOSS'?'loss':e.result==='BE'?'be':e.result==='obs'?'obs':'open';
+    const plStr = e.pl ? (parseFloat(e.pl)>=0?`+$${parseFloat(e.pl).toFixed(2)}`:`-$${Math.abs(parseFloat(e.pl)).toFixed(2)}`) : '—';
+    const confsHtml = (e.confluences||[]).slice(0,5).map(c=>`<div class="jct">${c.replace(/-/g,' ')}</div>`).join('');
+    const imgs = (e.imgBefore||e.imgAfter) ? `<div class="jimgs">${e.imgBefore?`<div class="jimg-w"><img src="${e.imgBefore}"><div class="jimg-cap">${e.capBefore||'Before'}</div></div>`:''} ${e.imgAfter?`<div class="jimg-w"><img src="${e.imgAfter}"><div class="jimg-cap">${e.capAfter||'After'}</div></div>`:''}</div>` : '';
+    return `<div class="jcard" id="jc-${e.id}">
+      <div class="jcard-head" onclick="document.getElementById('jc-${e.id}').classList.toggle('exp')">
+        <div class="jh-date">${e.date} ${e.time}</div>
+        <div class="jh-pair">${e.instrument||'—'}</div>
+        <div class="jh-type ${e.type}">${e.type}</div>
+        <div class="jh-result ${rc}">${e.type==='trade'?plStr:e.setup?e.setup.split(' ')[0]:'—'}</div>
+        <div class="jh-confs">${(e.confluences||[]).length}C ${e.session?'·'+e.session.split(' ')[0]:''}</div>
+      </div>
+      <div class="jcard-body">
+        ${e.setup?`<div class="jds"><div class="jdl">Setup</div><div class="jdt">${e.setup}${e.model?' — '+e.model:''}</div></div>`:''}
+        ${e.htf?`<div class="jds"><div class="jdl">HTF Bias</div><div class="jdt">${e.htf}${e.phase?' · '+e.phase:''}</div></div>`:''}
+        ${e.analysis?`<div class="jds"><div class="jdl">Analysis</div><div class="jdt">${e.analysis}</div></div>`:''}
+        ${e.narrative?`<div class="jds"><div class="jdl">What Happened</div><div class="jdt">${e.narrative}</div></div>`:''}
+        ${e.lessons?`<div class="jds"><div class="jdl">Lessons</div><div class="jdt">${e.lessons}</div></div>`:''}
+        ${e.rule?`<div class="jds"><div class="jdl">Rule</div><div class="jdt">${e.rule}</div></div>`:''}
+        ${(e.confluences||[]).length?`<div class="jds"><div class="jdl">Confluences (${e.confluences.length})</div><div class="jconf-tags">${confsHtml}</div></div>`:''}
+        ${(e.againstConfs||[]).length?`<div class="jds"><div class="jdl">Against</div><div class="jconf-tags">${(e.againstConfs||[]).map(c=>`<div class="jct" style="border-color:rgba(196,106,90,0.3);color:var(--r)">${c.replace(/-/g,' ')}</div>`).join('')}</div></div>`:''}
+        ${e.emotion?`<div class="jds"><div class="jdl">Emotion · Adherence</div><div class="jdt">${e.emotion}${e.adherence?' · '+e.adherence:''}</div></div>`:''}
+        ${imgs}
+        ${e.voiceTranscript?.trim()?`<div class="jds"><div class="jdl">Voice Note</div><div class="jdt">${e.voiceTranscript}</div></div>`:''}
+        <button class="jdel" onclick="delEntry(${e.id})">Delete Entry</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function delEntry(id) {
+  if(!confirm('Delete this entry?')) return;
+  entries = entries.filter(e => e.id !== id);
+  save(); updateNavStats(); renderJournal();
+}
+
+// ── EDGE ──
+function renderEdge() {
+  const trades = entries.filter(e => e.type==='trade' && (e.result==='WIN'||e.result==='LOSS'||e.result==='BE'));
+  const closed = trades.filter(e => e.result==='WIN'||e.result==='LOSS');
+  const wins = trades.filter(e => e.result==='WIN');
+  const pls = trades.filter(e => e.pl).map(e => parseFloat(e.pl));
+  const netPL = pls.reduce((s,v)=>s+v,0);
+  const wr = closed.length ? Math.round((wins.length/closed.length)*100) : null;
+  const rrs = trades.filter(e => e.rr).map(e => { const m = e.rr.match(/1:(\d+\.?\d*)/); return m ? parseFloat(m[1]) : null; }).filter(Boolean);
+  const avgRR = rrs.length ? (rrs.reduce((s,v)=>s+v,0)/rrs.length).toFixed(2) : null;
+  const avgConf = trades.length ? (trades.reduce((s,e)=>s+(e.confluences?.length||0),0)/trades.length).toFixed(1) : null;
+  const broken = entries.filter(e => e.adherence && e.adherence.includes('broke')).length;
+
+  document.getElementById('eTot').textContent = entries.length;
+  const wrEl = document.getElementById('eWR'); wrEl.textContent = wr!==null?`${wr}%`:'—'; wrEl.className='sbv '+(wr>=50?'pos':wr!==null?'neg':'neu');
+  const plEl = document.getElementById('eNetPL'); plEl.textContent = pls.length?`${netPL>=0?'+':''}$${netPL.toFixed(2)}`:'$0'; plEl.className='sbv '+(netPL>0?'pos':netPL<0?'neg':'neu');
+  document.getElementById('eAvgRR').textContent = avgRR?`1:${avgRR}`:'—';
+  document.getElementById('eAvgConf').textContent = avgConf||'—';
+  document.getElementById('eRulesBroken').textContent = broken;
+  if(pls.length) { document.getElementById('eBest').textContent=`+$${Math.max(...pls).toFixed(2)}`; document.getElementById('eWorst').textContent=`$${Math.min(...pls).toFixed(2)}`; }
+
+  renderEdgeBar('confEdge', getConfEdge(closed), 'confluence');
+  renderEdgeBar('setupEdge', getGroupEdge(closed,'setup'), 'setup');
+  renderEdgeBar('sessionEdge', getGroupEdge(closed,'session'), 'session');
+  renderEdgeBar('emotionEdge', getGroupEdge(closed,'emotion'), 'emotion');
+  renderEdgeBar('instrEdge', getGroupEdge(closed,'instrument'), 'instrument');
+  renderEdgeBar('rulesEdge', getGroupEdge(closed,'adherence'), 'adherence');
+}
+
+function getConfEdge(closed) {
+  const keys = ['htf-aligned','msb','choch','ob','fvg','liq-swept','kill-zone','low-tf-confirm','rr-min-2','displacement'];
+  return keys.map(k => {
+    const with_ = closed.filter(e => (e.confluences||[]).includes(k));
+    const wins_ = with_.filter(e => e.result==='WIN');
+    return { label: k.replace(/-/g,' '), total: with_.length, wr: with_.length ? Math.round((wins_.length/with_.length)*100) : null };
+  }).filter(x => x.total >= 2).sort((a,b) => (b.wr||0)-(a.wr||0));
+}
+
+function getGroupEdge(closed, field) {
+  const groups = {};
+  closed.forEach(e => { const v = e[field]||'Unknown'; if(!groups[v]) groups[v]={tot:0,wins:0}; groups[v].tot++; if(e.result==='WIN') groups[v].wins++; });
+  return Object.entries(groups).map(([k,v]) => ({ label:k.length>40?k.slice(0,38)+'...':k, total:v.tot, wr:Math.round((v.wins/v.tot)*100) })).sort((a,b)=>b.wr-a.wr);
+}
+
+function renderEdgeBar(elId, data, type) {
+  const el = document.getElementById(elId);
+  if(!data.length) { el.innerHTML='<div class="empty" style="padding:10px;font-size:10px">Not enough data yet.</div>'; return; }
+  el.innerHTML = data.map(d => {
+    const barClass = d.wr>=50 ? 'pos' : 'neg';
+    return `<div class="edge-row">
+      <div class="edge-label">${d.label}</div>
+      <div class="edge-bar-wrap"><div class="edge-bar ${barClass}" style="width:${d.wr}%"></div></div>
+      <div class="edge-stat ${barClass}">${d.wr}% (${d.total})</div>
+    </div>`;
+  }).join('');
+}
+
+// ── STRATEGY AUTO-UPDATE ──
+function updateStrategyData() {
+  const trades = entries.filter(e => e.type==='trade' && (e.result==='WIN'||e.result==='LOSS'));
+  const wins = trades.filter(e => e.result==='WIN');
+  if(trades.length < 5) return;
+  const wr = Math.round((wins.length/trades.length)*100);
+  const confData = getConfEdge(trades);
+  const topConfs = confData.filter(c => c.wr >= 60).slice(0,3);
+  const weakConfs = confData.filter(c => c.wr < 40).slice(0,2);
+  const worstEmotion = getGroupEdge(trades,'emotion').reverse().slice(0,1)[0];
+
+  if(topConfs.length) {
+    document.getElementById('strat-edge-data').textContent = `Data (${trades.length} trades): Your highest-performing confluences are: ${topConfs.map(c=>c.label+' ('+c.wr+'% WR)').join(', ')}. Prioritise these.`;
+  }
+  if(weakConfs.length || worstEmotion) {
+    let avoidStr = '';
+    if(weakConfs.length) avoidStr += `Confluences with lowest win rate: ${weakConfs.map(c=>c.label+' ('+c.wr+'%)').join(', ')}. `;
+    if(worstEmotion && worstEmotion.wr < 40) avoidStr += `Emotional state "${worstEmotion.label}" produces only ${worstEmotion.wr}% win rate — treat as a no-trade condition.`;
+    document.getElementById('strat-avoid-data').textContent = avoidStr || '';
+  }
+  document.getElementById('strat-focus-data').textContent = `Based on ${trades.length} logged trades. Win rate: ${wr}%. Continue logging to sharpen these insights.`;
+}
+
+// ── NAV STATS ──
+function updateNavStats() {
+  const trades = entries.filter(e => e.type==='trade' && (e.result==='WIN'||e.result==='LOSS'));
+  const wins = trades.filter(e => e.result==='WIN');
+  const pls = entries.filter(e=>e.pl).map(e=>parseFloat(e.pl));
+  const netPL = pls.reduce((s,v)=>s+v,0);
+  const wr = trades.length ? Math.round((wins.length/trades.length)*100) : null;
+  const wrEl = document.getElementById('navWR'); wrEl.textContent = wr!==null?`${wr}%`:'—'; wrEl.className='nsv '+(wr>=50?'pos':wr!==null?'neg':'neu');
+  const plEl = document.getElementById('navPL'); plEl.textContent = pls.length?`${netPL>=0?'+':''}$${netPL.toFixed(2)}`:'—'; plEl.className='nsv '+(netPL>0?'pos':netPL<0?'neg':'neu');
+}
+
+// ── GUIDE TOGGLE ──
+function togGuide(id) { document.getElementById(id).classList.toggle('open'); }
+
+// ── PAGES ──
+function showPage(id, el) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nt').forEach(t => t.classList.remove('active'));
+  document.getElementById('page-'+id).classList.add('active');
+  el.classList.add('active');
+  if(id==='journal') renderJournal();
+  if(id==='edge') renderEdge();
+  if(id==='strategy') updateStrategyData();
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+// ── TOAST ──
+function toast(msg) { const t=document.getElementById('toast'); t.textContent=msg; t.classList.add('show'); setTimeout(()=>t.classList.remove('show'),2800); }
+
+// ── INIT ──
+document.getElementById('tradeLevels').style.display = 'block';
+init();
+</script>
+</body>
+</html>

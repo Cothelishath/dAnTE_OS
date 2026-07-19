@@ -1,0 +1,725 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Work Day Timetables — Paul Bassey</title>
+<link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=IBM+Plex+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:#faf7f2; --surface:#f2ede4; --surface2:#e8e1d5;
+  --ink:#1c1814; --ink-mid:#5a5248; --ink-dim:#9a9088;
+  --gold:#9a7c3a; --gold-light:#c9a84c; --gold-pale:#f5ead0;
+  --rust:#7a3a28; --sage:#3a5a3a; --blue:#2a4a6a; --plum:#5a3a6a;
+  --t1:#3a5a3a; --t2:#9a7c3a; --t3:#7a3a28;
+  --office:#2a4a6a; --site:#5a3a28;
+  --border:rgba(28,24,20,0.1); --border-strong:rgba(28,24,20,0.18);
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{background:var(--bg);color:var(--ink);font-family:'IBM Plex Mono',monospace;font-size:13px;line-height:1.6;}
+
+.masthead{background:var(--ink);color:var(--bg);padding:40px 48px 36px;position:relative;overflow:hidden;}
+.masthead::before{content:'';position:absolute;top:-40px;right:-40px;width:300px;height:300px;border-radius:50%;border:1px solid rgba(250,247,242,0.06);}
+.masthead-eyebrow{font-size:9px;letter-spacing:0.35em;text-transform:uppercase;color:rgba(250,247,242,0.4);margin-bottom:10px;}
+.masthead h1{font-family:'Libre Baskerville',serif;font-size:clamp(24px,5vw,40px);font-weight:400;line-height:1.15;margin-bottom:8px;}
+.masthead h1 em{font-style:italic;color:var(--gold-light);}
+.masthead-sub{font-size:10px;color:rgba(250,247,242,0.45);letter-spacing:0.08em;}
+.day-badges{display:flex;gap:10px;margin-top:16px;}
+.day-badge{font-size:9px;letter-spacing:0.2em;text-transform:uppercase;padding:4px 12px;border-radius:2px;border:1px solid;}
+.db-office{background:rgba(42,74,106,0.3);border-color:rgba(42,74,106,0.6);color:#a0c0e0;}
+.db-site{background:rgba(90,58,40,0.3);border-color:rgba(90,58,40,0.6);color:#d0a880;}
+
+.page-nav{background:var(--surface);border-bottom:1px solid var(--border-strong);display:flex;padding:0 32px;position:sticky;top:0;z-index:50;overflow-x:auto;scrollbar-width:none;}
+.page-nav::-webkit-scrollbar{display:none;}
+.pnav-tab{font-size:9px;letter-spacing:0.2em;text-transform:uppercase;color:var(--ink-dim);padding:14px 18px;cursor:pointer;border-bottom:2px solid transparent;transition:all 0.2s;white-space:nowrap;}
+.pnav-tab:hover{color:var(--ink-mid);}
+.pnav-tab.active{color:var(--gold);border-bottom-color:var(--gold);}
+.pnav-tab.office-tab.active{color:var(--office);border-bottom-color:var(--office);}
+.pnav-tab.site-tab.active{color:var(--site);border-bottom-color:var(--site);}
+
+.content{max-width:960px;margin:0 auto;padding:36px 28px 80px;}
+.tab-section{display:none;}
+.tab-section.active{display:block;}
+
+/* INTRO CARDS */
+.day-intro{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:32px;}
+.di-card{border-radius:4px;padding:20px 22px;border:1px solid;}
+.di-office{background:rgba(42,74,106,0.05);border-color:rgba(42,74,106,0.2);}
+.di-site{background:rgba(90,58,40,0.05);border-color:rgba(90,58,40,0.2);}
+.di-label{font-size:8px;letter-spacing:0.28em;text-transform:uppercase;margin-bottom:6px;}
+.di-office .di-label{color:var(--office);}
+.di-site .di-label{color:var(--site);}
+.di-title{font-family:'Libre Baskerville',serif;font-size:18px;font-style:italic;margin-bottom:8px;}
+.di-body{font-size:10px;color:var(--ink-mid);line-height:1.65;}
+
+/* TIMETABLE */
+.tt-wrap{margin-bottom:36px;}
+.tt-label{font-family:'Libre Baskerville',serif;font-size:20px;font-weight:400;margin-bottom:4px;}
+.tt-sublabel{font-size:10px;color:var(--ink-dim);margin-bottom:16px;}
+.timetable{border:1px solid var(--border-strong);border-radius:4px;overflow:hidden;}
+.tt-head{display:grid;grid-template-columns:68px 1fr 140px;background:var(--ink);}
+.tt-head-cell{padding:11px 14px;font-size:8px;letter-spacing:0.25em;text-transform:uppercase;color:rgba(250,247,242,0.6);}
+.tt-head-cell:first-child{border-right:1px solid rgba(255,255,255,0.1);text-align:center;}
+.tt-head-cell:last-child{border-left:1px solid rgba(255,255,255,0.1);}
+.tt-row{display:grid;grid-template-columns:68px 1fr 140px;border-top:1px solid var(--border);}
+.tt-time{background:var(--surface);border-right:1px solid var(--border-strong);padding:14px 8px;text-align:center;font-size:10px;color:var(--ink-dim);display:flex;align-items:flex-start;justify-content:center;padding-top:15px;}
+.tt-cell{padding:12px 16px;display:flex;flex-direction:column;gap:5px;background:var(--bg);}
+.tt-ap{padding:12px 14px;background:var(--surface);border-left:1px solid var(--border-strong);display:flex;flex-direction:column;justify-content:flex-start;gap:3px;}
+.ap-label{font-size:7px;letter-spacing:0.18em;text-transform:uppercase;color:var(--ink-dim);}
+.ap-val{font-size:11px;color:var(--gold);font-weight:500;}
+.ap-note{font-size:8px;color:var(--ink-dim);line-height:1.4;}
+
+.tt-cell.prayer{background:rgba(58,90,58,0.03);}
+.tt-cell.study{background:rgba(154,124,58,0.025);}
+.tt-cell.work{background:rgba(42,74,106,0.03);}
+.tt-cell.site-work{background:rgba(90,58,40,0.04);}
+.tt-cell.commute{background:rgba(90,50,120,0.03);}
+.tt-cell.rest{background:rgba(28,24,20,0.015);}
+.tt-cell.sacrifice{background:rgba(122,58,40,0.04);}
+
+.tags{display:flex;flex-wrap:wrap;gap:5px;}
+.tag{display:inline-flex;align-items:center;gap:5px;padding:3px 9px;border-radius:3px;font-size:9px;letter-spacing:0.06em;border:1px solid transparent;}
+.tag-t1{background:rgba(58,90,58,0.1);border-color:rgba(58,90,58,0.22);color:var(--t1);}
+.tag-t2{background:rgba(154,124,58,0.1);border-color:rgba(154,124,58,0.22);color:var(--t2);}
+.tag-office{background:rgba(42,74,106,0.1);border-color:rgba(42,74,106,0.22);color:var(--office);}
+.tag-site{background:rgba(90,58,40,0.1);border-color:rgba(90,58,40,0.22);color:var(--site);}
+.tag-commute{background:rgba(90,50,120,0.1);border-color:rgba(90,50,120,0.22);color:var(--plum);}
+.tag-sacrifice{background:rgba(122,58,40,0.08);border-color:rgba(122,58,40,0.2);color:var(--rust);}
+.tag-base{background:rgba(28,24,20,0.06);border-color:rgba(28,24,20,0.13);color:var(--ink-mid);}
+.tag-win{background:rgba(58,90,58,0.12);border-color:rgba(58,90,58,0.28);color:var(--sage);}
+.dot{width:5px;height:5px;border-radius:50%;flex-shrink:0;}
+.tag-t1 .dot{background:var(--t1);}.tag-t2 .dot{background:var(--t2);}
+.tag-office .dot{background:var(--office);}.tag-site .dot{background:var(--site);}
+.tag-commute .dot{background:var(--plum);}.tag-sacrifice .dot{background:var(--rust);}
+.tag-base .dot{background:var(--ink-mid);}.tag-win .dot{background:var(--sage);}
+
+.tt-note{font-size:9px;color:var(--ink-dim);font-style:italic;padding-left:2px;line-height:1.55;}
+.tt-res{font-size:9px;color:var(--ink-dim);padding-left:2px;}
+.tt-res span{color:var(--gold);}
+
+/* SACRIFICE + KEEP SECTIONS */
+.tradeoff-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:32px;}
+.to-card{border-radius:4px;overflow:hidden;border:1px solid var(--border-strong);}
+.to-head{padding:12px 16px;font-size:9px;letter-spacing:0.2em;text-transform:uppercase;}
+.to-sacrifice .to-head{background:rgba(122,58,40,0.1);color:var(--rust);}
+.to-keep .to-head{background:rgba(58,90,58,0.1);color:var(--sage);}
+.to-row{display:flex;gap:12px;padding:11px 16px;border-top:1px solid var(--border);align-items:flex-start;}
+.to-icon{font-size:14px;flex-shrink:0;}
+.to-name{font-family:'Libre Baskerville',serif;font-size:13px;font-style:italic;margin-bottom:2px;}
+.to-desc{font-size:9px;color:var(--ink-dim);line-height:1.5;}
+
+/* COMMUTE SECTION */
+.commute-section{background:rgba(90,50,120,0.05);border:1px solid rgba(90,50,120,0.2);border-radius:4px;padding:22px 26px;margin-bottom:28px;}
+.cs-label{font-size:8px;letter-spacing:0.28em;text-transform:uppercase;color:var(--plum);margin-bottom:12px;}
+.cs-title{font-family:'Libre Baskerville',serif;font-size:18px;font-style:italic;margin-bottom:10px;}
+.cs-body{font-size:10px;color:var(--ink-mid);line-height:1.7;margin-bottom:14px;}
+.commute-opts{display:flex;flex-direction:column;gap:8px;}
+.co-row{display:flex;gap:14px;padding:10px 14px;background:var(--surface);border-radius:3px;border:1px solid var(--border);align-items:flex-start;}
+.co-time{font-size:10px;color:var(--plum);font-weight:500;width:60px;flex-shrink:0;padding-top:2px;}
+.co-name{font-size:10px;color:var(--ink);margin-bottom:2px;font-weight:500;}
+.co-desc{font-size:9px;color:var(--ink-dim);line-height:1.5;}
+.co-pts{font-size:9px;color:var(--gold);margin-top:2px;}
+
+/* PERSONAL WORK BLOCKS */
+.pwb-section{margin-bottom:32px;}
+.pwb-title{font-family:'Libre Baskerville',serif;font-size:18px;font-style:italic;margin-bottom:4px;}
+.pwb-sub{font-size:10px;color:var(--ink-dim);margin-bottom:16px;}
+.pwb-grid{display:flex;flex-direction:column;gap:10px;}
+.pwb-item{display:grid;grid-template-columns:90px 1fr auto;gap:14px;padding:14px 18px;background:var(--surface);border:1px solid var(--border);border-radius:3px;align-items:flex-start;}
+.pwb-time{font-size:10px;color:var(--gold);font-weight:500;line-height:1.4;}
+.pwb-name{font-size:10px;color:var(--ink);font-weight:500;margin-bottom:3px;}
+.pwb-desc{font-size:9px;color:var(--ink-mid);line-height:1.5;}
+.pwb-ap{font-size:11px;color:var(--gold);font-weight:500;text-align:right;white-space:nowrap;}
+.pwb-item.protected{border-left:3px solid var(--gold);}
+.pwb-item.commute-block{border-left:3px solid var(--plum);}
+.pwb-item.site-block{border-left:3px solid var(--site);}
+
+/* DECISION GUIDE */
+.decision-grid{display:flex;flex-direction:column;gap:10px;margin-bottom:28px;}
+.dg-item{display:flex;gap:16px;padding:12px 16px;background:var(--surface);border:1px solid var(--border);border-radius:3px;}
+.dg-when{font-size:9px;color:var(--ink-dim);width:90px;flex-shrink:0;padding-top:2px;line-height:1.5;}
+.dg-do{font-size:10px;color:var(--ink);line-height:1.6;flex:1;}
+.dg-do strong{color:var(--gold);}
+
+/* AP SUMMARY */
+.ap-summary{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:28px;}
+.aps-card{background:var(--surface);border:1px solid var(--border-strong);border-radius:4px;padding:16px 18px;text-align:center;}
+.aps-label{font-size:8px;letter-spacing:0.2em;text-transform:uppercase;color:var(--ink-dim);margin-bottom:6px;}
+.aps-val{font-family:'Libre Baskerville',serif;font-size:28px;color:var(--gold);font-weight:400;line-height:1;}
+.aps-sub{font-size:9px;color:var(--ink-dim);margin-top:4px;}
+.aps-card.tier1{border-top:3px solid var(--t1);}
+.aps-card.tier2{border-top:3px solid var(--t2);}
+.aps-card.tier3{border-top:3px solid var(--t3);}
+
+.section-divider{border:none;border-top:1px solid var(--border);margin:32px 0;}
+.s-title{font-family:'Libre Baskerville',serif;font-size:22px;font-weight:400;margin-bottom:5px;}
+.s-sub{font-size:10px;color:var(--ink-dim);margin-bottom:24px;}
+
+.note-block{background:var(--gold-pale);border-left:3px solid var(--gold-light);border-radius:0 4px 4px 0;padding:14px 18px;margin-bottom:20px;font-size:10px;color:var(--ink-mid);line-height:1.7;font-style:italic;}
+
+@media(max-width:600px){
+  .masthead{padding:26px 18px 22px;}
+  .page-nav{padding:0 12px;}
+  .content{padding:20px 14px 60px;}
+  .day-intro,.tradeoff-grid,.ap-summary{grid-template-columns:1fr;}
+  .tt-head,.tt-row{grid-template-columns:52px 1fr;}
+  .tt-head-cell:last-child,.tt-ap{display:none;}
+  .pwb-item{grid-template-columns:1fr;}
+}
+</style>
+</head>
+<body>
+
+<div class="masthead">
+  <div class="masthead-eyebrow">Work Day Reference — Paul Bassey</div>
+  <h1>The <em>Office</em> &amp; <em>Site</em> Days</h1>
+  <div class="masthead-sub">Timetables · Tradeoffs · Commute Optimisation · Personal Work Blocks · Decision Guide</div>
+  <div class="day-badges">
+    <div class="day-badge db-office">Office Day</div>
+    <div class="day-badge db-site">Site Day</div>
+  </div>
+</div>
+
+<nav class="page-nav">
+  <div class="pnav-tab active" onclick="showTab('compare',this)">Overview</div>
+  <div class="pnav-tab office-tab" onclick="showTab('office',this)">Office Day</div>
+  <div class="pnav-tab site-tab" onclick="showTab('site',this)">Site Day</div>
+  <div class="pnav-tab" onclick="showTab('commute',this)">Commute</div>
+  <div class="pnav-tab" onclick="showTab('decisions',this)">No-Decision Guide</div>
+</nav>
+
+<div class="content">
+
+<!-- ═══ OVERVIEW ═══ -->
+<div class="tab-section active" id="tab-compare">
+  <div class="s-title">The Three Days</div>
+  <div class="s-sub">What shifts, what stays, what the day asks of you</div>
+
+  <div class="day-intro">
+    <div class="di-card di-office">
+      <div class="di-label">Office Day</div>
+      <div class="di-title">Structure with a commute</div>
+      <div class="di-body">The office day has a fixed external demand — show up, perform professionally, return. The morning is fully yours before you leave. The commute is productive time, not dead time. The evening is compressed but still has a personal work window. Chart work moves to mobile. Key sacrifice: the deep uninterrupted afternoon block.</div>
+    </div>
+    <div class="di-card di-site">
+      <div class="di-label">Site Day</div>
+      <div class="di-title">Physical demand, mental discipline</div>
+      <div class="di-body">Site work is physically demanding and unpredictable. Early starts are non-negotiable — which actually protects the 4AM block. The commute is longer and the environment is loud. Key sacrifice: almost all chart work and deep cognitive sessions. What you keep: prayer, morning discipline, podcasts on commute, and the evening personal block. The body is working hard — let it. The mind maintains the minimum and builds on rest days.</div>
+    </div>
+  </div>
+
+  <!-- AP SUMMARY COMPARISON -->
+  <div class="s-title" style="font-size:16px;margin-bottom:14px;">Realistic AP Targets by Day Type</div>
+  <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:32px;">
+    <div class="aps-card tier1">
+      <div class="aps-label">Home Day — Tier I</div>
+      <div class="aps-val">100–140</div>
+      <div class="aps-sub">Foundation held. Prayer, movement, one output, charts.</div>
+    </div>
+    <div class="aps-card tier1">
+      <div class="aps-label">Office Day — Tier I</div>
+      <div class="aps-val">80–110</div>
+      <div class="aps-sub">Prayer full, commute used, one personal block evening.</div>
+    </div>
+    <div class="aps-card tier1">
+      <div class="aps-label">Site Day — Tier I</div>
+      <div class="aps-val">60–90</div>
+      <div class="aps-sub">Prayer held, podcast commute, evening wind-down only.</div>
+    </div>
+    <div class="aps-card tier2">
+      <div class="aps-label">Home Day — Tier II</div>
+      <div class="aps-val">160–210</div>
+      <div class="aps-sub">Full morning, two chart sessions, career block, reading.</div>
+    </div>
+    <div class="aps-card tier2">
+      <div class="aps-label">Office Day — Tier II</div>
+      <div class="aps-val">110–150</div>
+      <div class="aps-sub">Commute maximised, lunch block used, evening output.</div>
+    </div>
+    <div class="aps-card tier2">
+      <div class="aps-label">Site Day — Tier II</div>
+      <div class="aps-val">90–120</div>
+      <div class="aps-sub">Morning complete, commute active, one evening block.</div>
+    </div>
+    <div class="aps-card tier3">
+      <div class="aps-label">Home Day — Tier III</div>
+      <div class="aps-val">210–300+</div>
+      <div class="aps-sub">Everything firing. Full expression day.</div>
+    </div>
+    <div class="aps-card tier3">
+      <div class="aps-label">Office Day — Tier III</div>
+      <div class="aps-val">150–190</div>
+      <div class="aps-sub">Every commute block used, lunch used, evening full.</div>
+    </div>
+    <div class="aps-card tier3">
+      <div class="aps-label">Site Day — Tier III</div>
+      <div class="aps-val">110–140</div>
+      <div class="aps-sub">Site is the work. Morning and evening hold the rest.</div>
+    </div>
+  </div>
+
+  <!-- WHAT SHIFTS TABLE -->
+  <div class="s-title" style="font-size:16px;margin-bottom:14px;">What Shifts Across Day Types</div>
+  <table style="width:100%;border-collapse:collapse;border:1px solid var(--border-strong);border-radius:4px;overflow:hidden;margin-bottom:32px;">
+    <thead>
+      <tr style="background:var(--ink);">
+        <th style="padding:10px 14px;text-align:left;font-size:8px;letter-spacing:0.2em;text-transform:uppercase;color:rgba(250,247,242,0.6);font-weight:400;">Activity</th>
+        <th style="padding:10px 14px;text-align:center;font-size:8px;letter-spacing:0.2em;text-transform:uppercase;color:rgba(250,247,242,0.6);font-weight:400;border-left:1px solid rgba(255,255,255,0.1);">Home</th>
+        <th style="padding:10px 14px;text-align:center;font-size:8px;letter-spacing:0.2em;text-transform:uppercase;color:#a0c0e0;font-weight:400;border-left:1px solid rgba(255,255,255,0.1);">Office</th>
+        <th style="padding:10px 14px;text-align:center;font-size:8px;letter-spacing:0.2em;text-transform:uppercase;color:#d0a880;font-weight:400;border-left:1px solid rgba(255,255,255,0.1);">Site</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr style="border-top:1px solid var(--border);"><td style="padding:10px 14px;font-size:10px;font-weight:500;">4AM Prayer — Full Hour</td><td style="padding:10px 14px;text-align:center;font-size:14px;">✅</td><td style="padding:10px 14px;text-align:center;font-size:14px;border-left:1px solid var(--border);">✅</td><td style="padding:10px 14px;text-align:center;font-size:14px;border-left:1px solid var(--border);">✅</td></tr>
+      <tr style="border-top:1px solid var(--border);background:var(--surface);"><td style="padding:10px 14px;font-size:10px;font-weight:500;">Bible Reading</td><td style="padding:10px 14px;text-align:center;font-size:14px;">✅</td><td style="padding:10px 14px;text-align:center;font-size:14px;border-left:1px solid var(--border);">✅ (shorter)</td><td style="padding:10px 14px;text-align:center;font-size:14px;border-left:1px solid var(--border);">⚡ brief</td></tr>
+      <tr style="border-top:1px solid var(--border);"><td style="padding:10px 14px;font-size:10px;font-weight:500;">Workout</td><td style="padding:10px 14px;text-align:center;font-size:14px;">✅</td><td style="padding:10px 14px;text-align:center;font-size:14px;border-left:1px solid var(--border);">✅ (20 min)</td><td style="padding:10px 14px;text-align:center;font-size:14px;border-left:1px solid var(--border);">⚡ stretch only</td></tr>
+      <tr style="border-top:1px solid var(--border);background:var(--surface);"><td style="padding:10px 14px;font-size:10px;font-weight:500;">Meditation</td><td style="padding:10px 14px;text-align:center;font-size:14px;">✅</td><td style="padding:10px 14px;text-align:center;font-size:14px;border-left:1px solid var(--border);">⚡ 5–10 min</td><td style="padding:10px 14px;text-align:center;font-size:14px;border-left:1px solid var(--border);">❌ sacrificed</td></tr>
+      <tr style="border-top:1px solid var(--border);"><td style="padding:10px 14px;font-size:10px;font-weight:500;">Chart Work — Session 1</td><td style="padding:10px 14px;text-align:center;font-size:14px;">✅ desktop</td><td style="padding:10px 14px;text-align:center;font-size:14px;border-left:1px solid var(--border);">📱 mobile/lunch</td><td style="padding:10px 14px;text-align:center;font-size:14px;border-left:1px solid var(--border);">❌ sacrificed</td></tr>
+      <tr style="border-top:1px solid var(--border);background:var(--surface);"><td style="padding:10px 14px;font-size:10px;font-weight:500;">Chart Work — Session 2</td><td style="padding:10px 14px;text-align:center;font-size:14px;">✅</td><td style="padding:10px 14px;text-align:center;font-size:14px;border-left:1px solid var(--border);">📱 evening only</td><td style="padding:10px 14px;text-align:center;font-size:14px;border-left:1px solid var(--border);">❌ sacrificed</td></tr>
+      <tr style="border-top:1px solid var(--border);"><td style="padding:10px 14px;font-size:10px;font-weight:500;">Sermon Audio</td><td style="padding:10px 14px;text-align:center;font-size:14px;">✅ background</td><td style="padding:10px 14px;text-align:center;font-size:14px;border-left:1px solid var(--border);">✅ commute</td><td style="padding:10px 14px;text-align:center;font-size:14px;border-left:1px solid var(--border);">✅ commute</td></tr>
+      <tr style="border-top:1px solid var(--border);background:var(--surface);"><td style="padding:10px 14px;font-size:10px;font-weight:500;">Podcast</td><td style="padding:10px 14px;text-align:center;font-size:14px;">✅</td><td style="padding:10px 14px;text-align:center;font-size:14px;border-left:1px solid var(--border);">✅ commute</td><td style="padding:10px 14px;text-align:center;font-size:14px;border-left:1px solid var(--border);">✅ commute</td></tr>
+      <tr style="border-top:1px solid var(--border);"><td style="padding:10px 14px;font-size:10px;font-weight:500;">Book Reading</td><td style="padding:10px 14px;text-align:center;font-size:14px;">✅ full sessions</td><td style="padding:10px 14px;text-align:center;font-size:14px;border-left:1px solid var(--border);">📖 morning only</td><td style="padding:10px 14px;text-align:center;font-size:14px;border-left:1px solid var(--border);">📖 evening only</td></tr>
+      <tr style="border-top:1px solid var(--border);background:var(--surface);"><td style="padding:10px 14px;font-size:10px;font-weight:500;">Output Work</td><td style="padding:10px 14px;text-align:center;font-size:14px;">✅ morning block</td><td style="padding:10px 14px;text-align:center;font-size:14px;border-left:1px solid var(--border);">⚡ evening only</td><td style="padding:10px 14px;text-align:center;font-size:14px;border-left:1px solid var(--border);">❌ site IS output</td></tr>
+      <tr style="border-top:1px solid var(--border);"><td style="padding:10px 14px;font-size:10px;font-weight:500;">Journaling / Evening Reflection</td><td style="padding:10px 14px;text-align:center;font-size:14px;">✅</td><td style="padding:10px 14px;text-align:center;font-size:14px;border-left:1px solid var(--border);">✅</td><td style="padding:10px 14px;text-align:center;font-size:14px;border-left:1px solid var(--border);">✅ brief</td></tr>
+      <tr style="border-top:1px solid var(--border);background:var(--surface);"><td style="padding:10px 14px;font-size:10px;font-weight:500;">Cognitive Games</td><td style="padding:10px 14px;text-align:center;font-size:14px;">✅ T3</td><td style="padding:10px 14px;text-align:center;font-size:14px;border-left:1px solid var(--border);">❌ sacrificed</td><td style="padding:10px 14px;text-align:center;font-size:14px;border-left:1px solid var(--border);">❌ sacrificed</td></tr>
+    </tbody>
+  </table>
+
+  <div class="note-block">
+    The 4AM block, prayer, and evening reflection are non-negotiable across all three day types. These are the constants. Everything else adjusts to the day's context. The site day is not a failure day — it is a different kind of full day, where the physical work of engineering is itself the primary output. Count it that way.
+  </div>
+</div>
+
+<!-- ═══ OFFICE DAY ═══ -->
+<div class="tab-section" id="tab-office">
+  <div class="s-title">Office Day Timetable</div>
+  <div class="s-sub">Full morning yours · Commute is productive · Evening has a personal work window</div>
+
+  <div class="note-block">Assume a 7:30–8:00AM departure and a 17:00–18:00 return. Adjust the departure slot to match your actual schedule. Everything before you leave and after you return is yours — protect it.</div>
+
+  <div class="tt-wrap">
+    <div class="timetable">
+      <div class="tt-head">
+        <div class="tt-head-cell" style="text-align:center;">Time</div>
+        <div class="tt-head-cell">Activities &amp; Notes</div>
+        <div class="tt-head-cell">AP / Notes</div>
+      </div>
+
+      <div class="tt-row">
+        <div class="tt-time">04:00</div>
+        <div class="tt-cell prayer">
+          <div class="tags"><span class="tag tag-t1"><span class="dot"></span>Wake · Prayer begins</span></div>
+          <div class="tt-note">Identical to home day. This block does not move, does not shrink. One press — playlist already queued.</div>
+        </div>
+        <div class="tt-ap"><div class="ap-label">Target</div><div class="ap-val">20–50 AP</div><div class="ap-note">Prayer duration determines score</div></div>
+      </div>
+
+      <div class="tt-row">
+        <div class="tt-time">05:00</div>
+        <div class="tt-cell study">
+          <div class="tags"><span class="tag tag-t1"><span class="dot"></span>Bible Reading</span><span class="tag tag-base"><span class="dot"></span>Shorter than home day</span></div>
+          <div class="tt-note">One passage, one sentence of reflection. Keep it focused — time is tighter. Quality over length.</div>
+        </div>
+        <div class="tt-ap"><div class="ap-label">AP</div><div class="ap-val">15</div></div>
+      </div>
+
+      <div class="tt-row">
+        <div class="tt-time">05:30</div>
+        <div class="tt-cell">
+          <div class="tags"><span class="tag tag-t1"><span class="dot"></span>Workout — 20 min</span><span class="tag tag-base"><span class="dot"></span>Podcast or sermon plays</span></div>
+          <div class="tt-note">Shorter than home day but non-negotiable. 20 minutes is enough. Body prepped for a day on your feet or at a desk. Audio runs in background.</div>
+        </div>
+        <div class="tt-ap"><div class="ap-label">AP</div><div class="ap-val">10 + 15</div><div class="ap-note">Body + sermon overlap</div></div>
+      </div>
+
+      <div class="tt-row">
+        <div class="tt-time">05:55</div>
+        <div class="tt-cell">
+          <div class="tags"><span class="tag tag-t1"><span class="dot"></span>Output Work — Early Block</span></div>
+          <div class="tt-note">The most important personal work block of an office day. One completable task — trading journal entry, dAnTE document section, framework note. Visibly done before you dress. This replaces the long morning output block.</div>
+        </div>
+        <div class="tt-ap"><div class="ap-label">AP</div><div class="ap-val">15–20</div><div class="ap-note">Must be completable</div></div>
+      </div>
+
+      <div class="tt-row">
+        <div class="tt-time">06:45</div>
+        <div class="tt-cell">
+          <div class="tags"><span class="tag tag-base"><span class="dot"></span>Prepare &amp; Dress</span><span class="tag tag-base"><span class="dot"></span>Breakfast</span></div>
+          <div class="tt-note">Away from screens. Nourish. Phone face-down. The morning is done — arrive at the office already full.</div>
+        </div>
+        <div class="tt-ap"><div class="ap-label">—</div></div>
+      </div>
+
+      <div class="tt-row">
+        <div class="tt-time">07:30</div>
+        <div class="tt-cell commute">
+          <div class="tags"><span class="tag tag-commute"><span class="dot"></span>Commute — Outbound</span><span class="tag tag-win"><span class="dot"></span>Productive block</span></div>
+          <div class="tt-note">This is not dead time. See the Commute tab for full options. Minimum: sermon or trading podcast. If seated: book or charts on mobile.</div>
+        </div>
+        <div class="tt-ap"><div class="ap-label">AP</div><div class="ap-val">10–20</div><div class="ap-note">Depends on mode used</div></div>
+      </div>
+
+      <div class="tt-row">
+        <div class="tt-time">08:00</div>
+        <div class="tt-cell work">
+          <div class="tags"><span class="tag tag-office"><span class="dot"></span>Office Work — Professional</span></div>
+          <div class="tt-note">Show up fully. The CGSL contract is building your credibility and funding the vision. Bring competence, attention and composure. This is Dante Craft's reputation being built.</div>
+        </div>
+        <div class="tt-ap"><div class="ap-label">Career</div><div class="ap-val">+GP</div><div class="ap-note">Site/project milestones earn GP bonuses</div></div>
+      </div>
+
+      <div class="tt-row">
+        <div class="tt-time">13:00</div>
+        <div class="tt-cell work">
+          <div class="tags"><span class="tag tag-office"><span class="dot"></span>Lunch Break — Personal Block</span><span class="tag tag-t2"><span class="dot"></span>Charts on mobile</span></div>
+          <div class="tt-note">30–45 minutes. Charts on phone — mark levels, document one observation. Or: advance one personal task — dAnTE, reading, journaling. Not scrolling. Intentional use of found time.</div>
+        </div>
+        <div class="tt-ap"><div class="ap-label">AP</div><div class="ap-val">10–20</div></div>
+      </div>
+
+      <div class="tt-row">
+        <div class="tt-time">17:00</div>
+        <div class="tt-cell commute">
+          <div class="tags"><span class="tag tag-commute"><span class="dot"></span>Commute — Return</span><span class="tag tag-win"><span class="dot"></span>Decompression + input</span></div>
+          <div class="tt-note">Return commute has a different energy — you are decompressing, not launching. Business or personal development podcast works well here. Avoid trading analysis — mind needs to settle first.</div>
+        </div>
+        <div class="tt-ap"><div class="ap-label">AP</div><div class="ap-val">10–15</div></div>
+      </div>
+
+      <div class="tt-row">
+        <div class="tt-time">18:00</div>
+        <div class="tt-cell rest">
+          <div class="tags"><span class="tag tag-base"><span class="dot"></span>Decompress — 30 min</span></div>
+          <div class="tt-note">Dinner. Quiet. Not the phone. The office day took something — let the body acknowledge it before asking for more.</div>
+        </div>
+        <div class="tt-ap"><div class="ap-label">—</div></div>
+      </div>
+
+      <div class="tt-row">
+        <div class="tt-time">18:30</div>
+        <div class="tt-cell work">
+          <div class="tags"><span class="tag tag-t2"><span class="dot"></span>Evening Personal Block</span><span class="tag tag-t2"><span class="dot"></span>Charts — Session 2</span></div>
+          <div class="tt-note">The day's primary personal work window. Charts on desktop if energy allows — review levels against how price moved during the day. Or: output work, reading, journaling. One hour. Protected.</div>
+        </div>
+        <div class="tt-ap"><div class="ap-label">AP</div><div class="ap-val">15–35</div></div>
+      </div>
+
+      <div class="tt-row">
+        <div class="tt-time">19:30</div>
+        <div class="tt-cell study">
+          <div class="tags"><span class="tag tag-t1"><span class="dot"></span>Book Reading</span></div>
+          <div class="tt-note">30 minutes. Even 6 pages. The reading habit doesn't disappear on office days — it compresses.</div>
+        </div>
+        <div class="tt-ap"><div class="ap-label">AP</div><div class="ap-val">10–20</div></div>
+      </div>
+
+      <div class="tt-row">
+        <div class="tt-time">20:00</div>
+        <div class="tt-cell rest">
+          <div class="tags"><span class="tag tag-t1"><span class="dot"></span>Evening Reflection</span><span class="tag tag-t1"><span class="dot"></span>Set the Stage</span></div>
+          <div class="tt-note">One win, one lesson, one intention. Playlist queued. Task open. Tier chosen. 10 minutes that sets tomorrow in motion. Then — rest fully.</div>
+        </div>
+        <div class="tt-ap"><div class="ap-label">AP</div><div class="ap-val">10 + 10</div></div>
+      </div>
+
+      <div class="tt-row">
+        <div class="tt-time">21:00</div>
+        <div class="tt-cell rest">
+          <div class="tags"><span class="tag tag-base"><span class="dot"></span>Sleep</span></div>
+          <div class="tt-note">7 hours to 4AM. The body is the instrument. Protect it.</div>
+        </div>
+        <div class="tt-ap"><div class="ap-label">AP</div><div class="ap-val">+15</div><div class="ap-note">7–8hrs sleep</div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TRADEOFFS -->
+  <div class="tradeoff-grid">
+    <div class="to-card to-sacrifice">
+      <div class="to-head">What the Office Day Costs</div>
+      <div class="to-row"><div class="to-icon">📊</div><div><div class="to-name">Deep morning chart session</div><div class="to-desc">Moves to mobile/lunch. Acceptable substitute — you still see the levels, you still document. Not ideal but not zero.</div></div></div>
+      <div class="to-row"><div class="to-icon">🧘</div><div><div class="to-name">Long meditation block</div><div class="to-desc">Compresses to 5–10 minutes or is skipped. The commute's decompression partially compensates.</div></div></div>
+      <div class="to-row"><div class="to-icon">📖</div><div><div class="to-name">Second reading session</div><div class="to-desc">Sacrificed entirely on office days. One solid reading block is the target.</div></div></div>
+      <div class="to-row"><div class="to-icon">🎮</div><div><div class="to-name">Cognitive games</div><div class="to-desc">Dropped on office days. Mental bandwidth is better preserved for professional performance and evening output.</div></div></div>
+    </div>
+    <div class="to-card to-keep">
+      <div class="to-head">What the Office Day Protects</div>
+      <div class="to-row"><div class="to-icon">🕊</div><div><div class="to-name">4AM prayer — full and unrushed</div><div class="to-desc">The office start time does not touch the 4AM block. If anything, knowing the day has external demands makes this block more essential, not less.</div></div></div>
+      <div class="to-row"><div class="to-icon">✍</div><div><div class="to-name">One completable output task</div><div class="to-desc">The pre-departure morning block is small but real. One thing done before the professional day begins means you show up already having built something.</div></div></div>
+      <div class="to-row"><div class="to-icon">🎧</div><div><div class="to-name">Sermon and podcast via commute</div><div class="to-desc">The commute converts dead time into spiritual and intellectual input. This is genuinely one of the office day's hidden advantages over home days.</div></div></div>
+      <div class="to-row"><div class="to-icon">📱</div><div><div class="to-name">Charts via lunch and evening</div><div class="to-desc">Mobile charts at lunch + desktop in the evening means chart work still happens on office days — just distributed differently.</div></div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ SITE DAY ═══ -->
+<div class="tab-section" id="tab-site">
+  <div class="s-title">Site Day Timetable</div>
+  <div class="s-sub">Physical demand is the day's primary output · Everything else compresses · Hold the constants</div>
+
+  <div class="note-block">Site days are the most demanding day type. The physical work of engineering supervision is itself significant output — it builds the career, the portfolio, and the reputation that funds everything else. On site days, the goal is not to replicate a home day. The goal is to hold the constants and let the site do what only site days can do.</div>
+
+  <div class="tt-wrap">
+    <div class="timetable">
+      <div class="tt-head">
+        <div class="tt-head-cell" style="text-align:center;">Time</div>
+        <div class="tt-head-cell">Activities &amp; Notes</div>
+        <div class="tt-head-cell">AP / Notes</div>
+      </div>
+
+      <div class="tt-row">
+        <div class="tt-time">04:00</div>
+        <div class="tt-cell prayer">
+          <div class="tags"><span class="tag tag-t1"><span class="dot"></span>Wake · Prayer — Full Hour</span></div>
+          <div class="tt-note">The site day starts earlier, which actually protects this block — you have no excuse to sleep past 4AM when a site car is waiting at 6. Let that external pressure serve you. Full prayer, uncompromised.</div>
+        </div>
+        <div class="tt-ap"><div class="ap-label">Target</div><div class="ap-val">20–50 AP</div></div>
+      </div>
+
+      <div class="tt-row">
+        <div class="tt-time">05:00</div>
+        <div class="tt-cell study">
+          <div class="tags"><span class="tag tag-base"><span class="dot"></span>Bible — Brief</span><span class="tag tag-t1"><span class="dot"></span>Stretch / Mobilise</span></div>
+          <div class="tt-note">One passage, one sentence. Brief and intentional — not skipped, just compressed. Follow with 10 minutes of movement and stretching — the body is about to work hard. Do not skip this on site days.</div>
+        </div>
+        <div class="tt-ap"><div class="ap-label">AP</div><div class="ap-val">15 + 10</div></div>
+      </div>
+
+      <div class="tt-row">
+        <div class="tt-time">05:30</div>
+        <div class="tt-cell rest">
+          <div class="tags"><span class="tag tag-base"><span class="dot"></span>Dress · Breakfast · Prep</span></div>
+          <div class="tt-note">Eat properly. Site work without food is unsustainable. Pack water and something for mid-morning if the site has no reliable provision.</div>
+        </div>
+        <div class="tt-ap"><div class="ap-label">—</div></div>
+      </div>
+
+      <div class="tt-row">
+        <div class="tt-time">06:00</div>
+        <div class="tt-cell commute">
+          <div class="tags"><span class="tag tag-commute"><span class="dot"></span>Commute — Outbound</span><span class="tag tag-win"><span class="dot"></span>Primary input window</span></div>
+          <div class="tt-note">This is the most productive non-physical block of a site day. Sermon or trading podcast — earphones in, eyes closed or watching the road. If driving yourself: audio only. If passenger: book or charts on mobile are possible.</div>
+        </div>
+        <div class="tt-ap"><div class="ap-label">AP</div><div class="ap-val">15–20</div></div>
+      </div>
+
+      <div class="tt-row">
+        <div class="tt-time">07:00</div>
+        <div class="tt-cell site-work">
+          <div class="tags"><span class="tag tag-site"><span class="dot"></span>Site Work — Supervision</span><span class="tag tag-site"><span class="dot"></span>Engineering Output</span></div>
+          <div class="tt-note">This is the work. Show up with full competence — this is Dante Craft's reputation in physical form. Observe, document, supervise, solve. The RFIs, site instructions, quality checks, and progress reports you produce here are real engineering output. Count them as such in the Quickening.</div>
+        </div>
+        <div class="tt-ap"><div class="ap-label">Career</div><div class="ap-val">+GP</div><div class="ap-note">Site milestones, engineering problems solved, documents produced</div></div>
+      </div>
+
+      <div class="tt-row">
+        <div class="tt-time">13:00</div>
+        <div class="tt-cell rest">
+          <div class="tags"><span class="tag tag-base"><span class="dot"></span>Lunch — Away from site if possible</span></div>
+          <div class="tt-note">Mental rest from the site environment. Eat properly. Brief — 20 minutes. No screens. If energy allows: one short chart check on mobile or one paragraph of reading. Do not force it.</div>
+        </div>
+        <div class="tt-ap"><div class="ap-label">Optional</div><div class="ap-val">0–10 AP</div></div>
+      </div>
+
+      <div class="tt-row">
+        <div class="tt-time">13:20</div>
+        <div class="tt-cell site-work">
+          <div class="tags"><span class="tag tag-site"><span class="dot"></span>Site Work — Afternoon</span></div>
+          <div class="tt-note">The afternoon block is where physical fatigue accumulates. Pace yourself — mental sharpness for supervision is more valuable than speed. Document as you go. Site diary entries made in real time are better than reconstructed ones.</div>
+        </div>
+        <div class="tt-ap"><div class="ap-label">Career</div><div class="ap-val">+GP</div></div>
+      </div>
+
+      <div class="tt-row">
+        <div class="tt-time">17:00</div>
+        <div class="tt-cell commute">
+          <div class="tags"><span class="tag tag-commute"><span class="dot"></span>Commute — Return</span><span class="tag tag-base"><span class="dot"></span>Decompress</span></div>
+          <div class="tt-note">Return commute after site work is genuine decompression time. Body is tired. Mind has been active in a different way. Something light — Vusi, a business podcast, or simply music. Not trading analysis. Let the day settle before asking for more.</div>
+        </div>
+        <div class="tt-ap"><div class="ap-label">AP</div><div class="ap-val">10–12</div></div>
+      </div>
+
+      <div class="tt-row">
+        <div class="tt-time">18:30</div>
+        <div class="tt-cell rest">
+          <div class="tags"><span class="tag tag-base"><span class="dot"></span>Dinner · Decompress Fully</span></div>
+          <div class="tt-note">The body has worked. Feed it properly. 30–45 minutes of genuine rest — not scrolling, not planning, not watching something demanding. This is recovery time. Honour it or the evening block collapses.</div>
+        </div>
+        <div class="tt-ap"><div class="ap-label">—</div></div>
+      </div>
+
+      <div class="tt-row">
+        <div class="tt-time">19:15</div>
+        <div class="tt-cell work">
+          <div class="tags"><span class="tag tag-t2"><span class="dot"></span>Evening Personal Block — 45 min</span></div>
+          <div class="tt-note">The only dedicated personal work window of a site day. Choose one: book reading, journaling as output, or a brief chart review on mobile. Do not attempt all three. One done well is the target. This block exists — protect it.</div>
+        </div>
+        <div class="tt-ap"><div class="ap-label">AP</div><div class="ap-val">10–20</div></div>
+      </div>
+
+      <div class="tt-row">
+        <div class="tt-time">20:00</div>
+        <div class="tt-cell rest">
+          <div class="tags"><span class="tag tag-t1"><span class="dot"></span>Evening Reflection</span><span class="tag tag-t1"><span class="dot"></span>Set the Stage</span></div>
+          <div class="tt-note">Brief but not skipped. One win from the site day — something you observed, solved, or held together. One lesson. Tomorrow's tier selected. Playlist queued. Then sleep — early.</div>
+        </div>
+        <div class="tt-ap"><div class="ap-label">AP</div><div class="ap-val">10 + 10</div></div>
+      </div>
+
+      <div class="tt-row">
+        <div class="tt-time">20:30</div>
+        <div class="tt-cell rest">
+          <div class="tags"><span class="tag tag-base"><span class="dot"></span>Sleep — Earlier than home day</span></div>
+          <div class="tt-note">3.5 hours to 4AM. The site day earns an earlier night. Take it without guilt.</div>
+        </div>
+        <div class="tt-ap"><div class="ap-label">AP</div><div class="ap-val">+15</div><div class="ap-note">7–8hrs sleep</div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TRADEOFFS -->
+  <div class="tradeoff-grid">
+    <div class="to-card to-sacrifice">
+      <div class="to-head">What the Site Day Costs</div>
+      <div class="to-row"><div class="to-icon">📊</div><div><div class="to-name">Chart work — both sessions</div><div class="to-desc">Sacrificed on site days. The physical and mental demand of supervision makes quality chart work impossible. Forcing it produces bad analysis and frustration. Accept the gap.</div></div></div>
+      <div class="to-row"><div class="to-icon">🧘</div><div><div class="to-name">Meditation</div><div class="to-desc">Sacrificed. The site environment makes stillness impractical. The commute serves a partial decompression function in its place.</div></div></div>
+      <div class="to-row"><div class="to-icon">💼</div><div><div class="to-name">Deep personal work blocks</div><div class="to-desc">The long uninterrupted blocks that home days offer don't exist on site days. The evening personal block is compressed and must be singular in focus.</div></div></div>
+      <div class="to-row"><div class="to-icon">🎮</div><div><div class="to-name">Cognitive games, second reading session</div><div class="to-desc">Both dropped. Site days ask enough of the mind and body already.</div></div></div>
+    </div>
+    <div class="to-card to-keep">
+      <div class="to-head">What the Site Day Produces</div>
+      <div class="to-row"><div class="to-icon">🏗</div><div><div class="to-name">Real engineering output</div><div class="to-desc">Site instructions, RFIs, quality checks, progress documentation — this is Dante Craft's portfolio being built in real time. It counts. Log it in the Quickening as career output.</div></div></div>
+      <div class="to-row"><div class="to-icon">💪</div><div><div class="to-name">Physical conditioning</div><div class="to-desc">Site work is a workout. The body is working hard — this partially substitutes the formal workout on high-intensity days.</div></div></div>
+      <div class="to-row"><div class="to-icon">🎧</div><div><div class="to-name">Commute input — both ways</div><div class="to-desc">Longer commutes = more input time. Site days often have the longest commutes, which paradoxically makes them good podcast and sermon days.</div></div></div>
+      <div class="to-row"><div class="to-icon">😴</div><div><div class="to-name">Earlier sleep — full recovery</div><div class="to-desc">The site day earns a 20:30 lights out without guilt. Sleep is where the body processes the day's physical work. Earlier sleep means better 4AM quality tomorrow.</div></div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ COMMUTE ═══ -->
+<div class="tab-section" id="tab-commute">
+  <div class="s-title">Commute Optimisation</div>
+  <div class="s-sub">Dead time converted · Every commute is a choice · Zero friction options ready in advance</div>
+
+  <div class="commute-section">
+    <div class="cs-label">The Principle</div>
+    <div class="cs-title">The commute is not wasted time. It is found time.</div>
+    <div class="cs-body">The average commute to an office or site might be 30–90 minutes each way. Over a 5-day work week that is 5–15 hours of time that, unmanaged, produces nothing. Managed well, it produces the equivalent of an additional reading session, a full sermon, and a podcast episode — daily. The key is that the decision is made the night before, not in the car or on the bus. Friction in the morning kills follow-through. Prepare the queue. Then press play.</div>
+  </div>
+
+  <!-- OUTBOUND OPTIONS -->
+  <div class="pwb-title">Outbound Commute Options</div>
+  <div class="pwb-sub">Morning energy is high — use it for input that requires attention</div>
+  <div class="commute-opts" style="margin-bottom:28px;">
+    <div class="co-row">
+      <div class="co-time">If driving</div>
+      <div><div class="co-name">Sermon Audio — Primary</div><div class="co-desc">One press. Eyes on road. Full audio attention available. Outbound morning is the best time for sermon — mind is fresh, spirit is already oriented from prayer. Target 45 minutes of sermon across morning commute + background during site.</div><div class="co-pts">→ 15 AP toward sermon target</div></div>
+    </div>
+    <div class="co-row">
+      <div class="co-time">If driving</div>
+      <div><div class="co-name">Trading Podcast — Alternative</div><div class="co-desc">Strategy discussions, market psychology, ICT content. Audio format only. No chart-looking while driving. One concept to carry into the day noted mentally or dictated.</div><div class="co-pts">→ 15 AP trading podcast</div></div>
+    </div>
+    <div class="co-row">
+      <div class="co-time">If passenger</div>
+      <div><div class="co-name">Book Reading — Seated Commute</div><div class="co-desc">Physical book or e-reader. No scrolling, no social media. Even 15 pages in a 45-minute commute moves the book target significantly. One sentence of reflection noted in the journal before you disembark.</div><div class="co-pts">→ 10–35 AP depending on pages</div></div>
+    </div>
+    <div class="co-row">
+      <div class="co-time">If passenger</div>
+      <div><div class="co-name">Charts on Mobile — Morning Markets</div><div class="co-desc">If seated and not carsick: mark levels on mobile chart app while the market is opening. One observation documented. This is a legitimate Chart Session 1 substitute on office days.</div><div class="co-pts">→ 15–20 AP chart session</div></div>
+    </div>
+    <div class="co-row">
+      <div class="co-time">Any commute</div>
+      <div><div class="co-name">Vusi Thembekwayo / Business Podcast</div><div class="co-desc">One episode, one written or mental takeaway. Outbound morning is good for business content — you arrive at work with an idea already active.</div><div class="co-pts">→ 15 AP</div></div>
+    </div>
+  </div>
+
+  <!-- RETURN OPTIONS -->
+  <div class="pwb-title">Return Commute Options</div>
+  <div class="pwb-sub">Lower energy — favour input that decompresses rather than demands</div>
+  <div class="commute-opts" style="margin-bottom:28px;">
+    <div class="co-row">
+      <div class="co-time">If driving</div>
+      <div><div class="co-name">Personal Development or Finance Podcast</div><div class="co-desc">Lighter than trading or sermon. Something that stimulates gently. Vusi or a finance episode. Let the mind decompress while still receiving. Avoid anything that requires active note-taking.</div><div class="co-pts">→ 12–15 AP</div></div>
+    </div>
+    <div class="co-row">
+      <div class="co-time">If driving</div>
+      <div><div class="co-name">Sermon Continuation</div><div class="co-desc">If morning sermon wasn't completed: continue the same episode. The return commute finishes the daily sermon target without requiring a dedicated home block.</div><div class="co-pts">→ Completes 15 AP sermon target</div></div>
+    </div>
+    <div class="co-row">
+      <div class="co-time">If passenger</div>
+      <div><div class="co-name">Reading or Journaling</div><div class="co-desc">Book reading if energy is sufficient. Or: brief journaling — one observation from the day, one thing you'll do differently. This converts the return commute into part of the evening reflection.</div><div class="co-pts">→ 10–20 AP</div></div>
+    </div>
+    <div class="co-row">
+      <div class="co-time">Any commute</div>
+      <div><div class="co-name">Music / Rest — Intentional</div><div class="co-desc">Sometimes the commute is legitimately recovery time after a hard site day. Music or silence — not scrolling, not social media. Intentional rest is not a failure. Passive consumption is.</div><div class="co-pts">→ 0 AP, full value</div></div>
+    </div>
+  </div>
+
+  <!-- NIGHT BEFORE PREP -->
+  <div class="commute-section" style="--plum:#3a5a3a;">
+    <div class="cs-label" style="color:var(--sage);">The Night Before — Zero Friction Protocol</div>
+    <div class="cs-title">The decision is made tonight, not tomorrow morning.</div>
+    <div class="cs-body">Commute productivity collapses when the choice is made in the car at 6AM after a 4AM start. Remove the decision entirely. The night before: choose which commute mode applies tomorrow (driving or passenger), queue the audio content, bookmark the page in the book, check if charts are accessible on mobile. One minute of preparation tonight = 45 minutes of productive time tomorrow.</div>
+    <div class="commute-opts" style="margin-top:14px;">
+      <div class="co-row"><div class="co-time">Tonight</div><div><div class="co-name">Queue tomorrow's audio</div><div class="co-desc">Open the podcast app or sermon playlist. Find the next episode. Press pause at the start. Tomorrow morning: one press.</div></div></div>
+      <div class="co-row"><div class="co-time">Tonight</div><div><div class="co-name">Bookmark the page</div><div class="co-desc">If reading on commute: current page marked, book in bag. Nothing to find in the morning.</div></div></div>
+      <div class="co-row"><div class="co-time">Tonight</div><div><div class="co-name">Check mobile chart access</div><div class="co-desc">If planning to review charts on commute: confirm the app is logged in and platform accessible. Mobile data available or wifi confirmed.</div></div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ DECISIONS ═══ -->
+<div class="tab-section" id="tab-decisions">
+  <div class="s-title">No-Decision Guide</div>
+  <div class="s-sub">Every scenario pre-answered · Arrive at the situation already knowing what to do</div>
+
+  <div class="note-block">Decision fatigue is real and cumulative. By 6PM on a site day, the mental energy required to decide what to do next is often the reason nothing gets done. The following removes the decision. Each scenario is pre-answered. Read this once and it becomes automatic.</div>
+
+  <div class="s-title" style="font-size:16px;margin-bottom:14px;">Morning Scenarios</div>
+  <div class="decision-grid" style="margin-bottom:32px;">
+    <div class="dg-item"><div class="dg-when">Woke at 4AM, prayer full</div><div class="dg-do">→ <strong>Bible reading</strong> next. Then stretch. Then dress. Do not check phone before you are dressed.</div></div>
+    <div class="dg-item"><div class="dg-when">Woke late — 5:30AM</div><div class="dg-do">→ <strong>Pray for the remaining time</strong> before you must move. Even 20 minutes. Skip Bible reading — do not skip prayer. Compress, do not eliminate.</div></div>
+    <div class="dg-item"><div class="dg-when">No time for output task before leaving</div><div class="dg-do">→ <strong>Lunch block is the output block today.</strong> Accept the shift. One task at lunch. Do not try to do it during the commute.</div></div>
+    <div class="dg-item"><div class="dg-when">Site car arriving early</div><div class="dg-do">→ <strong>Dress and breakfast first.</strong> Commute will cover audio input. Do not sacrifice eating for extra prayer time on a site day — the body needs fuel.</div></div>
+  </div>
+
+  <div class="s-title" style="font-size:16px;margin-bottom:14px;">Commute Scenarios</div>
+  <div class="decision-grid" style="margin-bottom:32px;">
+    <div class="dg-item"><div class="dg-when">Driving myself — outbound</div><div class="dg-do">→ <strong>Sermon or trading podcast.</strong> Pre-queued last night. One press. Eyes on road.</div></div>
+    <div class="dg-item"><div class="dg-when">Passenger — outbound, not carsick</div><div class="dg-do">→ <strong>Book reading or mobile charts.</strong> Pre-bookmarked or app pre-opened. Reading gets priority if both are possible.</div></div>
+    <div class="dg-item"><div class="dg-when">Passenger — carsick possible</div><div class="dg-do">→ <strong>Earphones in, eyes closed. Sermon or podcast.</strong> Do not force reading. Motion sickness costs the rest of the day.</div></div>
+    <div class="dg-item"><div class="dg-when">Return commute, very tired</div><div class="dg-do">→ <strong>Music or podcast — not trading analysis.</strong> Intentional rest is allowed. Scrolling is not the same as resting.</div></div>
+    <div class="dg-item"><div class="dg-when">Unexpectedly short commute</div><div class="dg-do">→ <strong>Whatever was queued, however much of it fits.</strong> Even 10 minutes of sermon is 10 minutes of sermon. No minimum required to count.</div></div>
+  </div>
+
+  <div class="s-title" style="font-size:16px;margin-bottom:14px;">Evening Scenarios</div>
+  <div class="decision-grid" style="margin-bottom:32px;">
+    <div class="dg-item"><div class="dg-when">Home from office — energy moderate</div><div class="dg-do">→ <strong>Dinner, then 18:30 personal block.</strong> Charts on desktop first (20 min), then output task or reading. In that order.</div></div>
+    <div class="dg-item"><div class="dg-when">Home from site — exhausted</div><div class="dg-do">→ <strong>Dinner, genuine rest until 19:15, then one evening block only.</strong> Reading or journaling. Do not attempt charts when genuinely depleted — the analysis will be poor.</div></div>
+    <div class="dg-item"><div class="dg-when">Evening block — don't know what to work on</div><div class="dg-do">→ <strong>Open the Quickening. Check which primary area has the lowest index this week.</strong> Work on that area. Decision made by data, not mood.</div></div>
+    <div class="dg-item"><div class="dg-when">Tempted to skip evening reflection</div><div class="dg-do">→ <strong>One sentence per prompt. 3 minutes maximum.</strong> Win, lesson, intention. Set the Stage. It takes less time than the resistance suggests.</div></div>
+    <div class="dg-item"><div class="dg-when">Cannot sleep — mind still running</div><div class="dg-do">→ <strong>Worship playlist, low volume.</strong> Not the phone. Not social media. The playlist is already queued — same one as morning, different purpose.</div></div>
+  </div>
+
+  <div class="s-title" style="font-size:16px;margin-bottom:14px;">Tier Selection — Made the Night Before</div>
+  <div class="decision-grid">
+    <div class="dg-item"><div class="dg-when">Home day tomorrow</div><div class="dg-do">→ <strong>Default: Tier II.</strong> Adjust up to III if yesterday was strong. Only drop to I if rest is genuinely needed.</div></div>
+    <div class="dg-item"><div class="dg-when">Office day tomorrow</div><div class="dg-do">→ <strong>Default: Tier I.</strong> Office days are Tier I by default — full personal day equivalent is not possible. Tier II if energy is strong and commute is being maximised.</div></div>
+    <div class="dg-item"><div class="dg-when">Site day tomorrow</div><div class="dg-do">→ <strong>Default: Tier I.</strong> The site IS the day. Personal stack compresses. Tier I held = a good site day. Do not guilt-score yourself against home day AP on site days.</div></div>
+    <div class="dg-item"><div class="dg-when">Uncertain what day it will be</div><div class="dg-do">→ <strong>Set Tier I the night before.</strong> Upgrade on the day if circumstances allow. Starting at Tier I and exceeding it is better than starting at Tier III and falling short.</div></div>
+  </div>
+</div>
+
+</div>
+
+<script>
+function showTab(id, el) {
+  document.querySelectorAll('.tab-section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.pnav-tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('tab-' + id).classList.add('active');
+  el.classList.add('active');
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+</script>
+</body>
+</html>

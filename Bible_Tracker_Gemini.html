@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bible Tracker — Personal Daily Guide</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Crimson+Pro:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:#0f0d0c; --s1:#1a1714; --s2:#25201d; --s3:#2f2925;
+  --border:rgba(200,168,136,0.1); --border-g:rgba(200,168,136,0.25);
+  --text:#e8e0dd; --dim:#7e6a5e; --mid:#a8917a;
+  --g:#c8a888; --gb:#ddccaa; --gd:#6a503a;
+  --gold:#d4af37; --blue:#7a9eb8; --red:#c46a5a;
+  --fd:'Cormorant Garamond',serif; --fb:'Crimson Pro',serif;
+}
+body.light {
+  --bg:#f8f5f2; --s1:#eeeae6; --s2:#e4ded8; --s3:#d8cfc5;
+  --border:rgba(106,80,58,0.12); --border-g:rgba(106,80,58,0.25);
+  --text:#2e221a; --dim:#9e887a; --mid:#6a503a;
+  --g:#8b7355; --gb:#705e45; --gd:#4a3c2c;
+  --gold:#a68228; --blue:#3a5a8a; --red:#8a3a2a;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{background:var(--bg);color:var(--text);font-family:var(--fb);font-size:13px;line-height:1.6;min-height:100vh;transition:background 0.3s,color 0.3s;position:relative;}
+.header{padding:24px 22px 18px;border-bottom:1px solid var(--border);position:relative;z-index:1;}
+.h-top{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;}
+.h-title{font-family:var(--fd);font-size:clamp(22px,5vw,34px);font-weight:300;color:var(--text);line-height:1.1;}
+.h-title em{font-style:italic;color:var(--g);}
+.h-sub{font-size:9px;letter-spacing:0.18em;text-transform:uppercase;color:var(--dim);margin-top:3px;}
+.h-actions{display:flex;gap:6px;align-items:center;flex-shrink:0;}
+.theme-btn{background:none;border:1px solid var(--border-g);border-radius:2px;color:var(--mid);font-family:var(--fb);font-size:9px;letter-spacing:0.1em;padding:5px 10px;cursor:pointer;transition:all 0.2s;}
+.theme-btn:hover{color:var(--g);border-color:var(--g);}
+.h-stats{display:flex;gap:14px;margin-top:10px;flex-wrap:wrap;}
+.h-stat{display:flex;flex-direction:column;}
+.hs-val{font-family:var(--fd);font-size:26px;font-weight:300;color:var(--g);line-height:1;}
+.hs-lbl{font-size:7px;letter-spacing:0.18em;text-transform:uppercase;color:var(--dim);margin-top:1px;}
+.progress-bar{height:3px;background:rgba(200,168,136,0.1);border-radius:2px;margin-top:10px;overflow:hidden;}
+.progress-fill{height:100%;background:linear-gradient(90deg,var(--gd),var(--gb));border-radius:2px;transition:width 0.6s ease;}
+.nav{display:flex;align-items:center;padding:0 22px;border-bottom:1px solid var(--border);position:sticky;top:0;z-index:50;background:rgba(15,13,12,0.97);backdrop-filter:blur(10px);overflow-x:auto;gap:0;}
+body.light .nav{background:rgba(248,245,242,0.97);}
+.nt{font-size:8px;letter-spacing:0.14em;text-transform:uppercase;color:var(--dim);padding:12px 11px;cursor:pointer;border-bottom:2px solid transparent;transition:all 0.2s;white-space:nowrap;flex-shrink:0;}
+.nt:hover{color:var(--mid);}
+.nt.active{color:var(--g);border-bottom-color:var(--g);}
+.content{max-width:860px;margin:0 auto;padding:20px 16px 80px;position:relative;z-index:1;}
+.page{display:none;}
+.page.active{display:block;}
+.today-pair{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:20px;}
+@media (max-width: 600px) { .today-pair { grid-template-columns: 1fr; } }
+.today-card{border-radius:4px;overflow:hidden;}
+.today-card.current{background:linear-gradient(135deg,rgba(200,168,136,0.1),rgba(200,168,136,0.04));border:1px solid var(--border-g);}
+.today-card.unread{background:var(--s1);border:1px solid var(--border);}
+.tc-badge{font-size:7px;letter-spacing:0.22em;text-transform:uppercase;padding:8px 14px;display:flex;align-items:center;gap:6px;border-bottom:1px solid var(--border);}
+.today-card.current .tc-badge{color:var(--g);}
+.today-card.unread .tc-badge{color:var(--dim);}
+.tc-dot{width:5px;height:5px;border-radius:50%;background:currentColor;flex-shrink:0;}
+.tc-body{padding:14px;}
+.tc-day{font-family:var(--fd);font-size:28px;font-weight:300;line-height:1;margin-bottom:2px;}
+.today-card.current .tc-day{color:var(--gb);}
+.today-card.unread .tc-day{color:var(--mid);}
+.tc-readings{display:flex;flex-direction:column;gap:5px;}
+.tc-reading{display:flex;gap:6px;align-items:flex-start;}
+.tc-reading-tag{font-size:7px;letter-spacing:0.12em;text-transform:uppercase;padding:2px 6px;border-radius:2px;flex-shrink:0;margin-top:1px;}
+.tc-reading-tag.ot{background:rgba(200,168,88,0.15);color:var(--gold);border:1px solid rgba(200,168,88,0.25);}
+.tc-reading-tag.nt{background:rgba(200,168,136,0.12);color:var(--g);border:1px solid rgba(200,168,136,0.2);}
+.tc-reading-tag.ps{background:rgba(106,154,184,0.12);color:var(--blue);border:1px solid rgba(106,154,184,0.2);}
+.tc-reading-text{font-family:var(--fd);font-size:13px;color:var(--text);line-height:1.4;}
+.tc-actions{padding:0 14px 14px;display:flex;gap:6px;flex-wrap:wrap;}
+.mark-btn{background:rgba(200,168,136,0.12);border:1px solid var(--border-g);border-radius:2px;color:var(--g);font-family:var(--fb);font-size:8px;letter-spacing:0.1em;padding:6px 12px;cursor:pointer;transition:all 0.2s;}
+.mark-btn:hover{background:rgba(200,168,136,0.2);border-color:var(--g);}
+.day-card{background:var(--s1);border:1px solid var(--border);border-radius:3px;margin-bottom:5px;overflow:hidden;}
+.day-card.done{border-color:rgba(200,168,136,0.3);background:rgba(200,168,136,0.02);}
+.day-head{display:grid;grid-template-columns:40px 1fr auto;gap:8px;align-items:center;padding:8px 11px;}
+.dh-num{font-family:var(--fd);font-size:16px;font-weight:300;color:var(--dim);text-align:center;}
+.dh-readings{font-family:var(--fd);font-size:11px;color:var(--text);line-height:1.4;}
+.dh-readings span{color:var(--mid);font-weight:600;}
+.data-panel{margin-top:30px;padding:20px;border:1px solid var(--border);border-radius:4px;background:var(--s1);}
+.dp-title{font-family:var(--fd);font-size:18px;color:var(--g);margin-bottom:10px;}
+.dp-desc{font-size:11px;color:var(--dim);margin-bottom:20px;line-height:1.4;}
+.dp-actions{display:flex;gap:10px;flex-wrap:wrap;}
+.sec-btn{background:none;border:1px solid var(--border-g);border-radius:2px;color:var(--mid);font-size:9px;letter-spacing:0.1em;padding:8px 16px;cursor:pointer;transition:all 0.2s;}
+.sec-btn:hover{color:var(--g);border-color:var(--g);}
+.toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%) translateY(44px);background:var(--s2);border:1px solid var(--border-g);color:var(--g);font-size:8px;letter-spacing:0.1em;padding:8px 16px;border-radius:2px;transition:transform 0.4s;z-index:999;}
+.toast.show{transform:translateX(-50%) translateY(0);}
+#importFile{display:none;}
+</style>
+</head>
+<body>
+<div class="header">
+  <div class="h-top">
+    <div><div class="h-title">Bible <em>Daily Guide</em></div><div class="h-sub">Custom 365-Day Plan &mdash; OT &bull; NT &bull; PS/PR</div></div>
+    <div class="h-actions"><button class="theme-btn" onclick="toggleTheme()">☀ / ☾</button></div>
+  </div>
+  <div class="h-stats">
+    <div class="h-stat"><div class="hs-val" id="hComp">0</div><div class="hs-lbl">Completed</div></div>
+    <div class="h-stat"><div class="hs-val" id="hRem">365</div><div class="hs-lbl">Remaining</div></div>
+    <div class="h-stat"><div class="hs-val" id="hPct">0%</div><div class="hs-lbl">Progress</div></div>
+  </div>
+  <div class="progress-bar"><div class="progress-fill" id="progFill" style="width:0%"></div></div>
+</div>
+<nav class="nav">
+  <div class="nt active" onclick="showPage('today',this)">Today</div>
+  <div class="nt" onclick="showPage('plan',this)">Plan</div>
+  <div class="nt" onclick="showPage('settings',this)">Settings</div>
+</nav>
+<div class="content">
+  <div class="page active" id="page-today"><div class="today-pair" id="todayPair"></div></div>
+  <div class="page" id="page-plan"><div id="planContent"></div></div>
+  <div class="page" id="page-settings">
+    <div class="data-panel">
+      <div class="dp-title">Data Management</div>
+      <div class="dp-desc">Your progress is currently saved only in your browser's local cache. To keep your data safe outside of this device, use the buttons below to export a backup file or import one from another device.</div>
+      <div class="dp-actions">
+        <button class="sec-btn" onclick="exportData()">📤 Export Data (.json)</button>
+        <button class="sec-btn" onclick="document.getElementById('importFile').click()">📥 Import Data</button>
+        <input type="file" id="importFile" accept=".json" onchange="importData(event)">
+      </div>
+    </div>
+  </div>
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+// Logic and Bible Plan Data
+const PLAN = [{"ot": "Gen 1, 2:1-17", "nt": "Mat 1:1-25", "ps": "Ps 1:1-6"}, {"ot": "Gen 2:18-4:16", "nt": "Mat 2:1-18", "ps": "Ps 2:1-12"}, {"ot": "Gen 4:17-6", "nt": "Mat 2:19-3", "ps": "Ps 3:1-8"}, {"ot": "Gen 7-9:17", "nt": "Mat 4:1-22", "ps": "Prov 1:1-7"}, {"ot": "Gen 9:18-11:9", "nt": "Mat 4:23-5:20", "ps": "Ps 4:1-8"}, {"ot": "Gen 11:10-13", "nt": "Mat 5:21-42", "ps": "Ps 5:1-12"}, {"ot": "Gen 14-16", "nt": "Mat 5:43-6:24", "ps": "Ps 6"}, {"ot": "Gen 17-18", "nt": "Mat 6:25-7:23", "ps": "Prov 1:8,19"}, {"ot": "Gen 19-20:18", "nt": "Mat 7:24-8:22", "ps": "Ps 7:1-9"}, {"ot": "Gen 21-23", "nt": "Mat 8:23-9:13", "ps": "Ps 7:10-17"}, {"ot": "Gen 24", "nt": "Mat 9:14-38", "ps": "Ps 8"}, {"ot": "Gen 25, 26", "nt": "Mat 10:1-31", "ps": "Prov 1:20,33"}, {"ot": "Gen 27-28:22", "nt": "Mat 10:32-11:15", "ps": "Ps 9:1-6"}, {"ot": "Gen 29, 30", "nt": "Mat 11:16-30", "ps": "Ps 9:7-12"}, {"ot": "Gen 31", "nt": "Mat 12:1-21", "ps": "Ps 9:13-20"}, {"ot": "Gen 32, 33", "nt": "Mat 12:22-45", "ps": "Prov 2:1-11"}, {"ot": "Gen 34, 35", "nt": "Mat 12:46-13:17", "ps": "Ps 10:1-11"}, {"ot": "Gen 36, 37", "nt": "Mat 13:18-35", "ps": "Ps 10:12-18"}, {"ot": "Gen 38, 39", "nt": "Mat 13:36-58", "ps": "Ps 11:1-7"}, {"ot": "Gen 40-41:40", "nt": "Mat 14:1-21", "ps": "Prov 2:12-22"}, {"ot": "Gen 41:41-42", "nt": "Mat 14:22-15:9", "ps": "Ps 12"}, {"ot": "Gen 43, 44", "nt": "Mat 15:10-39", "ps": "Ps 13"}, {"ot": "Gen 45-47:12", "nt": "Mat 16:1-20", "ps": "Ps 14"}, {"ot": "Gen 47:13-48", "nt": "Mat 16:21-17:13", "ps": "Prov 3:1-10"}, {"ot": "Gen 49, 50", "nt": "Mat 17:14-18:9", "ps": "Ps 15"}, {"ot": "Job 1-3", "nt": "Mat 18:10-35", "ps": "Ps 16"}, {"ot": "Job 4-7", "nt": "Mat 19:1-15", "ps": "Ps 17:1-5"}, {"ot": "Job 8-10", "nt": "Mat 19:16-30", "ps": "Prov 3:11,20"}, {"ot": "Job 11-14", "nt": "Mat 20:1-19", "ps": "Ps 17:6-12"}, {"ot": "Job 15-18", "nt": "Mat 20:20-34", "ps": "Ps 17:13-15"}, {"ot": "Job 19-21", "nt": "Mat 21:1-17", "ps": "Ps 18:1-6"}, {"ot": "Job 22-24", "nt": "Mat 21:18-32", "ps": "Prov 3:21,35"}, {"ot": "Job 25-29", "nt": "Mat 21:33-22:14", "ps": "Ps 18:7-15"}, {"ot": "Job 30-32", "nt": "Mat 22:15-46", "ps": "Ps 18:16-24"}, {"ot": "Job 33, 34", "nt": "Mat 23:1-39", "ps": "Ps 18:25-36"}, {"ot": "Job 35-37", "nt": "Mat 24:1-31", "ps": "Prov 4:1-9"}, {"ot": "Job 38-40:2", "nt": "Mat 24:32-25:13", "ps": "Ps 18:37-42"}, {"ot": "Job 40:3-42", "nt": "Mat 25:14-46", "ps": "Ps 18:43-50"}, {"ot": "Ex 1-3", "nt": "Mat 26:1-30", "ps": "Ps 19:1-6"}, {"ot": "Ex 4-6:12", "nt": "Mat 26:31-46", "ps": "Prov 4:10,19"}, {"ot": "Ex 6:13-8", "nt": "Mat 26:47-68", "ps": "Ps 19:7-14"}, {"ot": "Ex 9, 10", "nt": "Mat 26:69-27:10", "ps": "Ps 20:1-9"}, {"ot": "Ex 11, 12", "nt": "Mat 27:11-44", "ps": "Ps 21:1-7"}, {"ot": "Ex 13, 14", "nt": "Mat 27:45-66", "ps": "Prov 4:20-27"}, {"ot": "Ex 15, 16", "nt": "Mat 28:1-20", "ps": "Ps 21:8-13"}, {"ot": "Ex 17, 18", "nt": "Mk 1:1-28", "ps": "Ps 22:1-11"}, {"ot": "Ex 19, 20", "nt": "Mk 1:29-2:17", "ps": "Ps 22:12-21"}, {"ot": "Ex 21, 22", "nt": "Mk 2:18-3:30", "ps": "Prov 5:1-14"}, {"ot": "Ex 23, 24", "nt": "Mk 3:31-4:29", "ps": "Ps 22:22-31"}, {"ot": "Ex 25, 26", "nt": "Mk 4:30-5:20", "ps": "Ps 23:1-6"}, {"ot": "Ex 27-28", "nt": "Mk 5:21-6:6", "ps": "Ps 24:1-10"}, {"ot": "Ex 29, 30", "nt": "Mk 6:7-29", "ps": "Prov 5:15-23"}, {"ot": "Ex 31-33:6", "nt": "Mk 6:30,56", "ps": "Ps 25:1-7"}, {"ot": "Ex 33:7-34", "nt": "Mk 7:1-30", "ps": "Ps 25:8,15"}, {"ot": "Ex 35-36", "nt": "Mk 7:31-8:13", "ps": "Ps 25:16,22"}, {"ot": "Ex 37-38", "nt": "Mk 8:14-9:1", "ps": "Prov 6:1-11"}, {"ot": "Ex 39, 40", "nt": "Mk 9:2,32", "ps": "Ps 26:1-12"}, {"ot": "Lev 1-3", "nt": "Mk 9:33-10:12", "ps": "Ps 27:1-6"}, {"ot": "Lev 4-5:13", "nt": "Mk 10:13,31", "ps": "Ps 27:7,14"}, {"ot": "Lev 5:14-7:10", "nt": "Mk 10:32,52", "ps": "Prov 6:12,19"}, {"ot": "Lev 7:11-8", "nt": "Mk 11:1,27", "ps": "Ps 28"}, {"ot": "Lev 9, 10", "nt": "Mk 11:28-12:12", "ps": "Ps 29"}, {"ot": "Lev 11, 12", "nt": "Mk 12:13,27", "ps": "Ps 30:1,4"}, {"ot": "Lev 13:1,59", "nt": "Mk 12:28,44", "ps": "Prov 6:20-29"}, {"ot": "Lev 14:1-57", "nt": "Mk 13:1,31", "ps": "Ps 30:8,12"}, {"ot": "Lev 15, 16", "nt": "Mk 13:32-14:16", "ps": "Ps 31:1-8"}, {"ot": "Lev 17, 18", "nt": "Mk 14:17,42", "ps": "Ps 31:9-18"}, {"ot": "Lev 19, 20", "nt": "Mk 14:43,72", "ps": "Prov 6:30,35"}, {"ot": "Lev 21, 22", "nt": "Mk 15:1,32", "ps": "Ps 31:19,24"}, {"ot": "Lev 23-24", "nt": "Mk 15:33,47", "ps": "Ps 32"}, {"ot": "Lev 25-26:3", "nt": "Mk 16:1,20", "ps": "Ps 33:1-11"}, {"ot": "Lev 26:4, 27", "nt": "Lk 1:1,25", "ps": "Prov 7:1-5"}, {"ot": "Num 1, 2:9", "nt": "Lk 1:26,38", "ps": "Ps 33:12,22"}, {"ot": "Num 2:10-3", "nt": "Lk 1:39,56", "ps": "Ps 34:1-10"}, {"ot": "Num 4-5:10", "nt": "Lk 1:57,80", "ps": "Ps 34:11,22"}, {"ot": "Num 5:11, 6:27", "nt": "Lk 2:1-20", "ps": "Prov 7:6,20"}, {"ot": "Num 7:1,65", "nt": "Lk 2:21,40", "ps": "Ps 35:1-10"}, {"ot": "Num 7:66-9:14", "nt": "Lk 2:41,52", "ps": "Ps 35:11,18"}, {"ot": "Num 9:15-11:3", "nt": "Lk 3:1,22", "ps": "Ps 35:19,28"}, {"ot": "Num 11:4-13:25", "nt": "Lk 3:23-4:13", "ps": "Prov 7:21,27"}, {"ot": "Num 13:26-14", "nt": "Lk 4:14,37", "ps": "Ps 36:1-12"}, {"ot": "Num 15, 16:35", "nt": "Lk 4:38-5:16", "ps": "Ps 37:1-9"}, {"ot": "Num 16:36-18", "nt": "Lk 5:17,32", "ps": "Ps 37:10,20"}, {"ot": "Num 19, 21:3", "nt": "Lk 5:33-6:11", "ps": "Prov 8:1-11"}, {"ot": "Num 21:4-22:20", "nt": "Lk 6:12,36", "ps": "Ps 37:21,31"}, {"ot": "Num 22:21-23:26", "nt": "Lk 6:37-7:10", "ps": "Ps 37:32,40"}, {"ot": "Num 23:27-25", "nt": "Lk 7:11,35", "ps": "Ps 38:1-11"}, {"ot": "Num 26-27:11", "nt": "Lk 7:36,50", "ps": "Prov 8:12,21"}, {"ot": "Num 27-29:11", "nt": "Lk 8:1,18", "ps": "Ps 38:12,22"}, {"ot": "Num 29:12-31:24", "nt": "Lk 8:19,39", "ps": "Ps 39:1,13"}, {"ot": "Num 31:25-32", "nt": "Lk 8:40-9:9", "ps": "Ps 40:1,8"}, {"ot": "Num 33, 34", "nt": "Lk 9:10,27", "ps": "Prov 8:22,31"}, {"ot": "Num 35-36:12", "nt": "Lk 9:28,56", "ps": "Ps 40:9,17"}, {"ot": "Deut 1, 2:23", "nt": "Lk 9:57-10:24", "ps": "Ps 41:1,6"}, {"ot": "Deut 2:24-4:14", "nt": "Lk 10:25-11:4", "ps": "Ps 41:7,13"}, {"ot": "Deut 4:15,49-5", "nt": "Lk 11:5,32", "ps": "Prov 8:32,36"}, {"ot": "Deut 6-8", "nt": "Lk 11:33,54", "ps": "Ps 42:1,6"}, {"ot": "Deut 9, 10", "nt": "Lk 12:1,34", "ps": "Ps 42:7,11"}, {"ot": "Deut 11, 12", "nt": "Lk 12:35,59", "ps": "Ps 43:1,5"}, {"ot": "Deut 13, 14", "nt": "Lk 13:1,30", "ps": "Prov 9:1,12"}, {"ot": "Deut 15-16:20", "nt": "Lk 13:31-14:14", "ps": "Ps 44:1,12"}, {"ot": "Deut 16:21-18", "nt": "Lk 14:15,35", "ps": "Ps 44:13,26"}, {"ot": "Deut 19, 20", "nt": "Lk 15:1,32", "ps": "Ps 45:1,9"}, {"ot": "Deut 21, 22", "nt": "Lk 16:1,18", "ps": "Prov 9:13,18"}, {"ot": "Deut 23-25:19", "nt": "Lk 16:19-17:10", "ps": "Ps 45:10,17"}, {"ot": "Deut 26-28:14", "nt": "Lk 17:11,37", "ps": "Ps 46:1,11"}, {"ot": "Deut 28:15,68", "nt": "Lk 18:1,30", "ps": "Ps 47:1,9"}, {"ot": "Deut 29, 30:10", "nt": "Lk 18:31-19:10", "ps": "Prov 10:1,10"}, {"ot": "Deut 30:11-31:29", "nt": "Lk 19:11,44", "ps": "Ps 48:1,8"}, {"ot": "Deut 31:30-32", "nt": "Lk 19:45-20:26", "ps": "Ps 48:9,14"}, {"ot": "Deut 33-34:12", "nt": "Lk 20:27-21:4", "ps": "Ps 49:1,20"}, {"ot": "Jos 1, 2", "nt": "Lk 21:5,38", "ps": "Prov 10:11,20"}, {"ot": "Jos 3-5:12", "nt": "Lk 22:1,38", "ps": "Ps 50:1,15"}, {"ot": "Jos 5:13-7", "nt": "Lk 22:39,62", "ps": "Ps 50:16,23"}, {"ot": "Jos 8-9:15", "nt": "Lk 22:63-23:25", "ps": "Ps 51:1,9"}, {"ot": "Jos 9:16-10", "nt": "Lk 23:26,56", "ps": "Prov 10:21,30"}, {"ot": "Jos 11, 12", "nt": "Lk 24:1,35", "ps": "Ps 57:10,19"}, {"ot": "Jos 13, 14", "nt": "Lk 24:36,53", "ps": "Ps 52:1,9"}, {"ot": "Jos 15, 16", "nt": "Jn 1:1,28", "ps": "Ps 53:1,6"}, {"ot": "Jos 17, 18", "nt": "Jn 1:29,51", "ps": "Prov 10:31-11:8"}, {"ot": "Jos 19-21:19", "nt": "Jn 2", "ps": "Ps 54"}, {"ot": "Jos 21:20-22", "nt": "Jn 3:1,21", "ps": "Ps 55:1,11"}, {"ot": "Jos 23, 24", "nt": "Jn 3:22,36", "ps": "Ps 55:12,23"}, {"ot": "Jn 1, 2:5", "nt": "Jn 4:1,26", "ps": "Prov 11:9,18"}, {"ot": "Jn 2:6-3", "nt": "Jn 4:27-42", "ps": "Ps 56:1,13"}, {"ot": "Jn 4, 5", "nt": "Jn 4:43-5:15", "ps": "Ps 57:1,6"}, {"ot": "Jn 6-7:8", "nt": "Jn 5:16,30", "ps": "Ps 57:7,11"}, {"ot": "Jn 7:9-8", "nt": "Jn 5:31,47", "ps": "Prov 11:19,28"}, {"ot": "Jn 9", "nt": "Jn 6:1,24", "ps": "Ps 58"}, {"ot": "Jn 10, 11", "nt": "Jn 6:25,59", "ps": "Ps 59:1,8"}, {"ot": "Jn 12, 13", "nt": "Jn 6:60-7:13", "ps": "Ps 59:9,19"}, {"ot": "Jn 14, 15", "nt": "Jn 7:14,44", "ps": "Prov 11:29-12:7"}, {"ot": "Jn 16, 17", "nt": "Jn 7:45-8:11", "ps": "Ps 60:1,4"}, {"ot": "Jn 18, 19", "nt": "Jn 8:12,30", "ps": "Ps 60:5,12"}, {"ot": "Jn 20, 21", "nt": "Jn 8:31,59", "ps": "Ps 61:1,8"}, {"ot": "Ruth 1, 2", "nt": "Jn 9:1,34", "ps": "Prov 12:8,17"}, {"ot": "Ruth 3, 4", "nt": "Jn 9:35-10:21", "ps": "Ps 62:1,12"}, {"ot": "1 Sam 1-2:26", "nt": "Jn 10:22,42", "ps": "Ps 63:1,11"}, {"ot": "1 Sam 2:27-4", "nt": "Jn 11:1,44", "ps": "Ps 64:1,10"}, {"ot": "1 Sam 5-7", "nt": "Jn 11:45-12:11", "ps": "Prov 12:18,27"}, {"ot": "1 Sam 8-10:8", "nt": "Jn 12:12,26", "ps": "Ps 65:1,13"}, {"ot": "1 Sam 10:9-12", "nt": "Jn 12:37-13:17", "ps": "Ps 66:1,12"}, {"ot": "1 Sam 13-14:23", "nt": "Jn 13:18,38", "ps": "Ps 66:13,20"}, {"ot": "1 Sam 14:24-15", "nt": "Jn 14:1,31", "ps": "Prov 12:28-13:9"}, {"ot": "1 Sam 16-17:37", "nt": "Jn 15-16:4", "ps": "Ps 67:1,7"}, {"ot": "1 Sam 17:38-18", "nt": "Jn 16:5-17:5", "ps": "Ps 68:1,6"}, {"ot": "1 Sam 19, 20", "nt": "Jn 17:6,26", "ps": "Ps 68:7,14"}, {"ot": "1 Sam 21, 23", "nt": "Jn 18:1,24", "ps": "Prov 13:10,19"}, {"ot": "1 Sam 24, 25", "nt": "Jn 18:25,40", "ps": "Ps 68:15,20"}, {"ot": "1 Sam 26, 28", "nt": "Jn 19:1,27", "ps": "Ps 68:21,27"}, {"ot": "1 Sam 29, 31", "nt": "Jn 19:28-20:9", "ps": "Ps 68:28,35"}, {"ot": "2 Sam 1-2:7", "nt": "Jn 20:10,31", "ps": "Prov 13:20-14:4"}, {"ot": "2 Sam 2:8-3:21", "nt": "Jn 21:1,25", "ps": "Ps 69:1,12"}, {"ot": "2 Sam 3:22-5:5", "nt": "Acts 1:1,22", "ps": "Ps 69:13,28"}, {"ot": "2 Sam 5:6-6", "nt": "Acts 1:23-2:21", "ps": "Ps 69:29,36"}, {"ot": "2 Sam 7, 8", "nt": "Acts 2:22,47", "ps": "Prov 14:5,14"}, {"ot": "2 Sam 9, 10", "nt": "Acts 3", "ps": "Ps 70:1,5"}, {"ot": "2 Sam 11, 12", "nt": "Acts 4:1,22", "ps": "Ps 71:1,8"}, {"ot": "2 Sam 13", "nt": "Acts 4:23-5:11", "ps": "Ps 71:9,18"}, {"ot": "2 Sam 14, 15:12", "nt": "Acts 5:12,42", "ps": "Prov 14:15,24"}, {"ot": "2 Sam 15:13-16:14", "nt": "Acts 6-7:19", "ps": "Ps 71:19,24"}, {"ot": "2 Sam 16:15-18:18", "nt": "Acts 7:20,43", "ps": "Ps 72:1,20"}, {"ot": "2 Sam 18:19-19", "nt": "Acts 7:44-8:3", "ps": "Ps 73:1,14"}, {"ot": "2 Sam 20, 21", "nt": "Acts 8:4,40", "ps": "Prov 14:25,35"}, {"ot": "2 Sam 22, 23:7", "nt": "Acts 9:1,31", "ps": "Ps 73:15,28"}, {"ot": "2 Sam 23:8-24:25", "nt": "Acts 9:32-10:23", "ps": "Ps 74:1,9"}, {"ot": "1 Kgs 1-2:12", "nt": "Acts 10:23-11:18", "ps": "Ps 74:10,17"}, {"ot": "1 Kgs 2:13-3:15", "nt": "Acts 11:19-12:19", "ps": "Prov 15:1,10"}, {"ot": "1 Kgs 3:16-5", "nt": "Acts 12:19-13:12", "ps": "Ps 74:18,23"}, {"ot": "1 Kgs 6, 7:22", "nt": "Acts 13:13,41", "ps": "Ps 75:1,10"}, {"ot": "1 Kgs 7:23-8:21", "nt": "Acts 13:42-14:7", "ps": "Ps 76:1,12"}, {"ot": "1 Kgs 8:22-9:9", "nt": "Acts 14:8,28", "ps": "Prov 15:11,20"}, {"ot": "1 Kgs 9:10-11:13", "nt": "Acts 15:1,21", "ps": "Ps 77:1,9"}, {"ot": "1 Kgs 11:14-12:24", "nt": "Acts 15:22,41", "ps": "Ps 77:10,20"}, {"ot": "1 Kgs 12:25-14:20", "nt": "Acts 16:1,15", "ps": "Ps 78:1,8"}, {"ot": "1 Kgs 14:21-16:7", "nt": "Acts 16:16,40", "ps": "Prov 15:21,30"}, {"ot": "1 Kgs 16:8-18:15", "nt": "Acts 17:1,21", "ps": "Ps 78:9,16"}, {"ot": "1 Kgs 18:16-19", "nt": "Acts 17:22-18:8", "ps": "Ps 78:17,31"}, {"ot": "1 Kgs 20, 21", "nt": "Acts 18:9-19:13", "ps": "Ps 78:32,39"}, {"ot": "1 Kgs 22", "nt": "Acts 19:14,41", "ps": "Prov 15:31-16:7"}, {"ot": "2 Kgs 1, 2:25", "nt": "Acts 20:1,38", "ps": "Ps 78:40,55"}, {"ot": "2 Kgs 3, 4:37", "nt": "Acts 21:1,26", "ps": "Ps 78:56,72"}, {"ot": "2 Kgs 4:38-6:23", "nt": "Acts 21:27-22:22", "ps": "Ps 79:1,13"}, {"ot": "2 Kgs 6:24-8:15", "nt": "Acts 22:23-23:11", "ps": "Prov 16:8,17"}, {"ot": "2 Kgs 8:16-9", "nt": "Acts 23:12,35", "ps": "Ps 80:1,7"}, {"ot": "2 Kgs 10, 11", "nt": "Acts 24:1,27", "ps": "Ps 80:8,19"}, {"ot": "2 Kgs 12-14:22", "nt": "Acts 25:1,22", "ps": "Ps 81:1,7"}, {"ot": "2 Kgs 14:23-15", "nt": "Acts 25:23-26:23", "ps": "Prov 16:18,27"}, {"ot": "2 Kgs 16, 17", "nt": "Acts 26:24-27:12", "ps": "Ps 81:8,16"}, {"ot": "2 Kgs 18, 19:13", "nt": "Acts 27:13,44", "ps": "Ps 82:1,8"}, {"ot": "2 Kgs 19:14-20", "nt": "Acts 28:1,16", "ps": "Ps 83:1,18"}, {"ot": "2 Kgs 21, 22", "nt": "Acts 28:17,31", "ps": "Prov 16:28-17:4"}, {"ot": "2 Kgs 23, 24:7", "nt": "Rom 1:1,17", "ps": "Ps 84:1,7"}, {"ot": "2 Kgs 24:8-25", "nt": "Rom 1:18,32", "ps": "Ps 84:8,12"}, {"ot": "Jon 1-4", "nt": "Rom 2:1,16", "ps": "Ps 85:1,7"}, {"ot": "Amos 1, 2", "nt": "Rom 2:17,29-3:8", "ps": "Prov 17:5,14"}, {"ot": "Amos 3, 4", "nt": "Rom 3:9,31", "ps": "Ps 85:8,13"}, {"ot": "Amos 5", "nt": "Rom 4:1,15", "ps": "Ps 86:1,10"}, {"ot": "Amos 6, 7", "nt": "Rom 4:16-5:11", "ps": "Ps 86:11,17"}, {"ot": "Amos 8, 9", "nt": "Rom 5:12,21", "ps": "Prov 17:15,24"}, {"ot": "Hos 1, 2", "nt": "Rom 6:1,14", "ps": "Ps 87:1,7"}, {"ot": "Hos 3-5", "nt": "Rom 6:15-7:6", "ps": "Ps 88:1,9"}, {"ot": "Hos 6, 7", "nt": "Rom 7:7,25", "ps": "Ps 88:10,18"}, {"ot": "Hos 8, 9", "nt": "Rom 8:1,17", "ps": "Prov 17:25-18:6"}, {"ot": "Hos 10, 11", "nt": "Rom 8:18,39", "ps": "Ps 89:1,8"}, {"ot": "Hos 12-14", "nt": "Rom 9:1,21", "ps": "Ps 89:9,13"}, {"ot": "1 Chro 1, 2:17", "nt": "Rom 9:22-10:4", "ps": "Ps 89:14,18"}, {"ot": "1 Chro 2:18-4:8", "nt": "Rom 10:5-11:10", "ps": "Prov 18:7,16"}, {"ot": "1 Chro 4:9-5", "nt": "Rom 11:11,32", "ps": "Ps 89:19,29"}, {"ot": "1 Chro 6", "nt": "Rom 11:33-12:21", "ps": "Ps 89:30,37"}, {"ot": "1 Chro 7, 8", "nt": "Rom 13:1,14", "ps": "Ps 89:38,45"}, {"ot": "1 Chro 9, 10:14", "nt": "Rom 14:1,18", "ps": "Prov 18:17-19:2"}, {"ot": "1 Chro 11, 12:22", "nt": "Rom 14:19-15:13", "ps": "Ps 89:46,52"}, {"ot": "1 Chro 12:23-14", "nt": "Rom 15:14,33", "ps": "Ps 90:1,10"}, {"ot": "1 Chro 15-16:36", "nt": "Rom 16", "ps": "Ps 90:11,17"}, {"ot": "1 Chro 16:37-18", "nt": "1 Cor 1:1,17", "ps": "Prov 19:3,12"}, {"ot": "1 Chro 19-21", "nt": "1 Cor 1:18-2:5", "ps": "Ps 91:1,8"}, {"ot": "1 Chro 22, 23", "nt": "1 Cor 2:6,16", "ps": "Ps 91:9,16"}, {"ot": "1 Chro 24-26:19", "nt": "1 Cor 3", "ps": "Ps 92:1,15"}, {"ot": "1 Chro 26:20-27", "nt": "1 Cor 4", "ps": "Prov 19:13,22"}, {"ot": "1 Chro 28, 29", "nt": "1 Cor 5", "ps": "Ps 93:1,5"}, {"ot": "2 Chro 1:1,17", "nt": "1 Cor 6", "ps": "Ps 94:1,11"}, {"ot": "Ecc 1, 3:22", "nt": "1 Cor 7:1,16", "ps": "Ps 94:12,23"}, {"ot": "Ecc 4, 6", "nt": "1 Cor 7:17,35", "ps": "Prov 19:23-20:4"}, {"ot": "Ecc 7, 9:12", "nt": "1 Cor 7:36-8:13", "ps": "Ps 95:1,11"}, {"ot": "Ecc 9:13-12", "nt": "1 Cor 9:1,18", "ps": "Ps 96:1,13"}, {"ot": "2 Chro 2-5:1", "nt": "1 Cor 9:19-10:13", "ps": "Ps 97:1,12"}, {"ot": "2 Chro 5:2-7:10", "nt": "1 Cor 10:14-11:1", "ps": "Prov 20:5,14"}, {"ot": "2 Chro 7:11-9", "nt": "1 Cor 11:2,34", "ps": "Ps 98:1,9"}, {"ot": "Song 1, 4", "nt": "1 Cor 12:1,26", "ps": "Ps 99:1,9"}, {"ot": "Song 5, 8", "nt": "1 Cor 12:27-13:13", "ps": "Ps 100:1,5"}, {"ot": "2 Chro 10-12", "nt": "1 Cor 14:1,19", "ps": "Prov 20:15,24"}, {"ot": "2 Chro 13, 15", "nt": "1 Cor 14:20,40", "ps": "Ps 101:1,8"}, {"ot": "2 Chro 16-18:27", "nt": "1 Cor 15:1,34", "ps": "Ps 102:1,11"}, {"ot": "2 Chro 18:28-20", "nt": "1 Cor 15:35,49", "ps": "Ps 102:12,17"}, {"ot": "2 Chro 21-23", "nt": "1 Cor 15:50-16:4", "ps": "Prov 20:25-21:4"}, {"ot": "2 Chro 24, 25", "nt": "1 Cor 16:5,24", "ps": "Ps 102:18,28"}, {"ot": "2 Chro 26, 28", "nt": "2 Cor 1:1,11", "ps": "Ps 103:1,12"}, {"ot": "2 Chro 29, 31:1", "nt": "2 Cor 1:12,22", "ps": "Ps 103:13,22"}, {"ot": "2 Chro 31:2-33:20", "nt": "2 Cor 1:23-2:11", "ps": "Prov 21:5,16"}, {"ot": "2 Chro 33-35:19", "nt": "2 Cor 2:12-3:6", "ps": "Ps 104:1,18"}, {"ot": "2 Chro 35:20-36", "nt": "2 Cor 3:7,18", "ps": "Ps 104:19,30"}, {"ot": "Mic 1, 4", "nt": "2 Cor 4", "ps": "Ps 104:31,35"}, {"ot": "Mic 5, 7", "nt": "2 Cor 5:1,10", "ps": "Prov 21:17,26"}, {"ot": "Is 1, 2", "nt": "2 Cor 5:11-6:2", "ps": "Ps 105:1,11"}, {"ot": "Is 3, 5:7", "nt": "2 Cor 6:3-7:1", "ps": "Ps 105:12,22"}, {"ot": "Is 5:8-8:10", "nt": "2 Cor 7:2,16", "ps": "Ps 105:23,36"}, {"ot": "Is 8:11-10:19", "nt": "2 Cor 8:1,15", "ps": "Prov 21:27-22:6"}, {"ot": "Is 10:20-13", "nt": "2 Cor 8:16-9:5", "ps": "Ps 105:37,45"}, {"ot": "Is 14-16", "nt": "2 Corinthians 9:6,15", "ps": "Ps 106:1,15"}, {"ot": "Is 17, 19", "nt": "2 Cor 10", "ps": "Ps 106:16,31"}, {"ot": "Is 20, 23", "nt": "2 Cor 11:1,15", "ps": "Prov 22:7,16"}, {"ot": "Is 24-26", "nt": "2 Cor 11:16,33", "ps": "Ps 106:32,39"}, {"ot": "Is 27, 28", "nt": "2 Cor 12:1,10", "ps": "Ps 106:40,48"}, {"ot": "Is 29, 30:18", "nt": "2 Cor 12:11,21", "ps": "Ps 107:1,9"}, {"ot": "Is 30:19-32", "nt": "2 Cor 13", "ps": "Prov 22:17,27"}, {"ot": "Is 33-35", "nt": "Gal 1", "ps": "Ps 107:10,22"}, {"ot": "Is 36, 37", "nt": "Gal 2:1,10", "ps": "Ps 107:23,32"}, {"ot": "Is 38-40", "nt": "Gal 2:11-3:9", "ps": "Ps 107:33,43"}, {"ot": "Is 41, 42", "nt": "Gal 3:10,25", "ps": "Prov 22:28-23:9"}, {"ot": "Is 43-44:23", "nt": "Gal 3:26-4:20", "ps": "Ps 108:1,5"}, {"ot": "Is 44:24-46", "nt": "Gal 4:21-5:6", "ps": "Ps 108:6,13"}, {"ot": "Is 47-49:7", "nt": "Gal 5:7,26", "ps": "Ps 109:1,20"}, {"ot": "Is 49:8-51:16", "nt": "Gal 6", "ps": "Prov 23:10,18"}, {"ot": "Is 51:17-54", "nt": "Eph 1", "ps": "Ps 109:21,31"}, {"ot": "Is 55-57:13", "nt": "Eph 2", "ps": "Ps 110:1,7"}, {"ot": "Is 57:14-59", "nt": "Eph 3", "ps": "Ps 111:1,10"}, {"ot": "Is 60-62", "nt": "Eph 4:1,16", "ps": "Prov 23:19,28"}, {"ot": "Is 63-65:16", "nt": "Eph 4:17-5:7", "ps": "Ps 112:1,10"}, {"ot": "Is 65:17-66", "nt": "Eph 5:8,33", "ps": "Ps 113:1,9"}, {"ot": "Nah 1, 3", "nt": "Eph 6", "ps": "Ps 114:1,8"}, {"ot": "Zeph 1, 3", "nt": "Phil 1:1,26", "ps": "Prov 23:29-24:4"}, {"ot": "Jer 1, 2:30", "nt": "Phil 1:27-2:11", "ps": "Ps 115:1,11"}, {"ot": "Jer 2:31-4:9", "nt": "Phil 2:12,30", "ps": "Ps 115:12,18"}, {"ot": "Jer 4:10-5", "nt": "Phil 3-4", "ps": "Ps 116:1,11"}, {"ot": "Jer 6, 7:29", "nt": "Phil 4:2,23", "ps": "Prov 24:5,14"}, {"ot": "Jer 7:30-9:16", "nt": "Col 1:1,23", "ps": "Ps 116:12,19"}, {"ot": "Jer 9:17-11:17", "nt": "Col 1:24-2:5", "ps": "Ps 117:1,2"}, {"ot": "Jer 11:18-13", "nt": "Col 2:6,23", "ps": "Ps 118:1,16"}, {"ot": "Jer 14, 15", "nt": "Col 3, 4:1", "ps": "Prov 24:15,22"}, {"ot": "Jer 16, 17", "nt": "Col 4:2,18", "ps": "Ps 118:17,29"}, {"ot": "Jer 18, 20", "nt": "1 Thes 1, 2:16", "ps": "Ps 119:1,8"}, {"ot": "Jer 21, 23:8", "nt": "1 Thes 2:17,3", "ps": "Ps 119:9,16"}, {"ot": "Jer 23:9, 25:14", "nt": "1 Thes 4", "ps": "Prov 24:23,34"}, {"ot": "Jer 25:15, 26", "nt": "1 Thes 5", "ps": "Ps 119:17,24"}, {"ot": "Jer 27, 29:23", "nt": "2 Thes 1", "ps": "Ps 119:25,32"}, {"ot": "Jer 29:24-31:14", "nt": "2 Thes 2", "ps": "Ps 119:33,40"}, {"ot": "Jer 31:15-32:25", "nt": "2 Thes 3", "ps": "Prov 25:1,10"}, {"ot": "Jer 32:26-34", "nt": "1 Tim 1", "ps": "Ps 119:41,48"}, {"ot": "Jer 35, 37", "nt": "1 Tim 2", "ps": "Ps 119:49,56"}, {"ot": "Jer 38-40:6", "nt": "1 Tim 3", "ps": "Ps 119:57,64"}, {"ot": "Jer 40:7-42", "nt": "1 Tim 4", "ps": "Prov 25:11,20"}, {"ot": "Jer 43, 45", "nt": "1 Tim 5-6:2", "ps": "Ps 119:65,72"}, {"ot": "Jer 46, 47", "nt": "1 Tim 6:3,21", "ps": "Ps 119:73,80"}, {"ot": "Jer 48, 49:6", "nt": "2 Tim 1", "ps": "Ps 119:81,88"}, {"ot": "Jer 49:7-50:10", "nt": "2 Tim 2", "ps": "Prov 25:21-26:2"}, {"ot": "Jer 50:11-51:14", "nt": "2 Tim 3", "ps": "Ps 119:89,96"}, {"ot": "Jer 51:15,64", "nt": "2 Tim 4", "ps": "Ps 119:97,104"}, {"ot": "Jer 52", "nt": "Tit 1", "ps": "Ps 119:105,112"}, {"ot": "Hab 1, 3:19", "nt": "Tit 2", "ps": "Prov 26:3,12"}, {"ot": "Lam 1, 2:6", "nt": "Tit 3", "ps": "Ps 119:113,120"}, {"ot": "Lam 2:7-3:39", "nt": "Phm 1", "ps": "Ps 119:121,128"}, {"ot": "Lam 3:40-5", "nt": "Heb 1", "ps": "Ps 119:129,136"}, {"ot": "Oba 1", "nt": "Heb 2", "ps": "Prov 26:13,22"}, {"ot": "Job 1, 2:13", "nt": "Heb 3", "ps": "Ps 119:137,144"}, {"ot": "Job 2:18, 3", "nt": "Heb 4:1,13", "ps": "Ps 119:145,152"}, {"ot": "Eze 1, 3", "nt": "Heb 4:14-5:10", "ps": "Ps 119:153,160"}, {"ot": "Eze 4, 6", "nt": "Heb 5:11, 6:12", "ps": "Prov 26:23-27:4"}, {"ot": "Eze 7, 9", "nt": "Heb 6:13-7:10", "ps": "Ps 119:161,168"}, {"ot": "Eze 10, 12", "nt": "Heb 7:11,28", "ps": "Ps 119:169,176"}, {"ot": "Eze 13, 15", "nt": "Heb 8", "ps": "Ps 120:1,7"}, {"ot": "Eze 16", "nt": "Heb 9:1,15", "ps": "Prov 27:5,14"}, {"ot": "Eze 17, 18", "nt": "Heb 9:16,28", "ps": "Ps 121:1,8"}, {"ot": "Eze 19, 20:44", "nt": "Heb 10:1,18", "ps": "Ps 122:1,9"}, {"ot": "Eze 20:45-22:22", "nt": "Heb 10:19,39", "ps": "Ps 123:1,4"}, {"ot": "Eze 22:23-23", "nt": "Heb 11:1,16", "ps": "Prov 27:15,22"}, {"ot": "Eze 24, 25", "nt": "Heb 11:17,40", "ps": "Ps 124:1,8"}, {"ot": "Eze 26, 27", "nt": "Heb 12:1,13", "ps": "Ps 125:1,5"}, {"ot": "Eze 28, 29", "nt": "Heb 12:14,29", "ps": "Ps 126:1,6"}, {"ot": "Eze 30, 31", "nt": "Heb 13", "ps": "Prov 27:23-28:6"}, {"ot": "Eze 32, 33:32", "nt": "Jam 1", "ps": "Ps 127:1,5"}, {"ot": "Eze 33:21, 35", "nt": "Jam 2", "ps": "Ps 128:1,6"}, {"ot": "Eze 36, 37", "nt": "Jam 3", "ps": "Ps 129:1,8"}, {"ot": "Eze 38, 39", "nt": "Jam 4", "ps": "Prov 28:7,17"}, {"ot": "Eze 40", "nt": "Jam 5", "ps": "Ps 130:1,8"}, {"ot": "Eze 41, 42", "nt": "1 Pet 1, 2:3", "ps": "Ps 131:1,3"}, {"ot": "Eze 43, 44", "nt": "1 Pet 2:4,25", "ps": "Ps 132:1,8"}, {"ot": "Eze 45, 46", "nt": "1 Pet 3", "ps": "Prov 28:18,28"}, {"ot": "Eze 47, 48", "nt": "1 Pet 4", "ps": "Ps 133:1,3"}, {"ot": "Dan 1, 2:23", "nt": "1 Pet 5", "ps": "Ps 134:1,3"}, {"ot": "Dan 2:24, 3:12", "nt": "2 Pet 1", "ps": "Ps 135:1,12"}, {"ot": "Dan 3:13, 4:18", "nt": "2 Pet 2", "ps": "Prov 29:1,9"}, {"ot": "Dan 4:19, 5:16", "nt": "2 Pet 3", "ps": "Ps 135:13,21"}, {"ot": "Dan 5:17, 6:28", "nt": "1 Jn 1, 2:11", "ps": "Ps 136:1,12"}, {"ot": "Dan 7, 8:14", "nt": "1 Jn 2:12,27", "ps": "Ps 136:13,26"}, {"ot": "Dan 8:15, 9:19", "nt": "1 Jn 2:28, 3:10", "ps": "Prov 29:10,18"}, {"ot": "Dan 9:20, 11:1", "nt": "1 Jn 3:11, 4:6", "ps": "Ps 137:1,9"}, {"ot": "Dan 11:2,35", "nt": "1 Jn 4:7,21", "ps": "Ps 138:1,8"}, {"ot": "Dan 11:36, 12", "nt": "1 Jn 5:1,21", "ps": "Ps 139:1,10"}, {"ot": "Hag 1, 2:23", "nt": "2 Jn 1:1,13", "ps": "Prov 29:19,27"}, {"ot": "Zec 1, 4", "nt": "3 Jn 1:1,14", "ps": "Ps 139:11,16"}, {"ot": "Zec 5, 8", "nt": "Jude 1:1,25", "ps": "Ps 139:17,24"}, {"ot": "Zec 9, 11", "nt": "Rev 1", "ps": "Ps 140:1,5"}, {"ot": "Zec 12, 14", "nt": "Rev 2:1,17", "ps": "Prov 30:1,10"}, {"ot": "Es 1, 2:18", "nt": "Rev 2:18, 3:6", "ps": "Ps 140:6,13"}, {"ot": "Es 2:19, 5", "nt": "Rev 3:7,22", "ps": "Ps 141:1,10"}, {"ot": "Es 6, 8", "nt": "Rev 4", "ps": "Ps 142:1,11"}, {"ot": "Es 9, 10", "nt": "Rev 5", "ps": "Prov 30:11,23"}, {"ot": "Mal 1, 2:16", "nt": "Rev 6", "ps": "Ps 143:1,12"}, {"ot": "Mal 2:17, 4", "nt": "Rev 7", "ps": "Ps 144:1,8"}, {"ot": "Ezr 1, 2:67", "nt": "Rev 8, 9:12", "ps": "Ps 144:9,15"}, {"ot": "Ezr 2:68, 4:5", "nt": "Rev 9:13, 10", "ps": "Prov 30:24,33"}, {"ot": "Ezr 4:6, 5", "nt": "Rev 11", "ps": "Ps 145:1,7"}, {"ot": "Ezr 6, 7:10", "nt": "Rev 12, 13:1", "ps": "Ps 145:8,13"}, {"ot": "Ezr 7:11, 8:14", "nt": "Rev 13:1,18", "ps": "Ps 145:14,21"}, {"ot": "Ezr 8:15, 9:15", "nt": "Rev 14:1,13", "ps": "Prov 31:1,9"}, {"ot": "Ezr 10", "nt": "Rev 14:14,15", "ps": "Ps 146:1,10"}, {"ot": "Neh 1, 2", "nt": "Rev 16", "ps": "Ps 147:1,11"}, {"ot": "Neh 3, 4", "nt": "Rev 17", "ps": "Ps 147:12,20"}, {"ot": "Neh 5, 7:3", "nt": "Rev 18:1,17", "ps": "Prov 31:10,20"}, {"ot": "Neh 7:4, 8", "nt": "Rev 18:18, 19:10", "ps": "Ps 148:1,6"}, {"ot": "Neh 9:1,37", "nt": "Rev 19:11,21", "ps": "Ps 148:7,14"}, {"ot": "Neh 9:38, 11:21", "nt": "Rev 20", "ps": "Ps 149:1,9"}, {"ot": "Neh 11:22, 12:47", "nt": "Rev 21", "ps": "Prov 31:21,31"}, {"ot": "Neh 13", "nt": "Rev 22", "ps": "Ps 150:1,56"}];
+let completions = {}; let isDark = true;
+const STORE = 'my_bible_plan_v2';
+
+function load(){
+  try {
+    const s = localStorage.getItem(STORE);
+    if(s){ const d=JSON.parse(s); completions=d.c||{}; isDark=d.dark!==false; }
+  } catch(e){}
+  document.body.classList.toggle('light', !isDark);
+}
+function save(){ try{ localStorage.setItem(STORE, JSON.stringify({c:completions,dark:isDark})); }catch(e){} }
+function toggleTheme(){ isDark=!isDark; document.body.classList.toggle('light',!isDark); save(); }
+
+function exportData(){
+  const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify({c:completions,dark:isDark}));
+  const dlAnchorElem = document.createElement('a');
+  dlAnchorElem.setAttribute("href", dataStr);
+  dlAnchorElem.setAttribute("download", "bible_tracker_backup.json");
+  dlAnchorElem.click();
+  toast('Backup file generated');
+}
+
+function importData(event){
+  const file = event.target.files[0];
+  if(!file) return;
+  const reader = new FileReader();
+  reader.onload = (e) => {
+    try {
+      const d = JSON.parse(e.target.result);
+      if(d.c){
+        completions = d.c; isDark = d.dark !== false;
+        save(); load(); updateHeader(); renderToday();
+        toast('Data imported successfully');
+      }
+    } catch(err){ toast('Error: Invalid file'); }
+  };
+  reader.readAsText(file);
+}
+
+function getDayIdx(){
+  const now = new Date(); const start = new Date(now.getFullYear(), 0, 0);
+  const diff = now - start; return Math.min(Math.floor(diff/86400000)-1, 364);
+}
+function findLastUnread(){
+  for(let i=0; i<365; i++){ if(!completions[i]) return i; }
+  return -1;
+}
+function updateHeader(){
+  const done = Object.keys(completions).length;
+  const pct = Math.round((done/365)*100);
+  document.getElementById('hComp').textContent = done;
+  document.getElementById('hRem').textContent = 365-done;
+  document.getElementById('hPct').textContent = pct+'%';
+  document.getElementById('progFill').style.width = pct+'%';
+}
+function renderCard(idx, type){
+  if(idx < 0) return '';
+  const day = PLAN[idx];
+  const isDone = !!completions[idx];
+  const badge = type === 'calendar' ? 'Calendar Reading' : 'Last Unread Passage';
+  const cardClass = type === 'calendar' ? 'current' : 'unread';
+  
+  return `<div class="today-card ${cardClass}">
+      <div class="tc-badge"><div class="tc-dot"></div>${badge}</div>
+      <div class="tc-body">
+        <div class="tc-day">Day ${idx+1}</div>
+        <div class="tc-readings">
+          <div class="tc-reading"><span class="tc-reading-tag ot">OT</span><div class="tc-reading-text">${day.ot}</div></div>
+          <div class="tc-reading"><span class="tc-reading-tag nt">NT</span><div class="tc-reading-text">${day.nt}</div></div>
+          <div class="tc-reading"><span class="tc-reading-tag ps">PS</span><div class="tc-reading-text">${day.ps}</div></div>
+        </div>
+      </div>
+      <div class="tc-actions">
+        ${!isDone ? `<button class="mark-btn" onclick="markRead(${idx})">✓ Mark Read</button>` : `<span style="font-size:8px;color:var(--g)">✓ Completed</span>`}
+      </div>
+    </div>`;
+}
+function markRead(idx){
+  completions[idx] = new Date().toISOString();
+  save(); updateHeader(); renderToday(); if(document.getElementById('page-plan').classList.contains('active')) renderPlan();
+  toast('Progress saved');
+}
+function renderToday(){
+  const calIdx = getDayIdx();
+  const unreadIdx = findLastUnread();
+  let h = renderCard(calIdx, 'calendar');
+  if(unreadIdx !== -1 && unreadIdx !== calIdx) h += renderCard(unreadIdx, 'unread');
+  document.getElementById('todayPair').innerHTML = h;
+}
+function renderPlan(){
+  let h = '';
+  for(let i=0; i<365; i++){
+    const day = PLAN[i]; const isDone = !!completions[i];
+    h += `<div class="day-card ${isDone?'done':''}">
+      <div class="day-head">
+        <div class="dh-num">${i+1}</div>
+        <div class="dh-readings"><span>OT</span> ${day.ot} &bull; <span>NT</span> ${day.nt} &bull; <span>PS</span> ${day.ps}</div>
+        <button class="mark-btn" style="font-size:7px" onclick="markRead(${i})">${isDone?'DONE':'MARK'}</button>
+      </div>
+    </div>`;
+  }
+  document.getElementById('planContent').innerHTML = h;
+}
+function showPage(id, el){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.nt').forEach(t=>t.classList.remove('active'));
+  document.getElementById('page-'+id).classList.add('active'); el.classList.add('active');
+  if(id==='plan') renderPlan();
+}
+function toast(m){ const t=document.getElementById('toast'); t.textContent=m; t.classList.add('show'); setTimeout(()=>t.classList.remove('show'),2000); }
+load(); updateHeader(); renderToday();
+</script>
+</body>
+</html>

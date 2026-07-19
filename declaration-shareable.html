@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Declaration — A Gift</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400;1,600&family=Jost:wght@200;300;400&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#07090b;--s1:#0d1115;--border:rgba(255,255,255,0.07);--tx:#f0ece4;--mid:rgba(240,236,228,0.58);--dim:rgba(240,236,228,0.22);--gold:#c9a84c;--gold-d:rgba(201,168,76,0.1);--fd:'Cormorant Garamond',serif;--fm:'Jost',sans-serif;}
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{background:var(--bg);color:var(--tx);font-family:var(--fd);min-height:100vh;}
+body::before{content:'';position:fixed;inset:0;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");pointer-events:none;z-index:100;}
+
+/* GIFT HEADER */
+.gift-header{padding:3rem 3rem 2rem;max-width:720px;margin:0 auto;text-align:center;position:relative;}
+.gift-header::before{content:'';display:block;width:1px;height:40px;background:linear-gradient(to bottom,transparent,rgba(201,168,76,0.4));margin:0 auto 2rem;}
+.gift-from{font-family:var(--fm);font-size:0.58rem;letter-spacing:0.25em;text-transform:uppercase;color:var(--dim);margin-bottom:1rem;}
+.gift-message{font-family:var(--fd);font-size:clamp(1rem,2.5vw,1.3rem);font-style:italic;color:var(--mid);line-height:1.8;max-width:500px;margin:0 auto 2rem;}
+.gift-divider{display:flex;align-items:center;gap:1rem;margin:0 auto;max-width:300px;}
+.gift-divider-line{flex:1;height:1px;background:rgba(201,168,76,0.2);}
+.gift-cross{color:var(--gold);opacity:0.5;font-size:0.8rem;}
+
+/* TITLE */
+.title-wrap{padding:3rem 3rem 1rem;max-width:720px;margin:0 auto;text-align:center;}
+.decl-title{font-family:var(--fd);font-size:clamp(2.5rem,7vw,5rem);font-weight:300;line-height:1;letter-spacing:-0.01em;color:var(--tx);}
+.decl-title em{font-style:italic;color:var(--gold);}
+.decl-sub{font-family:var(--fm);font-size:0.55rem;letter-spacing:0.25em;text-transform:uppercase;color:var(--dim);margin-top:1rem;}
+
+/* BODY */
+.body-wrap{max-width:720px;margin:0 auto;padding:3rem 3rem 6rem;}
+
+.seg{padding:2rem 0 2rem 1.5rem;border-left:1px solid rgba(201,168,76,0.12);margin-bottom:0.5rem;transition:border-color .2s;}
+.seg:hover{border-left-color:rgba(201,168,76,0.35);}
+.seg-theme{font-family:var(--fm);font-size:0.5rem;letter-spacing:0.22em;text-transform:uppercase;color:var(--gold);opacity:0.6;margin-bottom:0.75rem;}
+.seg-text{font-family:var(--fd);font-size:clamp(1rem,2.5vw,1.3rem);font-weight:300;line-height:1.85;color:var(--tx);}
+
+.amen-wrap{padding:4rem 0;text-align:center;}
+.amen-text{font-family:var(--fd);font-size:clamp(2.5rem,7vw,5rem);font-style:italic;color:var(--gold);font-weight:300;}
+
+/* CLOSING */
+.closing{max-width:720px;margin:0 auto;padding:0 3rem 6rem;text-align:center;}
+.closing::before{content:'';display:block;width:60px;height:1px;background:linear-gradient(90deg,transparent,rgba(201,168,76,0.3),transparent);margin:0 auto 3rem;}
+.closing-text{font-family:var(--fd);font-size:clamp(1rem,2.5vw,1.2rem);font-style:italic;color:var(--mid);line-height:1.8;max-width:460px;margin:0 auto 2rem;}
+.closing-from{font-family:var(--fm);font-size:0.55rem;letter-spacing:0.2em;text-transform:uppercase;color:var(--dim);}
+.closing-dot{width:4px;height:4px;background:var(--gold);border-radius:50%;margin:1.5rem auto 0;opacity:0.5;}
+
+/* SHARE BTN */
+.share-bar{position:fixed;bottom:0;left:0;right:0;background:rgba(7,9,11,0.95);backdrop-filter:blur(10px);border-top:1px solid var(--border);padding:12px 2rem;display:flex;justify-content:center;gap:10px;z-index:200;}
+.share-btn{background:none;border:1px solid rgba(201,168,76,0.3);color:var(--gold);font-family:var(--fm);font-size:0.55rem;letter-spacing:0.15em;padding:8px 20px;cursor:pointer;border-radius:2px;transition:all .2s;}
+.share-btn:hover{background:var(--gold-d);}
+.share-btn.copy{border-color:var(--border);color:var(--mid);}
+.share-btn.copy:hover{border-color:var(--border);color:var(--tx);}
+
+.toast{position:fixed;bottom:64px;left:50%;transform:translateX(-50%) translateY(44px);background:var(--s1);border:1px solid rgba(201,168,76,0.3);color:var(--gold);font-family:var(--fm);font-size:0.55rem;letter-spacing:0.1em;padding:7px 16px;border-radius:2px;transition:transform .35s cubic-bezier(.34,1.56,.64,1);z-index:999;white-space:nowrap;}
+.toast.show{transform:translateX(-50%) translateY(0);}
+
+@media(max-width:480px){
+  .gift-header,.title-wrap,.body-wrap,.closing{padding-left:1.5rem;padding-right:1.5rem;}
+  .seg{padding-left:1rem;}
+}
+</style>
+</head>
+<body>
+
+<div class="gift-header">
+  <div class="gift-from" id="giftFrom">From Paul &mdash; with love and faith</div>
+  <div class="gift-message" id="giftMessage">This is what I stand on. This is what I speak over my life every morning. I wanted you to have it too.</div>
+  <div class="gift-divider">
+    <div class="gift-divider-line"></div>
+    <div class="gift-cross">✝</div>
+    <div class="gift-divider-line"></div>
+  </div>
+</div>
+
+<div class="title-wrap">
+  <div class="decl-title">The<br><em>Declaration</em></div>
+  <div class="decl-sub">A confession of faith &middot; spoken over life</div>
+</div>
+
+<div class="body-wrap">
+  <div class="seg"><div class="seg-theme">Foundation</div><div class="seg-text">By the Grace, Mercy, Favour and Faithfulness of God, and by the Blood of Jesus Christ which has redeemed us, Exceeding Great Fortune is our portion, We flourish on every side.</div></div>
+  <div class="seg"><div class="seg-theme">Standing</div><div class="seg-text">We can not, We will not fail; We can not, We will not fall, because God is for us, God is with us, God is in us.</div></div>
+  <div class="seg"><div class="seg-theme">Inheritance</div><div class="seg-text">The lines fall for us in pleasant places, ours is a delightful, goodly inheritance.</div></div>
+  <div class="seg"><div class="seg-theme">Harvest</div><div class="seg-text">For us, harvesting season meets and overtakes planting season: our lives yield sweet wine and fruit.</div></div>
+  <div class="seg"><div class="seg-theme">New Things</div><div class="seg-text">Our Father is doing a new thing for us, in us and through us: see it spring forth! He makes for us roads in the wilderness and streams in the wasteland.</div></div>
+  <div class="seg"><div class="seg-theme">Open Doors</div><div class="seg-text">Great and effectual doors are open to us and in Jesus' Name every adversary is conquered — for He has given us a mouth and wisdom which no adversary can gainsay or resist.</div></div>
+  <div class="seg"><div class="seg-theme">Abundance</div><div class="seg-text">Therefore in times of famine We are satisfied and overflowing in abundance, and our Father gives us beauty for ashes, the wealth and riches of the heathen for our inheritance, and this day He gives us our daily bread.</div></div>
+  <div class="seg"><div class="seg-theme">The Shepherd</div><div class="seg-text">All things work together for our good according to the Will of God for us, the Lord is our Shepherd, We lack nothing and we fear no evil for by His Spirit and divine power He has blessed us with all things that pertain to life and godliness — and through Christ who strengthens us we can do all things, and we prosper in all we do because God is with us.</div></div>
+  <div class="seg"><div class="seg-theme">Fruit</div><div class="seg-text">As trees planted by God and in God, we bring forth and bear fruit in season and out of season.</div></div>
+  <div class="seg"><div class="seg-theme">Manifestation</div><div class="seg-text">We manifest Greatness and Life abundant, We manifest the Nature and Wisdom of God, and we do greater works. We transcend limitations, boundaries and possibilities.</div></div>
+  <div class="seg"><div class="seg-theme">Identity</div><div class="seg-text">We are blessed of God, we are marvellously helped, we are co-labourers with God, we are His investment, we are vessels for His purpose.</div></div>
+  <div class="seg"><div class="seg-theme">Witness</div><div class="seg-text">We are testimonies, we are signs and wonders in the earth, we are carriers of God's glory, we embody God's Life and Faith, we are stewards, beneficiaries and expressions of God's manifold Grace, we are conduit of His power.</div></div>
+  <div class="seg"><div class="seg-theme">Partnership</div><div class="seg-text">We are partners with His Holy Spirit and we are Witness. Everyday, everywhere, we walk in prepared places and prepared blessings.</div></div>
+  <div class="seg"><div class="seg-theme">Triumph</div><div class="seg-text">Thanks be to God who causes us to triumph in all things through Christ Jesus. Thanks be to God who teaches us to make wealth, teaches our hand to make war and our fingers to fight.</div></div>
+  <div class="seg"><div class="seg-theme">Valiant</div><div class="seg-text">Thanks be to God through whom we run through troops, leap over walls, and perform valiantly. In this era, great things continue to happen in our lives of their own accord, and supernatural doors are open to us as we hold fast to God and His promises to us.</div></div>
+  <div class="amen-wrap"><div class="amen-text">Amen.</div></div>
+</div>
+
+<div class="closing">
+  <div class="closing-text" id="closingText">Speak this. Mean it. Watch what God does with a life that dares to declare.</div>
+  <div class="closing-from" id="closingFrom">With love — Paul</div>
+  <div class="closing-dot"></div>
+</div>
+
+<div class="share-bar">
+  <button class="share-btn copy" onclick="copyLink()">Copy Link</button>
+  <button class="share-btn" onclick="editGift()">Personalise</button>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+function toast(m){const t=document.getElementById('toast');t.textContent=m;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2200);}
+
+function copyLink(){
+  const url = window.location.href;
+  if(navigator.clipboard){navigator.clipboard.writeText(url).then(()=>toast('Link copied.'));}
+  else{const el=document.createElement('input');el.value=url;document.body.appendChild(el);el.select();document.execCommand('copy');document.body.removeChild(el);toast('Link copied.');}
+}
+
+function editGift(){
+  const from = prompt('From line:', document.getElementById('giftFrom').textContent);
+  if(from) document.getElementById('giftFrom').textContent = from;
+  const msg = prompt('Opening message:', document.getElementById('giftMessage').textContent);
+  if(msg) document.getElementById('giftMessage').textContent = msg;
+  const closing = prompt('Closing words:', document.getElementById('closingText').textContent);
+  if(closing) document.getElementById('closingText').textContent = closing;
+  const closingFrom = prompt('Sign off:', document.getElementById('closingFrom').textContent);
+  if(closingFrom) document.getElementById('closingFrom').textContent = closingFrom;
+  toast('Personalised.');
+}
+</script>
+</body>
+</html>

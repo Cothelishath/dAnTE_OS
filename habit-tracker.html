@@ -1,0 +1,838 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Habit Tracker — Paul Bassey</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&family=Jost:wght@200;300;400;500&family=DM+Mono:wght@300;400&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#07090a;--s1:#0d1114;--s2:#131820;--s3:#1a2028;
+  --border:rgba(255,255,255,0.06);--border-g:rgba(255,255,255,0.12);
+  --tx:#e4e8e6;--mid:#6a8078;--dim:#2d3d38;
+  --acc:#6aaa88;--acc-d:rgba(106,170,136,0.12);
+  --gold:#c9a84c;--rose:#c47888;
+  --fd:'Cormorant Garamond',serif;
+  --fm:'Jost',sans-serif;
+  --mono:'DM Mono',monospace;
+}
+body.light{
+  --bg:#f4f5f2;--s1:#eaece6;--s2:#e0e2dc;--s3:#d6d8d0;
+  --border:rgba(0,0,0,0.07);--border-g:rgba(0,0,0,0.14);
+  --tx:#101410;--mid:#4a5e50;--dim:#aab0a8;
+  --acc:#1a6a48;--acc-d:rgba(26,106,72,0.08);
+  --gold:#7a5810;--rose:#7a2838;
+}
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{background:var(--bg);color:var(--tx);font-family:var(--fm);font-weight:300;font-size:12px;line-height:1.5;overflow-x:hidden;transition:background .25s,color .25s;}
+
+/* TOOLBAR */
+.toolbar{position:sticky;top:0;z-index:200;background:rgba(7,9,10,0.95);backdrop-filter:blur(10px);border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;padding:8px 1.5rem;flex-wrap:wrap;gap:8px;}
+body.light .toolbar{background:rgba(244,245,242,0.95);}
+.tb-left{display:flex;align-items:baseline;gap:1rem;}
+.tb-name{font-family:var(--fd);font-size:1.1rem;font-style:italic;color:var(--tx);}
+.tb-sub{font-family:var(--mono);font-size:0.5rem;letter-spacing:0.2em;text-transform:uppercase;color:var(--dim);}
+.tb-right{display:flex;gap:6px;flex-wrap:wrap;}
+.tbtn{background:none;border:1px solid var(--border-g);border-radius:2px;color:var(--mid);font-family:var(--mono);font-size:0.5rem;letter-spacing:0.1em;padding:4px 10px;cursor:pointer;transition:all .2s;white-space:nowrap;}
+.tbtn:hover,.tbtn.on{color:var(--acc);border-color:var(--acc);background:var(--acc-d);}
+.tbtn.gold{color:var(--gold);border-color:var(--gold);}
+
+/* NAV */
+.nav-bar{display:flex;align-items:center;justify-content:space-between;padding:10px 1.5rem;border-bottom:1px solid var(--border);background:var(--s1);flex-wrap:wrap;gap:8px;}
+.nav-center{display:flex;align-items:center;gap:12px;}
+.nav-btn{background:none;border:none;color:var(--mid);cursor:pointer;font-size:1rem;padding:2px 8px;transition:color .2s;}
+.nav-btn:hover{color:var(--acc);}
+.nav-title{font-family:var(--fd);font-size:1.3rem;font-weight:300;color:var(--tx);min-width:160px;text-align:center;}
+.nav-title em{font-style:italic;color:var(--acc);}
+.nav-right{display:flex;gap:6px;}
+.view-btn{background:none;border:1px solid var(--border);border-radius:2px;color:var(--dim);font-family:var(--mono);font-size:0.48rem;letter-spacing:0.1em;padding:4px 9px;cursor:pointer;transition:all .2s;}
+.view-btn:hover,.view-btn.on{color:var(--acc);border-color:var(--acc);}
+
+/* LEGEND */
+.legend{display:flex;align-items:center;gap:1.5rem;padding:8px 1.5rem;border-bottom:1px solid var(--border);flex-wrap:wrap;}
+.leg-item{display:flex;align-items:center;gap:5px;font-family:var(--mono);font-size:0.48rem;letter-spacing:0.08em;color:var(--mid);}
+.leg-sym{font-size:0.85rem;color:var(--tx);min-width:16px;text-align:center;}
+.leg-sym.dim{color:var(--dim);}
+.leg-sep{width:1px;height:14px;background:var(--border-g);margin:0 4px;}
+
+/* MAIN LAYOUT */
+.main{display:grid;grid-template-columns:1fr 280px;gap:0;}
+.grid-panel{border-right:1px solid var(--border);overflow-x:visible;}
+.side-panel{padding:1.5rem 1.25rem;overflow-y:auto;}
+
+/* GRID */
+.habit-grid{min-width:600px;}
+.habit-header-sticky{
+  position:sticky;
+  top:120px;
+  z-index:20;
+  background:var(--s1);
+  border-bottom:1px solid var(--border-g);
+}
+.grid-header{display:grid;align-items:center;padding:0 0.5rem;border-bottom:1px solid var(--border-g);position:sticky;top:0;background:var(--s1);z-index:10;}
+.gh-habit-col{font-family:var(--mono);font-size:0.48rem;letter-spacing:0.12em;text-transform:uppercase;color:var(--dim);padding:8px 0.5rem 8px 1rem;}
+
+.week-block{border-bottom:1px solid var(--border);}
+.week-label{font-family:var(--mono);font-size:0.48rem;letter-spacing:0.15em;text-transform:uppercase;color:var(--dim);padding:6px 1rem;background:var(--s1);border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;}
+.week-rest-btn{background:none;border:1px solid var(--border);border-radius:2px;color:var(--dim);font-family:var(--mono);font-size:0.45rem;letter-spacing:0.08em;padding:2px 7px;cursor:pointer;transition:all .2s;}
+.week-rest-btn:hover,.week-rest-btn.has-rest{color:var(--acc);border-color:var(--acc);}
+
+.day-row{display:grid;align-items:center;border-bottom:1px solid var(--border);transition:background .15s;}
+.day-row:hover{background:var(--s1);}
+.day-row.today{background:rgba(106,170,136,0.04);}
+.day-row.rest-day{background:rgba(201,168,76,0.03);}
+.day-info{padding:6px 0.5rem 6px 1rem;display:flex;flex-direction:column;gap:1px;min-width:60px;}
+.day-num{font-family:var(--fd);font-size:1.1rem;font-weight:300;color:var(--tx);line-height:1;}
+.day-name{font-family:var(--mono);font-size:0.45rem;letter-spacing:0.1em;text-transform:uppercase;color:var(--dim);}
+.day-row.today .day-num{color:var(--acc);}
+.day-row.today .day-name{color:var(--acc);}
+
+.habit-cells{display:flex;gap:2px;padding:4px 6px;flex-wrap:nowrap;}
+.habit-cell{width:28px;height:28px;display:flex;align-items:center;justify-content:center;border-radius:2px;border:1px solid var(--border);cursor:pointer;transition:all .15s;font-size:0.85rem;flex-shrink:0;position:relative;user-select:none;}
+.habit-cell:hover{border-color:var(--border-g);background:var(--s2);}
+.habit-cell.blank{color:transparent;}
+.habit-cell.attempted{color:var(--mid);}
+.habit-cell.partial{color:var(--acc);opacity:0.7;}
+.habit-cell.done{color:var(--acc);}
+.habit-cell.exceptional{color:var(--gold);}
+.habit-cell.rest-marked{color:var(--gold);opacity:0.5;cursor:default;}
+.habit-cell.future{opacity:0.25;cursor:default;}
+
+/* HABIT NAMES ROW */
+.habit-names-row{display:flex;gap:2px;padding:6px 6px 4px;border-bottom:1px solid var(--border-g);}
+.habit-name-cell{width:28px;height:auto;display:flex;align-items:flex-start;justify-content:center;flex-shrink:0;}
+.habit-name-label{font-family:var(--mono);font-size:0.42rem;letter-spacing:0.04em;color:var(--dim);writing-mode:vertical-rl;transform:rotate(180deg);text-align:left;max-height:70px;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;cursor:pointer;transition:color .15s;padding:2px 0;}
+.habit-name-label:hover{color:var(--acc);}
+
+/* SIDE PANEL */
+.sp-section{margin-bottom:2rem;}
+.sp-label{font-family:var(--mono);font-size:0.5rem;letter-spacing:0.22em;text-transform:uppercase;color:var(--acc);margin-bottom:1rem;display:flex;align-items:center;gap:0.5rem;}
+.sp-label::after{content:'';flex:1;height:1px;background:var(--acc-d);}
+
+/* STATS */
+.stat-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:1rem;}
+.stat-box{background:var(--s1);border:1px solid var(--border);padding:10px;border-radius:2px;}
+.stat-val{font-family:var(--fd);font-size:1.4rem;font-weight:300;color:var(--acc);line-height:1;}
+.stat-val.gold{color:var(--gold);}
+.stat-lbl{font-family:var(--mono);font-size:0.45rem;letter-spacing:0.1em;text-transform:uppercase;color:var(--dim);margin-top:2px;}
+
+/* HABIT LIST */
+.habit-item{display:flex;align-items:center;gap:6px;padding:5px 0;border-bottom:1px solid var(--border);}
+.habit-item:last-child{border-bottom:none;}
+.hi-num{font-family:var(--mono);font-size:0.45rem;color:var(--dim);min-width:16px;}
+.hi-name{flex:1;font-size:0.78rem;color:var(--tx);cursor:pointer;min-width:0;}
+.hi-name:hover{color:var(--acc);}
+.hi-time{font-family:var(--mono);font-size:0.5rem;color:var(--dim);cursor:pointer;padding:2px 5px;border:1px solid transparent;border-radius:2px;white-space:nowrap;}
+.hi-time:hover{border-color:var(--border-g);color:var(--mid);}
+.hi-time.set{color:var(--gold);}
+.hi-streak{font-family:var(--mono);font-size:0.45rem;color:var(--acc);min-width:24px;text-align:right;}
+.hi-del{background:none;border:none;color:var(--dim);cursor:pointer;font-size:0.65rem;opacity:0;transition:opacity .15s;padding:1px 3px;}
+.habit-item:hover .hi-del{opacity:0.6;}
+.hi-del:hover{color:#c46858;opacity:1!important;}
+
+/* ADD HABIT */
+.add-habit-row{display:flex;gap:6px;margin-top:0.75rem;}
+.ah-inp{flex:1;background:var(--s2);border:1px solid var(--border);border-radius:2px;color:var(--tx);font-family:var(--fm);font-size:11px;padding:5px 8px;outline:none;transition:border-color .2s;}
+.ah-inp:focus{border-color:var(--acc);}
+.ah-inp::placeholder{color:var(--dim);}
+.ah-btn{background:none;border:1px dashed var(--border-g);border-radius:2px;color:var(--dim);font-family:var(--mono);font-size:0.5rem;letter-spacing:0.08em;padding:5px 10px;cursor:pointer;transition:all .2s;white-space:nowrap;}
+.ah-btn:hover{color:var(--acc);border-color:var(--acc);}
+
+/* GRAPH */
+.graph-wrap{padding:1rem 1.5rem;border-top:1px solid var(--border);}
+.graph-title{font-family:var(--mono);font-size:0.5rem;letter-spacing:0.2em;text-transform:uppercase;color:var(--dim);margin-bottom:0.75rem;}
+.graph-svg{width:100%;overflow:visible;}
+
+/* REST LOG */
+.rest-entry{background:var(--s1);border:1px solid var(--border);border-left:2px solid var(--gold);padding:10px;border-radius:2px;margin-bottom:8px;}
+.re-week{font-family:var(--mono);font-size:0.45rem;letter-spacing:0.1em;text-transform:uppercase;color:var(--gold);margin-bottom:4px;}
+.re-text{font-family:var(--fd);font-size:0.85rem;font-style:italic;color:var(--mid);line-height:1.6;}
+.re-del{float:right;background:none;border:none;color:var(--dim);cursor:pointer;font-size:0.6rem;}
+
+/* REST MODAL */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:500;display:none;align-items:center;justify-content:center;padding:1rem;}
+.modal-overlay.open{display:flex;}
+.modal{background:var(--s1);border:1px solid var(--border-g);border-radius:3px;padding:1.5rem;max-width:400px;width:100%;}
+.modal-title{font-family:var(--fd);font-size:1.2rem;font-style:italic;color:var(--tx);margin-bottom:0.25rem;}
+.modal-sub{font-family:var(--mono);font-size:0.48rem;letter-spacing:0.1em;text-transform:uppercase;color:var(--dim);margin-bottom:1.25rem;}
+.modal-label{font-family:var(--mono);font-size:0.48rem;letter-spacing:0.1em;text-transform:uppercase;color:var(--dim);margin-bottom:5px;margin-top:10px;}
+.modal-inp,.modal-ta,.modal-sel{width:100%;background:var(--s2);border:1px solid var(--border);border-radius:2px;color:var(--tx);font-family:var(--fm);font-size:11px;padding:7px 10px;outline:none;transition:border-color .2s;}
+.modal-ta{resize:vertical;min-height:80px;font-family:var(--fd);font-style:italic;}
+.modal-inp:focus,.modal-ta:focus,.modal-sel:focus{border-color:var(--acc);}
+.modal-inp::placeholder,.modal-ta::placeholder{color:var(--dim);}
+.modal-btns{display:flex;gap:8px;margin-top:1.25rem;}
+.modal-save{flex:1;background:none;border:1px solid var(--acc);border-radius:2px;color:var(--acc);font-family:var(--mono);font-size:0.52rem;letter-spacing:0.1em;padding:8px;cursor:pointer;transition:all .2s;}
+.modal-save:hover{background:var(--acc-d);}
+.modal-cancel{background:none;border:1px solid var(--border-g);border-radius:2px;color:var(--mid);font-family:var(--mono);font-size:0.52rem;letter-spacing:0.1em;padding:8px 14px;cursor:pointer;transition:all .2s;}
+.modal-cancel:hover{border-color:var(--border-g);color:var(--tx);}
+
+/* YEAR VIEW */
+.year-view{display:none;padding:1.5rem;}
+.year-view.active{display:block;}
+.year-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:1.5rem;}
+.month-mini{background:var(--s1);border:1px solid var(--border);padding:1rem;border-radius:2px;cursor:pointer;transition:all .2s;}
+.month-mini:hover{border-color:var(--border-g);}
+.mm-name{font-family:var(--fd);font-size:0.9rem;font-style:italic;color:var(--tx);margin-bottom:0.5rem;}
+.mm-rate{font-family:var(--fd);font-size:1.5rem;font-weight:300;color:var(--acc);line-height:1;}
+.mm-bar{height:3px;background:var(--border);border-radius:1px;margin-top:6px;overflow:hidden;}
+.mm-bar-fill{height:100%;background:var(--acc);border-radius:1px;transition:width .5s ease;}
+.mm-stats{font-family:var(--mono);font-size:0.45rem;color:var(--dim);margin-top:4px;letter-spacing:0.06em;}
+
+.toast{position:fixed;bottom:18px;left:50%;transform:translateX(-50%) translateY(44px);background:var(--s2);border:1px solid var(--border-g);color:var(--acc);font-family:var(--mono);font-size:0.52rem;letter-spacing:0.1em;padding:7px 16px;border-radius:2px;transition:transform .35s cubic-bezier(.34,1.56,.64,1);z-index:999;white-space:nowrap;}
+.toast.show{transform:translateX(-50%) translateY(0);}
+
+@media(max-width:700px){
+  .main{grid-template-columns:1fr;}
+  .side-panel{border-top:1px solid var(--border);}
+  .year-grid{grid-template-columns:repeat(2,1fr);}
+}
+</style>
+</head>
+<body>
+
+<!-- TOOLBAR -->
+<div class="toolbar">
+  <div class="tb-left">
+    <span class="tb-name">Habit Tracker</span>
+    <span class="tb-sub">Paul Akpan Bassey</span>
+  </div>
+  <div class="tb-right">
+    <button class="tbtn" onclick="toggleTheme()">&#9788;/&#9790;</button>
+    <button class="tbtn" id="viewMonthBtn" onclick="setView('month')" style="border-color:var(--acc);color:var(--acc);">Month</button>
+    <button class="tbtn" id="viewYearBtn" onclick="setView('year')">Year</button>
+    <button class="tbtn gold" onclick="saveAll()">Save</button>
+  </div>
+</div>
+
+<!-- NAV -->
+<div class="nav-bar">
+  <div class="nav-center">
+    <button class="nav-btn" onclick="prevMonth()">&#8592;</button>
+    <div class="nav-title" id="navTitle"></div>
+    <button class="nav-btn" onclick="nextMonth()">&#8594;</button>
+  </div>
+  <div class="nav-right">
+    <button class="view-btn" onclick="goToday()">Today</button>
+  </div>
+</div>
+
+<!-- LEGEND -->
+<div class="legend">
+  <div class="leg-item"><span class="leg-sym dim">·</span> Missed</div>
+  <div class="leg-sep"></div>
+  <div class="leg-item"><span class="leg-sym">○</span> Attempted</div>
+  <div class="leg-sep"></div>
+  <div class="leg-item"><span class="leg-sym">◑</span> Partial</div>
+  <div class="leg-sep"></div>
+  <div class="leg-item"><span class="leg-sym" style="color:var(--acc)">●</span> Done</div>
+  <div class="leg-sep"></div>
+  <div class="leg-item"><span class="leg-sym" style="color:var(--gold)">✦</span> Exceptional</div>
+  <div class="leg-sep"></div>
+  <div class="leg-item"><span class="leg-sym" style="color:var(--gold);opacity:0.5">◈</span> Rest day</div>
+  <div class="leg-sep"></div>
+  <div class="leg-item" style="margin-left:auto;font-size:0.45rem;color:var(--dim);">Click cell to cycle · Long press for rest day</div>
+</div>
+
+<!-- MAIN -->
+<div class="main" id="mainWrap">
+  <!-- GRID PANEL -->
+  <div class="grid-panel" id="gridPanel">
+    <div class="habit-grid" id="habitGrid"></div>
+    <div class="graph-wrap">
+      <div class="graph-title">Completion — this month</div>
+      <svg class="graph-svg" id="graphSvg" height="80"></svg>
+    </div>
+  </div>
+
+  <!-- SIDE PANEL -->
+  <div class="side-panel">
+    <div class="sp-section">
+      <div class="sp-label">This Month</div>
+      <div class="stat-grid" id="statGrid"></div>
+    </div>
+
+    <div class="sp-section">
+      <div class="sp-label">Habits</div>
+      <div id="habitList"></div>
+      <div class="add-habit-row">
+        <input class="ah-inp" id="newHabitInp" placeholder="Add a habit..." onkeydown="if(event.key==='Enter')addHabit()">
+        <button class="ah-btn" onclick="addHabit()">+ Add</button>
+      </div>
+    </div>
+
+    <div class="sp-section">
+      <div class="sp-label">Rest Log</div>
+      <div id="restLog"></div>
+    </div>
+  </div>
+</div>
+
+<!-- YEAR VIEW -->
+<div class="year-view" id="yearView">
+  <div class="year-grid" id="yearGrid"></div>
+</div>
+
+<!-- MODALS -->
+<div class="modal-overlay" id="restModal">
+  <div class="modal">
+    <div class="modal-title">Rest Log</div>
+    <div class="modal-sub" id="restModalSub"></div>
+    <div class="modal-label">How was your rest?</div>
+    <select class="modal-sel" id="restQuality">
+      <option value="">Select...</option>
+      <option value="restorative">Restorative — genuinely recharged</option>
+      <option value="partial">Partial — some rest, some drift</option>
+      <option value="numbing">Numbing — switched off but not restored</option>
+      <option value="social">Social — people, energy exchanged</option>
+      <option value="solitary">Solitary — alone, present</option>
+      <option value="productive">Productive rest — light, self-chosen</option>
+    </select>
+    <div class="modal-label">Notes</div>
+    <textarea class="modal-ta" id="restNotes" placeholder="What did rest look like this week? What restored you?"></textarea>
+    <div class="modal-btns">
+      <button class="modal-cancel" onclick="closeModal('restModal')">Cancel</button>
+      <button class="modal-save" onclick="saveRest()">Save</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="habitModal">
+  <div class="modal">
+    <div class="modal-title" id="habitModalTitle">Edit Habit</div>
+    <div class="modal-sub">Rename or set a preferred time window</div>
+    <div class="modal-label">Habit Name</div>
+    <input class="modal-inp" id="habitModalName" placeholder="Habit name...">
+    <div class="modal-label">Preferred Time (optional)</div>
+    <input class="modal-inp" id="habitModalTime" placeholder="e.g. Morning, Before screens, 7-ish...">
+    <div class="modal-label">Streak</div>
+    <div style="font-family:var(--mono);font-size:0.7rem;color:var(--acc);padding:6px 0;" id="habitModalStreak"></div>
+    <div class="modal-btns">
+      <button class="modal-cancel" onclick="closeModal('habitModal')">Cancel</button>
+      <button class="modal-save" onclick="saveHabitEdit()">Save</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const LS = 'habit_tracker_v1';
+const SYMS = ['', '○', '◑', '●', '✦'];
+const LABELS = ['Missed','Attempted','Partial','Done','Exceptional'];
+const MONTHS = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+const DAYS = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+
+let state = {
+  habits: [
+    {id:'h1', name:'Prayer', time:'4AM'},
+    {id:'h2', name:'Movement / Workout', time:'Morning'},
+    {id:'h3', name:'The Quickening', time:'Morning'},
+    {id:'h4', name:'The Daily', time:'Morning'},
+    {id:'h5', name:'Reading', time:'Commute'},
+    {id:'h6', name:'Software Learning', time:'Commute'},
+    {id:'h7', name:'Trading', time:'Evening'},
+    {id:'h8', name:'T — Morning', time:'Morning'},
+    {id:'h9', name:'T — Evening Call', time:'Evening'},
+    {id:'h10', name:'Water', time:''},
+  ],
+  data: {},
+  rest: {},
+  restDays: {}
+};
+
+let currentYear = new Date().getFullYear();
+let currentMonth = new Date().getMonth();
+let currentView = 'month';
+let editHabitIdx = -1;
+let pendingRestWeek = null;
+let pressTimer = null;
+
+// ── PERSISTENCE ──
+function loadState(){
+  try{
+    const s = localStorage.getItem(LS);
+    if(s){
+      const p = JSON.parse(s);
+      if(p.habits) state.habits = p.habits;
+      if(p.data) state.data = p.data;
+      if(p.rest) state.rest = p.rest;
+      if(p.restDays) state.restDays = p.restDays;
+    }
+  }catch(e){}
+}
+
+function saveAll(){
+  try{ localStorage.setItem(LS, JSON.stringify(state)); toast('Saved.'); }
+  catch(e){ toast('Save failed.'); }
+}
+
+function toast(m){
+  const t = document.getElementById('toast');
+  t.textContent = m; t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'), 2000);
+}
+
+// ── THEME / VIEW ──
+function toggleTheme(){
+  document.body.classList.toggle('light');
+  try{ localStorage.setItem('habit_theme', document.body.classList.contains('light')?'light':'dark'); }catch(e){}
+}
+
+function setView(v){
+  currentView = v;
+  document.getElementById('mainWrap').style.display = v==='month' ? '' : 'none';
+  const yv = document.getElementById('yearView');
+  yv.classList.toggle('active', v==='year');
+  document.getElementById('viewMonthBtn').classList.toggle('on', v==='month');
+  document.getElementById('viewYearBtn').classList.toggle('on', v==='year');
+  if(v==='year') renderYear(); else render();
+}
+
+// ── NAV ──
+function prevMonth(){ currentMonth--; if(currentMonth<0){currentMonth=11;currentYear--;} render(); }
+function nextMonth(){ currentMonth++; if(currentMonth>11){currentMonth=0;currentYear++;} render(); }
+function goToday(){ currentYear=new Date().getFullYear(); currentMonth=new Date().getMonth(); render(); }
+
+// ── DATE HELPERS ──
+function dateKey(y,m,d){ return y+'-'+String(m+1).padStart(2,'0')+'-'+String(d).padStart(2,'0'); }
+function cellKey(y,m,d,hid){ return dateKey(y,m,d)+'-'+hid; }
+function weekKey(y,m,w){ return y+'-'+String(m+1).padStart(2,'0')+'-W'+w; }
+function daysInMonth(y,m){ return new Date(y,m+1,0).getDate(); }
+function getWeekNum(d,m,y){ return Math.ceil((d + new Date(y,m,1).getDay()) / 7); }
+
+// ── STREAK ──
+function calcStreak(hid){
+  const today = new Date(); today.setHours(0,0,0,0);
+  let current = 0, best = 0, temp = 0;
+  
+  // Current streak - go backwards from today
+  for(let i=0; i<365; i++){
+    const d = new Date(today); d.setDate(d.getDate()-i);
+    const dk = dateKey(d.getFullYear(), d.getMonth(), d.getDate());
+    const ck = dk + '-' + hid;
+    if(state.restDays[dk]) continue; // skip rest days
+    if((state.data[ck]||0) >= 3){ current++; }
+    else if(i > 0){ break; }
+  }
+
+  // Best streak - scan all logged dates for this habit
+  const allDates = Object.keys(state.data)
+    .filter(k => k.endsWith('-'+hid) && state.data[k] >= 3)
+    .map(k => k.replace('-'+hid,''))
+    .sort();
+
+  allDates.forEach((dk,i)=>{
+    if(i===0){ temp=1; }
+    else{
+      const prev = new Date(allDates[i-1]); prev.setDate(prev.getDate()+1);
+      if(prev.toISOString().slice(0,10) === dk){ temp++; } else { temp=1; }
+    }
+    if(temp>best) best=temp;
+  });
+
+  return { current, best: Math.max(best, current) };
+}
+
+// ── RENDER ──
+function render(){
+  document.getElementById('navTitle').innerHTML = '<em>'+MONTHS[currentMonth]+'</em> '+currentYear;
+  renderGrid();
+  renderSidePanel();
+  renderGraph();
+}
+
+function renderGrid(){
+  const grid = document.getElementById('habitGrid');
+  grid.innerHTML = '';
+  const now = new Date(); now.setHours(0,0,0,0);
+  const todayStr = dateKey(now.getFullYear(), now.getMonth(), now.getDate());
+  const days = daysInMonth(currentYear, currentMonth);
+  const habits = state.habits;
+
+  // Habit name headers (rotated)
+  const hdrWrap = document.createElement('div');
+  hdrWrap.className = 'habit-header-sticky';
+  hdrWrap.style.cssText = 'display:flex;padding:0 0 0 70px;';
+  const namesRow = document.createElement('div');
+  namesRow.className = 'habit-names-row';
+  habits.forEach((h,i)=>{
+    const cell = document.createElement('div');
+    cell.className = 'habit-name-cell';
+    const lbl = document.createElement('div');
+    lbl.className = 'habit-name-label';
+    lbl.textContent = h.name;
+    lbl.title = (h.time ? h.time + ' · ' : '') + h.name + ' — click to edit';
+    lbl.addEventListener('click', ()=>openHabitEdit(i));
+    cell.appendChild(lbl);
+    namesRow.appendChild(cell);
+  });
+  hdrWrap.appendChild(namesRow);
+  grid.appendChild(hdrWrap);
+
+  // Days grouped by week
+  let weekBlock = null;
+  let currentWeek = -1;
+
+  for(let d=1; d<=days; d++){
+    const dow = new Date(currentYear, currentMonth, d).getDay();
+    const dk = dateKey(currentYear, currentMonth, d);
+    const thisDay = new Date(currentYear, currentMonth, d); thisDay.setHours(0,0,0,0);
+    const isToday = dk === todayStr;
+    const isFuture = thisDay > now;
+    const isRest = !!state.restDays[dk];
+    const week = getWeekNum(d, currentMonth, currentYear);
+
+    if(week !== currentWeek){
+      weekBlock = document.createElement('div');
+      weekBlock.className = 'week-block';
+      const wk = weekKey(currentYear, currentMonth, week);
+      const hasRest = !!state.rest[wk];
+      const wlbl = document.createElement('div');
+      wlbl.className = 'week-label';
+      const wspan = document.createElement('span');
+      wspan.textContent = 'Week '+week;
+      const wbtn = document.createElement('button');
+      wbtn.className = 'week-rest-btn'+(hasRest?' has-rest':'');
+      wbtn.textContent = hasRest ? '✦ Rest logged' : '+ Log rest';
+      wbtn.addEventListener('click', ()=>openRestModal(week));
+      wlbl.appendChild(wspan);
+      wlbl.appendChild(wbtn);
+      weekBlock.appendChild(wlbl);
+      grid.appendChild(weekBlock);
+      currentWeek = week;
+    }
+
+    const row = document.createElement('div');
+    row.className = 'day-row'+(isToday?' today':'')+(isRest?' rest-day':'');
+    row.style.gridTemplateColumns = '70px 1fr';
+
+    const info = document.createElement('div');
+    info.className = 'day-info';
+    const dnum = document.createElement('div');
+    dnum.className = 'day-num';
+    dnum.textContent = d;
+    const dname = document.createElement('div');
+    dname.className = 'day-name';
+    dname.textContent = DAYS[dow];
+    info.appendChild(dnum);
+    info.appendChild(dname);
+
+    // Long press to toggle rest day (mouse + touch)
+    let pt = null;
+    const startP = ()=>{ pt = setTimeout(()=>{ toggleRestDay(dk); pt=null; }, 700); };
+    const endP = ()=>{ if(pt){clearTimeout(pt);pt=null;} };
+    info.addEventListener('mousedown', startP);
+    info.addEventListener('mouseup', endP);
+    info.addEventListener('mouseleave', endP);
+    info.addEventListener('touchstart', startP, {passive:true});
+    info.addEventListener('touchend', endP);
+    info.addEventListener('touchmove', endP);
+    info.style.cursor = 'pointer';
+    info.title = 'Long press to toggle rest day';
+
+    row.appendChild(info);
+
+    const cells = document.createElement('div');
+    cells.className = 'habit-cells';
+
+    habits.forEach(h=>{
+      const ck = cellKey(currentYear, currentMonth, d, h.id);
+      const val = state.data[ck] || 0;
+      const cell = document.createElement('div');
+
+      if(isRest){
+        cell.className = 'habit-cell rest-marked';
+        cell.textContent = '◈';
+        cell.title = 'Rest day — long press date to toggle';
+      } else if(isFuture){
+        cell.className = 'habit-cell future';
+        cell.textContent = '·';
+      } else {
+        const cls = ['blank','attempted','partial','done','exceptional'][val];
+        cell.className = 'habit-cell '+cls;
+        cell.textContent = val===0 ? '·' : SYMS[val];
+        cell.title = h.name+' — '+LABELS[val]+' (click to cycle, right-click to clear)';
+        cell.addEventListener('click', ()=>cycleCell(ck));
+        cell.addEventListener('contextmenu', (e)=>{ e.preventDefault(); clearCell(ck); });
+      }
+      cells.appendChild(cell);
+    });
+
+    row.appendChild(cells);
+    weekBlock.appendChild(row);
+  }
+}
+
+function cycleCell(key){
+  state.data[key] = ((state.data[key]||0) + 1) % 5;
+  saveAll(); render();
+}
+
+function clearCell(key){
+  state.data[key] = 0;
+  saveAll(); render();
+}
+
+function toggleRestDay(dk){
+  if(state.restDays[dk]){ delete state.restDays[dk]; toast('Rest day removed. ✓'); }
+  else { state.restDays[dk] = true; toast('Rest day marked — long press date again to undo.'); }
+  saveAll(); render();
+}
+
+// ── REST MODAL ──
+function openRestModal(week){
+  pendingRestWeek = week;
+  const wk = weekKey(currentYear, currentMonth, week);
+  const existing = state.rest[wk] || {};
+  document.getElementById('restModalSub').textContent = MONTHS[currentMonth]+' · Week '+week;
+  document.getElementById('restQuality').value = existing.quality || '';
+  document.getElementById('restNotes').value = existing.notes || '';
+  document.getElementById('restModal').classList.add('open');
+}
+
+function saveRest(){
+  const wk = weekKey(currentYear, currentMonth, pendingRestWeek);
+  state.rest[wk] = {
+    quality: document.getElementById('restQuality').value,
+    notes: document.getElementById('restNotes').value,
+    week: pendingRestWeek, month: currentMonth, year: currentYear
+  };
+  saveAll(); closeModal('restModal'); render();
+  toast('Rest logged.');
+}
+
+function closeModal(id){ document.getElementById(id).classList.remove('open'); }
+
+// ── HABIT EDIT MODAL ──
+function openHabitEdit(idx){
+  editHabitIdx = idx;
+  const h = state.habits[idx];
+  document.getElementById('habitModalTitle').textContent = 'Edit — '+h.name;
+  document.getElementById('habitModalName').value = h.name;
+  document.getElementById('habitModalTime').value = h.time || '';
+  const s = calcStreak(h.id);
+  document.getElementById('habitModalStreak').textContent = s.current+' day streak · Best: '+s.best;
+  document.getElementById('habitModal').classList.add('open');
+}
+
+function saveHabitEdit(){
+  const h = state.habits[editHabitIdx];
+  const name = document.getElementById('habitModalName').value.trim();
+  if(name) h.name = name;
+  h.time = document.getElementById('habitModalTime').value.trim();
+  saveAll(); closeModal('habitModal'); render();
+  toast('Habit updated.');
+}
+
+function addHabit(){
+  const inp = document.getElementById('newHabitInp');
+  const name = inp.value.trim();
+  if(!name){ toast('Enter a habit name.'); return; }
+  state.habits.push({id:'h'+Date.now(), name, time:''});
+  inp.value = '';
+  saveAll(); render();
+  toast('Added — '+name);
+}
+
+function deleteHabit(idx){
+  const name = state.habits[idx].name;
+  if(!confirm('Remove "'+name+'"?')) return;
+  state.habits.splice(idx,1);
+  saveAll(); render();
+  toast('Removed — '+name);
+}
+
+function deleteRest(key){
+  delete state.rest[key];
+  saveAll(); render();
+  toast('Rest log removed.');
+}
+
+// ── SIDE PANEL ──
+function renderSidePanel(){
+  const today = new Date(); today.setHours(23,59,59,999);
+  const days = daysInMonth(currentYear, currentMonth);
+  const daysToCount = currentYear===today.getFullYear()&&currentMonth===today.getMonth()
+    ? today.getDate() : days;
+
+  let totalCells=0, doneCells=0, exceptional=0;
+  for(let d=1; d<=daysToCount; d++){
+    const dk = dateKey(currentYear, currentMonth, d);
+    if(state.restDays[dk]) continue;
+    state.habits.forEach(h=>{
+      const v = state.data[cellKey(currentYear,currentMonth,d,h.id)]||0;
+      totalCells++;
+      if(v>=3) doneCells++;
+      if(v===4) exceptional++;
+    });
+  }
+  const pct = totalCells ? Math.round(doneCells/totalCells*100) : 0;
+  const restCount = Object.keys(state.restDays)
+    .filter(k=>k.startsWith(currentYear+'-'+String(currentMonth+1).padStart(2,'0'))).length;
+
+  document.getElementById('statGrid').innerHTML =
+    '<div class="stat-box"><div class="stat-val">'+pct+'%</div><div class="stat-lbl">Completion</div></div>'+
+    '<div class="stat-box"><div class="stat-val">'+doneCells+'</div><div class="stat-lbl">Done</div></div>'+
+    '<div class="stat-box"><div class="stat-val gold">'+exceptional+'</div><div class="stat-lbl">Exceptional</div></div>'+
+    '<div class="stat-box"><div class="stat-val">'+restCount+'</div><div class="stat-lbl">Rest Days</div></div>';
+
+  // Habit list
+  const hl = document.getElementById('habitList');
+  hl.innerHTML = '';
+  state.habits.forEach((h,i)=>{
+    const s = calcStreak(h.id);
+    const item = document.createElement('div');
+    item.className = 'habit-item';
+    item.innerHTML =
+      '<div class="hi-num">'+String(i+1).padStart(2,'0')+'</div>'+
+      '<div class="hi-name">'+h.name+'</div>'+
+      '<div class="hi-time'+(h.time?' set':'')+'">'+( h.time||'+ time')+'</div>'+
+      '<div class="hi-streak">'+s.current+'🔥</div>'+
+      '<button class="hi-del" title="Remove">✕</button>';
+    item.querySelector('.hi-name').addEventListener('click', ()=>openHabitEdit(i));
+    item.querySelector('.hi-time').addEventListener('click', ()=>openHabitEdit(i));
+    item.querySelector('.hi-del').addEventListener('click', ()=>deleteHabit(i));
+    hl.appendChild(item);
+  });
+
+  // Rest log
+  const rl = document.getElementById('restLog');
+  rl.innerHTML = '';
+  const monthRest = Object.entries(state.rest)
+    .filter(([k])=>k.startsWith(currentYear+'-'+String(currentMonth+1).padStart(2,'0')))
+    .sort((a,b)=>a[0].localeCompare(b[0]));
+
+  if(!monthRest.length){
+    const empty = document.createElement('div');
+    empty.style.cssText = 'font-family:var(--fd);font-style:italic;color:var(--dim);font-size:0.85rem;';
+    empty.textContent = 'No rest logs yet. Click week headers to add.';
+    rl.appendChild(empty);
+  } else {
+    monthRest.forEach(([k,v])=>{
+      const entry = document.createElement('div');
+      entry.className = 'rest-entry';
+      entry.innerHTML =
+        '<div class="re-week">Week '+v.week+' · '+(v.quality||'—')+'</div>'+
+        '<button class="re-del">✕</button>'+
+        '<div class="re-text">'+(v.notes||'No notes.')+'</div>';
+      entry.querySelector('.re-del').addEventListener('click', ()=>deleteRest(k));
+      rl.appendChild(entry);
+    });
+  }
+}
+
+// ── GRAPH ──
+function renderGraph(){
+  const svg = document.getElementById('graphSvg');
+  const container = svg.parentElement;
+  const W = container.offsetWidth - 48;
+  const H = 80;
+  const pad = 16;
+  if(W < 50){ return; }
+
+  const today = new Date(); today.setHours(23,59,59,999);
+  const days = daysInMonth(currentYear, currentMonth);
+  const maxD = currentYear===today.getFullYear()&&currentMonth===today.getMonth()
+    ? today.getDate() : days;
+
+  const points = [];
+  for(let d=1; d<=days; d++){
+    const dk = dateKey(currentYear, currentMonth, d);
+    if(state.restDays[dk]){ points.push(null); continue; }
+    if(d > maxD){ points.push(null); continue; }
+    let done=0, total=0;
+    state.habits.forEach(h=>{
+      const v = state.data[cellKey(currentYear,currentMonth,d,h.id)]||0;
+      total++; if(v>=3) done++;
+    });
+    points.push(total ? done/total : 0);
+  }
+
+  const validPoints = points.filter(p=>p!==null);
+  if(validPoints.length < 1){ svg.innerHTML = '<text x="'+pad+'" y="40" fill="var(--dim)" font-size="10" font-family="monospace">No data yet</text>'; return; }
+
+  svg.setAttribute('width', W);
+  svg.setAttribute('height', H);
+
+  const xStep = (W - pad*2) / Math.max(days-1, 1);
+  const getX = i => pad + i * xStep;
+  const getY = v => H - pad - v * (H - pad*2);
+
+  // Grid lines
+  let out = '<defs><linearGradient id="ag" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="var(--acc)" stop-opacity="0.18"/><stop offset="100%" stop-color="var(--acc)" stop-opacity="0"/></linearGradient></defs>';
+
+  [0, 0.5, 1].forEach(v=>{
+    const y = getY(v);
+    out += '<line x1="'+pad+'" y1="'+y+'" x2="'+(W-pad)+'" y2="'+y+'" stroke="rgba(255,255,255,0.05)" stroke-width="1"/>';
+    out += '<text x="'+(pad-4)+'" y="'+(y+3)+'" fill="var(--dim)" font-size="8" text-anchor="end" font-family="monospace">'+Math.round(v*100)+'%</text>';
+  });
+
+  // Today line
+  const todayNow = new Date();
+  if(todayNow.getFullYear()===currentYear && todayNow.getMonth()===currentMonth){
+    const tx = getX(todayNow.getDate()-1);
+    out += '<line x1="'+tx+'" y1="'+pad+'" x2="'+tx+'" y2="'+(H-pad)+'" stroke="rgba(106,170,136,0.35)" stroke-width="1" stroke-dasharray="3,3"/>';
+  }
+
+  // Build path
+  let pathD = '', areaD = '';
+  let first = true, lastX = 0, lastY = 0;
+  points.forEach((v,i)=>{
+    if(v===null) return;
+    const x = getX(i), y = getY(v);
+    if(first){ pathD='M '+x+' '+y; areaD='M '+x+' '+(H-pad)+' L '+x+' '+y; first=false; }
+    else { pathD+=' L '+x+' '+y; areaD+=' L '+x+' '+y; }
+    lastX=x; lastY=y;
+  });
+
+  if(!first){
+    areaD += ' L '+lastX+' '+(H-pad)+' Z';
+    out += '<path d="'+areaD+'" fill="url(#ag)"/>';
+    out += '<path d="'+pathD+'" fill="none" stroke="var(--acc)" stroke-width="1.8" stroke-linejoin="round" stroke-linecap="round"/>';
+    points.forEach((v,i)=>{
+      if(v!==null) out += '<circle cx="'+getX(i)+'" cy="'+getY(v)+'" r="2.5" fill="var(--acc)" opacity="0.8"/>';
+    });
+  }
+
+  svg.innerHTML = out;
+}
+
+// ── YEAR VIEW ──
+function renderYear(){
+  const grid = document.getElementById('yearGrid');
+  grid.innerHTML = '';
+  MONTHS.forEach((m,mi)=>{
+    const days = daysInMonth(currentYear, mi);
+    let done=0, total=0;
+    for(let d=1;d<=days;d++){
+      const dk = dateKey(currentYear,mi,d);
+      if(state.restDays[dk]) continue;
+      state.habits.forEach(h=>{
+        const v = state.data[cellKey(currentYear,mi,d,h.id)]||0;
+        total++; if(v>=3) done++;
+      });
+    }
+    const pct = total ? Math.round(done/total*100) : 0;
+    const restCount = Object.keys(state.restDays)
+      .filter(k=>k.startsWith(currentYear+'-'+String(mi+1).padStart(2,'0'))).length;
+    const card = document.createElement('div');
+    card.className = 'month-mini';
+    card.innerHTML =
+      '<div class="mm-name">'+m+'</div>'+
+      '<div class="mm-rate">'+pct+'%</div>'+
+      '<div class="mm-bar"><div class="mm-bar-fill" style="width:'+pct+'%"></div></div>'+
+      '<div class="mm-stats">'+done+' done · '+restCount+' rest day'+(restCount!==1?'s':'')+'</div>';
+    card.addEventListener('click', ()=>{ currentMonth=mi; setView('month'); });
+    grid.appendChild(card);
+  });
+}
+
+// ── INIT ──
+loadState();
+try{ if(localStorage.getItem('habit_theme')==='light') document.body.classList.add('light'); }catch(e){}
+render();
+window.addEventListener('resize', ()=>{ if(currentView==='month') renderGraph(); });
+</script>
+</body>
+</html>

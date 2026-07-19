@@ -1,0 +1,552 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+    <title>CHRONOS | Premium Performance Matrix</title>
+    <style>
+        :root {
+            --bg-primary: #0d0f14;
+            --bg-secondary: #141822;
+            --bg-tertiary: #1e2433;
+            --text-primary: #f3f4f6;
+            --text-secondary: #9ca3af;
+            --accent: #d97706;
+            --border: #242b3d;
+            --card-bg: #1a1f2c;
+            
+            /* Category Color Palette */
+            --color-work: #1e3a8a;
+            --color-trading: #065f46;
+            --color-fitness: #991b1b;
+            --color-rest: #374151;
+            --color-strategic: #701a75;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
+            padding: 24px;
+            min-height: 100vh;
+        }
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 16px;
+        }
+
+        .logo-area h1 {
+            font-size: 24px;
+            font-weight: 700;
+            letter-spacing: -0.05em;
+            color: #ffffff;
+        }
+
+        .logo-area h1 span {
+            color: var(--accent);
+        }
+
+        .logo-area p {
+            font-size: 12px;
+            color: var(--text-secondary);
+            margin-top: 2px;
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 12px;
+        }
+
+        button {
+            background-color: var(--bg-tertiary);
+            color: var(--text-primary);
+            border: 1px solid var(--border);
+            padding: 8px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 500;
+            font-size: 13px;
+            transition: all 0.2s ease;
+        }
+
+        button:hover {
+            background-color: var(--border);
+        }
+
+        button.btn-primary {
+            background-color: var(--accent);
+            border-color: var(--accent);
+            color: #ffffff;
+        }
+
+        button.btn-primary:hover {
+            background-color: #b45309;
+        }
+
+        .dashboard-layout {
+            display: grid;
+            grid-template-columns: 1fr 360px;
+            gap: 24px;
+            align-items: start;
+        }
+
+        @media (max-width: 1300px) {
+            .dashboard-layout {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .workspace {
+            background-color: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 20px;
+            overflow-x: auto;
+        }
+
+        .table-container {
+            width: 100%;
+            overflow-x: auto;
+        }
+
+        table {
+            border-collapse: separate;
+            border-spacing: 0;
+            text-align: left;
+            width: max-content;
+            min-width: 100%;
+        }
+
+        th, td {
+            border-right: 1px solid var(--border);
+            border-bottom: 1px solid var(--border);
+            padding: 8px;
+            font-size: 12px;
+            height: 60px;
+            position: relative;
+        }
+
+        th {
+            background-color: var(--bg-tertiary);
+            font-weight: 600;
+            color: #ffffff;
+            text-transform: uppercase;
+            font-size: 11px;
+            letter-spacing: 0.05em;
+            text-align: center;
+            min-width: 110px; /* Slightly widened to gracefully accommodate standard range sizes */
+            border-top: 1px solid var(--border);
+        }
+
+        th.day-col, td.day-cell {
+            position: sticky;
+            left: 0;
+            background-color: var(--bg-tertiary);
+            z-index: 10;
+            text-align: left;
+            font-size: 12px;
+            font-weight: 700;
+            width: 110px;
+            min-width: 110px;
+            border-left: 1px solid var(--border);
+        }
+
+        td.day-cell {
+            border-right: 2px solid var(--accent);
+        }
+
+        td.schedule-cell {
+            background-color: rgba(255,255,255,0.01);
+            cursor: pointer;
+            vertical-align: top;
+        }
+
+        .cell-content {
+            width: 100%;
+            height: 100%;
+            outline: none;
+            word-break: break-word;
+            overflow: hidden;
+            color: #ffffff;
+            font-weight: 500;
+        }
+
+        /* Color Code Classes */
+        .cat-work { background-color: var(--color-work) !important; }
+        .cat-trading { background-color: var(--color-trading) !important; }
+        .cat-fitness { background-color: var(--color-fitness) !important; }
+        .cat-rest { background-color: var(--color-rest) !important; }
+        .cat-strategic { background-color: var(--color-strategic) !important; }
+
+        /* Sidebar & Section Architecture */
+        .sidebar {
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
+        }
+
+        .panel {
+            background-color: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 20px;
+        }
+
+        .panel-header-inline {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+
+        .panel h2 {
+            font-size: 14px;
+            font-weight: 600;
+            color: #ffffff;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            border-left: 3px solid var(--accent);
+            padding-left: 8px;
+            outline: none;
+        }
+
+        .guideline-input-area {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .guideline-item {
+            background-color: var(--bg-tertiary);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            padding: 12px;
+            position: relative;
+            font-size: 13px;
+        }
+
+        .guideline-item p {
+            outline: none;
+            padding-right: 20px;
+        }
+
+        .delete-btn {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            background: none;
+            border: none;
+            color: var(--text-secondary);
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        .delete-btn:hover { color: #ef4444; }
+
+        .add-rule-btn {
+            width: 100%;
+            background-color: var(--bg-tertiary);
+            border: 1px dashed var(--border);
+            padding: 10px;
+            color: var(--text-secondary);
+            font-size: 13px;
+            border-radius: 6px;
+            cursor: pointer;
+            margin-top: 12px;
+        }
+
+        .add-rule-btn:hover {
+            border-color: var(--accent);
+            color: var(--text-primary);
+        }
+
+        /* Context Toolbar Menu */
+        .context-toolbar {
+            position: fixed;
+            background-color: var(--card-bg);
+            border: 1px solid var(--border);
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.7);
+            border-radius: 6px;
+            padding: 8px;
+            display: none;
+            flex-direction: column;
+            z-index: 100;
+            gap: 6px;
+            min-width: 180px;
+        }
+
+        .context-toolbar button {
+            text-align: left;
+            width: 100%;
+            padding: 6px 12px;
+            background: transparent;
+            border: none;
+            font-size: 12px;
+        }
+
+        .context-toolbar button:hover {
+            background-color: var(--bg-tertiary);
+        }
+
+        .color-picker-row {
+            display: flex;
+            gap: 4px;
+            padding: 4px 12px;
+            border-top: 1px solid var(--border);
+            margin-top: 4px;
+            padding-top: 8px;
+        }
+
+        .color-dot {
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            cursor: pointer;
+            border: 1px solid rgba(255,255,255,0.2);
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="logo-area">
+            <h1>CHRONOS<span>MATRIX</span></h1>
+            <p>High-End Multi-Dimensional Strategic Timeline</p>
+        </div>
+        <div class="btn-group">
+            <button onclick="createNewSection()">+ Create Sidebar Section</button>
+            <button onclick="clearAllCells()">Reset Board Content</button>
+            <button class="btn-primary" onclick="alert('Configuration matrices serialized successfully.')">Save Matrix</button>
+        </div>
+    </header>
+
+    <div class="dashboard-layout">
+        <div class="workspace">
+            <div class="table-container">
+                <table id="matrixTable">
+                    <thead>
+                        <tr id="headerTimeline">
+                            <th class="day-col">Timeline</th>
+                        </tr>
+                    </thead>
+                    <tbody id="matrixBody"></tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="sidebar" id="sidebarContainer">
+            <div class="panel">
+                <div class="panel-header-inline">
+                    <h2 contenteditable="true">System Constraints</h2>
+                    <button class="delete-btn" style="position:static;" onclick="this.parentElement.parentElement.remove()">&times;</button>
+                </div>
+                <div class="guideline-input-area">
+                    <div class="guideline-item">
+                        <button class="delete-btn" onclick="this.parentElement.remove()">&times;</button>
+                        <p contenteditable="true"><strong>Discipline Matrix:</strong> Strategic workflow windows hold absolute priority status over daily routines.</p>
+                    </div>
+                </div>
+                <button class="add-rule-btn" onclick="addRuleField(this)">+ Add Framework Directive</button>
+            </div>
+
+            <div class="panel">
+                <div class="panel-header-inline">
+                    <h2 contenteditable="true">Execution Framework</h2>
+                    <button class="delete-btn" style="position:static;" onclick="this.parentElement.parentElement.remove()">&times;</button>
+                </div>
+                <div class="guideline-input-area">
+                    <div class="guideline-item">
+                        <button class="delete-btn" onclick="this.parentElement.remove()">&times;</button>
+                        <p contenteditable="true">Lock in 15 minutes of analytical system review at the completion of a timeline sequence.</p>
+                    </div>
+                </div>
+                <button class="add-rule-btn" onclick="addRuleField(this)">+ Add Framework Directive</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="contextMenu" class="context-toolbar">
+        <button onclick="mergeHorizontal()">Merge Sideways (Right)</button>
+        <button onclick="mergeVertical()">Merge Block Down</button>
+        <button onclick="unmergeCell()">Reset Block (Un-merge)</button>
+        <div class="color-picker-row">
+            <div class="color-dot cat-work" title="Deep Work" onclick="assignColor('cat-work')"></div>
+            <div class="color-dot cat-trading" title="Trading Systems" onclick="assignColor('cat-trading')"></div>
+            <div class="color-dot cat-fitness" title="Performance/Fitness" onclick="assignColor('cat-fitness')"></div>
+            <div class="color-dot cat-strategic" title="Strategic Directives" onclick="assignColor('cat-strategic')"></div>
+            <div class="color-dot cat-rest" title="Clear Tag" onclick="assignColor('')"></div>
+        </div>
+    </div>
+
+    <script>
+        const days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+        const startHour = 4;
+        const endHour = 22;
+        
+        let timeBlocksCount = 0;
+        let selectedCell = null;
+        const contextMenu = document.getElementById('contextMenu');
+
+        // Initial Dynamic Grid Render with Nested Range Calculation
+        function buildMatrixGrid() {
+            const headerTimeline = document.getElementById('headerTimeline');
+            const matrixBody = document.getElementById('matrixBody');
+            
+            headerTimeline.innerHTML = '<th class="day-col">Timeline</th>';
+            matrixBody.innerHTML = '';
+            timeBlocksCount = 0;
+
+            // Generate Nested Block Ranges: 04:00 - 04:30, 04:30 - 05:00...
+            for (let hour = startHour; hour <= endHour; hour++) {
+                for (let min of ['00', '30']) {
+                    if (hour === endHour && min === '30') break;
+                    
+                    let startStr = `${hour.toString().padStart(2, '0')}:${min}`;
+                    let endStr = '';
+                    
+                    if (min === '00') {
+                        endStr = `${hour.toString().padStart(2, '0')}:30`;
+                    } else {
+                        endStr = `${(hour + 1).toString().padStart(2, '0')}:00`;
+                    }
+                    
+                    let rangeLabel = `${startStr} - ${endStr}`;
+                    headerTimeline.innerHTML += `<th>${rangeLabel}</th>`;
+                    timeBlocksCount++;
+                }
+            }
+
+            // Generate Functional Interactive Rows
+            days.forEach((day, rIdx) => {
+                let rowHtml = `<tr><td class="day-cell">${day}</td>`;
+                for (let cIdx = 0; cIdx < timeBlocksCount; cIdx++) {
+                    rowHtml += `<td class="schedule-cell" data-row="${rIdx}" data-col="${cIdx}" id="cell-${rIdx}-${cIdx}"><div class="cell-content" contenteditable="true"></div></td>`;
+                }
+                rowHtml += `</tr>`;
+                matrixBody.innerHTML += rowHtml;
+            });
+
+            attachCellListeners();
+        }
+
+        function attachCellListeners() {
+            document.querySelectorAll('.schedule-cell').forEach(cell => {
+                cell.addEventListener('contextmenu', function(e) {
+                    e.preventDefault();
+                    selectedCell = this;
+                    contextMenu.style.display = 'flex';
+                    contextMenu.style.top = `${e.pageY}px`;
+                    contextMenu.style.left = `${e.pageX}px`;
+                });
+            });
+        }
+
+        // Global Click dismisses Context Tool
+        document.addEventListener('click', e => {
+            if (!contextMenu.contains(e.target)) contextMenu.style.display = 'none';
+        });
+
+        // Horizontal Merger (Sideways)
+        function mergeHorizontal() {
+            if (!selectedCell) return;
+            const r = parseInt(selectedCell.getAttribute('data-row'));
+            const c = parseInt(selectedCell.getAttribute('data-col'));
+            const currentSpan = parseInt(selectedCell.getAttribute('colspan') || 1);
+            
+            const targetCell = document.getElementById(`cell-${r}-${c + currentSpan}`);
+            if (targetCell && targetCell.style.display !== 'none') {
+                selectedCell.setAttribute('colspan', currentSpan + 1);
+                targetCell.style.display = 'none';
+            }
+            contextMenu.style.display = 'none';
+        }
+
+        // Vertical Merger (Downwards across columns)
+        function mergeVertical() {
+            if (!selectedCell) return;
+            const r = parseInt(selectedCell.getAttribute('data-row'));
+            const c = parseInt(selectedCell.getAttribute('data-col'));
+            const currentCspan = parseInt(selectedCell.getAttribute('colspan') || 1);
+            const currentRspan = parseInt(selectedCell.getAttribute('rowspan') || 1);
+            
+            const targetRowIndex = r + currentRspan;
+            if (targetRowIndex < days.length) {
+                for (let i = 0; i < currentCspan; i++) {
+                    const targetCell = document.getElementById(`cell-${targetRowIndex}-${c + i}`);
+                    if (targetCell) targetCell.style.display = 'none';
+                }
+                selectedCell.setAttribute('rowspan', currentRspan + 1);
+            }
+            contextMenu.style.display = 'none';
+        }
+
+        // Unmerge / Block Resets
+        function unmergeCell() {
+            if (!selectedCell) return;
+            buildMatrixGrid();
+            contextMenu.style.display = 'none';
+        }
+
+        // Color Palette Application Engine
+        function assignColor(className) {
+            if (!selectedCell) return;
+            selectedCell.classList.remove('cat-work', 'cat-trading', 'cat-fitness', 'cat-strategic', 'cat-rest');
+            if (className) selectedCell.classList.add(className);
+            contextMenu.style.display = 'none';
+        }
+
+        // Section Generation Framework Functions
+        function createNewSection() {
+            const container = document.getElementById('sidebarContainer');
+            const newPanel = document.createElement('div');
+            newPanel.className = 'panel';
+            newPanel.innerHTML = `
+                <div class="panel-header-inline">
+                    <h2 contenteditable="true">New Functional Framework</h2>
+                    <button class="delete-btn" style="position:static;" onclick="this.parentElement.parentElement.remove()">&times;</button>
+                </div>
+                <div class="guideline-input-area">
+                    <div class="guideline-item">
+                        <button class="delete-btn" onclick="this.parentElement.remove()">&times;</button>
+                        <p contenteditable="true">Editable strategic instruction...</p>
+                    </div>
+                </div>
+                <button class="add-rule-btn" onclick="addRuleField(this)">+ Add Framework Directive</button>
+            `;
+            container.appendChild(newPanel);
+        }
+
+        function addRuleField(buttonElement) {
+            const targetArea = buttonElement.parentElement.querySelector('.guideline-input-area');
+            const newItem = document.createElement('div');
+            newItem.className = 'guideline-item';
+            newItem.innerHTML = `
+                <button class="delete-btn" onclick="this.parentElement.remove()">&times;</button>
+                <p contenteditable="true">Add new guideline metric...</p>
+            `;
+            targetArea.appendChild(newItem);
+        }
+
+        function clearAllCells() {
+            document.querySelectorAll('.cell-content').forEach(el => el.innerHTML = '');
+        }
+
+        // Run Initial Build
+        buildMatrixGrid();
+    </script>
+</body>
+</html>

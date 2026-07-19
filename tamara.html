@@ -1,0 +1,690 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mine — Paul's Guide</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;1,400;1,500&family=Lora:ital,wght@0,400;0,500;1,400&family=DM+Mono:wght@300;400&display=swap" rel="stylesheet">
+<style>
+:root[data-theme="dark"]{
+  --bg:#0e0b0f;--bg-2:#161219;--bg-3:#1d1820;--bg-4:#251f28;
+  --border:rgba(255,255,255,0.07);--border-warm:rgba(210,160,120,0.25);
+  --text-primary:#f2ece8;--text-secondary:#9a8f8a;--text-muted:#5a5055;
+  --rose:#d4896a;--rose-dim:rgba(212,137,106,0.12);
+  --blush:#c4788a;--sage:#7a9e8a;--warm:#c8a878;--lavender:#9a8abf;
+  --gold:#c8a458;--gold-dim:rgba(200,164,88,0.1);
+}
+:root[data-theme="light"]{
+  --bg:#faf6f2;--bg-2:#f2ece6;--bg-3:#e8e0d8;--bg-4:#ddd4ca;
+  --border:rgba(0,0,0,0.07);--border-warm:rgba(180,100,70,0.2);
+  --text-primary:#1a1215;--text-secondary:#6a5a55;--text-muted:#aaa098;
+  --rose:#b86040;--rose-dim:rgba(184,96,64,0.08);
+  --blush:#a05870;--sage:#507a65;--warm:#9a7848;--lavender:#6a5a9a;
+  --gold:#8a6820;--gold-dim:rgba(138,104,32,0.08);
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{background:var(--bg);color:var(--text-primary);font-family:'Lora',serif;font-weight:400;min-height:100vh;transition:background 0.4s,color 0.4s;}
+
+header{position:sticky;top:0;z-index:100;background:var(--bg);border-bottom:1px solid var(--border);padding:0 2rem;display:flex;align-items:center;justify-content:space-between;height:60px;}
+.header-name{font-family:'Playfair Display',serif;font-size:1.35rem;font-style:italic;color:var(--rose);}
+.header-sub{font-family:'DM Mono',monospace;font-size:0.58rem;color:var(--text-muted);letter-spacing:0.12em;text-transform:uppercase;margin-top:0.15rem;}
+.theme-toggle{width:34px;height:34px;border-radius:50%;border:1px solid var(--border);background:var(--bg-3);color:var(--text-secondary);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:0.85rem;transition:all 0.2s;}
+.theme-toggle:hover{border-color:var(--rose);color:var(--rose);}
+
+.nav-tabs{display:flex;padding:0 2rem;background:var(--bg-2);border-bottom:1px solid var(--border);overflow-x:auto;scrollbar-width:none;}
+.nav-tabs::-webkit-scrollbar{display:none;}
+.tab-btn{padding:0.8rem 1.3rem;background:none;border:none;border-bottom:2px solid transparent;color:var(--text-muted);font-family:'DM Mono',monospace;font-size:0.6rem;letter-spacing:0.1em;text-transform:uppercase;cursor:pointer;white-space:nowrap;transition:all 0.2s;}
+.tab-btn:hover{color:var(--text-secondary);}
+.tab-btn.active{color:var(--rose);border-bottom-color:var(--rose);}
+
+main{max-width:1060px;margin:0 auto;padding:2.5rem 2rem 5rem;position:relative;z-index:1;}
+.tab-panel{display:none;}
+.tab-panel.active{display:block;animation:fadeUp 0.35s ease both;}
+@keyframes fadeUp{from{opacity:0;transform:translateY(10px);}to{opacity:1;transform:translateY(0);}}
+
+/* SHARED */
+.section-label{font-family:'DM Mono',monospace;font-size:0.58rem;letter-spacing:0.15em;text-transform:uppercase;color:var(--text-muted);margin-bottom:1.1rem;}
+.rose-rule{height:1px;background:linear-gradient(90deg,var(--rose) 0%,transparent 100%);margin:2rem 0;opacity:0.2;}
+.spacer{height:1.5rem;}
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:1rem;}
+.three-col{display:grid;grid-template-columns:1fr 1fr 1fr;gap:1rem;}
+@media(max-width:720px){.three-col{grid-template-columns:1fr 1fr;}}
+@media(max-width:480px){.two-col,.three-col{grid-template-columns:1fr;}}
+
+.card{background:var(--bg-2);border:1px solid var(--border);border-radius:3px;padding:1.5rem;margin-bottom:1rem;}
+.card-body{font-size:0.82rem;color:var(--text-secondary);line-height:1.75;}
+
+.edit-btn{background:none;border:none;font-family:'DM Mono',monospace;font-size:0.53rem;letter-spacing:0.08em;text-transform:uppercase;color:var(--text-muted);cursor:pointer;padding:0.2rem 0.45rem;border-radius:2px;transition:all 0.15s;flex-shrink:0;}
+.edit-btn:hover{color:var(--rose);background:var(--rose-dim);}
+.del-btn{background:none;border:none;font-family:'DM Mono',monospace;font-size:0.53rem;color:var(--text-muted);cursor:pointer;padding:0.2rem 0.45rem;border-radius:2px;transition:all 0.15s;}
+.del-btn:hover{color:#c87060;background:rgba(200,112,96,0.1);}
+.add-btn{width:100%;background:var(--bg-2);border:1px dashed var(--border);border-radius:3px;padding:1rem;color:var(--text-muted);font-family:'DM Mono',monospace;font-size:0.6rem;letter-spacing:0.1em;text-transform:uppercase;cursor:pointer;transition:all 0.2s;text-align:center;margin-top:0.75rem;}
+.add-btn:hover{border-color:var(--rose);color:var(--rose);}
+.save-btn{padding:0.55rem 1.4rem;background:var(--rose-dim);border:1px solid var(--border-warm);border-radius:3px;color:var(--rose);font-family:'DM Mono',monospace;font-size:0.6rem;letter-spacing:0.1em;text-transform:uppercase;cursor:pointer;transition:all 0.2s;}
+.save-btn:hover{background:var(--rose);color:#fff;}
+.saved-msg{font-family:'DM Mono',monospace;font-size:0.58rem;color:var(--sage);letter-spacing:0.1em;margin-left:1rem;opacity:0;transition:opacity 0.3s;}
+textarea.notes-area{width:100%;min-height:130px;background:var(--bg-2);border:1px solid var(--border);border-radius:3px;padding:1.1rem;color:var(--text-primary);font-family:'Lora',serif;font-size:0.84rem;line-height:1.7;resize:vertical;outline:none;transition:border-color 0.2s;}
+textarea.notes-area:focus{border-color:var(--border-warm);}
+
+/* OVERVIEW */
+.hero-block{background:var(--bg-2);border:1px solid var(--border-warm);border-left:3px solid var(--rose);padding:2rem 2.5rem;margin-bottom:2rem;border-radius:3px;position:relative;overflow:hidden;}
+.hero-block::after{content:'U';position:absolute;right:1.5rem;top:50%;transform:translateY(-50%);font-family:'Playfair Display',serif;font-size:9rem;font-style:italic;color:var(--rose);opacity:0.04;line-height:1;pointer-events:none;}
+.hero-quote{font-family:'Playfair Display',serif;font-size:1.08rem;font-style:italic;color:var(--text-primary);line-height:1.85;margin-bottom:0.75rem;}
+.hero-meta{font-family:'DM Mono',monospace;font-size:0.57rem;letter-spacing:0.12em;text-transform:uppercase;color:var(--text-muted);}
+
+.trait-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:0.75rem;margin-bottom:1.5rem;}
+.trait-chip{background:var(--bg-2);border:1px solid var(--border);border-radius:3px;padding:1rem 1.1rem;position:relative;}
+.trait-chip-label{font-family:'DM Mono',monospace;font-size:0.55rem;letter-spacing:0.12em;text-transform:uppercase;color:var(--rose);margin-bottom:0.35rem;}
+.trait-chip-value{font-size:0.8rem;color:var(--text-secondary);line-height:1.55;}
+.trait-chip .edit-btn{position:absolute;top:0.5rem;right:0.5rem;}
+
+.work-item{display:flex;align-items:flex-start;gap:1rem;padding:0.9rem 0;border-bottom:1px solid var(--border);cursor:pointer;transition:all 0.15s;}
+.work-item:last-child{border-bottom:none;}
+.work-item:first-child{padding-top:0;}
+.work-item:hover{padding-left:0.25rem;}
+.work-item.done{opacity:0.4;}
+.work-check{width:18px;height:18px;border-radius:50%;border:1px solid var(--border-warm);flex-shrink:0;margin-top:0.1rem;display:flex;align-items:center;justify-content:center;font-size:0.6rem;transition:all 0.2s;color:transparent;}
+.work-item.done .work-check{background:var(--rose);border-color:var(--rose);color:#fff;}
+.work-text{font-size:0.82rem;color:var(--text-secondary);line-height:1.55;flex:1;}
+.work-text strong{color:var(--text-primary);font-weight:500;}
+
+/* PRACTICES */
+.practice-item{background:var(--bg-2);border:1px solid var(--border);border-radius:3px;padding:1.1rem 1.3rem;display:flex;align-items:flex-start;gap:1rem;margin-bottom:0.6rem;transition:border-color 0.2s;}
+.practice-item:hover{border-color:var(--border-warm);}
+.practice-freq{font-family:'DM Mono',monospace;font-size:0.53rem;letter-spacing:0.1em;text-transform:uppercase;padding:0.2rem 0.5rem;border-radius:20px;border:1px solid var(--border);color:var(--text-muted);white-space:nowrap;margin-top:0.15rem;flex-shrink:0;}
+.practice-freq.daily{border-color:rgba(212,137,106,0.35);color:var(--rose);}
+.practice-freq.weekly{border-color:rgba(122,158,138,0.35);color:var(--sage);}
+.practice-freq.monthly{border-color:rgba(200,168,120,0.35);color:var(--warm);}
+.practice-freq.ongoing{border-color:rgba(154,138,191,0.35);color:var(--lavender);}
+.practice-content{flex:1;}
+.practice-name{font-size:0.88rem;font-weight:500;color:var(--text-primary);margin-bottom:0.25rem;}
+.practice-detail{font-size:0.78rem;color:var(--text-secondary);line-height:1.55;}
+.practice-actions{display:flex;gap:0.2rem;flex-shrink:0;}
+
+/* IDEAS */
+.ideas-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(270px,1fr));gap:1rem;}
+.idea-card{background:var(--bg-2);border:1px solid var(--border);border-radius:3px;padding:1.3rem;position:relative;transition:border-color 0.2s,transform 0.15s;}
+.idea-card:hover{border-color:var(--border-warm);transform:translateY(-1px);}
+.idea-tag{font-family:'DM Mono',monospace;font-size:0.52rem;letter-spacing:0.12em;text-transform:uppercase;padding:0.2rem 0.5rem;border-radius:20px;border:1px solid var(--border);color:var(--text-muted);display:inline-block;margin-bottom:0.75rem;}
+.idea-tag.virtual{border-color:rgba(154,138,191,0.35);color:var(--lavender);}
+.idea-tag.lagos{border-color:rgba(212,137,106,0.35);color:var(--rose);}
+.idea-tag.phh{border-color:rgba(122,158,138,0.35);color:var(--sage);}
+.idea-tag.gift{border-color:rgba(196,120,138,0.35);color:var(--blush);}
+.idea-tag.creative{border-color:rgba(200,168,120,0.35);color:var(--warm);}
+.idea-tag.travel{border-color:rgba(200,164,88,0.35);color:var(--gold);}
+.idea-title{font-family:'Playfair Display',serif;font-size:0.96rem;color:var(--text-primary);margin-bottom:0.35rem;}
+.idea-body{font-size:0.78rem;color:var(--text-secondary);line-height:1.6;}
+.idea-actions{position:absolute;top:0.7rem;right:0.7rem;display:flex;gap:0.2rem;}
+
+/* GIFTS */
+.gift-card{background:var(--bg-2);border:1px solid var(--border);border-radius:3px;padding:1.25rem;display:flex;flex-direction:column;gap:0.45rem;transition:all 0.2s;position:relative;}
+.gift-card:hover{border-color:var(--border-warm);}
+.gift-card.given{opacity:0.38;}
+.gift-name{font-family:'Playfair Display',serif;font-size:0.95rem;color:var(--text-primary);}
+.gift-detail{font-size:0.78rem;color:var(--text-secondary);line-height:1.5;}
+.gift-budget{font-family:'DM Mono',monospace;font-size:0.57rem;color:var(--warm);letter-spacing:0.06em;margin-top:auto;}
+.gift-actions{position:absolute;top:0.65rem;right:0.65rem;display:flex;gap:0.2rem;}
+.gift-mark{background:none;border:1px solid var(--border);border-radius:2px;font-family:'DM Mono',monospace;font-size:0.5rem;letter-spacing:0.07em;text-transform:uppercase;color:var(--text-muted);padding:0.18rem 0.4rem;cursor:pointer;transition:all 0.15s;}
+.gift-mark:hover{border-color:var(--sage);color:var(--sage);}
+.gift-card.given .gift-mark{background:var(--sage);border-color:var(--sage);color:#fff;}
+
+/* CONFLICT */
+.pattern-block{background:var(--bg-2);border:1px solid var(--border);border-radius:3px;padding:1.5rem;margin-bottom:1rem;}
+.pattern-flow{display:flex;align-items:center;gap:0.5rem;flex-wrap:wrap;margin:0.75rem 0;}
+.pattern-node{font-family:'DM Mono',monospace;font-size:0.6rem;padding:0.35rem 0.7rem;border-radius:2px;letter-spacing:0.05em;}
+.pattern-node.bad{background:rgba(200,112,96,0.12);border:1px solid rgba(200,112,96,0.25);color:#c87060;}
+.pattern-node.good{background:rgba(122,158,138,0.12);border:1px solid rgba(122,158,138,0.25);color:var(--sage);}
+.pattern-arrow{color:var(--text-muted);font-size:0.8rem;}
+
+.protocol-step{display:flex;align-items:flex-start;gap:1rem;padding:0.85rem 0;border-bottom:1px solid var(--border);}
+.protocol-step:last-child{border-bottom:none;}
+.step-num{font-family:'DM Mono',monospace;font-size:0.65rem;color:var(--rose);width:20px;flex-shrink:0;margin-top:0.1rem;}
+.step-content{flex:1;}
+.step-name{font-size:0.88rem;font-weight:500;color:var(--text-primary);margin-bottom:0.2rem;}
+.step-script{font-size:0.78rem;color:var(--text-secondary);line-height:1.5;font-style:italic;}
+
+/* SPIRIT */
+.spirit-intro{font-family:'Playfair Display',serif;font-size:1rem;font-style:italic;color:var(--text-secondary);line-height:1.8;margin-bottom:2rem;padding-left:1.25rem;border-left:2px solid var(--border-warm);}
+
+/* JOURNAL */
+.journal-entry{background:var(--bg-2);border:1px solid var(--border);border-radius:3px;margin-bottom:0.75rem;overflow:hidden;}
+.journal-entry-header{padding:0.8rem 1.2rem;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid var(--border);background:var(--bg-3);}
+.journal-date{font-family:'DM Mono',monospace;font-size:0.58rem;letter-spacing:0.1em;text-transform:uppercase;color:var(--text-muted);}
+.journal-body{padding:1.2rem;font-size:0.84rem;color:var(--text-secondary);line-height:1.7;white-space:pre-wrap;}
+
+/* MODAL */
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.75);z-index:1000;align-items:center;justify-content:center;}
+.modal-overlay.open{display:flex;}
+.modal{background:var(--bg-2);border:1px solid var(--border-warm);border-radius:4px;padding:2rem;width:90%;max-width:460px;max-height:90vh;overflow-y:auto;}
+.modal-title{font-family:'Playfair Display',serif;font-size:1.05rem;color:var(--text-primary);margin-bottom:1.25rem;}
+.modal input,.modal textarea,.modal select{width:100%;background:var(--bg-3);border:1px solid var(--border);border-radius:3px;padding:0.65rem 0.9rem;color:var(--text-primary);font-family:'Lora',serif;font-size:0.84rem;outline:none;margin-bottom:0.7rem;transition:border-color 0.2s;}
+.modal input:focus,.modal textarea:focus{border-color:var(--border-warm);}
+.modal textarea{min-height:90px;resize:vertical;}
+.modal label{font-family:'DM Mono',monospace;font-size:0.52rem;letter-spacing:0.1em;text-transform:uppercase;color:var(--text-muted);margin-bottom:0.3rem;display:block;}
+.modal-actions{display:flex;gap:0.75rem;justify-content:flex-end;margin-top:0.25rem;}
+.modal-cancel{padding:0.5rem 1rem;background:none;border:1px solid var(--border);border-radius:3px;color:var(--text-muted);font-family:'DM Mono',monospace;font-size:0.58rem;letter-spacing:0.08em;text-transform:uppercase;cursor:pointer;}
+.modal-confirm{padding:0.5rem 1.2rem;background:var(--rose-dim);border:1px solid var(--border-warm);border-radius:3px;color:var(--rose);font-family:'DM Mono',monospace;font-size:0.58rem;letter-spacing:0.08em;text-transform:uppercase;cursor:pointer;transition:all 0.2s;}
+.modal-confirm:hover{background:var(--rose);color:#fff;}
+
+.identity-shift{background:var(--bg-2);border:1px solid var(--border);border-top:2px solid var(--rose);border-radius:3px;padding:1.5rem 2rem;margin-bottom:1.5rem;}
+.identity-from{font-size:0.82rem;color:var(--text-muted);margin-bottom:0.5rem;font-style:italic;}
+.identity-to{font-family:'Playfair Display',serif;font-size:1.1rem;color:var(--text-primary);font-style:italic;}
+.identity-arrow{color:var(--rose);font-size:1.2rem;margin:0.35rem 0;display:block;}
+</style>
+</head>
+<body>
+
+<header>
+  <div>
+    <div class="header-name">Uyai</div>
+    <div class="header-sub">Mine 💕 · Paul's Private Guide</div>
+  </div>
+  <button class="theme-toggle" onclick="toggleTheme()"><span id="theme-icon">☀</span></button>
+</header>
+
+<nav class="nav-tabs">
+  <button class="tab-btn active" onclick="switchTab('overview',this)">Overview</button>
+  <button class="tab-btn" onclick="switchTab('daily',this)">Daily & Weekly</button>
+  <button class="tab-btn" onclick="switchTab('conflict',this)">The Pattern</button>
+  <button class="tab-btn" onclick="switchTab('dates',this)">Dates & Ideas</button>
+  <button class="tab-btn" onclick="switchTab('gifts',this)">Gifts & Tokens</button>
+  <button class="tab-btn" onclick="switchTab('creative',this)">Her World</button>
+  <button class="tab-btn" onclick="switchTab('spirit',this)">Spiritual Leadership</button>
+  <button class="tab-btn" onclick="switchTab('journal',this)">Journal</button>
+</nav>
+
+<main>
+
+<!-- ── OVERVIEW ── -->
+<div class="tab-panel active" id="tab-overview">
+
+  <div class="hero-block">
+    <div class="hero-quote" id="hero-text">She is the woman who sends you a business lead for coal trailers on a Saturday morning and then asks how your day is going. She is up at 5AM studying scripture and sends you what she found before you've finished praying. She calls you Mine and means it fully. She has loved you through your worst months without making you feel the weight of it, and she sent a New Year's message on 1 January 2026 that wasn't a broadcast — it was written specifically for you. She is not waiting to be managed. She is waiting to be met with the same consistency she has offered you.</div>
+    <div style="display:flex;justify-content:space-between;align-items:flex-end;margin-top:0.75rem;flex-wrap:wrap;gap:0.5rem;">
+      <div class="hero-meta">Tamara "Uyai" Dogubo · @tamaradogubo · Lagos · 32</div>
+      <button class="edit-btn" onclick="editHero()">Edit</button>
+    </div>
+  </div>
+
+  <div class="section-label">Who she is — what the chat and the time together have shown</div>
+  <div class="trait-grid" id="trait-grid">
+    <div class="trait-chip" data-id="t1"><div class="trait-chip-label">Her Names for You</div><div class="trait-chip-value">"Mine" is your favourite. She also calls you Lover, Sugar, Hot Stuff, Sweetness, Fine Man. She is deliberate with language — she is a poet. What she calls you means something.</div><button class="edit-btn" onclick="openEdit('trait','t1')">Edit</button></div>
+    <div class="trait-chip" data-id="t2"><div class="trait-chip-label">The Early Morning</div><div class="trait-chip-value">She is up early — praying, studying, on walks. She engages scripture seriously and shares what she's learning. Faith is not background for her. She sent you 2 Corinthians 3 at 7:57AM on the day you first reconnected.</div><button class="edit-btn" onclick="openEdit('trait','t2')">Edit</button></div>
+    <div class="trait-chip" data-id="t3"><div class="trait-chip-label">The Maker & Connoisseur</div><div class="trait-chip-value">Granola, skin care, hair care, teas, Greek yoghurt. She knows what every ingredient does. When she can't find her moisturizer she researches alternatives at 5AM. She has standards and she knows why.</div><button class="edit-btn" onclick="openEdit('trait','t3')">Edit</button></div>
+    <div class="trait-chip" data-id="t4"><div class="trait-chip-label">The Artist</div><div class="trait-chip-value">Spoken word poet, scriptwriter, performance coach. She scripts for her team. She entered a film writing competition. She was at a shoot helping Chuks with his skits on Valentine's Day — she shows up for other people's creative work even while carrying her own.</div><button class="edit-btn" onclick="openEdit('trait','t4')">Edit</button></div>
+    <div class="trait-chip" data-id="t5"><div class="trait-chip-label">The Partner</div><div class="trait-chip-value">She forwarded you a coal trailer business lead with full specs. She thinks about your work. She celebrated your engineering problem-solving on the road trip. She is already in your corner — she was already thinking like a partner long before you made it official.</div><button class="edit-btn" onclick="openEdit('trait','t5')">Edit</button></div>
+    <div class="trait-chip" data-id="t6"><div class="trait-chip-label">Her Family Context</div><div class="trait-chip-value">Only daughter, last of five. Sour relationship with two brothers. Helps care for Dee, her niece — bathing her, feeding her, losing sleep over her. She carries family weight quietly. She doesn't complain about it — she just absorbs it.</div><button class="edit-btn" onclick="openEdit('trait','t6')">Edit</button></div>
+    <div class="trait-chip" data-id="t7"><div class="trait-chip-label">What She Needs</div><div class="trait-chip-value">Consistency. To not feel alone in the relationship. To feel chosen specifically — not generically appreciated. To have a man who initiates, who plans, who names the tension before she has to. Her core fear: "Am I alone in caring this much?"</div><button class="edit-btn" onclick="openEdit('trait','t7')">Edit</button></div>
+    <div class="trait-chip" data-id="t8"><div class="trait-chip-label">How She Loves</div><div class="trait-chip-value">She loves lavishly and specifically. She gifted you a watch, shoes, shirts. She advised your skincare. She sends you TikToks that made her think of you. She researches things for you. When she loves, she invests.</div><button class="edit-btn" onclick="openEdit('trait','t8')">Edit</button></div>
+    <div class="trait-chip" data-id="t9"><div class="trait-chip-label">The Standard She Holds</div><div class="trait-chip-value">She expects a man who leads — not by dominance but by direction and care. She told you plainly on 13 February 2026 exactly what she needed. She pinned that message. She was not vague. She gave you the blueprint.</div><button class="edit-btn" onclick="openEdit('trait','t9')">Edit</button></div>
+  </div>
+  <button class="add-btn" onclick="openAdd('trait')">+ Add</button>
+
+  <div class="rose-rule"></div>
+
+  <div class="section-label">The growth work — what you named, what the pattern shows</div>
+  <div class="card" id="work-areas">
+    <div class="work-item" onclick="toggleWork(this)" data-key="w1"><div class="work-check">✓</div><div class="work-text"><strong>Stay present when you feel inadequate.</strong> The core skill. Not removing shame — acting despite it. You feel inadequate, you withdraw. She repairs, you feel relief, it repeats. That loop ends by staying in the room even when you don't feel like you're enough.</div></div>
+    <div class="work-item" onclick="toggleWork(this)" data-key="w2"><div class="work-check">✓</div><div class="work-text"><strong>Initiate repair within 24 hours.</strong> Not another apology message. A visible change. She told you directly: "Just words as usual." What she needs after a hard moment is evidence, not eloquence.</div></div>
+    <div class="work-item" onclick="toggleWork(this)" data-key="w3"><div class="work-check">✓</div><div class="work-text"><strong>Validate before explaining.</strong> When she expresses hurt, your first move is "I understand why that would feel that way" — not a defence of your intentions. She knows you mean well. She needs to feel heard before she can receive anything else.</div></div>
+    <div class="work-item" onclick="toggleWork(this)" data-key="w4"><div class="work-check">✓</div><div class="work-text"><strong>Name the shift before it becomes a confrontation.</strong> She gave you the blueprint on 13 February: openness, patience, forgiveness, recognition, space, initiation, clarity, balance, emotional safety, support. When you notice the energy change — say something first.</div></div>
+    <div class="work-item" onclick="toggleWork(this)" data-key="w5"><div class="work-check">✓</div><div class="work-text"><strong>Follow through on what you said.</strong> The Valentine's week is the pattern in full: beautiful words, visible follow-through absent. She doesn't need perfect — she needs consistent. The morning message you said you'd send. The plan you said you'd make. The call you said you'd initiate.</div></div>
+    <div class="work-item" onclick="toggleWork(this)" data-key="w6"><div class="work-check">✓</div><div class="work-text"><strong>Research things she mentions, unprompted.</strong> She mentioned Redmi phones in the car and you recounted it. She mentioned a film writing competition and you asked about it. Do more of this — follow the threads she drops. She drops them on purpose.</div></div>
+    <div class="work-item" onclick="toggleWork(this)" data-key="w7"><div class="work-check">✓</div><div class="work-text"><strong>Engage seriously with her creative work.</strong> She is a poet, a scriptwriter, a performance coach. Her work is not background. Read the Medium posts. Watch the performances. Respond with the specific line that stayed with you.</div></div>
+    <div class="work-item" onclick="toggleWork(this)" data-key="w8"><div class="work-check">✓</div><div class="work-text"><strong>Build capacity by loving consistently now — not when you're more ready.</strong> You wrote this yourself in the Clarity Document. The identity shift is from "I will love better when I am more capable" to "I build capacity by loving consistently now."</div></div>
+    <div class="work-item" onclick="toggleWork(this)" data-key="w9"><div class="work-check">✓</div><div class="work-text"><strong>Include her in your plans and life.</strong> She complained that you didn't plan together. This starts with telling her what you're working toward — not for approval, but because she is in the picture. dAnTE Inc., the apartment, the MSc decision. She should hear these from you, not after.</div></div>
+    <div class="work-item" onclick="toggleWork(this)" data-key="w10"><div class="work-check">✓</div><div class="work-text"><strong>Compliment her specifically.</strong> You wrote it yourself: "How can I say I don't know how to flatter my woman? O wrong nau." You see and feel that she's beautiful. Say it. Not just "Fine Woman Mine" — the specific thing you noticed.</div></div>
+  </div>
+
+</div>
+
+<!-- ── DAILY & WEEKLY ── -->
+<div class="tab-panel" id="tab-daily">
+
+  <div class="identity-shift">
+    <div class="identity-from">From: "I will love better when I am more capable"</div>
+    <span class="identity-arrow">↓</span>
+    <div class="identity-to">I build capacity by loving consistently now.</div>
+  </div>
+
+  <div class="section-label" style="margin-bottom:1rem;">Daily</div>
+  <div id="daily-items">
+    <div class="practice-item" data-id="d1"><span class="practice-freq daily">Daily</span><div class="practice-content"><div class="practice-name">Morning message — with something in it</div><div class="practice-detail">She was up at 5AM the day you first reconnected, already praying, and she sent you what she'd found in scripture before 8AM. Your morning message should have something in it — a line from what you read, a question about her walk, something that tells her you thought of her before you typed. Not "gm."</div></div><div class="practice-actions"><button class="edit-btn" onclick="openEdit('practice','d1')">Edit</button></div></div>
+    <div class="practice-item" data-id="d2"><span class="practice-freq daily">Daily</span><div class="practice-content"><div class="practice-name">Check in — and initiate it</div><div class="practice-detail">She said it directly: she doesn't like long hours without communication. When you have to go off, say so with a timeframe. "I'll be in this meeting till 3, I'll call after." She is not clingy — she is someone who needs to know the shape of the day so her nervous system can settle.</div></div><div class="practice-actions"><button class="edit-btn" onclick="openEdit('practice','d2')">Edit</button></div></div>
+    <div class="practice-item" data-id="d3"><span class="practice-freq daily">Daily</span><div class="practice-content"><div class="practice-name">One specific appreciation</div><div class="practice-detail">Not "Fine Woman Mine" as a reflex. Something she did, said, sent, made, or is. "That business lead you sent — I've been thinking about it." "What you said about the tea yesterday." She notices when you notice.</div></div><div class="practice-actions"><button class="edit-btn" onclick="openEdit('practice','d3')">Edit</button></div></div>
+    <div class="practice-item" data-id="d4"><span class="practice-freq daily">Daily</span><div class="practice-content"><div class="practice-name">Watch the tone, not just the words</div><div class="practice-detail">You come in already forgiving. Which means you miss the shift. A shorter reply. "Ok" instead of her usual warmth. The walk she says she's going on when she usually wouldn't. These are signals. When you notice one: "You seem a little different today — are you okay?" That sentence is enough.</div></div><div class="practice-actions"><button class="edit-btn" onclick="openEdit('practice','d4')">Edit</button></div></div>
+    <div class="practice-item" data-id="d5"><span class="practice-freq daily">Daily</span><div class="practice-content"><div class="practice-name">Goodnight — with something</div><div class="practice-detail">You have a 4AM. Before you sleep — close the day with her. A verse, a thought, something from the day. "I prayed for you this morning and this is what came." End the day the same way you started it.</div></div><div class="practice-actions"><button class="edit-btn" onclick="openEdit('practice','d5')">Edit</button></div></div>
+  </div>
+
+  <div class="rose-rule"></div>
+  <div class="section-label" style="margin-bottom:1rem;">Weekly</div>
+  <div id="weekly-items">
+    <div class="practice-item" data-id="w1"><span class="practice-freq weekly">Weekly</span><div class="practice-content"><div class="practice-name">A longer call — you dial</div><div class="practice-detail">Not answering when she calls. You pick a time and you dial. You have something to talk about beyond logistics. She told you on 18 May 2025: "If you find the time for me... yea." She was being playful but she meant it. Find the time. Show her you did.</div></div><div class="practice-actions"><button class="edit-btn" onclick="openEdit('practice','w1')">Edit</button></div></div>
+    <div class="practice-item" data-id="w2"><span class="practice-freq weekly">Weekly</span><div class="practice-content"><div class="practice-name">Send something she didn't ask for</div><div class="practice-detail">A tea you researched after she mentioned it. An article about spoken word. A TikTok that made you think of her first, before she sent one to you. The reciprocity of attention. She has been sending you things for months.</div></div><div class="practice-actions"><button class="edit-btn" onclick="openEdit('practice','w2')">Edit</button></div></div>
+    <div class="practice-item" data-id="w3"><span class="practice-freq weekly">Weekly</span><div class="practice-content"><div class="practice-name">Engage with something she made or wrote</div><div class="practice-detail">Her Medium posts. A poem she shared. A script she mentioned. Read it properly and respond with the specific thing that landed. Not a general compliment — the line that stayed, the idea that surprised you.</div></div><div class="practice-actions"><button class="edit-btn" onclick="openEdit('practice','w3')">Edit</button></div></div>
+    <div class="practice-item" data-id="w4"><span class="practice-freq weekly">Weekly</span><div class="practice-content"><div class="practice-name">Tell her you prayed for her</div><div class="practice-detail">She sends you scripture at 7:57AM. She prays before sending difficult messages. She is in your 4AM. Tell her. "I prayed for your work this morning" — specific to something she told you. This is spiritual leadership in its earliest honest form.</div></div><div class="practice-actions"><button class="edit-btn" onclick="openEdit('practice','w4')">Edit</button></div></div>
+    <div class="practice-item" data-id="w5"><span class="practice-freq weekly">Weekly</span><div class="practice-content"><div class="practice-name">Follow up on something she shared</div><div class="practice-detail">She mentioned unpleasant thoughts on 19 May but said "nothing serious jor." You moved on. Follow up the next day: "Those thoughts you mentioned — are you alright?" She drops these things. She is testing whether you caught them. Catch them.</div></div><div class="practice-actions"><button class="edit-btn" onclick="openEdit('practice','w5')">Edit</button></div></div>
+    <div class="practice-item" data-id="w6"><span class="practice-freq weekly">Weekly</span><div class="practice-content"><div class="practice-name">Name where you're going — with her in it</div><div class="practice-detail">Once a week, reference something you're building and put her in the picture. Not a formal declaration — naturally, in conversation. "I'm planning to be in Lagos end of Q2 — I want to see you." "The apartment is coming together. I want you here." She should never be the only one thinking about the future.</div></div><div class="practice-actions"><button class="edit-btn" onclick="openEdit('practice','w6')">Edit</button></div></div>
+    <div class="practice-item" data-id="w7"><span class="practice-freq weekly">Weekly</span><div class="practice-content"><div class="practice-name">Thursday virtual date — you plan it</div><div class="practice-detail">Weekly virtual date night. You design the theme. You initiate. Tea tasting, cooking the same meal, reading aloud, perfume lesson — something with a shape and a purpose, not just a call that drifts. Thursday evenings. You decide by Wednesday what it is.</div></div><div class="practice-actions"><button class="edit-btn" onclick="openEdit('practice','w7')">Edit</button></div></div>
+  </div>
+
+  <div class="rose-rule"></div>
+  <div class="section-label" style="margin-bottom:1rem;">Monthly</div>
+  <div id="monthly-items">
+    <div class="practice-item" data-id="m1"><span class="practice-freq monthly">Monthly</span><div class="practice-content"><div class="practice-name">Plan something — fully, from you</div><div class="practice-detail">A visit. A care package. A virtual occasion with structure. End of Q2 2026 is the target for the first visit. You plan it, you fund it, you prepare the apartment before she arrives. She should walk in to evidence that her coming was anticipated.</div></div><div class="practice-actions"><button class="edit-btn" onclick="openEdit('practice','m1')">Edit</button></div></div>
+    <div class="practice-item" data-id="m2"><span class="practice-freq monthly">Monthly</span><div class="practice-content"><div class="practice-name">Send something physical</div><div class="practice-detail">Something arrives in her hands. A tea. A book with a note inside. An ingredient she uses. A handwritten letter. The sourcing and the sending across distance is visible to her as effort. She has been sending you things for a year.</div></div><div class="practice-actions"><button class="edit-btn" onclick="openEdit('practice','m2')">Edit</button></div></div>
+    <div class="practice-item" data-id="m3"><span class="practice-freq monthly">Monthly</span><div class="practice-content"><div class="practice-name">Pray together on a call</div><div class="practice-detail">Use the Bible app's guided prayer section to start — removes the awkwardness of not knowing where to begin. One prayer, specific to her month, at the end of a call. "Can I pray for you before we hang up?" That sentence is the beginning of a shared spiritual life.</div></div><div class="practice-actions"><button class="edit-btn" onclick="openEdit('practice','m3')">Edit</button></div></div>
+    <div class="practice-item" data-id="m4"><span class="practice-freq monthly">Monthly</span><div class="practice-content"><div class="practice-name">Ask how you've been doing — and receive the answer</div><div class="practice-detail">Once a month: "How have I been as your person this month? What do you need more of?" The courage to ask is leadership. The willingness to hear the answer without defending yourself is the thing she has been waiting for.</div></div><div class="practice-actions"><button class="edit-btn" onclick="openEdit('practice','m4')">Edit</button></div></div>
+  </div>
+
+  <button class="add-btn" onclick="openAdd('practice')">+ Add a practice</button>
+
+</div>
+
+<!-- ── THE PATTERN ── -->
+<div class="tab-panel" id="tab-conflict">
+
+  <div class="card" style="border-left:3px solid var(--blush);margin-bottom:1.5rem;">
+    <div class="card-body" style="font-style:italic;">You are not lacking love. You are lacking practiced emotional skill under pressure. The Valentine's week is the pattern made visible: you felt inadequate, you withdrew, she repaired, you felt relief, it repeated. The work is not to stop feeling inadequate — it is to stay in the room despite it.</div>
+  </div>
+
+  <div class="section-label" style="margin-bottom:0.75rem;">The Old Pattern</div>
+  <div class="pattern-block">
+    <div class="pattern-flow">
+      <span class="pattern-node bad">Trigger</span><span class="pattern-arrow">→</span>
+      <span class="pattern-node bad">Shame</span><span class="pattern-arrow">→</span>
+      <span class="pattern-node bad">Withdrawal</span><span class="pattern-arrow">→</span>
+      <span class="pattern-node bad">She Repairs</span><span class="pattern-arrow">→</span>
+      <span class="pattern-node bad">Relief</span><span class="pattern-arrow">→</span>
+      <span class="pattern-node bad">Repeat</span>
+    </div>
+    <div class="card-body" style="font-size:0.8rem;margin-top:0.5rem;">Her core experience in this loop: <em>"Am I alone in caring this much?"</em> She feels she initiates repair alone. She feels inconsistency in your emotional presence. She feels unprioritised.</div>
+  </div>
+
+  <div class="section-label" style="margin-bottom:0.75rem;">The New Pattern</div>
+  <div class="pattern-block">
+    <div class="pattern-flow">
+      <span class="pattern-node good">Trigger</span><span class="pattern-arrow">→</span>
+      <span class="pattern-node good">Notice</span><span class="pattern-arrow">→</span>
+      <span class="pattern-node good">Stay</span><span class="pattern-arrow">→</span>
+      <span class="pattern-node good">Validate</span><span class="pattern-arrow">→</span>
+      <span class="pattern-node good">Own</span><span class="pattern-arrow">→</span>
+      <span class="pattern-node good">Reassure</span><span class="pattern-arrow">→</span>
+      <span class="pattern-node good">Resolve</span>
+    </div>
+  </div>
+
+  <div class="rose-rule"></div>
+
+  <div class="section-label" style="margin-bottom:0.75rem;">The Conflict Protocol — step by step</div>
+  <div class="pattern-block">
+    <div class="protocol-step"><div class="step-num">01</div><div class="step-content"><div class="step-name">Name the shift</div><div class="step-script">"Something feels off — are you okay?"</div></div></div>
+    <div class="protocol-step"><div class="step-num">02</div><div class="step-content"><div class="step-name">Invite</div><div class="step-script">"Talk to me."</div></div></div>
+    <div class="protocol-step"><div class="step-num">03</div><div class="step-content"><div class="step-name">Reflect</div><div class="step-script">"It sounds like you felt ___ when ___."</div></div></div>
+    <div class="protocol-step"><div class="step-num">04</div><div class="step-content"><div class="step-name">Validate</div><div class="step-script">"I understand why that would feel that way." — Before any explanation. Before any defence.</div></div></div>
+    <div class="protocol-step"><div class="step-num">05</div><div class="step-content"><div class="step-name">Own</div><div class="step-script">"I see where I pulled back." — Clean, one sentence. Not a speech.</div></div></div>
+    <div class="protocol-step"><div class="step-num">06</div><div class="step-content"><div class="step-name">Regulate — if needed</div><div class="step-script">"I need 20 minutes but I will come back." — Say the timeframe. Come back.</div></div></div>
+    <div class="protocol-step"><div class="step-num">07</div><div class="step-content"><div class="step-name">Reassure</div><div class="step-script">"I'm not going anywhere. I care about you." — This is medicine for her nervous system. Give it freely.</div></div></div>
+    <div class="protocol-step"><div class="step-num">08</div><div class="step-content"><div class="step-name">Resolve</div><div class="step-script">"What would help next time?" — Or: name what you will do differently. Actions, not promises.</div></div></div>
+  </div>
+
+  <div class="rose-rule"></div>
+
+  <div class="section-label" style="margin-bottom:0.75rem;">What she gave you — her 10 things (13 February 2026)</div>
+  <div class="pattern-block">
+    <div class="card-body" style="line-height:2.1;">
+      Openness to change — she needs to see that you grow, learn, and unlearn.<br>
+      Patience — during your growth, your learning, your change.<br>
+      Forgiveness — accept repair attempts; be solution-focused, not blame-focused.<br>
+      Recognition — that she is a distinct person with needs and emotions and preferences.<br>
+      Space — to recharge, process, decompress.<br>
+      Initiating — calls, texts, activities, ideas.<br>
+      Clarity — honest, direct expression of feelings, expectations, concerns.<br>
+      Balance — preferences, desires, routines, growth requirements, each other's.<br>
+      Emotional Safety — the assurance that she can be vulnerable without feeling like a failure.<br>
+      Support — shared hunger for growth, for being better each day.
+    </div>
+  </div>
+
+  <div class="rose-rule"></div>
+  <div class="section-label" style="margin-bottom:0.75rem;">Notes on the pattern — what you're learning</div>
+  <textarea class="notes-area" id="conflict-notes" placeholder="Your observations. What you tried. What landed. What you're still working on."></textarea>
+  <div style="display:flex;align-items:center;margin-top:0.75rem;">
+    <button class="save-btn" onclick="saveField('conflict-notes','tamara-conflict-notes')">Save</button>
+    <span class="saved-msg" id="saved-conflict-notes">Saved.</span>
+  </div>
+
+</div>
+
+<!-- ── DATES & IDEAS ── -->
+<div class="tab-panel" id="tab-dates">
+  <div class="ideas-grid" id="ideas-grid">
+    <div class="idea-card" data-id="i1"><div class="idea-actions"><button class="edit-btn" onclick="openEdit('idea','i1')">Edit</button><button class="del-btn" onclick="deleteItem('idea','i1')">✕</button></div><span class="idea-tag virtual">Virtual</span><div class="idea-title">Tea tasting — simultaneous</div><div class="idea-body">She picks a tea, you find the same or closest. Brew together on video. She teaches you what she knows — the cultivar, the processing, the body. You already drink mint and ginger. She knows what you like. Let her take it further.</div></div>
+    <div class="idea-card" data-id="i2"><div class="idea-actions"><button class="edit-btn" onclick="openEdit('idea','i2')">Edit</button><button class="del-btn" onclick="deleteItem('idea','i2')">✕</button></div><span class="idea-tag virtual">Virtual</span><div class="idea-title">Read aloud — the novel she picks</div><div class="idea-body">She loves fiction. Pick one together. Take turns reading chapters on a call. Builds a shared reference. You'll quote it to each other for months. She is a writer — she will hear everything in how you read.</div></div>
+    <div class="idea-card" data-id="i3"><div class="idea-actions"><button class="edit-btn" onclick="openEdit('idea','i3')">Edit</button><button class="del-btn" onclick="deleteItem('idea','i3')">✕</button></div><span class="idea-tag virtual">Virtual</span><div class="idea-title">Perfume lesson</div><div class="idea-body">Ask her to walk you through a fragrance — the notes, the family, what she wears and when and why. She drew you into perfume. Enter her expertise fully. Ask specifically about what she wears and why she chose it.</div></div>
+    <div class="idea-card" data-id="i4"><div class="idea-actions"><button class="edit-btn" onclick="openEdit('idea','i4')">Edit</button><button class="del-btn" onclick="deleteItem('idea','i4')">✕</button></div><span class="idea-tag virtual">Virtual</span><div class="idea-title">Cook the same meal — same evening</div><div class="idea-body">She made moimoi while you were sick, she makes noodles strategically before her housemates find them. Agree on a dish, cook it simultaneously on a call. She will have opinions. Let her lead the instruction.</div></div>
+    <div class="idea-card" data-id="i5"><div class="idea-actions"><button class="edit-btn" onclick="openEdit('idea','i5')">Edit</button><button class="del-btn" onclick="deleteItem('idea','i5')">✕</button></div><span class="idea-tag virtual">Virtual</span><div class="idea-title">Watch her perform — respond specifically</div><div class="idea-body">Find her spoken word recordings. Watch them properly. Then send her the specific line that stayed with you, what it did in you, what you see differently now. Not "this was powerful." The actual line.</div></div>
+    <div class="idea-card" data-id="i6"><div class="idea-actions"><button class="edit-btn" onclick="openEdit('idea','i6')">Edit</button><button class="del-btn" onclick="deleteItem('idea','i6')">✕</button></div><span class="idea-tag virtual">Virtual</span><div class="idea-title">Granola — she walks you through it</div><div class="idea-body">Ask her to teach you. Follow on your end with what you have. She knows what every ingredient does and why. Let her be the expert. You're entering her world on her terms.</div></div>
+    <div class="idea-card" data-id="i7"><div class="idea-actions"><button class="edit-btn" onclick="openEdit('idea','i7')">Edit</button><button class="del-btn" onclick="deleteItem('idea','i7')">✕</button></div><span class="idea-tag virtual">Virtual</span><div class="idea-title">Bedtime story — you read to her</div><div class="idea-body">Call her close to the end of her day. Read her something beautiful — a passage, a psalm, a poem. She is a poet. Words read by your voice in the dark are intimate in a register nothing else reaches.</div></div>
+    <div class="idea-card" data-id="i8"><div class="idea-actions"><button class="edit-btn" onclick="openEdit('idea','i8')">Edit</button><button class="del-btn" onclick="deleteItem('idea','i8')">✕</button></div><span class="idea-tag virtual">Virtual</span><div class="idea-title">Greek yoghurt taste test</div><div class="idea-body">She knows what makes a good one. Both of you get Greek yoghurt. You rate them together on a call. She teaches you what she's tasting for. It will turn into a long conversation about standards, ingredients, quality. Let it go where it goes.</div></div>
+    <div class="idea-card" data-id="i9"><div class="idea-actions"><button class="edit-btn" onclick="openEdit('idea','i9')">Edit</button><button class="del-btn" onclick="deleteItem('idea','i9')">✕</button></div><span class="idea-tag virtual">Virtual</span><div class="idea-title">Scripture and philosophy afternoon</div><div class="idea-body">She referenced this herself — afternoons to discuss philosophy, mindset, the human condition, faith. She sent you a full theological breakdown at 7:57AM on the day you reconnected. She wants to think with you. Make space for it.</div></div>
+    <div class="idea-card" data-id="i10"><div class="idea-actions"><button class="edit-btn" onclick="openEdit('idea','i10')">Edit</button><button class="del-btn" onclick="deleteItem('idea','i10')">✕</button></div><span class="idea-tag lagos">Lagos Visit</span><div class="idea-title">Market day — no agenda</div><div class="idea-body">She loves to walk aisles and check ingredient lists. A Lagos visit includes a day with no schedule — you follow her, you ask about everything she picks up, you watch her in the element she is most herself in.</div></div>
+    <div class="idea-card" data-id="i11"><div class="idea-actions"><button class="edit-btn" onclick="openEdit('idea','i11')">Edit</button><button class="del-btn" onclick="deleteItem('idea','i11')">✕</button></div><span class="idea-tag lagos">Lagos Visit</span><div class="idea-title">A proper dinner — you planned it</div><div class="idea-body">Restaurant chosen by you, reservation made before you arrived. She loves food and loves being taken somewhere. The planning is the gift as much as the evening.</div></div>
+    <div class="idea-card" data-id="i12"><div class="idea-actions"><button class="edit-btn" onclick="openEdit('idea','i12')">Edit</button><button class="del-btn" onclick="deleteItem('idea','i12')">✕</button></div><span class="idea-tag lagos">Lagos Visit</span><div class="idea-title">Perfume shopping — together</div><div class="idea-body">Find a good perfume spot in Lagos. Go together. Let her guide you through what she would choose and why. You may find something for her. You will definitely learn something about her.</div></div>
+    <div class="idea-card" data-id="i13"><div class="idea-actions"><button class="edit-btn" onclick="openEdit('idea','i13')">Edit</button><button class="del-btn" onclick="deleteItem('idea','i13')">✕</button></div><span class="idea-tag phh">PHC Visit</span><div class="idea-title">The apartment prepared for her arrival</div><div class="idea-body">When she comes to Port Harcourt, she arrives to a space that has been thought about. Her tea in the kitchen. Something beautiful on a shelf. A clean, considered space. The environment speaks before you say a word.</div></div>
+    <div class="idea-card" data-id="i14"><div class="idea-actions"><button class="edit-btn" onclick="openEdit('idea','i14')">Edit</button><button class="del-btn" onclick="deleteItem('idea','i14')">✕</button></div><span class="idea-tag phh">PHC Visit</span><div class="idea-title">A day with no itinerary</div><div class="idea-body">No plans. Wake up and ask her what she wants the day to be. Then build it with her. She said she just wanted a hug on 15 December. Sometimes the only thing that's needed is the same city and no agenda.</div></div>
+    <div class="idea-card" data-id="i15"><div class="idea-actions"><button class="edit-btn" onclick="openEdit('idea','i15')">Edit</button><button class="del-btn" onclick="deleteItem('idea','i15')">✕</button></div><span class="idea-tag creative">Creative</span><div class="idea-title">Attend her performance — specifically</div><div class="idea-body">If she performs publicly — a show, a reading, an open mic — be there or make it known you would be. Your specific presence at her creative work is not support. It is participation in who she is.</div></div>
+    <div class="idea-card" data-id="i16"><div class="idea-actions"><button class="edit-btn" onclick="openEdit('idea','i16')">Edit</button><button class="del-btn" onclick="deleteItem('idea','i16')">✕</button></div><span class="idea-tag creative">Creative</span><div class="idea-title">Write her something — in your own voice</div><div class="idea-body">Your Valentine's letter landed — she pinned the message about your 10 things on 14 February. She responds to your words when they are real and specific. Write her something that is not occasion-dependent. Send it on an ordinary Tuesday.</div></div>
+    <div class="idea-card" data-id="i17"><div class="idea-actions"><button class="edit-btn" onclick="openEdit('idea','i17')">Edit</button><button class="del-btn" onclick="deleteItem('idea','i17')">✕</button></div><span class="idea-tag travel">Travel</span><div class="idea-title">Plan a trip — even if it's far out</div><div class="idea-body">She wants to travel. You want her passport to be full of stamps from conferences, business, time together. Pick a destination. Research it. Present it as a direction: "This is what I want for us." The vision spoken is already part of the gift.</div></div>
+  </div>
+  <button class="add-btn" onclick="openAdd('idea')">+ Add a date or idea</button>
+
+</div>
+
+<!-- ── GIFTS & TOKENS ── -->
+<div class="tab-panel" id="tab-gifts">
+  <div class="card" style="border-left:3px solid var(--warm);margin-bottom:1.5rem;">
+    <div class="card-body" style="font-style:italic;">You sent a birthday gift during two months of silence. That is love that does not require resolution as its condition. She gifted you a watch, shoes, shirts. She has been investing in you tangibly for over a year. Build the reciprocal muscle — not in scale necessarily, but in frequency and specificity of thought.</div>
+  </div>
+  <div class="three-col" id="gift-grid">
+    <div class="gift-card" data-id="g1"><div class="gift-actions"><button class="gift-mark" onclick="toggleGift(this)">Given</button><button class="edit-btn" onclick="openEdit('gift','g1')">Edit</button></div><div class="gift-name">A tea she hasn't tried — researched</div><div class="gift-detail">Find a specific variety that matches her palate — not from a random list, from what she's mentioned. Write a small note about what you found and why you thought of her.</div><div class="gift-budget">Low budget · High thought</div></div>
+    <div class="gift-card" data-id="g2"><div class="gift-actions"><button class="gift-mark" onclick="toggleGift(this)">Given</button><button class="edit-btn" onclick="openEdit('gift','g2')">Edit</button></div><div class="gift-name">A novel — chosen specifically</div><div class="gift-detail">Research what she would love — the mood, the subject, the voice. Write a note inside explaining exactly why you chose it for her. She will read the note as carefully as the book.</div><div class="gift-budget">Low–mid budget</div></div>
+    <div class="gift-card" data-id="g3"><div class="gift-actions"><button class="gift-mark" onclick="toggleGift(this)">Given</button><button class="edit-btn" onclick="openEdit('gift','g3')">Edit</button></div><div class="gift-name">Face Facts Oil Control Moisturizer</div><div class="gift-detail">She researched this at 5AM and decided it was the cheaper viable alternative. She knows what's in it. Source it, send it. She will know you remembered the 5AM conversation about her face.</div><div class="gift-budget">~6k · High specificity</div></div>
+    <div class="gift-card" data-id="g4"><div class="gift-actions"><button class="gift-mark" onclick="toggleGift(this)">Given</button><button class="edit-btn" onclick="openEdit('gift','g4')">Edit</button></div><div class="gift-name">Curated tea collection — with notes</div><div class="gift-detail">Four or five teas, each with a handwritten note — what you read about it, what the cultivar is, why you thought of her when you found it. She will know you worked for this.</div><div class="gift-budget">Mid budget · High impact</div></div>
+    <div class="gift-card" data-id="g5"><div class="gift-actions"><button class="gift-mark" onclick="toggleGift(this)">Given</button><button class="edit-btn" onclick="openEdit('gift','g5')">Edit</button></div><div class="gift-name">A perfume — researched for her</div><div class="gift-detail">She drew you into fragrance. Research one that fits her — her preferences, the season, her skin chemistry. Present it with the notes: what family it belongs to, what you read, why you thought of her specifically.</div><div class="gift-budget">Mid–high · Milestone gift</div></div>
+    <div class="gift-card" data-id="g6"><div class="gift-actions"><button class="gift-mark" onclick="toggleGift(this)">Given</button><button class="edit-btn" onclick="openEdit('gift','g6')">Edit</button></div><div class="gift-name">Handwritten letter — posted</div><div class="gift-detail">She is a poet. Words on paper in your hand — this is a different register. Write what you feel, what you see in her, what you're building toward. Post it. Let it arrive on a day she didn't know to expect anything.</div><div class="gift-budget">Zero budget · Maximum weight</div></div>
+    <div class="gift-card" data-id="g7"><div class="gift-actions"><button class="gift-mark" onclick="toggleGift(this)">Given</button><button class="edit-btn" onclick="openEdit('gift','g7')">Edit</button></div><div class="gift-name">Granola ingredients kit</div><div class="gift-detail">Quality oats, nuts, seeds, honey, dried fruit — the ingredients she'd choose. Package them as a kit. Invite her to make a batch and tell you how it goes. You're funding her creativity.</div><div class="gift-budget">Mid budget · Playful</div></div>
+    <div class="gift-card" data-id="g8"><div class="gift-actions"><button class="gift-mark" onclick="toggleGift(this)">Given</button><button class="edit-btn" onclick="openEdit('gift','g8')">Edit</button></div><div class="gift-name">Greek yoghurt — sourced properly</div><div class="gift-detail">Not the first one on the shelf. She knows what makes a good one. Find a quality brand in Lagos. Have it delivered with a note that says you remembered the conversation.</div><div class="gift-budget">Low budget</div></div>
+    <div class="gift-card" data-id="g9"><div class="gift-actions"><button class="gift-mark" onclick="toggleGift(this)">Given</button><button class="edit-btn" onclick="openEdit('gift','g9')">Edit</button></div><div class="gift-name">A beautiful journal</div><div class="gift-detail">She journals. She was journaling when you asked what she was up to on 16 February. A well-made journal — weighted pages, a cover she'd be proud to keep on her desk — says: I see your creative life as worth investing in.</div><div class="gift-budget">Low–mid budget</div></div>
+    <div class="gift-card" data-id="g10"><div class="gift-actions"><button class="gift-mark" onclick="toggleGift(this)">Given</button><button class="edit-btn" onclick="openEdit('gift','g10')">Edit</button></div><div class="gift-name">A skin care ingredient she values</div><div class="gift-detail">She formulates. Source one quality ingredient she works with or has mentioned wanting to try. The research to identify the right one is the gift, not just the item.</div><div class="gift-budget">Low–mid budget</div></div>
+    <div class="gift-card" data-id="g11"><div class="gift-actions"><button class="gift-mark" onclick="toggleGift(this)">Given</button><button class="edit-btn" onclick="openEdit('gift','g11')">Edit</button></div><div class="gift-name">A care package — assembled</div><div class="gift-detail">Multiple small things she loves, gathered and sent together: a tea, a candle, a note, something for her skin. Not one big item — a collection that shows you held many different things about her in your head at once.</div><div class="gift-budget">Mid budget · High intimacy</div></div>
+    <div class="gift-card" data-id="g12"><div class="gift-actions"><button class="gift-mark" onclick="toggleGift(this)">Given</button><button class="edit-btn" onclick="openEdit('gift','g12')">Edit</button></div><div class="gift-name">Meal delivery — something she mentioned</div><div class="gift-detail">You wrote it yourself: order her a meal at least once a week. Something she mentioned she wants — not asking first, just remembering and sending it. "Don't need to ask her what, something she's mentioned she wants."</div><div class="gift-budget">Low budget · Weekly habit</div></div>
+    <div class="gift-card" data-id="g13"><div class="gift-actions"><button class="gift-mark" onclick="toggleGift(this)">Given</button><button class="edit-btn" onclick="openEdit('gift','g13')">Edit</button></div><div class="gift-name">A visit — fully planned by you</div><div class="gift-detail">The date. The flight. The prepared apartment. The dinner reservation. She arrives to something already built. This is the gift that contains all the others: initiative, planning, presence, evidence that she was worth every step.</div><div class="gift-budget">High budget · The destination</div></div>
+  </div>
+  <button class="add-btn" onclick="openAdd('gift')">+ Add a gift idea</button>
+
+</div>
+
+<!-- ── HER WORLD ── -->
+<div class="tab-panel" id="tab-creative">
+  <div class="card" style="border-left:3px solid var(--warm);margin-bottom:1.5rem;">
+    <div class="card-body" style="font-style:italic;">Her creative work is not background. It is the foreground of her life. She entered a film writing competition. She scripts for her team. She coached Chuks's shoot on Valentine's Day. She is up at 5AM sending you theological depth. She has sent you TikToks, poems, and music for months. Entering her world with genuine attention is not optional — it is how you see her.</div>
+  </div>
+
+  <div id="creative-items">
+    <div class="practice-item" data-id="c1"><div style="width:8px;height:8px;border-radius:50%;background:var(--rose);flex-shrink:0;margin-top:0.45rem;"></div><div class="practice-content"><div class="practice-name">Spoken Word Poetry</div><div class="practice-detail">Find her recordings and performances on Instagram and TikTok. Watch them fully — not as background. Then respond specifically: not "this was powerful" but the line that stayed, what it opened in you, what you now see differently. She will feel seen at a level most people never reach her.</div></div><div class="practice-actions"><button class="edit-btn" onclick="openEdit('creative','c1')">Edit</button></div></div>
+    <div class="practice-item" data-id="c2"><div style="width:8px;height:8px;border-radius:50%;background:var(--warm);flex-shrink:0;margin-top:0.45rem;"></div><div class="practice-content"><div class="practice-name">Medium Writing</div><div class="practice-detail">She writes on Medium. Find her profile. Read what she has published — this is her thinking made public. Engage with a specific post. Quote a line back to her. Ask what made her write it. Ask what she was feeling when she did.</div></div><div class="practice-actions"><button class="edit-btn" onclick="openEdit('creative','c2')">Edit</button></div></div>
+    <div class="practice-item" data-id="c3"><div style="width:8px;height:8px;border-radius:50%;background:var(--lavender);flex-shrink:0;margin-top:0.45rem;"></div><div class="practice-content"><div class="practice-name">Scriptwriting</div><div class="practice-detail">She scripts for her team and entered a film writing competition. Ask not "how's the writing going" but something specific: "What's the last character you wrote who surprised you?" or "Is there a scene you're sitting with?" Ask to read something when she's ready.</div></div><div class="practice-actions"><button class="edit-btn" onclick="openEdit('creative','c3')">Edit</button></div></div>
+    <div class="practice-item" data-id="c4"><div style="width:8px;height:8px;border-radius:50%;background:var(--sage);flex-shrink:0;margin-top:0.45rem;"></div><div class="practice-content"><div class="practice-name">Performance Coaching</div><div class="practice-detail">She helped Chuks with his skits on Valentine's Day. She coaches others in presence, voice, delivery. Ask who she's currently helping and what the challenge is. Her expertise here deserves genuine respect.</div></div><div class="practice-actions"><button class="edit-btn" onclick="openEdit('creative','c4')">Edit</button></div></div>
+    <div class="practice-item" data-id="c5"><div style="width:8px;height:8px;border-radius:50%;background:var(--blush);flex-shrink:0;margin-top:0.45rem;"></div><div class="practice-content"><div class="practice-name">The Making — granola, skin care, hair care, teas</div><div class="practice-detail">She knows what every ingredient does. She researches alternatives at 5AM. Ask about something she made recently. Ask what she's formulating. The curiosity is the respect.</div></div><div class="practice-actions"><button class="edit-btn" onclick="openEdit('creative','c5')">Edit</button></div></div>
+    <div class="practice-item" data-id="c6"><div style="width:8px;height:8px;border-radius:50%;background:var(--gold);flex-shrink:0;margin-top:0.45rem;"></div><div class="practice-content"><div class="practice-name">The Business Mind</div><div class="practice-detail">She forwarded you full coal trailer specs with routes and pricing on 3 September 2025. She is not just supporting your vision — she is already thinking like a partner in it. When she sends you things like this, engage them. Ask her thinking. She is your Creative Director and you said so yourself.</div></div><div class="practice-actions"><button class="edit-btn" onclick="openEdit('creative','c6')">Edit</button></div></div>
+  </div>
+
+  <div class="rose-rule"></div>
+  <div class="section-label" style="margin-bottom:0.75rem;">Questions worth asking her</div>
+  <div class="card">
+    <div class="card-body" style="line-height:2.1;">
+      What are you working on right now that you're most excited about?<br>
+      What's the last piece you wrote that surprised you?<br>
+      Is there a performance you felt you really landed — what made the difference?<br>
+      What do you want to write that you haven't written yet?<br>
+      What's a tea you've been most curious about recently?<br>
+      What are you currently formulating and what problem are you solving with it?<br>
+      What's a fragrance note you think is underappreciated?<br>
+      What was the coal trailer thing — tell me more about that lead you found?
+    </div>
+  </div>
+  <div class="card">
+    <div class="section-label" style="margin-bottom:0.75rem;">Your observations — what you're learning about her world</div>
+    <textarea class="notes-area" id="creative-notes" placeholder="What she's working on, what landed when you engaged it, what you want to follow up on..."></textarea>
+    <div style="display:flex;align-items:center;margin-top:0.75rem;">
+      <button class="save-btn" onclick="saveField('creative-notes','tamara-creative-notes')">Save</button>
+      <span class="saved-msg" id="saved-creative-notes">Saved.</span>
+    </div>
+  </div>
+
+</div>
+
+<!-- ── SPIRITUAL LEADERSHIP ── -->
+<div class="tab-panel" id="tab-spirit">
+  <div class="spirit-intro">She sent you a full theological breakdown on the first morning. She prays before she sends difficult messages. She suggested the Bible app's guided prayer as a way in. She has been leading the spiritual dimension of this relationship by example. What she needs now is for you to step into the front.</div>
+
+  <div id="spirit-items">
+    <div class="practice-item" data-id="s1"><span class="practice-freq ongoing">Practice</span><div class="practice-content"><div class="practice-name">Tell her when you pray for her</div><div class="practice-detail">She is in your 4AM. "I prayed for you this morning" — specific to something in her life. Not a performance. The truth that she was in the room when you met with God. She will feel it.</div></div><div class="practice-actions"><button class="edit-btn" onclick="openEdit('spirit','s1')">Edit</button></div></div>
+    <div class="practice-item" data-id="s2"><span class="practice-freq ongoing">Practice</span><div class="practice-content"><div class="practice-name">Pray together — use the Bible app to start</div><div class="practice-detail">She suggested this herself. Guided prayer section removes the awkwardness of not knowing where to begin. One prayer, at the end of a call. "Can I pray for you before we hang up?" That sentence is the beginning of a shared spiritual life.</div></div><div class="practice-actions"><button class="edit-btn" onclick="openEdit('spirit','s2')">Edit</button></div></div>
+    <div class="practice-item" data-id="s3"><span class="practice-freq ongoing">Practice</span><div class="practice-content"><div class="practice-name">Share from your journey — not at her</div><div class="practice-detail">She sent you John 1:17 TPT and 2 Corinthians 3 at 7:57AM on the first morning. You told her 2 Corinthians 3 had been in your reading a few days before. That is the register — sharing what you're finding, not prescribing what she should think.</div></div><div class="practice-actions"><button class="edit-btn" onclick="openEdit('spirit','s3')">Edit</button></div></div>
+    <div class="practice-item" data-id="s4"><span class="practice-freq ongoing">Practice</span><div class="practice-content"><div class="practice-name">Name the tension before it names itself</div><div class="practice-detail">She pinned your 10 things message. She told you directly what she needed. Spiritual leadership includes not making her do the emotional labour of initiating every hard conversation. When something is off, you say it first: "I think something is between us and I don't want to leave it there."</div></div><div class="practice-actions"><button class="edit-btn" onclick="openEdit('spirit','s4')">Edit</button></div></div>
+    <div class="practice-item" data-id="s5"><span class="practice-freq ongoing">Practice</span><div class="practice-content"><div class="practice-name">Hold the vision for the relationship — and say so</div><div class="practice-detail">She should never feel like the only one thinking about the future. You proposed to her in December in your Clarity Document — December 2026 is your target. Tell her the direction. She needs to know you see the future with her in it.</div></div><div class="practice-actions"><button class="edit-btn" onclick="openEdit('spirit','s5')">Edit</button></div></div>
+    <div class="practice-item" data-id="s6"><span class="practice-freq ongoing">Practice</span><div class="practice-content"><div class="practice-name">Listen before you lead</div><div class="practice-detail">The head listens before he directs. She comes to you with something — a struggle, a frustration, a fear. Your first move is presence, not solution. Ask what she needs. Hear the answer. Then respond. She told you this is what she wants.</div></div><div class="practice-actions"><button class="edit-btn" onclick="openEdit('spirit','s6')">Edit</button></div></div>
+    <div class="practice-item" data-id="s7"><span class="practice-freq ongoing">Practice</span><div class="practice-content"><div class="practice-name">Anchor her in scripture at the right moment</div><div class="practice-detail">Not a lecture. "I've been sitting with this verse and I thought of you" — or "Can I read you something?" Let the word do what it does. You already know how to do this. You've been doing it with yourself every 4AM. Do it with her.</div></div><div class="practice-actions"><button class="edit-btn" onclick="openEdit('spirit','s7')">Edit</button></div></div>
+    <div class="practice-item" data-id="s8"><span class="practice-freq ongoing">Practice</span><div class="practice-content"><div class="practice-name">Speak faith over her creative ambitions</div><div class="practice-detail">She entered a film writing competition. She is scripting for her team. She is building something. Tell her what you believe about it: "I prayed for this project specifically." "I genuinely believe this work is going somewhere." That is covering her spiritually.</div></div><div class="practice-actions"><button class="edit-btn" onclick="openEdit('spirit','s8')">Edit</button></div></div>
+    <div class="practice-item" data-id="s9"><span class="practice-freq ongoing">Practice</span><div class="practice-content"><div class="practice-name">Own your failures — cleanly</div><div class="practice-detail">She told you: "One more sorry message and I will block you." She doesn't need apologies. She needs accountability followed by visible change. When you miss: "I got that wrong." One sentence. Then the different action. Leadership includes accountability without performance.</div></div><div class="practice-actions"><button class="edit-btn" onclick="openEdit('spirit','s9')">Edit</button></div></div>
+  </div>
+
+  <button class="add-btn" onclick="openAdd('spirit')">+ Add a practice</button>
+
+  <div class="rose-rule"></div>
+  <div class="card">
+    <div class="section-label" style="margin-bottom:0.75rem;">Working notes on spiritual leadership</div>
+    <textarea class="notes-area" id="spirit-notes" placeholder="What you're learning, what you tried, what landed, what you're still working out..."></textarea>
+    <div style="display:flex;align-items:center;margin-top:0.75rem;">
+      <button class="save-btn" onclick="saveField('spirit-notes','tamara-spirit-notes')">Save</button>
+      <span class="saved-msg" id="saved-spirit-notes">Saved.</span>
+    </div>
+  </div>
+
+</div>
+
+<!-- ── JOURNAL ── -->
+<div class="tab-panel" id="tab-journal">
+  <div class="section-label">New entry</div>
+  <textarea class="notes-area" id="journal-input" placeholder="What happened today. What you noticed. What you felt. What you're working on — in her, in yourself, in this."></textarea>
+  <div style="display:flex;align-items:center;margin-top:0.75rem;margin-bottom:2rem;">
+    <button class="save-btn" onclick="saveJournal()">Save Entry</button>
+    <span class="saved-msg" id="saved-journal">Saved.</span>
+  </div>
+  <div class="section-label">Previous entries</div>
+  <div id="journal-entries"></div>
+</div>
+
+</main>
+
+<!-- MODAL -->
+<div class="modal-overlay" id="modal">
+  <div class="modal">
+    <div class="modal-title" id="modal-title">Edit</div>
+    <div id="modal-fields"></div>
+    <div class="modal-actions">
+      <button class="modal-cancel" onclick="closeModal()">Cancel</button>
+      <button class="modal-confirm" onclick="confirmModal()">Save</button>
+    </div>
+  </div>
+</div>
+
+<script>
+let modalMode=null,modalTargetId=null;
+
+function toggleTheme(){
+  const h=document.documentElement,dark=h.getAttribute('data-theme')==='dark';
+  h.setAttribute('data-theme',dark?'light':'dark');
+  document.getElementById('theme-icon').textContent=dark?'☾':'☀';
+  localStorage.setItem('tamara-theme',dark?'light':'dark');
+}
+
+function switchTab(name,btn){
+  document.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+  document.getElementById('tab-'+name).classList.add('active');
+  btn.classList.add('active');
+}
+
+function toggleWork(el){el.classList.toggle('done');persist();}
+function toggleGift(btn){btn.closest('.gift-card').classList.toggle('given');persist();}
+
+function saveField(id,key){
+  localStorage.setItem(key,document.getElementById(id).value);
+  const msg=document.getElementById('saved-'+id);
+  if(msg){msg.style.opacity='1';setTimeout(()=>msg.style.opacity='0',2000);}
+}
+
+function editHero(){
+  modalMode='edit-hero';
+  document.getElementById('modal-title').textContent='Edit overview';
+  document.getElementById('modal-fields').innerHTML=`<label>Text</label><textarea id="mf-a" style="min-height:160px;">${document.getElementById('hero-text').textContent}</textarea>`;
+  document.getElementById('modal').classList.add('open');
+}
+
+function saveJournal(){
+  const text=document.getElementById('journal-input').value.trim();
+  if(!text)return;
+  const entries=JSON.parse(localStorage.getItem('tamara-journal')||'[]');
+  entries.unshift({date:new Date().toISOString(),text});
+  localStorage.setItem('tamara-journal',JSON.stringify(entries));
+  document.getElementById('journal-input').value='';
+  const msg=document.getElementById('saved-journal');
+  msg.style.opacity='1';setTimeout(()=>msg.style.opacity='0',2000);
+  renderJournal();
+}
+
+function renderJournal(){
+  const c=document.getElementById('journal-entries');
+  const entries=JSON.parse(localStorage.getItem('tamara-journal')||'[]');
+  if(!entries.length){c.innerHTML='<p style="font-size:0.8rem;color:var(--text-muted);font-style:italic;">No entries yet.</p>';return;}
+  c.innerHTML=entries.map((e,i)=>{
+    const d=new Date(e.date);
+    const ds=d.toLocaleDateString('en-GB',{weekday:'short',day:'numeric',month:'long',year:'numeric'});
+    return `<div class="journal-entry"><div class="journal-entry-header"><span class="journal-date">${ds}</span><button class="del-btn" onclick="deleteJournal(${i})">Delete</button></div><div class="journal-body">${e.text}</div></div>`;
+  }).join('');
+}
+
+function deleteJournal(i){
+  if(!confirm('Delete?'))return;
+  const entries=JSON.parse(localStorage.getItem('tamara-journal')||'[]');
+  entries.splice(i,1);
+  localStorage.setItem('tamara-journal',JSON.stringify(entries));
+  renderJournal();
+}
+
+function deleteItem(type,id){
+  if(!confirm('Remove this?'))return;
+  document.querySelector(`[data-id="${id}"]`)?.remove();
+  persist();
+}
+
+function openEdit(type,id){
+  modalMode='edit-'+type;modalTargetId=id;
+  const el=document.querySelector(`[data-id="${id}"]`);
+  let f={title:'',body:'',extra:''};
+  if(type==='practice'||type==='spirit'||type==='creative'){
+    f.title=el.querySelector('.practice-name')?.textContent||'';
+    f.body=el.querySelector('.practice-detail')?.textContent||'';
+    f.extra=el.querySelector('.practice-freq')?.textContent||'';
+  }else if(type==='idea'){
+    f.title=el.querySelector('.idea-title')?.textContent||'';
+    f.body=el.querySelector('.idea-body')?.textContent||'';
+    f.extra=el.querySelector('.idea-tag')?.textContent||'';
+  }else if(type==='gift'){
+    f.title=el.querySelector('.gift-name')?.textContent||'';
+    f.body=el.querySelector('.gift-detail')?.textContent||'';
+    f.extra=el.querySelector('.gift-budget')?.textContent||'';
+  }else if(type==='trait'){
+    f.title=el.querySelector('.trait-chip-label')?.textContent||'';
+    f.body=el.querySelector('.trait-chip-value')?.textContent||'';
+  }
+  document.getElementById('modal-title').textContent='Edit';
+  document.getElementById('modal-fields').innerHTML=`<label>Title / Name</label><input type="text" id="mf-a" value="${f.title}"><label>Detail</label><textarea id="mf-b" style="min-height:90px;">${f.body}</textarea><label>Tag / Frequency / Budget</label><input type="text" id="mf-c" value="${f.extra}">`;
+  document.getElementById('modal').classList.add('open');
+}
+
+function openAdd(type){
+  modalMode='add-'+type;modalTargetId=null;
+  const titles={practice:'Add a practice',spirit:'Add a practice',idea:'Add a date or idea',gift:'Add a gift idea',trait:'Add a trait'};
+  document.getElementById('modal-title').textContent=titles[type]||'Add';
+  document.getElementById('modal-fields').innerHTML=`<label>Title / Name</label><input type="text" id="mf-a" placeholder="Title"><label>Detail</label><textarea id="mf-b" style="min-height:90px;" placeholder="Description"></textarea><label>Tag / Frequency / Budget</label><input type="text" id="mf-c" placeholder="e.g. daily, virtual, mid budget">`;
+  document.getElementById('modal').classList.add('open');
+}
+
+function closeModal(){document.getElementById('modal').classList.remove('open');modalMode=null;modalTargetId=null;}
+
+function confirmModal(){
+  const fa=document.getElementById('mf-a')?.value.trim()||'';
+  const fb=document.getElementById('mf-b')?.value.trim()||'';
+  const fc=document.getElementById('mf-c')?.value.trim()||'';
+
+  if(modalMode==='edit-hero'){
+    if(fb)document.getElementById('hero-text').textContent=fb;
+    localStorage.setItem('tamara-hero',fb);
+    closeModal();return;
+  }
+  if(!fa){closeModal();return;}
+
+  if(modalMode.startsWith('edit-')){
+    const type=modalMode.replace('edit-','');
+    const el=document.querySelector(`[data-id="${modalTargetId}"]`);
+    if(type==='practice'||type==='spirit'||type==='creative'){
+      if(el.querySelector('.practice-name'))el.querySelector('.practice-name').textContent=fa;
+      if(el.querySelector('.practice-detail'))el.querySelector('.practice-detail').textContent=fb;
+      if(fc&&el.querySelector('.practice-freq'))el.querySelector('.practice-freq').textContent=fc;
+    }else if(type==='idea'){
+      if(el.querySelector('.idea-title'))el.querySelector('.idea-title').textContent=fa;
+      if(el.querySelector('.idea-body'))el.querySelector('.idea-body').textContent=fb;
+      if(fc&&el.querySelector('.idea-tag'))el.querySelector('.idea-tag').textContent=fc;
+    }else if(type==='gift'){
+      if(el.querySelector('.gift-name'))el.querySelector('.gift-name').textContent=fa;
+      if(el.querySelector('.gift-detail'))el.querySelector('.gift-detail').textContent=fb;
+      if(el.querySelector('.gift-budget'))el.querySelector('.gift-budget').textContent=fc;
+    }else if(type==='trait'){
+      if(el.querySelector('.trait-chip-label'))el.querySelector('.trait-chip-label').textContent=fa;
+      if(el.querySelector('.trait-chip-value'))el.querySelector('.trait-chip-value').textContent=fb;
+    }
+  }else{
+    const type=modalMode.replace('add-','');
+    const id=type[0]+Date.now();
+    if(type==='practice'){
+      const freq=fc||'ongoing';
+      const fc2=['daily','weekly','monthly','ongoing'].includes(freq.toLowerCase())?freq.toLowerCase():'ongoing';
+      document.getElementById('daily-items').insertAdjacentHTML('beforeend',`<div class="practice-item" data-id="${id}"><span class="practice-freq ${fc2}">${freq}</span><div class="practice-content"><div class="practice-name">${fa}</div><div class="practice-detail">${fb}</div></div><div class="practice-actions"><button class="edit-btn" onclick="openEdit('practice','${id}')">Edit</button></div></div>`);
+    }else if(type==='spirit'){
+      document.getElementById('spirit-items').insertAdjacentHTML('beforeend',`<div class="practice-item" data-id="${id}"><span class="practice-freq ongoing">Ongoing</span><div class="practice-content"><div class="practice-name">${fa}</div><div class="practice-detail">${fb}</div></div><div class="practice-actions"><button class="edit-btn" onclick="openEdit('spirit','${id}')">Edit</button></div></div>`);
+    }else if(type==='idea'){
+      document.getElementById('ideas-grid').insertAdjacentHTML('beforeend',`<div class="idea-card" data-id="${id}"><div class="idea-actions"><button class="edit-btn" onclick="openEdit('idea','${id}')">Edit</button><button class="del-btn" onclick="deleteItem('idea','${id}')">✕</button></div><span class="idea-tag">${fc||'idea'}</span><div class="idea-title">${fa}</div><div class="idea-body">${fb}</div></div>`);
+    }else if(type==='gift'){
+      document.getElementById('gift-grid').insertAdjacentHTML('beforeend',`<div class="gift-card" data-id="${id}"><div class="gift-actions"><button class="gift-mark" onclick="toggleGift(this)">Given</button><button class="edit-btn" onclick="openEdit('gift','${id}')">Edit</button></div><div class="gift-name">${fa}</div><div class="gift-detail">${fb}</div><div class="gift-budget">${fc}</div></div>`);
+    }else if(type==='trait'){
+      document.getElementById('trait-grid').insertAdjacentHTML('beforeend',`<div class="trait-chip" data-id="${id}"><div class="trait-chip-label">${fa}</div><div class="trait-chip-value">${fb}</div><button class="edit-btn" onclick="openEdit('trait','${id}')">Edit</button></div>`);
+    }
+  }
+  persist();closeModal();
+}
+
+function persist(){
+  const checks={};
+  document.querySelectorAll('[data-key]').forEach(el=>{checks[el.dataset.key]=el.classList.contains('done');});
+  document.querySelectorAll('.gift-card[data-id]').forEach(el=>{checks['gift-'+el.dataset.id]=el.classList.contains('given');});
+  localStorage.setItem('tamara-checks',JSON.stringify(checks));
+}
+
+function init(){
+  const theme=localStorage.getItem('tamara-theme')||'dark';
+  document.documentElement.setAttribute('data-theme',theme);
+  document.getElementById('theme-icon').textContent=theme==='dark'?'☀':'☾';
+
+  const checks=JSON.parse(localStorage.getItem('tamara-checks')||'{}');
+  document.querySelectorAll('[data-key]').forEach(el=>{if(checks[el.dataset.key])el.classList.add('done');});
+  document.querySelectorAll('.gift-card[data-id]').forEach(el=>{if(checks['gift-'+el.dataset.id])el.classList.add('given');});
+
+  const hero=localStorage.getItem('tamara-hero');
+  if(hero)document.getElementById('hero-text').textContent=hero;
+
+  [['conflict-notes','tamara-conflict-notes'],['spirit-notes','tamara-spirit-notes'],['creative-notes','tamara-creative-notes']].forEach(([id,key])=>{
+    const v=localStorage.getItem(key);if(v)document.getElementById(id).value=v;
+  });
+
+  renderJournal();
+  document.getElementById('modal').addEventListener('click',e=>{if(e.target.id==='modal')closeModal();});
+}
+
+init();
+</script>
+</body>
+</html>

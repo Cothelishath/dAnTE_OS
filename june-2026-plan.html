@@ -1,0 +1,571 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>June 2026 — Roots</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&family=Jost:wght@200;300;400;500&family=DM+Mono:wght@300;400&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#080b0a;--s1:#0f1411;--s2:#161c18;--border:rgba(255,255,255,0.06);--border-g:rgba(255,255,255,0.12);--tx:#e4e8e4;--mid:#7a8a7c;--dim:#3d4d3f;--acc:#6aaa78;--acc-b:#8acc96;--acc-d:#3a6a46;--gold:#c9a84c;--rose:#c47888;--blue:#6a9ab8;--fd:'Cormorant Garamond',serif;--fm:'Jost',sans-serif;--mono:'DM Mono',monospace;}
+body.light{--bg:#f5f5f0;--s1:#eeeae2;--s2:#e6e2da;--border:rgba(0,0,0,0.07);--border-g:rgba(0,0,0,0.14);--tx:#141412;--mid:#505848;--dim:#9a9a90;--acc:#2a7a3a;--acc-b:#4a9a5a;--acc-d:rgba(42,122,58,0.2);--gold:#8a6820;--rose:#8a3848;--blue:#2a5878;}
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{background:var(--bg);color:var(--tx);font-family:var(--fm);font-weight:300;font-size:13px;line-height:1.6;overflow-x:hidden;transition:background .25s,color .25s;}
+
+.toolbar{position:fixed;top:0;left:0;right:0;z-index:200;background:rgba(8,11,10,0.92);backdrop-filter:blur(10px);border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;padding:8px 2rem;}
+body.light .toolbar{background:rgba(245,245,240,0.92);}
+.tb-left{font-family:var(--mono);font-size:0.55rem;letter-spacing:0.2em;text-transform:uppercase;color:var(--dim);}
+.tb-right{display:flex;gap:8px;}
+.tb-btn{background:none;border:1px solid var(--border-g);border-radius:2px;color:var(--mid);font-family:var(--mono);font-size:0.55rem;letter-spacing:0.1em;padding:4px 10px;cursor:pointer;transition:all .2s;}
+.tb-btn:hover{color:var(--acc);border-color:var(--acc);}
+
+/* EDITABLE */
+.erow{display:flex;align-items:flex-start;gap:5px;width:100%;}
+.erow.center{justify-content:center;}
+[contenteditable]{outline:none;flex:1;}
+[contenteditable].editing{background:rgba(106,170,120,0.06);border:1px dashed rgba(106,170,120,0.25);border-radius:2px;padding:2px 5px;cursor:text;}
+.epencil{background:none;border:none;cursor:pointer;color:var(--dim);font-size:0.7rem;opacity:0;transition:all .15s;padding:1px 3px;flex-shrink:0;line-height:1.4;}
+.epencil:hover{color:var(--acc);}
+.epencil.active{color:var(--acc);opacity:1!important;}
+*:hover > .epencil, .erow:hover .epencil{opacity:0.5;}
+
+/* ADD BTN */
+.add-btn{display:flex;align-items:center;gap:5px;background:none;border:1px dashed var(--border-g);border-radius:2px;color:var(--dim);font-family:var(--mono);font-size:0.5rem;letter-spacing:0.1em;padding:5px 12px;cursor:pointer;margin-top:10px;transition:all .2s;width:100%;}
+.add-btn:hover{color:var(--acc);border-color:var(--acc);}
+
+/* HERO */
+.hero{min-height:100vh;display:flex;flex-direction:column;justify-content:space-between;padding:5rem 3rem 3rem;position:relative;overflow:hidden;background:radial-gradient(ellipse at 30% 50%,rgba(106,170,120,0.05) 0%,transparent 60%);}
+.hero-top{display:flex;justify-content:space-between;align-items:flex-start;}
+.hero-label{font-family:var(--mono);font-size:0.58rem;letter-spacing:0.28em;text-transform:uppercase;color:var(--acc);}
+.hero-meta{font-family:var(--mono);font-size:0.55rem;letter-spacing:0.15em;color:var(--dim);text-align:right;line-height:1.8;}
+.hero-main{padding:2rem 0;}
+.hero-month{font-family:var(--fd);font-size:clamp(5rem,18vw,14rem);font-weight:300;line-height:0.88;color:var(--tx);letter-spacing:-0.02em;}
+.hero-theme{font-family:var(--fd);font-size:clamp(1.4rem,4vw,2.8rem);font-weight:300;font-style:italic;color:var(--acc);margin-top:1.5rem;}
+.hero-sub{font-family:var(--mono);font-size:0.6rem;letter-spacing:0.2em;text-transform:uppercase;color:var(--dim);margin-top:0.75rem;}
+.hero-statement{font-family:var(--fd);font-size:clamp(0.95rem,2vw,1.15rem);color:var(--mid);max-width:520px;line-height:1.8;border-left:1px solid var(--acc-d);padding-left:1.25rem;margin-top:2.5rem;}
+.hero-tags{display:flex;gap:8px;flex-wrap:wrap;margin-top:2rem;}
+.hero-tag{font-family:var(--mono);font-size:0.52rem;letter-spacing:0.15em;text-transform:uppercase;padding:4px 10px;border:1px solid var(--border-g);color:var(--mid);border-radius:2px;}
+.hero-tag.site{border-color:var(--gold);color:var(--gold);}
+.hero-tag.her{border-color:var(--rose);color:var(--rose);}
+.hero-tag.build{border-color:var(--acc);color:var(--acc);}
+
+.wrap{max-width:900px;margin:0 auto;padding:0 2rem;}
+.section{padding:5rem 0;border-top:1px solid var(--border);}
+.sec-eye{font-family:var(--mono);font-size:0.56rem;letter-spacing:0.28em;text-transform:uppercase;color:var(--acc);margin-bottom:2rem;}
+.sec-title{font-family:var(--fd);font-size:clamp(1.6rem,4vw,2.5rem);font-weight:300;line-height:1.15;color:var(--tx);margin-bottom:1.25rem;}
+.sec-title em{font-style:italic;color:var(--acc);}
+.sec-body{font-family:var(--fd);font-size:1.05rem;color:var(--mid);line-height:1.85;max-width:580px;margin-bottom:2.5rem;}
+
+/* PRIORITY BAND */
+.pb-band{background:var(--s1);border:1px solid var(--border);padding:2rem;position:relative;}
+.pb-band::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--acc),var(--gold),transparent);}
+.pb-eyebrow{font-family:var(--mono);font-size:0.56rem;letter-spacing:0.2em;text-transform:uppercase;color:var(--acc);margin-bottom:1.25rem;}
+.pb-item{display:flex;align-items:flex-start;gap:1rem;padding:0.9rem 0;border-bottom:1px solid var(--border);}
+.pb-item:last-of-type{border-bottom:none;}
+.pb-num{font-family:var(--mono);font-size:0.52rem;color:var(--dim);min-width:20px;padding-top:3px;flex-shrink:0;}
+.pb-body{flex:1;min-width:0;}
+.pb-text{font-family:var(--fd);font-size:1rem;color:var(--tx);line-height:1.4;}
+.pb-note{font-size:0.78rem;color:var(--mid);font-style:italic;margin-top:3px;font-family:var(--fd);}
+.pb-tag{font-family:var(--mono);font-size:0.48rem;letter-spacing:0.1em;text-transform:uppercase;padding:2px 7px;border-radius:2px;flex-shrink:0;margin-top:3px;}
+.tag-g{background:rgba(106,170,120,0.1);color:var(--acc);border:1px solid rgba(106,170,120,0.2);}
+.tag-s{background:rgba(201,168,76,0.08);color:var(--gold);border:1px solid rgba(201,168,76,0.2);}
+.tag-r{background:rgba(196,120,136,0.08);color:var(--rose);border:1px solid rgba(196,120,136,0.2);}
+.tag-b{background:rgba(106,154,184,0.08);color:var(--blue);border:1px solid rgba(106,154,184,0.2);}
+.tag-d{background:rgba(100,100,100,0.08);color:var(--dim);border:1px solid rgba(100,100,100,0.15);}
+
+/* FOCUS */
+.focus-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:1.5rem;margin-top:2rem;}
+.fc{background:var(--s1);border:1px solid var(--border);padding:1.75rem;position:relative;}
+.fc::before{content:'';position:absolute;left:0;top:0;bottom:0;width:2px;}
+.fc.site::before{background:var(--gold);}
+.fc.home::before{background:var(--rose);}
+.fc.trade::before{background:var(--acc-b);}
+.fc.craft::before{background:var(--blue);}
+.fc.her::before{background:var(--rose);}
+.fc.faith::before{background:rgba(255,255,255,0.25);}
+body.light .fc.faith::before{background:rgba(0,0,0,0.12);}
+.fc-icon{font-size:1.2rem;margin-bottom:0.75rem;}
+.fc-title{font-family:var(--fd);font-size:1.05rem;font-weight:400;color:var(--tx);margin-bottom:0.4rem;}
+.fc-body{font-size:0.8rem;color:var(--mid);line-height:1.7;font-family:var(--fd);margin-bottom:1rem;}
+.fc-action{display:flex;align-items:flex-start;gap:6px;font-size:0.75rem;color:var(--mid);margin-bottom:4px;}
+.fc-dot{width:4px;height:4px;border-radius:50%;background:var(--dim);flex-shrink:0;margin-top:5px;}
+
+/* SEQUENCE */
+.seq-item{display:grid;grid-template-columns:80px 1fr;gap:1.5rem;padding:1.25rem 0;border-bottom:1px solid var(--border);align-items:start;}
+.seq-item:last-of-type{border-bottom:none;}
+.seq-wave{font-family:var(--mono);font-size:0.55rem;letter-spacing:0.12em;text-transform:uppercase;color:var(--dim);padding-top:3px;}
+.seq-title{font-family:var(--fd);font-size:1rem;font-weight:400;color:var(--tx);margin-bottom:0.25rem;}
+.seq-items{font-size:0.8rem;color:var(--mid);font-family:var(--fd);line-height:1.7;}
+
+/* ANCHORS */
+.anchors-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1rem;margin-top:2rem;}
+.anchor{background:var(--s2);border:1px solid var(--border);padding:1.5rem 1.25rem;text-align:center;}
+.ab-time{font-family:var(--mono);font-size:0.65rem;letter-spacing:0.1em;color:var(--acc);margin-bottom:0.5rem;}
+.ab-name{font-family:var(--fd);font-size:0.9rem;font-weight:400;color:var(--tx);margin-bottom:0.25rem;}
+.ab-note{font-size:0.7rem;color:var(--dim);font-family:var(--fd);font-style:italic;}
+
+/* HORIZON */
+.horizon{background:var(--s1);border:1px solid var(--border);padding:2.5rem;margin-top:2rem;position:relative;}
+.horizon::after{content:'';position:absolute;bottom:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--rose),transparent);}
+.h-label{font-family:var(--mono);font-size:0.55rem;letter-spacing:0.2em;text-transform:uppercase;color:var(--rose);margin-bottom:1.5rem;}
+.h-text{font-family:var(--fd);font-size:1.15rem;font-style:italic;color:var(--mid);line-height:1.8;max-width:560px;}
+.h-text em{color:var(--rose);font-style:normal;}
+
+.closing{padding:6rem 0 4rem;text-align:center;}
+.closing-word{font-family:var(--fd);font-size:clamp(2.5rem,8vw,6rem);font-weight:300;font-style:italic;color:var(--s2);line-height:1;margin-bottom:1.5rem;}
+body.light .closing-word{color:var(--border-g);}
+.closing-line{font-family:var(--mono);font-size:0.58rem;letter-spacing:0.25em;text-transform:uppercase;color:var(--dim);}
+.closing-dot{width:5px;height:5px;background:var(--acc);border-radius:50%;margin:1.5rem auto 0;}
+
+.toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%) translateY(44px);background:var(--s2);border:1px solid var(--border-g);color:var(--acc);font-family:var(--mono);font-size:0.55rem;letter-spacing:0.1em;padding:7px 16px;border-radius:2px;transition:transform .35s cubic-bezier(.34,1.56,.64,1);z-index:999;white-space:nowrap;}
+.toast.show{transform:translateX(-50%) translateY(0);}
+
+@media(max-width:600px){
+  .hero{padding:4rem 1.5rem 2rem;}
+  .wrap{padding:0 1.25rem;}
+  .focus-grid,.anchors-grid{grid-template-columns:1fr;}
+  .seq-item{grid-template-columns:60px 1fr;}
+  .toolbar{padding:8px 1rem;}
+}
+</style>
+</head>
+<body>
+
+<div class="toolbar">
+  <div class="tb-left">June 2026 &mdash; Roots</div>
+  <div class="tb-right">
+    <button class="tb-btn" onclick="toggleTheme()">&#9788; / &#9790;</button>
+    <button class="tb-btn" onclick="savePlan()">Save</button>
+  </div>
+</div>
+
+<div class="hero">
+  <div class="hero-top">
+    <div class="hero-label">Monthly Plan &middot; Q2 Close</div>
+    <div class="hero-meta">Paul Akpan Bassey<br>June 2026</div>
+  </div>
+  <div class="hero-main">
+    <div class="hero-month">June</div>
+    <div class="erow" style="margin-top:1.5rem;">
+      <div class="hero-theme" contenteditable="false">Roots.</div>
+      <button class="epencil" onclick="toggleEdit(this)">&#9998;</button>
+    </div>
+    <div class="hero-sub">Deepen what exists. Make what has been planted take hold.</div>
+    <div class="erow" style="margin-top:2.5rem;max-width:520px;">
+      <div class="hero-statement" contenteditable="false">June is not about beginning new things. It is about ensuring that everything already in motion — the work, the company, the home, the relationship, the faith — goes deep enough to last. A full site month. A house to ready. A woman arriving in July. Roots before branches.</div>
+      <button class="epencil" onclick="toggleEdit(this)">&#9998;</button>
+    </div>
+  </div>
+  <div class="hero-tags">
+    <span class="hero-tag site">Site dominant</span>
+    <span class="hero-tag her">July visit</span>
+    <span class="hero-tag build">Dante Craft active</span>
+    <span class="hero-tag">Q2 close</span>
+  </div>
+</div>
+
+<div class="wrap">
+  <section class="section">
+    <div class="sec-eye">The must-dos</div>
+    <h2 class="sec-title">Non-negotiables<br><em>for June.</em></h2>
+    <div class="erow"><p class="sec-body" contenteditable="false">These are not goals. They are commitments. The month succeeds or fails on these alone.</p><button class="epencil" onclick="toggleEdit(this)">&#9998;</button></div>
+
+    <div class="pb-band" style="margin-top:1rem;">
+      <div class="pb-eyebrow">Ranked by consequence</div>
+      <div id="pb-list">
+
+        <div class="pb-item">
+          <div class="pb-num">01</div>
+          <div class="pb-body">
+            <div class="erow"><div class="pb-text" contenteditable="false">House ready before July</div><button class="epencil" onclick="toggleEdit(this)">&#9998;</button></div>
+            <div class="erow"><div class="pb-note" contenteditable="false">Every room. Bedroom and bathroom first, then kitchen, then living and workspace. She uses all of it.</div><button class="epencil" onclick="toggleEdit(this)">&#9998;</button></div>
+          </div>
+          <div class="pb-tag tag-r">For T</div>
+        </div>
+
+        <div class="pb-item">
+          <div class="pb-num">02</div>
+          <div class="pb-body">
+            <div class="erow"><div class="pb-text" contenteditable="false">CGSL site work — present and sharp</div><button class="epencil" onclick="toggleEdit(this)">&#9998;</button></div>
+            <div class="erow"><div class="pb-note" contenteditable="false">Full site month. Show up, deliver, protect the contract.</div><button class="epencil" onclick="toggleEdit(this)">&#9998;</button></div>
+          </div>
+          <div class="pb-tag tag-s">Site</div>
+        </div>
+
+        <div class="pb-item">
+          <div class="pb-num">03</div>
+          <div class="pb-body">
+            <div class="erow"><div class="pb-text" contenteditable="false">Dante Craft — company bank account and invoice template</div><button class="epencil" onclick="toggleEdit(this)">&#9998;</button></div>
+            <div class="erow"><div class="pb-note" contenteditable="false">Architect job is live and delivering. Payment must route correctly. Minimum viable structure, now.</div><button class="epencil" onclick="toggleEdit(this)">&#9998;</button></div>
+          </div>
+          <div class="pb-tag tag-b">Dante Craft</div>
+        </div>
+
+        <div class="pb-item">
+          <div class="pb-num">04</div>
+          <div class="pb-body">
+            <div class="erow"><div class="pb-text" contenteditable="false">Trading — protected evening slots, expanded instruments</div><button class="epencil" onclick="toggleEdit(this)">&#9998;</button></div>
+            <div class="erow"><div class="pb-note" contenteditable="false">3 evenings minimum. Explore V25, V50, Boom 500, Crash 500 alongside V75(1s). Mark levels before sitting.</div><button class="epencil" onclick="toggleEdit(this)">&#9998;</button></div>
+          </div>
+          <div class="pb-tag tag-g">Finance</div>
+        </div>
+
+        <div class="pb-item">
+          <div class="pb-num">05</div>
+          <div class="pb-body">
+            <div class="erow"><div class="pb-text" contenteditable="false">T — morning and evening, every day</div><button class="epencil" onclick="toggleEdit(this)">&#9998;</button></div>
+            <div class="erow"><div class="pb-note" contenteditable="false">Morning text or call. Evening call. Both slots held. Shorter on site days but both present.</div><button class="epencil" onclick="toggleEdit(this)">&#9998;</button></div>
+          </div>
+          <div class="pb-tag tag-r">Relationship</div>
+        </div>
+
+        <div class="pb-item">
+          <div class="pb-num">06</div>
+          <div class="pb-body">
+            <div class="erow"><div class="pb-text" contenteditable="false">IOSH Managing Safely — enroll</div><button class="epencil" onclick="toggleEdit(this)">&#9998;</button></div>
+            <div class="erow"><div class="pb-note" contenteditable="false">April said next month. May said next month. June does it.</div><button class="epencil" onclick="toggleEdit(this)">&#9998;</button></div>
+          </div>
+          <div class="pb-tag tag-g">Cert</div>
+        </div>
+
+        <div class="pb-item">
+          <div class="pb-num">07</div>
+          <div class="pb-body">
+            <div class="erow"><div class="pb-text" contenteditable="false">Software — AutoCAD / Civil 3D and Primavera P6 / MS Project</div><button class="epencil" onclick="toggleEdit(this)">&#9998;</button></div>
+            <div class="erow"><div class="pb-note" contenteditable="false">Bridge project is possible. Both tools needed. 30 minutes on commute or site downtime.</div><button class="epencil" onclick="toggleEdit(this)">&#9998;</button></div>
+          </div>
+          <div class="pb-tag tag-b">Learning</div>
+        </div>
+
+        <div class="pb-item">
+          <div class="pb-num">08</div>
+          <div class="pb-body">
+            <div class="erow"><div class="pb-text" contenteditable="false">Driving licence — continue process in home windows</div><button class="epencil" onclick="toggleEdit(this)">&#9998;</button></div>
+            <div class="erow"><div class="pb-note" contenteditable="false">Delayed by site. Still live. Act when the window opens.</div><button class="epencil" onclick="toggleEdit(this)">&#9998;</button></div>
+          </div>
+          <div class="pb-tag tag-d">Carry</div>
+        </div>
+
+        <div class="pb-item">
+          <div class="pb-num">09</div>
+          <div class="pb-body">
+            <div class="erow"><div class="pb-text" contenteditable="false">Second certification track — identify before Q3</div><button class="epencil" onclick="toggleEdit(this)">&#9998;</button></div>
+            <div class="erow"><div class="pb-note" contenteditable="false">IOSH first. But what follows needs an answer before Q3 opens.</div><button class="epencil" onclick="toggleEdit(this)">&#9998;</button></div>
+          </div>
+          <div class="pb-tag tag-d">Horizon</div>
+        </div>
+
+        <div class="pb-item">
+          <div class="pb-num">10</div>
+          <div class="pb-body">
+            <div class="erow"><div class="pb-text" contenteditable="false">MSc — hold, revisit in Q3</div><button class="epencil" onclick="toggleEdit(this)">&#9998;</button></div>
+            <div class="erow"><div class="pb-note" contenteditable="false">Three active work streams. Deferred deliberately. Shortlist: Strathclyde, Bath, Leeds, KCL, UNIPORT.</div><button class="epencil" onclick="toggleEdit(this)">&#9998;</button></div>
+          </div>
+          <div class="pb-tag tag-d">Hold</div>
+        </div>
+
+        <div class="pb-item">
+          <div class="pb-num">11</div>
+          <div class="pb-body">
+            <div class="erow"><div class="pb-text" contenteditable="false">Passport application — low priority, still open</div><button class="epencil" onclick="toggleEdit(this)">&#9998;</button></div>
+            <div class="erow"><div class="pb-note" contenteditable="false">Not pressing. On the list. Move when the window opens.</div><button class="epencil" onclick="toggleEdit(this)">&#9998;</button></div>
+          </div>
+          <div class="pb-tag tag-d">Low</div>
+        </div>
+
+      </div>
+      <button class="add-btn" onclick="addGoal()">+ Add goal</button>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="sec-eye">Focus Areas</div>
+    <h2 class="sec-title">Where the month<br><em>lives.</em></h2>
+    <div class="focus-grid">
+
+      <div class="fc site" id="fc-site">
+        <div class="fc-icon">&#127959;</div>
+        <div class="erow"><div class="fc-title" contenteditable="false">Site & CGSL</div><button class="epencil" onclick="toggleEdit(this)">&#9998;</button></div>
+        <div class="erow"><div class="fc-body" contenteditable="false">The dominant reality of June. Everything else works around it.</div><button class="epencil" onclick="toggleEdit(this)">&#9998;</button></div>
+        <div class="fc-actions" id="fca-site">
+          <div class="fc-action"><div class="fc-dot"></div><div class="erow" style="flex:1"><span contenteditable="false">Deliver dredging crew accommodation supervision</span><button class="epencil" onclick="toggleEdit(this)">&#9998;</button></div></div>
+          <div class="fc-action"><div class="fc-dot"></div><div class="erow" style="flex:1"><span contenteditable="false">Stay sharp — site presence is professional reputation</span><button class="epencil" onclick="toggleEdit(this)">&#9998;</button></div></div>
+          <div class="fc-action"><div class="fc-dot"></div><div class="erow" style="flex:1"><span contenteditable="false">Bridge project — treat as Dante Craft from day one if confirmed</span><button class="epencil" onclick="toggleEdit(this)">&#9998;</button></div></div>
+          <div class="fc-action"><div class="fc-dot"></div><div class="erow" style="flex:1"><span contenteditable="false">Use Quickening backdate for off-grid logging</span><button class="epencil" onclick="toggleEdit(this)">&#9998;</button></div></div>
+        </div>
+        <button class="add-btn" onclick="addAction('fca-site')">+ Add action</button>
+      </div>
+
+      <div class="fc home" id="fc-home">
+        <div class="fc-icon">&#127968;</div>
+        <div class="erow"><div class="fc-title" contenteditable="false">Home & T's Visit</div><button class="epencil" onclick="toggleEdit(this)">&#9998;</button></div>
+        <div class="erow"><div class="fc-body" contenteditable="false">July is the deadline. She walks into a home built with her in mind.</div><button class="epencil" onclick="toggleEdit(this)">&#9998;</button></div>
+        <div class="fc-actions" id="fca-home">
+          <div class="fc-action"><div class="fc-dot"></div><div class="erow" style="flex:1"><span contenteditable="false">Wave 1: Bedroom and bathroom — first and non-negotiable</span><button class="epencil" onclick="toggleEdit(this)">&#9998;</button></div></div>
+          <div class="fc-action"><div class="fc-dot"></div><div class="erow" style="flex:1"><span contenteditable="false">Wave 2: Kitchen — she will use it, it must be ready</span><button class="epencil" onclick="toggleEdit(this)">&#9998;</button></div></div>
+          <div class="fc-action"><div class="fc-dot"></div><div class="erow" style="flex:1"><span contenteditable="false">Wave 3: Living area — sofa, lighting, scent, art</span><button class="epencil" onclick="toggleEdit(this)">&#9998;</button></div></div>
+          <div class="fc-action"><div class="fc-dot"></div><div class="erow" style="flex:1"><span contenteditable="false">Buy against the checklist. Day One items always first.</span><button class="epencil" onclick="toggleEdit(this)">&#9998;</button></div></div>
+        </div>
+        <button class="add-btn" onclick="addAction('fca-home')">+ Add action</button>
+      </div>
+
+      <div class="fc trade" id="fc-trade">
+        <div class="fc-icon">&#128200;</div>
+        <div class="erow"><div class="fc-title" contenteditable="false">Trading</div><button class="epencil" onclick="toggleEdit(this)">&#9998;</button></div>
+        <div class="erow"><div class="fc-body" contenteditable="false">Protect the slot. Expand the search. Position before price, not after.</div><button class="epencil" onclick="toggleEdit(this)">&#9998;</button></div>
+        <div class="fc-actions" id="fca-trade">
+          <div class="fc-action"><div class="fc-dot"></div><div class="erow" style="flex:1"><span contenteditable="false">3 evenings minimum — prep at 6:45, trade or observe 7–8PM</span><button class="epencil" onclick="toggleEdit(this)">&#9998;</button></div></div>
+          <div class="fc-action"><div class="fc-dot"></div><div class="erow" style="flex:1"><span contenteditable="false">Mark key levels before sitting down — never react</span><button class="epencil" onclick="toggleEdit(this)">&#9998;</button></div></div>
+          <div class="fc-action"><div class="fc-dot"></div><div class="erow" style="flex:1"><span contenteditable="false">Explore V25, V50, Boom 500, Crash 500 as complements to V75(1s)</span><button class="epencil" onclick="toggleEdit(this)">&#9998;</button></div></div>
+          <div class="fc-action"><div class="fc-dot"></div><div class="erow" style="flex:1"><span contenteditable="false">One journal entry per session — what was seen, what was done</span><button class="epencil" onclick="toggleEdit(this)">&#9998;</button></div></div>
+        </div>
+        <button class="add-btn" onclick="addAction('fca-trade')">+ Add action</button>
+      </div>
+
+      <div class="fc craft" id="fc-craft">
+        <div class="fc-icon">&#127962;</div>
+        <div class="erow"><div class="fc-title" contenteditable="false">Dante Craft</div><button class="epencil" onclick="toggleEdit(this)">&#9998;</button></div>
+        <div class="erow"><div class="fc-body" contenteditable="false">First active engagement running. Structure must catch up with the work.</div><button class="epencil" onclick="toggleEdit(this)">&#9998;</button></div>
+        <div class="fc-actions" id="fca-craft">
+          <div class="fc-action"><div class="fc-dot"></div><div class="erow" style="flex:1"><span contenteditable="false">Open company bank account</span><button class="epencil" onclick="toggleEdit(this)">&#9998;</button></div></div>
+          <div class="fc-action"><div class="fc-dot"></div><div class="erow" style="flex:1"><span contenteditable="false">Build invoice template</span><button class="epencil" onclick="toggleEdit(this)">&#9998;</button></div></div>
+          <div class="fc-action"><div class="fc-dot"></div><div class="erow" style="flex:1"><span contenteditable="false">Coordinate architect job milestones remotely</span><button class="epencil" onclick="toggleEdit(this)">&#9998;</button></div></div>
+          <div class="fc-action"><div class="fc-dot"></div><div class="erow" style="flex:1"><span contenteditable="false">AutoCAD, Civil 3D, Primavera P6 — 30 min daily</span><button class="epencil" onclick="toggleEdit(this)">&#9998;</button></div></div>
+        </div>
+        <button class="add-btn" onclick="addAction('fca-craft')">+ Add action</button>
+      </div>
+
+      <div class="fc her" id="fc-her">
+        <div class="fc-icon">&#127800;</div>
+        <div class="erow"><div class="fc-title" contenteditable="false">T — From a Distance</div><button class="epencil" onclick="toggleEdit(this)">&#9998;</button></div>
+        <div class="erow"><div class="fc-body" contenteditable="false">Morning text or call. Evening call. Both held regardless of the day.</div><button class="epencil" onclick="toggleEdit(this)">&#9998;</button></div>
+        <div class="fc-actions" id="fca-her">
+          <div class="fc-action"><div class="fc-dot"></div><div class="erow" style="flex:1"><span contenteditable="false">Morning — text or call, every day</span><button class="epencil" onclick="toggleEdit(this)">&#9998;</button></div></div>
+          <div class="fc-action"><div class="fc-dot"></div><div class="erow" style="flex:1"><span contenteditable="false">Evening — call, every day. Shorter on site but present</span><button class="epencil" onclick="toggleEdit(this)">&#9998;</button></div></div>
+          <div class="fc-action"><div class="fc-dot"></div><div class="erow" style="flex:1"><span contenteditable="false">Remember what she says — follow up</span><button class="epencil" onclick="toggleEdit(this)">&#9998;</button></div></div>
+          <div class="fc-action"><div class="fc-dot"></div><div class="erow" style="flex:1"><span contenteditable="false">July visit is the horizon — let her feel it building</span><button class="epencil" onclick="toggleEdit(this)">&#9998;</button></div></div>
+        </div>
+        <button class="add-btn" onclick="addAction('fca-her')">+ Add action</button>
+      </div>
+
+      <div class="fc faith" id="fc-faith">
+        <div class="fc-icon">&#128330;</div>
+        <div class="erow"><div class="fc-title" contenteditable="false">Faith & The Morning</div><button class="epencil" onclick="toggleEdit(this)">&#9998;</button></div>
+        <div class="erow"><div class="fc-body" contenteditable="false">The 4AM block is the foundation. Everything downstream is different when it runs.</div><button class="epencil" onclick="toggleEdit(this)">&#9998;</button></div>
+        <div class="fc-actions" id="fca-faith">
+          <div class="fc-action"><div class="fc-dot"></div><div class="erow" style="flex:1"><span contenteditable="false">Protect the prayer block — site mornings included</span><button class="epencil" onclick="toggleEdit(this)">&#9998;</button></div></div>
+          <div class="fc-action"><div class="fc-dot"></div><div class="erow" style="flex:1"><span contenteditable="false">Minimum viable morning: prayer, movement, output</span><button class="epencil" onclick="toggleEdit(this)">&#9998;</button></div></div>
+          <div class="fc-action"><div class="fc-dot"></div><div class="erow" style="flex:1"><span contenteditable="false">Reading on commute — Laws of Human Nature</span><button class="epencil" onclick="toggleEdit(this)">&#9998;</button></div></div>
+          <div class="fc-action"><div class="fc-dot"></div><div class="erow" style="flex:1"><span contenteditable="false">Don't let yourself off the hook on site days</span><button class="epencil" onclick="toggleEdit(this)">&#9998;</button></div></div>
+        </div>
+        <button class="add-btn" onclick="addAction('fca-faith')">+ Add action</button>
+      </div>
+
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="sec-eye">Furnishing sequence</div>
+    <h2 class="sec-title">The house,<br><em>in order.</em></h2>
+    <div class="erow"><p class="sec-body" contenteditable="false">Buy as money comes in. Always in this order — the rooms she feels first.</p><button class="epencil" onclick="toggleEdit(this)">&#9998;</button></div>
+    <div style="margin-top:2rem;" id="seq-list">
+      <div class="seq-item">
+        <div class="seq-wave">Wave 1<br>First</div>
+        <div>
+          <div class="erow"><div class="seq-title" contenteditable="false">Bedroom & Bathroom</div><button class="epencil" onclick="toggleEdit(this)">&#9998;</button></div>
+          <div class="erow"><div class="seq-items" contenteditable="false">Bed frame, mattress, bedding sets, pillows — Chandelier and dimmer — Blackout and sheer curtains — Dresser with mirror — Shower partition and both cabinets — Towel hooks, bath mat, feminine hygiene stocked — Scent diffuser and linen spray</div><button class="epencil" onclick="toggleEdit(this)">&#9998;</button></div>
+        </div>
+      </div>
+      <div class="seq-item">
+        <div class="seq-wave">Wave 2<br>Second</div>
+        <div>
+          <div class="erow"><div class="seq-title" contenteditable="false">Kitchen</div><button class="epencil" onclick="toggleEdit(this)">&#9998;</button></div>
+          <div class="erow"><div class="seq-items" contenteditable="false">Cooker platform construction — Appliance cabinet — Tea cabinet for her — Pull-out spice drawer — Fridge and deep freezer — Washing machine to verandah — Gas cooker and cylinder — Starter food stock</div><button class="epencil" onclick="toggleEdit(this)">&#9998;</button></div>
+        </div>
+      </div>
+      <div class="seq-item">
+        <div class="seq-wave">Wave 3<br>Third</div>
+        <div>
+          <div class="erow"><div class="seq-title" contenteditable="false">Living Area</div><button class="epencil" onclick="toggleEdit(this)">&#9998;</button></div>
+          <div class="erow"><div class="seq-items" contenteditable="false">Sofa and accent chair — Coffee table — TV console and TV — Pendant light and wall sconces — Curtains — Rug — Diffuser — Wall art and framed photo</div><button class="epencil" onclick="toggleEdit(this)">&#9998;</button></div>
+        </div>
+      </div>
+      <div class="seq-item">
+        <div class="seq-wave">Wave 4<br>Last</div>
+        <div>
+          <div class="erow"><div class="seq-title" contenteditable="false">Workspace & Entrance</div><button class="epencil" onclick="toggleEdit(this)">&#9998;</button></div>
+          <div class="erow"><div class="seq-items" contenteditable="false">Desks and bar counter — Monitor — Ergonomic chair — Shelves and lighting — Entrance light and shoe organiser — Hook rail inside door — Spare keys cut for her</div><button class="epencil" onclick="toggleEdit(this)">&#9998;</button></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="sec-eye">Daily structure</div>
+    <h2 class="sec-title">What holds<br><em>every day.</em></h2>
+    <div class="erow"><p class="sec-body" contenteditable="false">Site or home, these anchors do not move.</p><button class="epencil" onclick="toggleEdit(this)">&#9998;</button></div>
+    <div class="anchors-grid" id="anchors-grid">
+      <div class="anchor">
+        <div class="ab-time">4:00 AM</div>
+        <div class="erow center"><div class="ab-name" contenteditable="false">Prayer</div><button class="epencil" onclick="toggleEdit(this)">&#9998;</button></div>
+        <div class="erow center"><div class="ab-note" contenteditable="false">Uninterrupted. Changes everything downstream.</div><button class="epencil" onclick="toggleEdit(this)">&#9998;</button></div>
+      </div>
+      <div class="anchor">
+        <div class="ab-time">Morning</div>
+        <div class="erow center"><div class="ab-name" contenteditable="false">Movement + Output</div><button class="epencil" onclick="toggleEdit(this)">&#9998;</button></div>
+        <div class="erow center"><div class="ab-note" contenteditable="false">Workout and journal before the day takes over.</div><button class="epencil" onclick="toggleEdit(this)">&#9998;</button></div>
+      </div>
+      <div class="anchor">
+        <div class="ab-time">Morning</div>
+        <div class="erow center"><div class="ab-name" contenteditable="false">T — Text or Call</div><button class="epencil" onclick="toggleEdit(this)">&#9998;</button></div>
+        <div class="erow center"><div class="ab-note" contenteditable="false">Shorter on site. Still there.</div><button class="epencil" onclick="toggleEdit(this)">&#9998;</button></div>
+      </div>
+      <div class="anchor">
+        <div class="ab-time">Commute</div>
+        <div class="erow center"><div class="ab-name" contenteditable="false">Learning</div><button class="epencil" onclick="toggleEdit(this)">&#9998;</button></div>
+        <div class="erow center"><div class="ab-note" contenteditable="false">AutoCAD, Civil 3D, Primavera, or reading. 30 minutes.</div><button class="epencil" onclick="toggleEdit(this)">&#9998;</button></div>
+      </div>
+      <div class="anchor">
+        <div class="ab-time">7–8 PM</div>
+        <div class="erow center"><div class="ab-name" contenteditable="false">Trading</div><button class="epencil" onclick="toggleEdit(this)">&#9998;</button></div>
+        <div class="erow center"><div class="ab-note" contenteditable="false">Three evenings minimum. Prep at 6:45.</div><button class="epencil" onclick="toggleEdit(this)">&#9998;</button></div>
+      </div>
+      <div class="anchor">
+        <div class="ab-time">Evening</div>
+        <div class="erow center"><div class="ab-name" contenteditable="false">T — Call</div><button class="epencil" onclick="toggleEdit(this)">&#9998;</button></div>
+        <div class="erow center"><div class="ab-note" contenteditable="false">Every day. Both of you need it.</div><button class="epencil" onclick="toggleEdit(this)">&#9998;</button></div>
+      </div>
+      <div class="anchor">
+        <div class="ab-time">Night</div>
+        <div class="erow center"><div class="ab-name" contenteditable="false">Quickening</div><button class="epencil" onclick="toggleEdit(this)">&#9998;</button></div>
+        <div class="erow center"><div class="ab-note" contenteditable="false">Log the day. Backdate if needed. The streak holds.</div><button class="epencil" onclick="toggleEdit(this)">&#9998;</button></div>
+      </div>
+    </div>
+    <button class="add-btn" onclick="addAnchor()" style="max-width:900px;margin-top:0.75rem;">+ Add anchor</button>
+  </section>
+
+  <section class="section">
+    <div class="sec-eye">The horizon</div>
+    <h2 class="sec-title">What July<br><em>must see.</em></h2>
+    <div class="horizon">
+      <div class="h-label">July 1 — the picture</div>
+      <div class="erow">
+        <div class="h-text" contenteditable="false">A house that is ready. A home that feels considered — not decorated, not staged, but <em>inhabited by a man who thought about her</em> before she arrived. A company that can receive payment properly. A trading practice that is alive and expanding. A relationship that survived a full site month without going quiet — morning and evening, both held. A streak that held. A man who showed up for every anchor even when the day was full and the night was short.</div>
+        <button class="epencil" onclick="toggleEdit(this)">&#9998;</button>
+      </div>
+    </div>
+  </section>
+</div>
+
+<div class="closing">
+  <div class="closing-word">Roots.</div>
+  <div class="closing-line">June 2026 &nbsp;&middot;&nbsp; Paul Akpan Bassey</div>
+  <div class="closing-dot"></div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const LS = 'june2026';
+
+function toggleTheme(){
+  document.body.classList.toggle('light');
+  try{localStorage.setItem('june2026_theme', document.body.classList.contains('light')?'light':'dark');}catch(e){}
+}
+
+function toggleEdit(btn){
+  const row = btn.parentElement;
+  const el = row.querySelector('[contenteditable]');
+  if(!el) return;
+  const isOn = el.contentEditable === 'true';
+  if(isOn){
+    el.contentEditable = 'false';
+    el.classList.remove('editing');
+    btn.classList.remove('active');
+    savePlan();
+  } else {
+    el.contentEditable = 'true';
+    el.classList.add('editing');
+    btn.classList.add('active');
+    el.focus();
+    const range = document.createRange();
+    range.selectNodeContents(el);
+    range.collapse(false);
+    const sel = window.getSelection();
+    sel.removeAllRanges();
+    sel.addRange(range);
+  }
+}
+
+function addGoal(){
+  const list = document.getElementById('pb-list');
+  const num = list.querySelectorAll('.pb-item').length + 1;
+  const div = document.createElement('div');
+  div.className = 'pb-item';
+  div.innerHTML = '<div class="pb-num">' + String(num).padStart(2,'0') + '</div>' +
+    '<div class="pb-body">' +
+      '<div class="erow"><div class="pb-text editing" contenteditable="true">New goal</div><button class="epencil active" onclick="toggleEdit(this)">&#9998;</button></div>' +
+      '<div class="erow"><div class="pb-note editing" contenteditable="true">Add note...</div><button class="epencil active" onclick="toggleEdit(this)">&#9998;</button></div>' +
+    '</div>' +
+    '<div class="pb-tag tag-g">New</div>';
+  list.insertBefore(div, list.querySelector('.add-btn'));
+  div.querySelector('[contenteditable]').focus();
+  savePlan();
+}
+
+function addAction(containerId){
+  const container = document.getElementById(containerId);
+  if(!container) return;
+  const div = document.createElement('div');
+  div.className = 'fc-action';
+  div.innerHTML = '<div class="fc-dot"></div>' +
+    '<div class="erow" style="flex:1">' +
+      '<span class="editing" contenteditable="true">New action</span>' +
+      '<button class="epencil active" onclick="toggleEdit(this)">&#9998;</button>' +
+    '</div>';
+  container.appendChild(div);
+  div.querySelector('[contenteditable]').focus();
+  savePlan();
+}
+
+function addAnchor(){
+  const grid = document.getElementById('anchors-grid');
+  const div = document.createElement('div');
+  div.className = 'anchor';
+  div.innerHTML = '<div class="ab-time">—</div>' +
+    '<div class="erow center"><div class="ab-name editing" contenteditable="true">New anchor</div><button class="epencil active" onclick="toggleEdit(this)">&#9998;</button></div>' +
+    '<div class="erow center"><div class="ab-note editing" contenteditable="true">Note...</div><button class="epencil active" onclick="toggleEdit(this)">&#9998;</button></div>';
+  grid.appendChild(div);
+  div.querySelector('[contenteditable]').focus();
+  savePlan();
+}
+
+function savePlan(){
+  try{
+    localStorage.setItem(LS+'_wrap', document.querySelector('.wrap').innerHTML);
+    localStorage.setItem(LS+'_hero', document.querySelector('.hero-main').innerHTML);
+    toast('Saved.');
+  }catch(e){toast('Save failed.');}
+}
+
+function loadPlan(){
+  try{
+    const w = localStorage.getItem(LS+'_wrap');
+    const h = localStorage.getItem(LS+'_hero');
+    if(w) document.querySelector('.wrap').innerHTML = w;
+    if(h) document.querySelector('.hero-main').innerHTML = h;
+  }catch(e){}
+}
+
+function toast(msg){
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'), 2200);
+}
+
+try{if(localStorage.getItem('june2026_theme')==='light')document.body.classList.add('light');}catch(e){}
+loadPlan();
+</script>
+</body>
+</html>

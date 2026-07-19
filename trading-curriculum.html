@@ -1,0 +1,699 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@300;400&display=swap" rel="stylesheet">
+<title>Trading Curriculum — dAnTE</title>
+<style>
+:root{
+  --bg:#080808;--bg2:#0f0f0f;--bg3:#161616;--bg4:#1e1e1e;
+  --border:#1e1e1e;--border2:#2a2a2a;--border3:#363636;
+  --gold:#c9a84c;--gold-dim:#7a5f28;--gold-glow:rgba(201,168,76,0.08);
+  --text:#ddd8ce;--text-dim:#777;--text-muted:#404040;
+  --green:#4caf7d;--green-bg:rgba(76,175,125,0.1);
+  --red:#c0392b;--blue:#4a8cc9;--purple:#8b6bff;
+  --radius:5px;
+}
+.light{
+  --bg:#f2ede6;--bg2:#eae4dc;--bg3:#e0d9d0;--bg4:#d6cfc5;
+  --border:#d8d1c8;--border2:#c8c1b7;--border3:#b8b0a5;
+  --gold:#8a6020;--gold-dim:#b8902a;--gold-glow:rgba(138,96,32,0.07);
+  --text:#1a1714;--text-dim:#666;--text-muted:#aaa;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;-webkit-tap-highlight-color:transparent}
+body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;font-size:13px;line-height:1.5;display:flex;flex-direction:column;min-height:100vh}
+::-webkit-scrollbar{width:3px}::-webkit-scrollbar-thumb{background:var(--border3);border-radius:2px}
+
+/* HEADER */
+header{flex-shrink:0;background:var(--bg);border-bottom:1px solid var(--border);padding:12px 16px;display:flex;align-items:center;gap:10px;position:sticky;top:0;z-index:50}
+.logo{display:flex;flex-direction:column;gap:0;margin-right:auto}
+.logo-brand{font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:.22em;color:var(--gold);text-transform:uppercase}
+.logo-title{font-family:'Cormorant Garamond',serif;font-size:20px;font-weight:300;color:var(--text);letter-spacing:.04em;line-height:1.1}
+.logo-title em{color:var(--gold);font-style:italic}
+.hbtn{background:none;border:1px solid var(--border2);border-radius:var(--radius);color:var(--text-dim);font-family:'Inter',sans-serif;font-size:11px;padding:6px 11px;cursor:pointer;transition:all .18s;white-space:nowrap}
+.hbtn:hover{border-color:var(--gold);color:var(--gold)}
+.hbtn-gold{border-color:var(--gold);color:var(--gold)}
+.hbtn-gold:hover{background:var(--gold-glow)}
+
+/* PROGRESS BAR */
+.prog-bar-wrap{flex-shrink:0;padding:0 16px 12px;background:var(--bg);border-bottom:1px solid var(--border)}
+.prog-meta{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:6px}
+.prog-label{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--text-muted);letter-spacing:.1em;text-transform:uppercase}
+.prog-count{font-family:'Cormorant Garamond',serif;font-size:18px;color:var(--gold)}
+.prog-track{height:3px;background:var(--border2);border-radius:2px;overflow:hidden}
+.prog-fill{height:100%;background:var(--gold);border-radius:2px;transition:width .4s ease}
+
+/* MAIN */
+main{flex:1;padding:20px 16px 80px;max-width:720px;width:100%;margin:0 auto}
+
+/* PHASE */
+.phase{margin-bottom:32px}
+.phase-header{display:flex;align-items:center;gap:12px;margin-bottom:14px;padding-bottom:10px;border-bottom:1px solid var(--border)}
+.phase-num{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--gold);letter-spacing:.15em;background:var(--gold-glow);border:1px solid var(--gold-dim);border-radius:3px;padding:3px 8px;flex-shrink:0}
+.phase-title{font-family:'Cormorant Garamond',serif;font-size:20px;font-weight:300;color:var(--text);letter-spacing:.04em}
+.phase-intent{font-size:11px;color:var(--text-muted);font-style:italic;margin-top:2px}
+.phase-prog{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--text-muted);margin-left:auto;flex-shrink:0}
+.phase-prog span{color:var(--gold)}
+
+/* TOPIC CARD */
+.topic{background:var(--bg2);border:1px solid var(--border);border-radius:8px;margin-bottom:8px;overflow:hidden;transition:border-color .18s}
+.topic:hover{border-color:var(--border2)}
+.topic.done{opacity:.65}
+.topic.done .topic-title{text-decoration:line-through;color:var(--text-dim)}
+.topic.active-topic{border-color:var(--gold);background:var(--gold-glow)}
+
+.topic-header{display:flex;align-items:flex-start;gap:10px;padding:12px 14px;cursor:pointer}
+.topic-check{width:20px;height:20px;border:1px solid var(--border3);border-radius:4px;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:11px;color:transparent;transition:all .15s;margin-top:1px;cursor:pointer}
+.topic.done .topic-check{background:var(--gold-dim);border-color:var(--gold-dim);color:var(--gold)}
+.topic.done .topic-check::after{content:'✓'}
+.topic-main{flex:1;min-width:0}
+.topic-num{font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--text-muted);letter-spacing:.1em;margin-bottom:2px}
+.topic-title{font-size:13px;color:var(--text);font-weight:500;line-height:1.4;margin-bottom:3px}
+.topic-why{font-size:11px;color:var(--text-muted);font-style:italic;line-height:1.5}
+.topic-expand-btn{background:none;border:none;color:var(--text-muted);cursor:pointer;font-size:11px;padding:4px 6px;transition:all .15s;flex-shrink:0;margin-top:1px}
+.topic-expand-btn:hover{color:var(--gold)}
+.topic.expanded .topic-expand-btn{color:var(--gold)}
+
+.topic-detail{display:none;padding:0 14px 14px 44px;border-top:1px solid var(--border)}
+.topic.expanded .topic-detail{display:block}
+
+.detail-section{margin-top:12px}
+.detail-label{font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--text-muted);letter-spacing:.15em;text-transform:uppercase;margin-bottom:6px}
+.detail-text{font-size:12px;color:var(--text-dim);line-height:1.7}
+.outcome-list{list-style:none;display:flex;flex-direction:column;gap:4px}
+.outcome-list li{font-size:12px;color:var(--text-dim);line-height:1.5;padding-left:14px;position:relative}
+.outcome-list li::before{content:'◆';position:absolute;left:0;color:var(--gold);font-size:8px;top:3px}
+.resource-list{display:flex;flex-direction:column;gap:5px}
+.resource-item{display:flex;align-items:flex-start;gap:8px;padding:6px 9px;background:var(--bg3);border-radius:4px;border:1px solid var(--border)}
+.resource-type{font-family:'JetBrains Mono',monospace;font-size:9px;padding:2px 6px;border-radius:3px;flex-shrink:0;letter-spacing:.06em;margin-top:1px}
+.rt-video{background:rgba(192,57,43,.15);color:var(--red)}
+.rt-book{background:rgba(74,140,201,.15);color:var(--blue)}
+.rt-practice{background:var(--green-bg);color:var(--green)}
+.rt-article{background:rgba(139,107,255,.12);color:var(--purple)}
+.resource-text{font-size:11px;color:var(--text-dim);line-height:1.5}
+
+.done-output{margin-top:12px;background:var(--bg4);border:1px solid var(--border2);border-radius:5px;padding:10px 12px}
+.done-output-label{font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--gold);letter-spacing:.12em;text-transform:uppercase;margin-bottom:5px}
+.done-output-text{font-size:11px;color:var(--text-dim);line-height:1.6;font-style:italic}
+
+/* NOTES */
+.topic-notes{margin-top:10px}
+.topic-notes-input{width:100%;background:var(--bg3);border:1px solid var(--border2);border-radius:var(--radius);color:var(--text);font-family:'Inter',sans-serif;font-size:11px;padding:8px 10px;outline:none;resize:vertical;min-height:56px;line-height:1.5}
+.topic-notes-input:focus{border-color:var(--gold-dim)}
+.topic-notes-input::placeholder{color:var(--text-muted)}
+
+/* EMPTY / NEXT */
+.next-up-banner{background:var(--gold-glow);border:1px solid var(--gold-dim);border-radius:8px;padding:12px 16px;margin-bottom:20px;display:flex;align-items:center;gap:12px}
+.next-up-label{font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--gold);letter-spacing:.15em;text-transform:uppercase;margin-bottom:3px}
+.next-up-title{font-size:13px;color:var(--text);font-weight:500}
+.next-up-arrow{font-size:20px;color:var(--gold);flex-shrink:0;margin-left:auto}
+
+/* MODAL */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.82);z-index:200;display:flex;align-items:flex-end;justify-content:center;padding:0;backdrop-filter:blur(8px)}
+.modal-overlay.hidden{display:none}
+.modal{background:var(--bg2);border:1px solid var(--border2);border-radius:16px 16px 0 0;padding:20px 18px 32px;width:100%;max-width:600px;max-height:88vh;overflow-y:auto;display:flex;flex-direction:column;gap:13px}
+.modal-handle{width:36px;height:3px;background:var(--border3);border-radius:2px;margin:0 auto -4px}
+.modal-title{font-family:'Cormorant Garamond',serif;font-size:20px;font-weight:300;color:var(--text)}
+.field-label{font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--text-muted);margin-bottom:5px;display:block}
+.inp{width:100%;background:var(--bg3);border:1px solid var(--border2);border-radius:var(--radius);color:var(--text);font-family:'Inter',sans-serif;font-size:12px;padding:9px 12px;outline:none;transition:border-color .18s}
+.inp:focus{border-color:var(--gold)}
+.inp::placeholder{color:var(--text-muted)}
+textarea.inp{resize:vertical;min-height:68px;line-height:1.5}
+.modal-actions{display:flex;gap:8px;justify-content:flex-end;padding-top:4px}
+.btn{display:inline-flex;align-items:center;gap:5px;padding:8px 14px;border-radius:var(--radius);border:1px solid var(--border2);background:transparent;color:var(--text-dim);font-family:'Inter',sans-serif;font-size:12px;cursor:pointer;transition:all .18s}
+.btn:hover{border-color:var(--gold);color:var(--gold)}
+.btn-gold{border-color:var(--gold);color:var(--gold)}
+.btn-solid{background:var(--gold);border-color:var(--gold);color:#000;font-weight:500}
+.btn-solid:hover{opacity:.9}
+.btn-red{border-color:var(--red);color:var(--red)}
+
+/* TOAST */
+.toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%) translateY(6px);background:var(--bg3);border:1px solid var(--gold-dim);color:var(--gold);font-family:'JetBrains Mono',monospace;font-size:11px;padding:9px 18px;border-radius:20px;z-index:400;opacity:0;transition:all .25s;pointer-events:none;white-space:nowrap}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">
+    <div class="logo-brand">dAnTE · Trading</div>
+    <div class="logo-title">The <em>Curriculum</em></div>
+  </div>
+  <button class="hbtn" onclick="toggleTheme()">☀︎</button>
+  <button class="hbtn" onclick="exportData()">⬇ Export</button>
+  <button class="hbtn" onclick="importData()">⬆ Import</button>
+  <button class="hbtn hbtn-gold" onclick="saveData()">Save</button>
+</header>
+
+<div class="prog-bar-wrap">
+  <div class="prog-meta">
+    <div class="prog-label">Progress</div>
+    <div class="prog-count" id="progCount">0 / 0</div>
+  </div>
+  <div class="prog-track"><div class="prog-fill" id="progFill" style="width:0%"></div></div>
+</div>
+
+<main id="mainContent"></main>
+
+<!-- ADD CUSTOM TOPIC MODAL -->
+<div class="modal-overlay hidden" id="addTopicModal">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-title">Add Topic</div>
+    <div>
+      <label class="field-label">Phase</label>
+      <select class="inp" id="at-phase"></select>
+    </div>
+    <div>
+      <label class="field-label">Topic title</label>
+      <input class="inp" id="at-title" placeholder="What is the concept or skill?">
+    </div>
+    <div>
+      <label class="field-label">Why it matters</label>
+      <input class="inp" id="at-why" placeholder="Why does this come at this point in the thread?">
+    </div>
+    <div>
+      <label class="field-label">What done looks like</label>
+      <textarea class="inp" id="at-done" placeholder="One sentence: when you have mastered this topic you will be able to..."></textarea>
+    </div>
+    <div class="modal-actions">
+      <button class="btn" onclick="closeAddTopic()">Cancel</button>
+      <button class="btn btn-solid" onclick="saveNewTopic()">Add</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+<input type="file" id="importFile" accept=".json" style="display:none" onchange="handleImport(event)">
+
+<script>
+function uid(){return Date.now().toString(36)+Math.random().toString(36).slice(2,6)}
+
+// ── CURRICULUM DATA ───────────────────────────────────────
+const CURRICULUM=[
+{
+  id:'p1', phase:'Phase I', title:'The Language of Price',
+  intent:'Before any strategy, understand what a chart is actually showing you. Every concept that follows is built on this.',
+  topics:[
+    {
+      id:'t1', num:'1.1', title:'What is a candlestick?',
+      why:'Every chart you will ever read is made of candlesticks. You cannot analyse what you cannot read.',
+      what:'A candlestick represents one unit of time. It shows four things: where price opened, where it closed, the highest point reached, and the lowest point reached. The body is the distance between open and close. The wicks are the extremes. A bullish candle closed higher than it opened. A bearish candle closed lower. That is all a candle is — a record of a battle between buyers and sellers over a period of time.',
+      outcomes:['State what each part of a candle represents without looking at notes','Identify bullish and bearish candles instantly','Explain why the wick matters — what it tells you about rejection'],
+      done:'You can look at any single candle and narrate exactly what happened during that time period — who was in control, who pushed back, and who won.',
+      resources:[
+        {type:'video',text:'BabyPips: Candlestick Charts — free, clear, foundational'},
+        {type:'video',text:'YouTube: "How to read candlesticks" by Adam Khoo — practical and visual'},
+        {type:'practice',text:'Open V75-1s on Deriv. Pick 20 random candles. Narrate each one out loud before moving on.'},
+      ]
+    },
+    {
+      id:'t2', num:'1.2', title:'Candlestick patterns — what they signal',
+      why:'Patterns are not magic signals. They are clusters of behaviour that tell you what the market is likely considering. You need to know them to know when they matter.',
+      what:'Patterns are two or more candles that together suggest a shift or continuation of intent. A doji means indecision — neither side won. A hammer means buyers rejected lower prices strongly. An engulfing candle means one side completely overwhelmed the other. The pattern only matters in context — a hammer at a random location means nothing; a hammer at a key level means something worth watching.',
+      outcomes:['Identify the 8 most common single and multi-candle patterns by sight','State what each pattern suggests — not predicts','Explain why context determines whether a pattern is meaningful'],
+      done:'You can scan a chart and identify patterns without hunting for them, and you can immediately state why each one does or does not matter given where it appeared.',
+      resources:[
+        {type:'book',text:'Japanese Candlestick Charting Techniques — Steve Nison. The original text. Read chapters 1–6.'},
+        {type:'video',text:'Rayner Teo: "Candlestick patterns that actually work" — YouTube, cuts through the noise'},
+        {type:'practice',text:'Find 5 examples of each pattern on historical V75-1s data. Note whether price followed through.'},
+      ]
+    },
+    {
+      id:'t3', num:'1.3', title:'Timeframes — what they mean and how they relate',
+      why:'V75-1s is your execution timeframe. But what you see on 1s is being driven by decisions made on higher timeframes. Without this, every 1s move looks random.',
+      what:'A timeframe is simply how many seconds or minutes each candle represents. A 1-minute chart shows 60 one-second candles compressed into one. Higher timeframes show the bigger picture — the macro direction, the significant levels, the major structure. Lower timeframes show the detail — the entry, the fine movement, the execution. The skill is reading both and understanding which one is in charge at any moment.',
+      outcomes:['Explain what a higher timeframe candle is made of','State which timeframe sets direction and which provides entry on V75-1s','Describe what top-down analysis means and why it matters'],
+      done:'You can open three timeframes on V75-1s, identify the trend on the highest, the structure on the middle, and the entry window on the lowest — and explain how they connect.',
+      resources:[
+        {type:'video',text:'ICT: "Multiple timeframe analysis" — YouTube. Any ICT video on top-down analysis.'},
+        {type:'practice',text:'Open V75-1s across 1m, 5m, and 1s simultaneously. Describe the relationship between them for 10 minutes of price data.'},
+      ]
+    },
+    {
+      id:'t4', num:'1.4', title:'Support and resistance — the original concept',
+      why:'Every advanced concept — order blocks, fair value gaps, liquidity — is a more precise version of support and resistance. You must understand the original before the refinement.',
+      what:'Support is a price level where buyers have previously shown up in force — price came down, found demand, and reversed. Resistance is the opposite. These levels exist because traders remember them. Institutions remember them. Orders cluster around them. The reason price respects these levels is not mystical — it is because other participants are watching the same levels and acting on them. A level is stronger the more times it has been tested and held.',
+      outcomes:['Identify support and resistance levels on a chart without being told where to look','Explain why a level loses strength the more it is tested','State the difference between a level and a zone'],
+      done:'You can mark the three most significant support and resistance levels on any V75-1s chart and explain why each one qualifies.',
+      resources:[
+        {type:'video',text:'Rayner Teo: "Support and resistance — the complete guide" — YouTube'},
+        {type:'practice',text:'Mark S&R on 20 historical V75-1s charts. Go forward in time and observe whether price respected them.'},
+      ]
+    },
+    {
+      id:'t5', num:'1.5', title:'Trend — what it is and how to read it',
+      why:'You cannot trade with the trend if you cannot identify the trend. This is the simplest edge in markets and the most ignored.',
+      what:'A trend is a series of higher highs and higher lows (uptrend) or lower highs and lower lows (downtrend). That is the entire definition. Everything else is elaboration. When you can see clearly that each swing high is higher than the last and each pullback holds above the previous low, you are in an uptrend. Trading with the trend means you look for entries in the direction of that sequence. Trading against it means you need far more evidence.',
+      outcomes:['Identify trend direction on any timeframe by swing structure alone','State when a trend is intact and when it is in question','Explain what a ranging market looks like and why it requires different behaviour'],
+      done:'You can look at any V75-1s chart and within 30 seconds state: trend direction, last significant swing high, last significant swing low, and whether the trend is currently intact.',
+      resources:[
+        {type:'video',text:'BabyPips: "Trends" section — clear, foundational'},
+        {type:'practice',text:'Open V75-1s. Mark every swing high and low for 2 hours of data. Label each as higher high, lower high, higher low, or lower low.'},
+      ]
+    },
+  ]
+},
+{
+  id:'p2', phase:'Phase II', title:'Market Structure',
+  intent:'This is the foundation of everything in SMC/ICT. Without clean structure reading, no setup makes sense. This phase must be mastered before anything else in smart money.',
+  topics:[
+    {
+      id:'t6', num:'2.1', title:'Swing highs and swing lows — defining them precisely',
+      why:'Market structure is built on swing points. If you cannot define them precisely you will see structure everywhere and nowhere.',
+      what:'A swing high is a candle with a higher high than the candles on both sides of it. A swing low is the reverse. The significance of a swing point depends on context — a minor swing on a 1s chart is noise; the same structure on a 5m chart is meaningful. The discipline is deciding in advance what qualifies as significant and applying that consistently. Subjectivity here is where most traders lose the thread.',
+      outcomes:['Define a swing high and swing low with exact qualifying criteria','Mark swing points consistently — same criteria every time','Explain why not every peak or trough qualifies as a significant swing point'],
+      done:'You can mark swing highs and lows on V75-1s with consistent criteria and defend why each one qualifies.',
+      resources:[
+        {type:'video',text:'ICT: "Swing highs and lows" — any ICT introductory video on structure'},
+        {type:'practice',text:'Mark all qualifying swing points on 1 hour of V75-1s data. Criteria: at least 3 candles on each side clearly lower/higher.'},
+      ]
+    },
+    {
+      id:'t7', num:'2.2', title:'Break of Structure (BOS) — definition and significance',
+      why:'BOS tells you the current trend is continuing. It is the confirmation that the move you identified is real and not a false push.',
+      what:'A Break of Structure occurs when price closes beyond a previous significant swing point in the direction of the current trend. In an uptrend, price makes a new swing high — that is a BOS. It confirms the trend is intact. The BOS is not the entry — it is the confirmation that structure is still running in your direction. What comes after the BOS — the pullback — is where you look for entry.',
+      outcomes:['Identify a BOS on any timeframe in real time','Explain why a BOS must close beyond the level — not just wick through','State what a BOS tells you about the next likely move'],
+      done:'You can point to any BOS on a V75-1s chart, state which swing point was broken, and explain what that means for the next likely price action.',
+      resources:[
+        {type:'video',text:'The Inner Circle Trader: "Market structure" playlist — ICT YouTube'},
+        {type:'video',text:'Concept Junkie: "BOS vs CHoCH explained" — YouTube, very clear'},
+      ]
+    },
+    {
+      id:'t8', num:'2.3', title:'Change of Character (CHoCH) — definition and significance',
+      why:'CHoCH is the signal that the trend may be reversing. It is the most important structural signal for entries against the prior move.',
+      what:'A Change of Character occurs when price breaks a swing point in the opposite direction of the current trend. In an uptrend, when price breaks below a recent swing low — that is a CHoCH. It does not guarantee reversal but it signals that the market is reconsidering direction. The CHoCH is often where smart money enters. It is also the signal that marks the beginning of a new potential leg in the opposite direction.',
+      outcomes:['Distinguish a CHoCH from a BOS clearly and consistently','State what a CHoCH signals about institutional intent','Explain why a CHoCH alone is not an entry — it is an alert'],
+      done:'You can look at any section of V75-1s price data and correctly label every BOS and CHoCH, explaining the significance of each.',
+      resources:[
+        {type:'video',text:'Concept Junkie: "CHoCH explained" — YouTube'},
+        {type:'practice',text:'Take 2 hours of V75-1s data. Label every BOS and CHoCH. Check your labels by asking: did price actually confirm the break with a close?'},
+      ]
+    },
+    {
+      id:'t9', num:'2.4', title:'Premium and discount arrays — where price is expensive vs cheap',
+      why:'Buying cheap and selling expensive is the logic behind every smart money concept. Without this, you will enter setups at the wrong place within a valid structure.',
+      what:'Every price move has a range — from the low to the high of the leg. The midpoint (equilibrium) divides that range into premium (upper half, expensive) and discount (lower half, cheap). In a bullish move you look to buy in discount — when price has pulled back below the midpoint of the prior leg. In a bearish move you look to sell in premium. This is the framework that determines whether a setup is at a good location or a poor one, regardless of what pattern it shows.',
+      outcomes:['Calculate the equilibrium of any price leg','Identify whether a setup is in premium or discount','State why buying in premium in a bullish setup reduces the probability'],
+      done:'You can draw the Fibonacci midpoint on any V75-1s leg and correctly state whether the current price is in premium, discount, or at equilibrium — and explain what that means for setup quality.',
+      resources:[
+        {type:'video',text:'ICT: "Premium and discount" — YouTube'},
+        {type:'practice',text:'On 20 historical V75-1s setups, mark the leg range, the equilibrium, and note where the setup entry was relative to it.'},
+      ]
+    },
+    {
+      id:'t10', num:'2.5', title:'Liquidity — what it is and why price moves toward it',
+      why:'Price does not move randomly. It moves toward clusters of orders. Liquidity is where those orders sit. Without this concept every price move seems purposeless.',
+      what:'Liquidity is the pool of resting orders that sit at predictable locations — above swing highs (buy stops), below swing lows (sell stops), at round numbers, at equal highs and lows. Institutions need to fill large orders. They cannot fill them in thin markets. So price is engineered to reach these pools, trigger the orders, absorb them, and then move in the intended direction. Liquidity sweeps are not random spikes — they are deliberate hunts. When you see a wick through a swing point that immediately reverses, that is a liquidity sweep.',
+      outcomes:['Identify at least 3 types of liquidity on any chart','Explain why price sweeps liquidity before reversing','Spot a liquidity sweep in real time on V75-1s'],
+      done:'You can mark all significant liquidity pools on a V75-1s chart and correctly identify at least one historical liquidity sweep, explaining what happened and why.',
+      resources:[
+        {type:'video',text:'ICT: "Liquidity" concepts — Inner Circle Trader YouTube'},
+        {type:'video',text:'Smart Money Concepts by Leandro: "Liquidity explained" — YouTube'},
+        {type:'practice',text:'Mark all equal highs and lows on 3 hours of V75-1s data. Observe whether price sweeps them before reversing.'},
+      ]
+    },
+  ]
+},
+{
+  id:'p3', phase:'Phase III', title:'Smart Money Concepts — Zones',
+  intent:'Now that structure and liquidity are clear, you learn exactly where price is likely to react. These are the zones that anchor every setup.',
+  topics:[
+    {
+      id:'t11', num:'3.1', title:'Order Blocks — definition, validity, and invalidation',
+      why:'The Order Block is the core concept your entire entry system is built around. Every other zone concept refines or contextualises it.',
+      what:'An Order Block is the last opposing candle (or group of candles) before a significant displacement move that created a BOS or CHoCH. If price moves bullishly and creates a BOS, the last bearish candle before that move is the bullish Order Block. It represents where institutional orders were placed. Price tends to return to these zones to fill remaining orders before continuing. The OB is valid as long as price has not traded through it and closed beyond it. First touch is the highest probability. Second touch is lower. A third touch often means the zone is depleted.',
+      outcomes:['Identify a valid Order Block on V75-1s using exact criteria','State what makes an OB invalid','Explain why the last opposing candle is significant — not any random candle'],
+      done:'You can mark every valid Order Block on a section of V75-1s data, justify each one with the BOS or CHoCH it preceded, and state its current validity status.',
+      resources:[
+        {type:'video',text:'ICT: "Order Blocks" — Inner Circle Trader YouTube. Watch the original, not summaries.'},
+        {type:'video',text:'The Trading Channel: "Order Blocks explained" — YouTube, visual and clear'},
+        {type:'practice',text:'Find 10 valid OBs on historical V75-1s data. For each: mark the OB, the BOS/CHoCH it preceded, and whether price returned to it and how it reacted.'},
+      ]
+    },
+    {
+      id:'t12', num:'3.2', title:'Fair Value Gaps — identification and significance',
+      why:'FVGs are the most visible footprint of institutional displacement. They show you where price moved so fast it left an imbalance — and price has a strong tendency to return and fill that imbalance.',
+      what:'A Fair Value Gap is formed by three candles where the high of candle 1 and the low of candle 3 do not overlap — there is a gap between them. This gap represents an area where price moved so quickly that it did not allow normal two-sided trading. The FVG is the imbalance. Bullish FVG: gap between candle 1 high and candle 3 low, formed during a bullish displacement. Bearish FVG: the reverse. Price tends to return to these gaps either partially or fully before continuing in the direction of the displacement.',
+      outcomes:['Identify bullish and bearish FVGs by sight','State whether an FVG is filled, partially filled, or untouched','Explain why an FVG inside an OB has higher significance'],
+      done:'You can scan V75-1s and identify all untouched FVGs, state the direction of the displacement that created them, and note whether they have been filled.',
+      resources:[
+        {type:'video',text:'ICT: "Fair Value Gaps" — YouTube'},
+        {type:'practice',text:'Mark every FVG on 1 hour of V75-1s data. Go forward and track how many were fully filled, partially filled, or ignored.'},
+      ]
+    },
+    {
+      id:'t13', num:'3.3', title:'Breaker Blocks and Mitigation Blocks',
+      why:'When an OB fails — when price breaks through it — the failed OB becomes a new type of zone. Understanding this prevents you from holding onto invalidated setups.',
+      what:'A Breaker Block is a former Order Block that price has broken through and then returned to from the other side. A bullish OB that price breaks bearishly through becomes a bearish Breaker Block — it now acts as resistance. A Mitigation Block is similar — it is where price returns to a prior OB-like area to mitigate (balance) the orders left there before continuing. The distinction matters because a Breaker Block signals the original zone has flipped. What was support is now resistance.',
+      outcomes:['Identify a breaker block from a failed OB sequence','State the difference between a breaker and a mitigation block','Explain why these form and what institutional logic drives them'],
+      done:'You can find one historical example of each on V75-1s, trace the sequence from original OB to breaker/mitigation, and explain what happened at each stage.',
+      resources:[
+        {type:'video',text:'ICT: "Breaker Blocks" — YouTube'},
+        {type:'video',text:'Concept Junkie: "Breaker vs Mitigation" — YouTube'},
+      ]
+    },
+    {
+      id:'t14', num:'3.4', title:'Rejection Blocks and Propulsion Blocks',
+      why:'Not all zones are created equal. These refinements tell you about the quality of the move that created a zone — and therefore the likely quality of the reaction when price returns.',
+      what:'A Rejection Block is characterised by a long wick — price aggressively rejected a level. The body of the candle sits at one end and the wick extends far in the other direction. The rejection itself is the zone. A Propulsion Block is a series of candles all in one direction with minimal wicks — clean, strong movement. These blocks tend to produce strong reactions when price returns because the original move was decisive. The character of the original candles tells you the character of the likely reaction.',
+      outcomes:['Identify rejection blocks by wick characteristics','Identify propulsion blocks by candle body consistency','State why candle character at the zone level matters for entry quality'],
+      done:'You can identify one of each type on V75-1s and explain what the character of the original candles tells you about the likely reaction.',
+      resources:[
+        {type:'video',text:'ICT advanced concepts playlist — YouTube. Look specifically for propulsion and rejection block content.'},
+      ]
+    },
+    {
+      id:'t15', num:'3.5', title:'Optimal Trade Entry (OTE) — precision within a zone',
+      why:'Knowing the zone is not enough. You need to know where within the zone to enter for the best risk-to-reward and the lowest invalidation distance.',
+      what:'The OTE is a Fibonacci-based refinement. When price returns to an OB or FVG, you do not enter at the first touch of the zone boundary. You use Fibonacci retracement of the displacement leg — the 61.8% to 79% retracement area is the OTE. This is where price tends to find the most significant reaction within a zone. Entering here gives you a tighter stop and a larger move available to target. It is the difference between a 1:3 RR setup and a 1:8 setup from the same zone.',
+      outcomes:['Draw Fibonacci retracement correctly from swing low to swing high','Identify the OTE zone (61.8%–79%) within any displacement leg','Explain how OTE entry changes the RR of a setup'],
+      done:'You can take any V75-1s OB setup and identify the OTE within it, place a hypothetical entry at the OTE level, and calculate the resulting RR to the target.',
+      resources:[
+        {type:'video',text:'ICT: "Optimal Trade Entry" — YouTube. This is core ICT content.'},
+        {type:'practice',text:'On 10 historical V75-1s setups, draw the Fibonacci from the displacement leg and mark the OTE zone. Note where price actually reacted within the zone.'},
+      ]
+    },
+  ]
+},
+{
+  id:'p4', phase:'Phase IV', title:'Entry, Stop & Target Logic',
+  intent:'You know what to look for. Now you learn exactly when to act, where to protect the trade, and where to take profit. This is where the ruleset is built.',
+  topics:[
+    {
+      id:'t16', num:'4.1', title:'Entry triggers — what must happen before you act',
+      why:'A zone is not an entry. Something must happen at the zone to confirm that the reaction is real. Without a trigger you are guessing.',
+      what:'An entry trigger is the specific price action event that occurs within or at the zone that tells you the reaction has begun. Common triggers: a CHoCH on the entry timeframe within the zone, a strong bullish/bearish engulfing candle closing within the OB, a wick rejection of the zone boundary with a close back inside. The trigger is the confirmation that price has acknowledged the zone. You wait for it. You do not anticipate it.',
+      outcomes:['Name your specific entry trigger with exact conditions','State what disqualifies a trigger — what makes it not enough','Explain the difference between a trigger and a zone'],
+      done:'You can write your entry trigger in one sentence with no ambiguity, and you can point to 5 historical examples that qualify and 2 that do not.',
+      resources:[
+        {type:'practice',text:'This topic is built from your own backtesting. Study 30 OB reactions on V75-1s. What happened at the zone before price moved? That pattern is your trigger.'},
+        {type:'video',text:'ICT: "Entry models" — YouTube. Use as a starting point, then refine to what you observe on V75-1s specifically.'},
+      ]
+    },
+    {
+      id:'t17', num:'4.2', title:'Stop loss placement — logic, not habit',
+      why:'A stop that is too tight gets hit by noise. A stop that is too wide destroys the RR. The stop must be placed at the point that proves the setup wrong — not at an arbitrary distance.',
+      what:'The stop goes beyond the invalidation point of the setup. For an OB entry, the stop goes below the lowest point of the OB (for bullish) or above the highest point (for bearish). The logic: if price closes beyond the OB, the setup is invalid. Therefore the stop is placed just beyond that point. This is not a fixed pip distance — it is a location that has meaning. When the market hits your stop at this location, it is telling you the setup was wrong. Accept it and move on.',
+      outcomes:['State your stop placement rule with exact logic','Explain why closing beyond the OB invalidates the setup','Calculate position size from stop distance and risk percentage'],
+      done:'You can take any V75-1s OB entry and place the stop with a one-sentence justification for its exact location.',
+      resources:[
+        {type:'video',text:'Rayner Teo: "Stop loss placement" — YouTube. Principles apply across all systems.'},
+        {type:'practice',text:'On 10 historical setups, place the stop according to your invalidation logic. Calculate what the resulting RR would have been to each target.'},
+      ]
+    },
+    {
+      id:'t18', num:'4.3', title:'Target logic — where and why',
+      why:'A trade without a defined target is not a trade — it is a gamble. The target must be at a location that is reachable and that has a logical reason to be significant.',
+      what:'Targets sit at the next significant liquidity pool, the next untested FVG, or the next opposing OB. The logic: price moves from one zone of significance to the next. Your target is the next destination. On V75-1s, the nearest relevant liquidity — the closest swing high or pool of equal highs — is the minimum target. A larger target might be the daily FVG above or the weekly high. The rule: minimum RR before entry must be satisfied, and the target must be at a location that has a reason to attract price.',
+      outcomes:['Identify the nearest and next-nearest liquidity targets from any entry','Calculate RR before entering — not after','State what makes a target location valid vs arbitrary'],
+      done:'You can take any V75-1s entry and identify two target levels — near and far — with a one-sentence justification for each, and calculate the RR to each.',
+      resources:[
+        {type:'video',text:'ICT: "Target selection" and liquidity-based targeting — YouTube'},
+        {type:'practice',text:'On 10 historical entries, identify what the target should have been and whether price reached it. What determined whether it did?'},
+      ]
+    },
+    {
+      id:'t19', num:'4.4', title:'Risk management — position sizing and the rule of preservation',
+      why:'You can be right 40% of the time and be profitable. You can be right 70% of the time and blow your account. Risk management is what determines which outcome you get.',
+      what:'Risk per trade is a percentage of your account — never a fixed monetary amount. 1% per trade is the standard starting point. If your stop is hit, you lose 1%. This means you can have 10 consecutive losses and still have 90% of your account. Position size = (account × risk%) ÷ stop distance in price. On V75-1s, calculate this before every single trade. Non-negotiable. The second rule: when a trade reaches a certain profit threshold, move the stop to breakeven. You now cannot lose on this trade. This is preservation.',
+      outcomes:['Calculate position size from account size, risk %, and stop distance','State your risk per trade percentage and hold to it','Explain the breakeven rule and when it applies'],
+      done:'You can calculate the correct position size for any V75-1s entry in under 60 seconds, and you have written down your maximum risk per trade and your breakeven rule.',
+      resources:[
+        {type:'book',text:'Trading in the Zone — Mark Douglas. Read chapters 7–10. This is the mindset behind risk management.'},
+        {type:'practice',text:'Build a position size calculator — even a simple formula. Use it on 20 historical setups.'},
+      ]
+    },
+    {
+      id:'t20', num:'4.5', title:'Session timing — when V75-1s is most tradeable',
+      why:'V75-1s is a synthetic index — it runs 24/7. But it still has character changes throughout the day. Knowing when it is most predictable reduces losses from noise.',
+      what:'Synthetic indices like V75-1s do not follow Forex session timing but they do exhibit volatility patterns. The index tends to have more structured, trending moves during peak market hours (London and New York overlap: 12:00–17:00 WAT) and more ranging, erratic behaviour in low-volatility hours. This is not a hard rule but it is an observed tendency worth tracking. Your own backtesting will tell you when your setups work best. Build a time-of-day log in your journal and track it for 30 days.',
+      outcomes:['State the hours when your setups perform best on V75-1s based on your own tracking','Identify whether V75-1s is trending or ranging at any given session','Decide on a trade window — specific hours when you actively look for setups'],
+      done:'You have 30 days of time-of-day data logged and you can state with evidence which hours produce your best setups.',
+      resources:[
+        {type:'practice',text:'Log every session for 30 days: time, setup type, outcome. Aggregate by hour. The data will tell you your best window.'},
+      ]
+    },
+  ]
+},
+{
+  id:'p5', phase:'Phase V', title:'Psychology and Process',
+  intent:'The system means nothing if you cannot execute it consistently. This phase is about the inner work that makes everything else possible.',
+  topics:[
+    {
+      id:'t21', num:'5.1', title:'Why traders lose — the real reasons',
+      why:'Most traders attribute losses to bad setups. Most losses are actually execution failures. Understanding the real causes changes what you work on.',
+      what:'The four common failure patterns: (1) entering before the trigger fires because you fear missing the move, (2) moving the stop because the trade is in drawdown and you cannot tolerate the discomfort, (3) taking profit too early because you want the certainty of a win, (4) adding to losing positions. All four are emotional responses to uncertainty. The market does not care about your feelings. The process must be defined well enough that you can follow it mechanically even when you do not want to.',
+      outcomes:['Identify your specific failure pattern from your journal — which of the four is yours?','State one rule that directly addresses that failure pattern','Explain why discipline is structural — it must be built in, not relied on in the moment'],
+      done:'You have identified your primary failure pattern with specific examples from your own trading history and written one rule that prevents it.',
+      resources:[
+        {type:'book',text:'Trading in the Zone — Mark Douglas. The entire book. Non-negotiable reading for this phase.'},
+        {type:'book',text:'The Disciplined Trader — Mark Douglas. Companion to the above.'},
+      ]
+    },
+    {
+      id:'t22', num:'5.2', title:'Building a process — pre, during, post session',
+      why:'Consistent results come from consistent process. Without a written process for each phase of a session, every session starts from scratch.',
+      what:'Pre-session: mark key levels, identify bias, note any news or events, set the trade window. During session: only execute what meets the full criteria — no exceptions. Note emotional state before entry. Post-session: log everything — setup, entry, stop, target, outcome, emotional state, what you would change. Review logs weekly. The pre-session routine removes the need to think under pressure. The post-session log builds the data set that teaches you your own patterns.',
+      outcomes:['Write your pre-session checklist — the specific steps in sequence','Write your post-session logging template','State what you review weekly and what decisions come from that review'],
+      done:'You have a written pre-session checklist you have used for at least 5 sessions and a post-session log with at least 5 entries.',
+      resources:[
+        {type:'practice',text:'Write both checklists. Use them. After 5 sessions, review and refine.'},
+        {type:'video',text:'Any professional trader\'s "trading routine" video — the structure is more important than the specific system.'},
+      ]
+    },
+    {
+      id:'t23', num:'5.3', title:'The knowledge-to-execution gap — and how to close it',
+      why:'You already know more than enough to be profitable. The gap is not knowledge — it is the space between knowing and doing consistently.',
+      what:'The knowledge-to-execution gap is the distance between what you know in theory and what you do in the moment. It exists because knowledge is held in the prefrontal cortex — the rational brain — and trading decisions often get hijacked by the limbic system — the emotional brain — when money is at stake. The only way to close the gap is repetition under real conditions. Paper trading under simulated conditions does not fully close it. Small live stakes, consistent process, and journalling feedback loops are what close it over time.',
+      outcomes:['Name the specific moment in your own trading where the gap shows up','State one structural rule that makes the right action easier than the wrong one','Commit to a minimum session count before evaluating the system'],
+      done:'You have written a one-page honest account of exactly where the gap shows up for you and one structural rule that addresses it.',
+      resources:[
+        {type:'book',text:'Trading in the Zone — Mark Douglas. Re-read chapter 11.'},
+        {type:'practice',text:'After every session, write one sentence: "The moment I deviated from the process was when ___." Track this for 20 sessions.'},
+      ]
+    },
+    {
+      id:'t24', num:'5.4', title:'Backtesting — how to do it properly',
+      why:'Backtesting is how you build confidence in a setup before risking real money. Done wrong it is useless. Done right it is the most valuable work you can do.',
+      what:'Proper backtesting: pick one setup type. Go to historical data on V75-1s. Move forward candle by candle — do not scroll ahead. When you see the setup forming, mark the entry, stop, and target as if you were trading live. Record the outcome. Do this for at least 50 instances. Aggregate: how many worked, what was the average RR, what were the common failure conditions? This gives you a real statistical edge reading — not a feeling, a number. The number tells you whether the setup is worth trading and what the realistic expectation is.',
+      outcomes:['Complete a 50-trade backtest on one setup type on V75-1s','Calculate win rate, average RR, and expectancy from the results','State whether the setup is viable based on the data — not on feeling'],
+      done:'You have a completed 50-trade backtest with a written summary of the statistical results and a verdict: trade this setup or do not.',
+      resources:[
+        {type:'video',text:'YouTube: "How to backtest a trading strategy properly" — any thorough walk-through'},
+        {type:'practice',text:'50 trades, one setup, candle by candle. No skipping. Log every one.'},
+      ]
+    },
+    {
+      id:'t25', num:'5.5', title:'Assembling your personal ruleset — the final output',
+      why:'Everything in this curriculum has been building toward one thing: a personal ruleset you own, tested, and can execute without ambiguity.',
+      what:'The ruleset is a document — not a mental model, a written document. It covers: the setups you trade, the exact entry trigger for each, the stop placement logic, the target selection logic, the session timing rules, the risk per trade, the maximum number of trades per session, the conditions under which you do not trade. Every rule must have passed through backtesting. Every rule must be specific enough that two people reading it would make the same decision in the same situation. Ambiguity in the ruleset equals inconsistency in execution.',
+      outcomes:['Write a complete personal ruleset that covers all six components','Test it on 20 live or paper sessions without modification','After 20 sessions, make exactly one refinement based on the data'],
+      done:'You have a written ruleset that covers entry, stop, target, session, risk, and conditions for no-trade. You have used it for 20 sessions. You know what it produces.',
+      resources:[
+        {type:'practice',text:'Write the ruleset. The Trading Lab Ruleset tab is your document. Populate it from everything this curriculum has produced.'},
+        {type:'book',text:'The Art and Science of Technical Analysis — Adam Grimes. For the methodology of building a systematic approach.'},
+      ]
+    },
+  ]
+},
+];
+
+// ── STATE ─────────────────────────────────────────────────
+let progress={};   // topicId -> {done, notes}
+let expanded={};   // topicId -> bool
+let isDark=true;
+
+function initProgress(){
+  CURRICULUM.forEach(ph=>ph.topics.forEach(t=>{
+    if(!progress[t.id]) progress[t.id]={done:false,notes:''};
+  }));
+}
+
+// ── RENDER ────────────────────────────────────────────────
+function render(){
+  const main=document.getElementById('mainContent');
+  main.innerHTML='';
+
+  // Next up banner
+  let nextTopic=null;
+  for(const ph of CURRICULUM){
+    for(const t of ph.topics){
+      if(!progress[t.id]||!progress[t.id].done){nextTopic=t;break}
+    }
+    if(nextTopic) break;
+  }
+  if(nextTopic){
+    const banner=document.createElement('div');
+    banner.className='next-up-banner';
+    banner.innerHTML=`<div><div class="next-up-label">Up next</div><div class="next-up-title">${nextTopic.num} — ${nextTopic.title}</div></div><div class="next-up-arrow">→</div>`;
+    banner.onclick=()=>{
+      expanded[nextTopic.id]=true;
+      render();
+      setTimeout(()=>{
+        const el=document.getElementById('topic-'+nextTopic.id);
+        if(el) el.scrollIntoView({behavior:'smooth',block:'center'});
+      },100);
+    };
+    main.appendChild(banner);
+  }
+
+  CURRICULUM.forEach(ph=>{
+    const phDone=ph.topics.filter(t=>progress[t.id]&&progress[t.id].done).length;
+    const phSection=document.createElement('div');
+    phSection.className='phase';
+    phSection.innerHTML=`<div class="phase-header">
+      <div class="phase-num">${ph.phase}</div>
+      <div><div class="phase-title">${ph.title}</div><div class="phase-intent">${ph.intent}</div></div>
+      <div class="phase-prog"><span>${phDone}</span> / ${ph.topics.length}</div>
+    </div>`;
+    ph.topics.forEach(t=>{
+      const p=progress[t.id]||{done:false,notes:''};
+      const isExp=!!expanded[t.id];
+      const card=document.createElement('div');
+      card.className='topic'+(p.done?' done':'')+(isExp?' expanded':'');
+      card.id='topic-'+t.id;
+      card.innerHTML=`
+        <div class="topic-header">
+          <div class="topic-check" onclick="toggleDone(event,'${t.id}')"></div>
+          <div class="topic-main">
+            <div class="topic-num">${t.num}</div>
+            <div class="topic-title">${t.title}</div>
+            <div class="topic-why">${t.why}</div>
+          </div>
+          <button class="topic-expand-btn" onclick="toggleExpand(event,'${t.id}')">${isExp?'▲':'▼'}</button>
+        </div>
+        <div class="topic-detail">
+          <div class="detail-section">
+            <div class="detail-label">The concept</div>
+            <div class="detail-text">${t.what}</div>
+          </div>
+          <div class="detail-section">
+            <div class="detail-label">Outcomes — what mastery looks like</div>
+            <ul class="outcome-list">${t.outcomes.map(o=>`<li>${o}</li>`).join('')}</ul>
+          </div>
+          <div class="done-output">
+            <div class="done-output-label">Done looks like</div>
+            <div class="done-output-text">${t.done}</div>
+          </div>
+          <div class="detail-section">
+            <div class="detail-label">Resources</div>
+            <div class="resource-list">${t.resources.map(r=>`
+              <div class="resource-item">
+                <div class="resource-type rt-${r.type}">${r.type}</div>
+                <div class="resource-text">${r.text}</div>
+              </div>`).join('')}
+            </div>
+          </div>
+          <div class="topic-notes detail-section">
+            <div class="detail-label">My notes</div>
+            <textarea class="topic-notes-input" placeholder="Write what you understood, what is still unclear, questions this raised..." onchange="saveNote('${t.id}',this.value)">${p.notes||''}</textarea>
+          </div>
+        </div>`;
+      phSection.appendChild(card);
+    });
+    main.appendChild(phSection);
+  });
+
+  updateProgress();
+}
+
+function toggleDone(e,id){
+  e.stopPropagation();
+  if(!progress[id]) progress[id]={done:false,notes:''};
+  progress[id].done=!progress[id].done;
+  render(); saveData();
+}
+
+function toggleExpand(e,id){
+  e.stopPropagation();
+  expanded[id]=!expanded[id];
+  render();
+}
+
+function saveNote(id,val){
+  if(!progress[id]) progress[id]={done:false,notes:''};
+  progress[id].notes=val;
+  saveData();
+}
+
+function updateProgress(){
+  let total=0,done=0;
+  CURRICULUM.forEach(ph=>ph.topics.forEach(t=>{total++;if(progress[t.id]&&progress[t.id].done)done++}));
+  document.getElementById('progCount').textContent=done+' / '+total;
+  document.getElementById('progFill').style.width=(total?Math.round(done/total*100):0)+'%';
+}
+
+// ── ADD TOPIC MODAL ───────────────────────────────────────
+function openAddTopic(){
+  const sel=document.getElementById('at-phase');
+  sel.innerHTML=CURRICULUM.map(ph=>`<option value="${ph.id}">${ph.phase} — ${ph.title}</option>`).join('');
+  document.getElementById('addTopicModal').classList.remove('hidden');
+}
+function closeAddTopic(){document.getElementById('addTopicModal').classList.add('hidden')}
+function saveNewTopic(){
+  const phId=document.getElementById('at-phase').value;
+  const title=document.getElementById('at-title').value.trim();
+  if(!title){showToast('Give the topic a title');return}
+  const ph=CURRICULUM.find(p=>p.id===phId); if(!ph) return;
+  const id='ct_'+uid();
+  ph.topics.push({
+    id, num:ph.phase+'.'+(ph.topics.length+1),
+    title,
+    why:document.getElementById('at-why').value.trim(),
+    what:'',outcomes:[],
+    done:document.getElementById('at-done').value.trim(),
+    resources:[]
+  });
+  progress[id]={done:false,notes:''};
+  closeAddTopic(); render(); saveData(); showToast('Topic added');
+}
+document.getElementById('addTopicModal').addEventListener('click',e=>{
+  if(e.target===document.getElementById('addTopicModal')) closeAddTopic();
+});
+
+// ── PERSISTENCE ───────────────────────────────────────────
+function saveData(){
+  localStorage.setItem('tradingCurriculum',JSON.stringify({progress,expanded}));
+  showToast('Saved');
+}
+function loadData(){
+  const raw=localStorage.getItem('tradingCurriculum');
+  if(raw){try{const d=JSON.parse(raw);if(d.progress)progress=d.progress;if(d.expanded)expanded=d.expanded;}catch(e){}}
+}
+function exportData(){
+  const blob=new Blob([JSON.stringify({progress,expanded},null,2)],{type:'application/json'});
+  const a=document.createElement('a');a.href=URL.createObjectURL(blob);
+  a.download='trading-curriculum.json';a.click();showToast('Exported');
+}
+function importData(){document.getElementById('importFile').click()}
+function handleImport(e){
+  const file=e.target.files[0];if(!file)return;
+  const r=new FileReader();
+  r.onload=ev=>{try{const d=JSON.parse(ev.target.result);if(d.progress)progress=d.progress;if(d.expanded)expanded=d.expanded;render();showToast('Imported');}catch(err){showToast('Import failed')}};
+  r.readAsText(file);e.target.value='';
+}
+function toggleTheme(){
+  isDark=!isDark;document.body.classList.toggle('light',!isDark);
+  localStorage.setItem('tradingCurrTheme',isDark?'dark':'light');
+}
+function showToast(msg){
+  const t=document.getElementById('toast');t.textContent=msg;
+  t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2200);
+}
+document.addEventListener('keydown',e=>{if(e.key==='Escape')closeAddTopic()});
+
+// ── INIT ─────────────────────────────────────────────────
+const th=localStorage.getItem('tradingCurrTheme');
+if(th==='light'){isDark=false;document.body.classList.add('light')}
+loadData();
+initProgress();
+render();
+</script>
+</body>
+</html>

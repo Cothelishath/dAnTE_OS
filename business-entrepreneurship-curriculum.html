@@ -1,0 +1,640 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Business & Entrepreneurship Curriculum</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400;1,500&family=DM+Mono:wght@300;400;500&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+:root[data-theme="dark"]{
+  --bg:#09090b;--bg2:#111114;--bg3:#18181c;--bg4:#222228;
+  --border:rgba(255,255,255,0.06);--border-gold:rgba(201,168,76,0.22);
+  --text:#e8e3d8;--muted:#666;--soft:#999;
+  --gold:#c9a84c;--gold-dim:rgba(201,168,76,0.08);--gold-mid:rgba(201,168,76,0.18);
+  --found:#7abfaa;--dev:#bf7a9a;--integ:#9aaa7a;--adv:#7a9abf;
+}
+:root[data-theme="light"]{
+  --bg:#f4f1eb;--bg2:#edeae2;--bg3:#e4e0d6;--bg4:#d8d3c8;
+  --border:rgba(0,0,0,0.07);--border-gold:rgba(140,100,20,0.22);
+  --text:#141210;--muted:#aaa;--soft:#666;
+  --gold:#8a6820;--gold-dim:rgba(138,104,32,0.07);--gold-mid:rgba(138,104,32,0.15);
+  --found:#2a6a5a;--dev:#6a2a4a;--integ:#4a6a2a;--adv:#2a4a6a;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{background:var(--bg);color:var(--text);font-family:'Jost',sans-serif;font-weight:300;line-height:1.7;min-height:100vh;transition:background 0.3s,color 0.3s;}
+header{border-bottom:1px solid var(--border);padding:0 48px;display:flex;align-items:center;justify-content:space-between;height:60px;position:sticky;top:0;background:var(--bg);z-index:100;}
+.wordmark{font-family:'Cormorant Garamond',serif;font-size:1.2rem;font-style:italic;color:var(--gold);letter-spacing:0.03em;}
+.wordmark span{color:var(--text);font-style:normal;font-weight:300;font-size:0.95rem;}
+.header-right{display:flex;align-items:center;gap:12px;}
+.theme-btn{background:var(--bg3);border:1px solid var(--border);color:var(--muted);font-size:0.75rem;width:30px;height:30px;border-radius:50%;cursor:pointer;transition:all 0.2s;display:flex;align-items:center;justify-content:center;}
+.theme-btn:hover{border-color:var(--gold);color:var(--gold);}
+.progress-label{font-family:'DM Mono',monospace;font-size:0.55rem;letter-spacing:0.1em;text-transform:uppercase;color:var(--muted);}
+.nav-strip{display:flex;gap:0;border-bottom:1px solid var(--border);background:var(--bg2);overflow-x:auto;scrollbar-width:none;padding:0 48px;}
+.nav-strip::-webkit-scrollbar{display:none;}
+.nav-btn{padding:14px 18px;background:none;border:none;border-bottom:2px solid transparent;color:var(--muted);font-family:'DM Mono',monospace;font-size:0.52rem;letter-spacing:0.1em;text-transform:uppercase;cursor:pointer;white-space:nowrap;transition:all 0.2s;}
+.nav-btn:hover{color:var(--soft);}
+.nav-btn.active{color:var(--gold);border-bottom-color:var(--gold);}
+main{max-width:900px;margin:0 auto;padding:48px 48px 100px;}
+.tab-panel{display:none;}
+.tab-panel.active{display:block;animation:rise 0.3s ease both;}
+@keyframes rise{from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:translateY(0);}}
+.section-eyebrow{font-family:'DM Mono',monospace;font-size:0.52rem;letter-spacing:0.16em;text-transform:uppercase;color:var(--gold);margin-bottom:12px;}
+.section-title{font-family:'Cormorant Garamond',serif;font-size:2.4rem;font-weight:400;line-height:1.2;color:var(--text);margin-bottom:20px;}
+.section-body{font-size:0.95rem;color:var(--soft);max-width:640px;line-height:1.8;}
+.gold-rule{height:1px;background:linear-gradient(90deg,var(--gold) 0%,transparent 60%);opacity:0.2;margin:36px 0;}
+.tier-grid{display:grid;gap:16px;margin-bottom:48px;}
+.tier-card{background:var(--bg2);border:1px solid var(--border);border-radius:4px;padding:24px 28px;position:relative;overflow:hidden;}
+.tier-card::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;}
+.tier-found::before{background:var(--found);}
+.tier-dev::before{background:var(--dev);}
+.tier-integ::before{background:var(--integ);}
+.tier-adv::before{background:var(--adv);}
+.tier-label{font-family:'DM Mono',monospace;font-size:0.5rem;letter-spacing:0.14em;text-transform:uppercase;margin-bottom:8px;}
+.tier-found .tier-label{color:var(--found);}
+.tier-dev .tier-label{color:var(--dev);}
+.tier-integ .tier-label{color:var(--integ);}
+.tier-adv .tier-label{color:var(--adv);}
+.tier-name{font-family:'Cormorant Garamond',serif;font-size:1.3rem;font-weight:500;color:var(--text);margin-bottom:6px;}
+.tier-desc{font-size:0.85rem;color:var(--soft);line-height:1.7;}
+.tier-pillars{display:flex;flex-wrap:wrap;gap:6px;margin-top:14px;}
+.tier-pill{font-family:'DM Mono',monospace;font-size:0.5rem;letter-spacing:0.08em;text-transform:uppercase;padding:3px 10px;border-radius:20px;border:1px solid var(--border);color:var(--muted);}
+.method-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:20px;}
+.method-card{background:var(--bg2);border:1px solid var(--border);border-radius:4px;padding:20px 22px;}
+.method-num{font-family:'DM Mono',monospace;font-size:0.55rem;color:var(--gold);letter-spacing:0.1em;margin-bottom:8px;}
+.method-title{font-family:'Cormorant Garamond',serif;font-size:1.1rem;color:var(--text);margin-bottom:6px;}
+.method-desc{font-size:0.82rem;color:var(--soft);line-height:1.7;}
+.pillar-list{display:flex;flex-direction:column;gap:6px;margin-bottom:32px;}
+.pillar-item{background:var(--bg2);border:1px solid var(--border);border-radius:4px;overflow:hidden;transition:border-color 0.2s;}
+.pillar-item:hover{border-color:var(--border-gold);}
+.pillar-header{display:grid;grid-template-columns:40px 1fr auto;align-items:center;padding:16px 20px;cursor:pointer;gap:12px;}
+.pillar-num{font-family:'DM Mono',monospace;font-size:0.55rem;color:var(--muted);letter-spacing:0.08em;}
+.pillar-meta{display:flex;flex-direction:column;gap:3px;}
+.pillar-name{font-family:'Cormorant Garamond',serif;font-size:1.1rem;font-weight:500;color:var(--text);}
+.pillar-tier-tag{font-family:'DM Mono',monospace;font-size:0.48rem;letter-spacing:0.1em;text-transform:uppercase;}
+.pillar-status{display:flex;align-items:center;gap:8px;}
+.status-dot{width:8px;height:8px;border-radius:50%;border:1.5px solid var(--border);flex-shrink:0;cursor:pointer;transition:all 0.2s;}
+.status-dot.active{background:var(--gold);border-color:var(--gold);}
+.pillar-toggle{font-family:'DM Mono',monospace;font-size:0.7rem;color:var(--muted);transition:transform 0.2s;margin-left:8px;}
+.pillar-item.open .pillar-toggle{transform:rotate(180deg);}
+.pillar-body{display:none;padding:0 20px 24px;border-top:1px solid var(--border);}
+.pillar-item.open .pillar-body{display:block;}
+.pillar-why{font-size:0.88rem;color:var(--soft);line-height:1.8;margin:16px 0 20px;font-style:italic;padding-left:12px;border-left:2px solid var(--border-gold);}
+.nigeria-note{background:var(--bg3);border:1px solid var(--border);border-left:3px solid var(--gold);border-radius:3px;padding:12px 16px;margin-bottom:16px;font-size:0.8rem;color:var(--soft);line-height:1.7;}
+.nigeria-note-label{font-family:'DM Mono',monospace;font-size:0.48rem;letter-spacing:0.1em;text-transform:uppercase;color:var(--gold);margin-bottom:4px;}
+.dante-note{background:rgba(201,168,76,0.06);border:1px solid var(--border-gold);border-radius:3px;padding:12px 16px;margin-bottom:16px;font-size:0.8rem;color:var(--soft);line-height:1.7;}
+.dante-note-label{font-family:'DM Mono',monospace;font-size:0.48rem;letter-spacing:0.1em;text-transform:uppercase;color:var(--gold);margin-bottom:4px;}
+.resource-section{margin-bottom:20px;}
+.resource-label{font-family:'DM Mono',monospace;font-size:0.5rem;letter-spacing:0.12em;text-transform:uppercase;color:var(--muted);margin-bottom:10px;}
+.resource-item{display:flex;gap:12px;padding:10px 14px;background:var(--bg3);border-radius:3px;margin-bottom:6px;}
+.resource-icon{font-size:0.9rem;flex-shrink:0;margin-top:2px;}
+.resource-type{font-family:'DM Mono',monospace;font-size:0.48rem;letter-spacing:0.08em;text-transform:uppercase;color:var(--muted);margin-bottom:2px;}
+.resource-title{font-size:0.88rem;color:var(--text);font-weight:400;margin-bottom:2px;}
+.resource-author{font-family:'DM Mono',monospace;font-size:0.5rem;letter-spacing:0.08em;color:var(--muted);}
+.resource-note{font-size:0.8rem;color:var(--soft);margin-top:4px;line-height:1.6;}
+.practice-list{list-style:none;display:flex;flex-direction:column;gap:6px;}
+.practice-list li{font-size:0.85rem;color:var(--soft);padding:8px 12px;background:var(--bg3);border-radius:3px;line-height:1.6;}
+.practice-list li::before{content:'→ ';color:var(--gold);font-family:'DM Mono',monospace;font-size:0.75rem;}
+.action-list{list-style:none;display:flex;flex-direction:column;gap:6px;margin-bottom:16px;}
+.action-list li{font-size:0.85rem;color:var(--text);padding:8px 12px;background:var(--gold-dim);border:1px solid var(--border-gold);border-radius:3px;line-height:1.6;}
+.action-list li::before{content:'✦ ';color:var(--gold);font-family:'DM Mono',monospace;font-size:0.7rem;}
+.action-label{font-family:'DM Mono',monospace;font-size:0.5rem;letter-spacing:0.12em;text-transform:uppercase;color:var(--gold);margin-bottom:8px;}
+.bring-back{background:var(--gold-dim);border:1px solid var(--border-gold);border-radius:3px;padding:12px 16px;margin-top:16px;}
+.bring-back-label{font-family:'DM Mono',monospace;font-size:0.5rem;letter-spacing:0.12em;text-transform:uppercase;color:var(--gold);margin-bottom:8px;}
+.bring-back p{font-size:0.82rem;color:var(--soft);line-height:1.7;}
+.progress-overview{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:32px;}
+.prog-card{background:var(--bg2);border:1px solid var(--border);border-radius:4px;padding:20px;text-align:center;}
+.prog-val{font-family:'Cormorant Garamond',serif;font-size:2.2rem;font-weight:500;color:var(--gold);}
+.prog-label{font-family:'DM Mono',monospace;font-size:0.5rem;letter-spacing:0.1em;text-transform:uppercase;color:var(--muted);margin-top:4px;}
+.prog-bar-wrap{margin-bottom:32px;}
+.prog-bar-label{display:flex;justify-content:space-between;font-family:'DM Mono',monospace;font-size:0.52rem;letter-spacing:0.08em;text-transform:uppercase;color:var(--muted);margin-bottom:8px;}
+.prog-bar{height:4px;background:var(--bg4);border-radius:2px;overflow:hidden;}
+.prog-bar-fill{height:100%;background:var(--gold);border-radius:2px;transition:width 0.4s ease;}
+.notes-area{width:100%;min-height:200px;background:var(--bg2);border:1px solid var(--border);border-radius:4px;padding:16px 20px;color:var(--text);font-family:'Cormorant Garamond',serif;font-size:1rem;line-height:1.8;resize:vertical;outline:none;transition:border-color 0.2s;}
+.notes-area:focus{border-color:var(--border-gold);}
+.notes-area::placeholder{color:var(--muted);font-style:italic;}
+.save-notes-btn{margin-top:10px;padding:7px 18px;background:var(--gold-dim);border:1px solid var(--border-gold);border-radius:3px;color:var(--gold);font-family:'DM Mono',monospace;font-size:0.55rem;letter-spacing:0.08em;text-transform:uppercase;cursor:pointer;transition:all 0.2s;}
+.save-notes-btn:hover{background:var(--gold);color:#000;}
+@media(max-width:640px){
+  header,.nav-strip,main{padding-left:20px;padding-right:20px;}
+  .method-grid{grid-template-columns:1fr;}
+  .progress-overview{grid-template-columns:1fr 1fr;}
+}
+</style>
+</head>
+<body>
+<header>
+  <div class="wordmark">Business & Entrepreneurship <span>/ dAnTE Inc.</span></div>
+  <div class="header-right">
+    <span class="progress-label" id="progress-label">0 of 12 started</span>
+    <button class="theme-btn" onclick="toggleTheme()"><span id="theme-icon">☀</span></button>
+  </div>
+</header>
+<nav class="nav-strip">
+  <button class="nav-btn active" onclick="switchTab('overview',this)">Overview</button>
+  <button class="nav-btn" onclick="switchTab('pillars',this)">The 12 Pillars</button>
+  <button class="nav-btn" onclick="switchTab('progress',this)">Progress & Notes</button>
+</nav>
+<main>
+
+<div class="tab-panel active" id="tab-overview">
+  <div style="margin-bottom:48px;">
+    <div class="section-eyebrow">The work</div>
+    <div class="section-title">From a CAC number<br>to a company that operates.</div>
+    <div class="section-body">Dante Craft is registered on paper and dormant. dAnTE Inc. is a 20-year vision with five constituent entities. Neither of those facts is a failure — they are a starting point. This curriculum takes you from not knowing what to do, to knowing exactly what to do next, and the next thing after that. Sequenced for where you actually are. Nigeria-specific where it matters. Anchored to the real companies you are building.</div>
+  </div>
+  <div class="gold-rule"></div>
+  <div class="section-eyebrow" style="margin-bottom:16px;">Four tiers</div>
+  <div class="tier-grid">
+    <div class="tier-card tier-found">
+      <div class="tier-label">Tier I — Foundation</div>
+      <div class="tier-name">From dormant to operational.</div>
+      <div class="tier-desc">The first steps for Dante Craft specifically — activating the registered entity, understanding what a business actually is, and building the minimum viable structure needed to take a first client or project. This is the most urgent tier.</div>
+      <div class="tier-pillars">
+        <span class="tier-pill">What a Business Actually Is</span>
+        <span class="tier-pill">Legal Structure & Compliance</span>
+        <span class="tier-pill">First Steps — Activating Dante Craft</span>
+        <span class="tier-pill">Business Model & Value Proposition</span>
+      </div>
+    </div>
+    <div class="tier-card tier-dev">
+      <div class="tier-label">Tier II — Development</div>
+      <div class="tier-name">Systems, operations, and people.</div>
+      <div class="tier-desc">Once Dante Craft is operational, the work shifts to building the internal structures that allow it to function without depending entirely on you for every decision. Systems, finance, marketing, and the beginning of team-building.</div>
+      <div class="tier-pillars">
+        <span class="tier-pill">Systems & Operations</span>
+        <span class="tier-pill">Business Finance & Accounting</span>
+        <span class="tier-pill">Sales & Business Development</span>
+        <span class="tier-pill">Marketing & Brand</span>
+      </div>
+    </div>
+    <div class="tier-card tier-integ">
+      <div class="tier-label">Tier III — Growth</div>
+      <div class="tier-name">Teams, governance, and scale.</div>
+      <div class="tier-desc">Teams, leadership, corporate governance, and the transition from a one-person operation to a company with structure. This is also where the relationship between Dante Craft and dAnTE Inc. begins to take formal shape.</div>
+      <div class="tier-pillars">
+        <span class="tier-pill">Teams & Collaboration</span>
+        <span class="tier-pill">Corporate Governance</span>
+        <span class="tier-pill">Strategy & Competitive Positioning</span>
+      </div>
+    </div>
+    <div class="tier-card tier-adv">
+      <div class="tier-label">Tier IV — Vision</div>
+      <div class="tier-name">The conglomerate horizon.</div>
+      <div class="tier-desc">The dAnTE Inc. layer — how a holding company works, how multiple entities relate to each other, how to think about building across energy, waste, hospitality, education, and engineering over a 20-year horizon.</div>
+      <div class="tier-pillars">
+        <span class="tier-pill">Building a Conglomerate</span>
+      </div>
+    </div>
+  </div>
+  <div class="gold-rule"></div>
+  <div class="section-eyebrow" style="margin-bottom:16px;">How this works</div>
+  <div class="method-grid">
+    <div class="method-card">
+      <div class="method-num">01</div>
+      <div class="method-title">dAnTE Inc. block — 60 min</div>
+      <div class="method-desc">This curriculum lives in the dAnTE Inc. build block on your timetable. Some days are study. Most days are building — the curriculum tells you what to study so the building is informed, not random.</div>
+    </div>
+    <div class="method-card">
+      <div class="method-num">02</div>
+      <div class="method-title">Dante Craft first</div>
+      <div class="method-desc">The first three pillars apply directly and immediately to Dante Craft. Everything you learn goes into activating the company. Theory without application is just reading. The company is the lab.</div>
+    </div>
+    <div class="method-card">
+      <div class="method-num">03</div>
+      <div class="method-title">Nigeria-specific throughout</div>
+      <div class="method-desc">Every pillar has a Nigeria context note. CAC compliance, FIRS obligations, Nigerian contract law, the local market — these are not footnotes. They are the operating environment.</div>
+    </div>
+    <div class="method-card">
+      <div class="method-num">04</div>
+      <div class="method-title">Action items in every pillar</div>
+      <div class="method-desc">Beyond practice prompts, each pillar has specific action items for Dante Craft. These are things to actually do, not just think about. Bring the results back here and we build together.</div>
+    </div>
+  </div>
+</div>
+
+<div class="tab-panel" id="tab-pillars">
+  <div class="section-eyebrow" style="margin-bottom:6px;">All 12 pillars</div>
+  <div style="font-size:0.85rem;color:var(--muted);margin-bottom:28px;">Click to expand. Mark as started when you begin. Start at 01 — do not skip.</div>
+  <div class="pillar-list" id="pillar-list"></div>
+</div>
+
+<div class="tab-panel" id="tab-progress">
+  <div class="section-eyebrow" style="margin-bottom:20px;">Where you are</div>
+  <div class="progress-overview">
+    <div class="prog-card"><div class="prog-val" id="prog-started">0</div><div class="prog-label">Started</div></div>
+    <div class="prog-card"><div class="prog-val" id="prog-remaining">12</div><div class="prog-label">Remaining</div></div>
+    <div class="prog-card"><div class="prog-val">60m</div><div class="prog-label">Daily target</div></div>
+  </div>
+  <div class="prog-bar-wrap">
+    <div class="prog-bar-label"><span>Overall progress</span><span id="prog-pct">0%</span></div>
+    <div class="prog-bar"><div class="prog-bar-fill" id="prog-fill" style="width:0%"></div></div>
+  </div>
+  <div class="section-eyebrow" style="margin-bottom:12px;">Running notes</div>
+  <div style="font-size:0.82rem;color:var(--muted);margin-bottom:10px;">What's moving. What's stuck. What Dante Craft looks like right now.</div>
+  <textarea class="notes-area" id="notes-area" placeholder="Document the build as it happens..."></textarea>
+  <button class="save-notes-btn" onclick="saveNotes()">Save Notes</button>
+</div>
+
+</main>
+<script>
+const PILLARS = [
+  {
+    id:'be1',num:'01',tier:'foundation',tierLabel:'Tier I — Foundation',
+    name:'What a Business Actually Is',
+    why:'Most people start with tactics — a logo, a website, a social media page — before they understand what a business fundamentally is. A business is a system that creates and delivers value to a specific group of people in exchange for money, consistently and profitably. Everything else is decoration. Start here.',
+    nigeria:'In Nigeria, many "businesses" are actually freelance arrangements or informal trading. Dante Craft is registered, which already puts it in a different category. But the registered status means nothing without understanding the operating principles underneath it.',
+    dante:'Dante Craft is an engineering and operations company. Before anything else, you must be able to answer: what specific value does Dante Craft create, for whom, and why would they pay for it rather than going elsewhere?',
+    actions:[
+      'Write one paragraph answering: what does Dante Craft do, for whom, and why does it matter?',
+      'Identify three potential first clients — specific organisations or individuals, not categories.',
+      'Write the simplest possible description of Dante Craft that a non-engineer would understand.',
+    ],
+    resources:[
+      {icon:'📖',type:'Book',title:'The E-Myth Revisited',author:'Michael E. Gerber',note:'The most important book for anyone who is technically skilled starting a business. The distinction between working IN the business and working ON it. Read this first, before any other business book.'},
+      {icon:'📖',type:'Book',title:'Zero to One',author:'Peter Thiel',note:'What makes a business genuinely valuable versus merely competitive. The question "what do you know that most people don\'t?" applied to Dante Craft.'},
+      {icon:'▶️',type:'Video',title:'What is a Business Model?',author:'HBR — YouTube',note:'10 minutes. The business model canvas explained clearly. You will use this tool in Pillar 4.'},
+      {icon:'🎙️',type:'Podcast',title:'How I Built This — Early Episodes',author:'Guy Raz — NPR',note:'Listen to three episodes of founders in services or engineering-adjacent businesses. What was the first thing they actually sold? How did they know there was a market?'},
+    ],
+    practice:[
+      'What is the specific problem Dante Craft solves — not the service it provides, the problem it solves?',
+      'Who has this problem and is currently paying someone else to solve it? That is your market.',
+      'What would Dante Craft need to be true of in order to take its first paid engagement in the next 90 days?',
+    ],
+    bringBack:'What does Dante Craft actually do — in one sentence, without engineering jargon? Who is the first customer and what would they pay for? What is the gap between where the company is now and where it needs to be to take that first engagement?',
+  },
+  {
+    id:'be2',num:'02',tier:'foundation',tierLabel:'Tier I — Foundation',
+    name:'Legal Structure & Compliance',
+    why:'Dante Craft has a CAC number. That is a Private Limited Company registration. You need to understand what that means — what obligations come with it, what protections it provides, what you must do to maintain it, and what happens if you don\'t. Ignorance here has legal and financial consequences.',
+    nigeria:'CAC (Corporate Affairs Commission) requirements: annual returns, updated director information, registered address. FIRS registration for taxes. NSITF, ITF, and pension obligations once you have employees. These are not optional. Non-compliance attracts penalties.',
+    dante:'Dante Craft is registered. The first legal action items are about making sure it remains valid and compliant — and understanding what the CAC registration actually authorises you to do.',
+    actions:[
+      'Confirm your CAC registration status at cac.gov.ng — check expiry, directors, and registered address.',
+      'Find out if Dante Craft has a TIN (Tax Identification Number) from FIRS. If not, register for one.',
+      'Identify the specific business activities listed on your CAC registration. Do they cover what Dante Craft intends to do?',
+    ],
+    resources:[
+      {icon:'🌐',type:'Website',title:'CAC Nigeria — cac.gov.ng',author:'Corporate Affairs Commission',note:'The official portal. Verify your registration, understand annual return requirements, and check what filings are overdue. Do this before anything else.'},
+      {icon:'▶️',type:'Video',title:'How to Comply with CAC Annual Returns in Nigeria',author:'YouTube — various Nigerian legal channels',note:'Search specifically for 2024-2025 videos on CAC compliance. The rules and fees change. Get current information.'},
+      {icon:'📖',type:'Book / Guide',title:'Starting a Business in Nigeria — Legal Guide',author:'Templars Law or KPMG Nigeria publications',note:'Large law firms publish free guides to Nigerian business law. Search for the most recent edition. Download and read the company compliance section.'},
+      {icon:'🎙️',type:'Podcast',title:'Nigerian Business Law Podcast',author:'Search on Spotify or Apple Podcasts',note:'Several Nigerian lawyers run accessible podcasts on business legal requirements. Find one with recent episodes and start with compliance basics.'},
+      {icon:'⚙️',type:'Action',title:'Engage a Nigerian Business Lawyer — brief consultation',author:'Practical step',note:'One hour with a Nigerian business lawyer costs money but less than the penalties for non-compliance. Ask specifically about your CAC obligations, tax registration, and what contracts you need before taking a client.'},
+    ],
+    practice:[
+      'List every legal obligation Dante Craft currently has — CAC, FIRS, state tax authority, any sector-specific regulation.',
+      'Which of those obligations are currently unmet? What does it cost to rectify each one?',
+      'Draft the simplest possible client contract for Dante Craft — what are the essential terms any engineering services contract must have?',
+    ],
+    bringBack:'What is Dante Craft\'s current legal standing — is it compliant with CAC, does it have a TIN, what obligations are outstanding? What do you need to do legally before taking a first paying client? What would a basic services contract for Dante Craft need to contain?',
+  },
+  {
+    id:'be3',num:'03',tier:'foundation',tierLabel:'Tier I — Foundation',
+    name:'First Steps — Activating Dante Craft',
+    why:'This pillar is the most action-heavy in the curriculum. Knowing what a business is and understanding its legal obligations are preparation. This is activation. By the end of this pillar, Dante Craft should have a bank account, a basic presence, a service offering defined, and a pipeline of at least three potential engagements being actively pursued.',
+    nigeria:'A company bank account in Nigeria requires CAC documents, director ID, TIN in some cases, and a minimum deposit depending on the bank. GTB, Zenith, and Access have SME-friendly account options. Sterling and Stanbic IBTC also have business banking products worth comparing.',
+    dante:'The cousin who is an architect and has a job for you — that is not just cash. That is Dante Craft\'s first potential engagement. Handle it through the company from the beginning, even if informal. Build the habit of routing work through the entity.',
+    actions:[
+      'Open a Dante Craft business bank account. Required documents: CAC certificate, memorandum and articles, director ID, utility bill for registered address.',
+      'Set up a professional email address for Dante Craft — not Gmail with your personal name. At minimum: info@dantecraft.com or paul@dantecraft.com.',
+      'Define Dante Craft\'s service offering clearly: what services, at what scope, at what price range.',
+      'Follow up on the architect\'s job — formally, through Dante Craft. Write a brief scope of work and a simple fee proposal.',
+    ],
+    resources:[
+      {icon:'📖',type:'Book',title:'Built to Sell',author:'John Warrillow',note:'How to build a business that doesn\'t depend entirely on you. Relevant from day one — the habits you build at the start determine the structure you have in five years.'},
+      {icon:'▶️',type:'Video',title:'How to Open a Business Bank Account in Nigeria',author:'YouTube — various',note:'Search for the most recent video on business account opening requirements in Nigeria. Requirements vary by bank and change periodically.'},
+      {icon:'⚙️',type:'Framework',title:'The One-Page Business Plan',author:'Jim Horan',note:'Not a 40-page document. One page: vision, mission, objectives, strategies, action plans. Do this for Dante Craft before the end of this pillar. Bring it back here.'},
+      {icon:'🎙️',type:'Podcast',title:'Entrepreneurs on Fire',author:'John Lee Dumas',note:'Episodes on the first 90 days of a business. The mechanics of getting from zero to first client. Filter for service businesses.'},
+      {icon:'▶️',type:'Video',title:'How to Write a Scope of Work',author:'Practical PM or similar — YouTube',note:'A scope of work is the first professional document Dante Craft will produce for a client. Learn the standard structure before you need it.'},
+    ],
+    practice:[
+      'Write a one-page description of Dante Craft: what it does, its target clients, its differentiator, its fee structure.',
+      'Draft a scope of work for the architect\'s job — even as a learning exercise. Bring it back and we review it.',
+      'Identify three other potential clients beyond the architect\'s connection. What would you offer each one?',
+    ],
+    bringBack:'What has actually been done to activate Dante Craft this week — not planned, done? What does the first engagement look like — scope, fee, timeline? What is the biggest single obstacle to Dante Craft taking its first paid project in the next 60 days?',
+  },
+  {
+    id:'be4',num:'04',tier:'foundation',tierLabel:'Tier I — Foundation',
+    name:'Business Model & Value Proposition',
+    why:'A business model is the logic by which a company creates, delivers, and captures value. Your value proposition is the specific reason a client would choose Dante Craft over every alternative. These two things must be clear before you spend money on anything else. Most businesses fail because they never got these right.',
+    nigeria:'Engineering and project services in Nigeria operate in a competitive but underserved market. Quality, reliability, and professional conduct are differentiators in an environment where these are frequently absent. That gap is Dante Craft\'s opportunity.',
+    dante:'dAnTE Inc. will eventually have five entities. Each one needs its own business model. Dante Craft is the first. Getting the model right here teaches you how to do it for every company that follows.',
+    actions:[
+      'Complete a Business Model Canvas for Dante Craft. Nine boxes: customer segments, value proposition, channels, customer relationships, revenue streams, key resources, key activities, key partnerships, cost structure.',
+      'Write Dante Craft\'s value proposition in one sentence: "We help [who] to [do what] by [how], unlike [alternatives]."',
+      'Identify Dante Craft\'s primary revenue model: project-based fees, retainer, day rate, or a combination.',
+    ],
+    resources:[
+      {icon:'📖',type:'Book',title:'Business Model Generation',author:'Alexander Osterwalder',note:'The book that created the Business Model Canvas. Read chapters 1 and 2. Then build the canvas for Dante Craft. This is not optional — it is the output of this pillar.'},
+      {icon:'📖',type:'Book',title:'Value Proposition Design',author:'Alexander Osterwalder',note:'The companion book. Goes deeper into the customer-value fit. Use this to stress-test your Dante Craft value proposition.'},
+      {icon:'▶️',type:'Video',title:'Business Model Canvas Explained',author:'Strategyzer — YouTube',note:'The official explanation from the creators. 20 minutes. Watch before building your canvas.'},
+      {icon:'💻',type:'Tool',title:'Strategyzer Canvas — free online',author:'strategyzer.com',note:'Build your canvas digitally at strategyzer.com. Free. Save it. Bring it back here.'},
+      {icon:'🎙️',type:'Podcast',title:'Masters of Scale',author:'Reid Hoffman',note:'Reid Hoffman (LinkedIn founder) on how great businesses find and refine their value proposition. Episodes on finding product-market fit are directly applicable.'},
+    ],
+    practice:[
+      'Build the Business Model Canvas for Dante Craft. Every box filled. No box left blank.',
+      'Who are Dante Craft\'s top three customer segments? What does each one value most?',
+      'What would make a client choose Dante Craft over a larger, more established firm? Name it specifically.',
+    ],
+    bringBack:'What does the completed Business Model Canvas reveal about Dante Craft? Where are the weakest boxes — the ones you couldn\'t fill confidently? What is the value proposition in one sentence, and does it actually differentiate?',
+  },
+  {
+    id:'be5',num:'05',tier:'development',tierLabel:'Tier II — Development',
+    name:'Systems & Operations',
+    why:'A business without systems is a job. Every time a client is served, it should happen through a repeatable process that doesn\'t require you to reinvent it. Systems are how you scale. They are also how you maintain quality without being personally present for every decision.',
+    nigeria:'Operations in Nigeria require accounting for power instability, logistics complexity, and the informal practices that often govern business relationships. Systems must be robust enough to function in this environment — not imported wholesale from contexts where infrastructure is reliable.',
+    dante:'Dante Craft needs operational systems before it grows: project management, client communication, invoicing, document control, site reporting. These are the minimum. Build them simple and right before the first project, not after.',
+    actions:[
+      'Define Dante Craft\'s project lifecycle: from first contact to final deliverable, what are the stages and who is responsible for each?',
+      'Choose a project management tool — even a simple one (Trello, Notion, or a shared spreadsheet). Set it up for Dante Craft before the first project.',
+      'Create a standard invoice template for Dante Craft. Include: company name, CAC number, TIN, bank details, scope reference, payment terms.',
+    ],
+    resources:[
+      {icon:'📖',type:'Book',title:'Work the System',author:'Sam Carpenter',note:'The core argument: businesses fail because they have no systems, not because of bad luck or bad markets. Directly applicable to Dante Craft at its earliest stage.'},
+      {icon:'📖',type:'Book',title:'Traction',author:'Gino Wickman',note:'The Entrepreneurial Operating System (EOS). How to build a company that runs on clear processes, accountability, and measurable results. Read after Work the System.'},
+      {icon:'▶️',type:'Video',title:'How to Build SOPs for Your Business',author:'YouTube — Process Street or similar',note:'Standard Operating Procedures. Every repeated task in Dante Craft should have one. Watch an explainer, then build your first three SOPs: client onboarding, site report, invoicing.'},
+      {icon:'💻',type:'Tool',title:'Notion or Trello — free',author:'Project management',note:'Pick one. Set it up. Use it from day one of Dante Craft operations. The habit of running through a system matters more than which system you choose.'},
+      {icon:'🎙️',type:'Podcast',title:'The Systems Thinker',author:'Various — search on Spotify',note:'On building processes and operational clarity in small businesses. Particularly useful for engineering services where project variability is high.'},
+    ],
+    practice:[
+      'Map Dante Craft\'s complete project process from first call to final payment. Every step. Every handoff. Every document.',
+      'Write your first SOP: the Dante Craft client onboarding process. What happens between "they said yes" and "work begins"?',
+      'What does a Dante Craft site report look like? Design the template before you need it.',
+    ],
+    bringBack:'What are the three most critical systems Dante Craft needs before it takes its first project? What does the project management setup look like right now? What would break first if Dante Craft ran two projects simultaneously?',
+  },
+  {
+    id:'be6',num:'06',tier:'development',tierLabel:'Tier II — Development',
+    name:'Business Finance & Accounting',
+    why:'This pillar bridges the financial literacy curriculum and the business curriculum. A company\'s financial health is visible in its numbers — but only if you are tracking them. Dante Craft needs basic financial infrastructure from the first transaction: a chart of accounts, an invoicing system, and a way to see profit and loss in real time.',
+    nigeria:'Nigerian business accounting must account for VAT where applicable, withholding tax on certain transactions, and the difference between naira and dollar revenue where both are present. The informal tendency to mix personal and company finances is a fatal error — one that will complicate your taxes and obscure your actual profitability.',
+    dante:'Never mix Dante Craft money with personal money. From the first naira of revenue, it goes into the Dante Craft account. Personal salary comes from the company by formal arrangement. This discipline from the beginning is what makes the financial picture legible.',
+    actions:[
+      'Set up a simple bookkeeping system for Dante Craft — even a spreadsheet with income, expenses, and profit by month.',
+      'Define your fee structure: what does Dante Craft charge for engineering services, project management, site supervision? Set a rate card.',
+      'Calculate Dante Craft\'s break-even: what revenue does it need to cover its basic operating costs each month?',
+    ],
+    resources:[
+      {icon:'📖',type:'Book',title:'Profit First',author:'Mike Michalowicz',note:'A system for managing business cash flow that ensures profitability from the first naira. Counterintuitive but highly effective for early-stage businesses. Read this in the first year of operations.'},
+      {icon:'💻',type:'Tool',title:'Wave Accounting — free',author:'waveapps.com',note:'Free accounting software that handles invoicing, expense tracking, and basic financial reporting. Available to Nigerian businesses. Set it up for Dante Craft now.'},
+      {icon:'▶️',type:'Video',title:'Small Business Bookkeeping Basics',author:'Accounting Stuff — YouTube',note:'The fundamentals: income, expenses, assets, liabilities. Watch before setting up the bookkeeping system. Understand what you are tracking and why.'},
+      {icon:'⚙️',type:'Framework',title:'The Profit First Allocation System',author:'Mike Michalowicz',note:'Separate bank accounts for: income, profit, owner\'s pay, taxes, operating expenses. Revenue flows in and is immediately allocated. Enforces financial discipline structurally, not willpower-based.'},
+      {icon:'🎙️',type:'Podcast',title:'The Profit First Podcast',author:'Mike Michalowicz',note:'Short episodes on the system in practice. Useful for staying accountable to the financial discipline as revenue starts coming in.'},
+    ],
+    practice:[
+      'Set up a Dante Craft chart of accounts: income categories, expense categories, asset accounts.',
+      'Price three hypothetical Dante Craft projects at different scales. Show your working: how did you arrive at the number?',
+      'What does Dante Craft\'s P&L look like right now — even with zero revenue? What are the costs? What is the break-even?',
+    ],
+    bringBack:'What is the Dante Craft bookkeeping setup? What is the fee structure and how was it determined? What would Dante Craft need to earn in the next 12 months to be financially viable as a standalone operation?',
+  },
+  {
+    id:'be7',num:'07',tier:'development',tierLabel:'Tier II — Development',
+    name:'Sales & Business Development',
+    why:'A business without sales is a hobby. Sales is not manipulation — it is the disciplined pursuit of conversations with people who have a problem you can solve. Business development is the long game: relationships, reputation, and pipeline built deliberately over time. For Dante Craft, both start now.',
+    nigeria:'Nigerian business culture places enormous weight on relationships and referrals. Cold outreach exists but warm introductions convert at dramatically higher rates. The architect cousin is not just one job — he is the beginning of a referral network. Treat every engagement as the foundation of the next one.',
+    dante:'Your CGSL contract and your engineering career are not separate from Dante Craft\'s business development. Every relationship you build as an engineer is a potential client relationship for Dante Craft. Build deliberately.',
+    actions:[
+      'Build a simple pipeline tracker: name, relationship, potential scope, next action, status. Start with ten names.',
+      'Identify one person this week to have a genuine conversation with about what Dante Craft does.',
+      'Write a one-paragraph introduction of Dante Craft that you could send by WhatsApp to a warm contact. Bring it back for review.',
+    ],
+    resources:[
+      {icon:'📖',type:'Book',title:'Never Split the Difference',author:'Chris Voss',note:'Negotiation by an ex-FBI hostage negotiator. The most practical book on persuasion, listening, and getting to yes. Apply it to client conversations, not just formal negotiations.'},
+      {icon:'📖',type:'Book',title:'The Challenger Sale',author:'Matthew Dixon & Brent Adamson',note:'Research on what the most effective salespeople actually do. They teach, tailor, and take control — they don\'t just build relationships. Useful for B2B engineering services specifically.'},
+      {icon:'▶️',type:'Video',title:'How to Sell Professional Services',author:'Blair Enns — YouTube',note:'Blair Enns is the best thinker on selling expertise. His Win Without Pitching philosophy is directly applicable to Dante Craft as an engineering firm.'},
+      {icon:'📖',type:'Book',title:'Win Without Pitching Manifesto',author:'Blair Enns',note:'Short. Free online. The argument that experts should not compete on price and should not pitch for free. The posture Dante Craft should build from day one.'},
+      {icon:'🎙️',type:'Podcast',title:'2Bobs — with David Baker and Blair Enns',author:'2bobs.com',note:'On business development for creative and professional services firms. Every episode is applicable to Dante Craft as it grows.'},
+    ],
+    practice:[
+      'What is your current pipeline — real names, real conversations, real potential? Write it down.',
+      'What is the Dante Craft sales process: from first conversation to signed agreement? Map it.',
+      'What objections will potential clients have to hiring Dante Craft — and what is the honest answer to each?',
+    ],
+    bringBack:'What does the Dante Craft pipeline look like right now — how many live conversations? What is the biggest obstacle to business development in this season — time, confidence, clarity of offering, or something else? What is the next specific business development action and when will it happen?',
+  },
+  {
+    id:'be8',num:'08',tier:'development',tierLabel:'Tier II — Development',
+    name:'Marketing & Brand',
+    why:'Marketing is not advertising. Marketing is the sum of everything a potential client experiences about Dante Craft before they decide to engage you. Your reputation, how you present yourself, your professional presence, the quality of your documents — all of it is marketing. Brand is the feeling a client has when they think of Dante Craft.',
+    nigeria:'In Nigeria, WhatsApp and LinkedIn are the most effective professional marketing channels for engineering services. A professional LinkedIn profile for Paul Bassey as the face of Dante Craft, and a clean company presence, are the minimum viable marketing infrastructure.',
+    dante:'The dAnTE Inc. website and the Dante Craft webpage are already built. They are a starting point — not a finished marketing system. The next layer is active professional presence and deliberate reputation building.',
+    actions:[
+      'Update your LinkedIn profile to reflect your role at Dante Craft and your engineering expertise. This is marketing.',
+      'Create a Dante Craft LinkedIn company page — even minimal. Professional presence matters.',
+      'Write three pieces of content you could post on LinkedIn about engineering, project management, or construction in Nigeria. Even one published post builds visibility.',
+    ],
+    resources:[
+      {icon:'📖',type:'Book',title:'This is Marketing',author:'Seth Godin',note:'The clearest thinking on what marketing actually is — serving people who want what you have, not interrupting people who don\'t. Read this before spending money on any advertising.'},
+      {icon:'📖',type:'Book',title:'Building a StoryBrand',author:'Donald Miller',note:'How to talk about your business in a way that connects with clients. The framework: the client is the hero, Dante Craft is the guide. Apply it to every piece of marketing you produce.'},
+      {icon:'▶️',type:'Video',title:'LinkedIn for B2B — Complete Guide',author:'HubSpot or similar — YouTube',note:'LinkedIn is the primary professional marketing channel for Dante Craft. Understand how to use it effectively before posting randomly.'},
+      {icon:'🎙️',type:'Podcast',title:'Marketing School',author:'Neil Patel & Eric Siu',note:'Short daily episodes on marketing tactics. Primarily digital. Filter for B2B and professional services episodes.'},
+      {icon:'⚙️',type:'Framework',title:'Content Calendar — one post per week',author:'Your own design',note:'One piece of professional content per week on LinkedIn. It does not need to be long. A project photo with a short observation. A lesson from site. A question about engineering practice. Consistency over volume.'},
+    ],
+    practice:[
+      'Write the StoryBrand one-liner for Dante Craft: "We help [who] who want to [goal] by [method], so they can [result]."',
+      'What does a potential client find when they Google "Dante Craft Nigeria"? What should they find?',
+      'What three pieces of content could you produce in the next month that would demonstrate expertise and build credibility?',
+    ],
+    bringBack:'What is Dante Craft\'s current marketing footprint — what exists? What does the professional presence of Paul Bassey look like online? What is the single most impactful marketing action Dante Craft could take in the next 30 days?',
+  },
+  {
+    id:'be9',num:'09',tier:'integration',tierLabel:'Tier III — Growth',
+    name:'Teams & Collaboration',
+    why:'Dante Craft will eventually need people — subcontractors, employees, collaborators. Building a team is one of the most complex things a founder does. It requires clear roles, clear expectations, fair compensation, and a culture that makes people want to do their best work. The principles are learned before they are needed.',
+    nigeria:'Nigerian labour law governs employment relationships — contracts, minimum wage, leave entitlements, pension obligations. Beyond the law, team culture in a Nigerian context has specific dynamics around hierarchy, respect, and loyalty that a leader must navigate consciously.',
+    dante:'Before hiring anyone, the systems must exist (Pillar 5). Before the systems, the business model must be clear (Pillar 4). Teams come third — not first. The sequence matters.',
+    actions:[
+      'Identify the first role Dante Craft would need to hire: what would that person do, and what would free you to focus on higher-value work?',
+      'Research the legal requirements for hiring an employee in Nigeria: contract, minimum wage, pension registration, NHF.',
+      'Design the onboarding process for Dante Craft\'s first hire — even hypothetically. What would they need to know, do, and have in their first week?',
+    ],
+    resources:[
+      {icon:'📖',type:'Book',title:'Who',author:'Geoff Smart & Randy Street',note:'The most rigorous approach to hiring available. The A method for identifying and selecting the right people. Read before you hire anyone.'},
+      {icon:'📖',type:'Book',title:'The Five Dysfunctions of a Team',author:'Patrick Lencioni',note:'What breaks teams — trust, conflict, commitment, accountability, results. A model for understanding team dynamics before you have a team.'},
+      {icon:'▶️',type:'Video',title:'How to Manage People — First-Time Manager',author:'Harvard Business Review — YouTube',note:'The transition from individual contributor to manager of others. The skills are different. Learn them before you need them.'},
+      {icon:'🎙️',type:'Podcast',title:'Masters of Scale — Culture Episodes',author:'Reid Hoffman',note:'How great companies build culture deliberately from the earliest days. Culture is not what you put on a poster — it is what you reward and what you tolerate.'},
+      {icon:'📖',type:'Book',title:'Nigerian Employment Law Essentials',author:'Aluko & Oyebode or similar Nigerian law firm',note:'Nigerian law firms publish employment law guides. Download the most current one. Understand your obligations before you have obligations.'},
+    ],
+    practice:[
+      'Write a job description for Dante Craft\'s first hire. What would the role be, what would success look like in 90 days?',
+      'What is Dante Craft\'s culture — what does the company stand for, how does it treat people, what behaviour does it reward?',
+      'How would you manage a subcontractor on a Dante Craft project? What would the agreement look like?',
+    ],
+    bringBack:'What is the first team role Dante Craft actually needs — and what revenue level justifies it? What kind of leader do you want to be as Dante Craft grows? What does the Dante Craft culture look like in practice — not as a value statement, as daily behaviour?',
+  },
+  {
+    id:'be10',num:'10',tier:'integration',tierLabel:'Tier III — Growth',
+    name:'Corporate Governance',
+    why:'Corporate governance is the system by which a company is directed and controlled. For a small company it may seem premature — but the habits of good governance built early protect the company, protect you personally, and make the company attractive to partners, investors, and clients who take governance seriously.',
+    nigeria:'As a Private Limited Company, Dante Craft has legal governance requirements: annual general meetings (even if you are the only director), board resolutions for major decisions, proper minute-keeping. These are not bureaucratic exercises — they are legal protections.',
+    dante:'dAnTE Inc. as a holding company will require sophisticated governance structures. Dante Craft is where you learn governance from the inside. What you build here becomes the template for every entity that follows.',
+    actions:[
+      'Hold the first Dante Craft board meeting — even if it is only you. Write the minutes. Resolve to activate the company. File them.',
+      'Understand your Memorandum and Articles of Association — what does it say about director powers, share structure, and company decisions?',
+      'Identify who the shareholders of Dante Craft are and what percentage each holds. Is this documented formally?',
+    ],
+    resources:[
+      {icon:'📖',type:'Book',title:'Corporate Governance in Nigeria',author:'Institute of Directors Nigeria — publications',note:'The IoD Nigeria publishes governance guidance for Nigerian companies. Download their SME governance guide. Apply it to Dante Craft.'},
+      {icon:'💻',type:'Website',title:'Institute of Directors Nigeria — iod.ng',author:'IoD Nigeria',note:'Membership, training, and resources for company directors. Understand what good directorship looks like in a Nigerian context.'},
+      {icon:'▶️',type:'Video',title:'Corporate Governance for Small Businesses',author:'Various — YouTube',note:'Search for accessible explainers on governance basics: board responsibilities, director duties, shareholder rights. Not Nigeria-specific but the principles apply.'},
+      {icon:'📖',type:'Book',title:'The Founder\'s Dilemmas',author:'Noam Wasserman',note:'Research on how founding decisions — equity splits, governance, co-founder relationships — determine company outcomes. Read before dAnTE Inc. brings in partners or additional shareholders.'},
+    ],
+    practice:[
+      'What decisions in Dante Craft require a board resolution versus an operational decision you can make alone?',
+      'Write a simple governance document for Dante Craft: who decides what, how conflicts are resolved, how profits are distributed.',
+      'What would good governance look like for dAnTE Inc. as a holding company — who sits on the board, what do they govern?',
+    ],
+    bringBack:'What does Dante Craft\'s governance structure look like right now — who are the directors, what are the share percentages, what decisions have been formally resolved? What governance gaps need to be closed before Dante Craft takes its first significant contract?',
+  },
+  {
+    id:'be11',num:'11',tier:'integration',tierLabel:'Tier III — Growth',
+    name:'Strategy & Competitive Positioning',
+    why:'Strategy is the set of choices that determine where you will compete, how you will win, and what you will not do. Every business makes these choices — most make them by accident. Dante Craft and dAnTE Inc. need to make them deliberately. A company without strategy is simply reactive.',
+    nigeria:'The Nigerian engineering and construction sector has specific competitive dynamics: dominance of large firms on government contracts, underserviced SME market, quality gap that presents an opportunity for professional firms like Dante Craft to differentiate on execution.',
+    dante:'Dante Craft\'s strategy and dAnTE Inc.\'s strategy are related but distinct. Dante Craft competes in engineering services. dAnTE Inc. is a portfolio builder. Understanding both levels of strategy — operating company and holding company — is the work of this pillar.',
+    actions:[
+      'Conduct a SWOT analysis for Dante Craft: Strengths, Weaknesses, Opportunities, Threats. Be honest, not aspirational.',
+      'Identify Dante Craft\'s three closest competitors in Port Harcourt. What do they do well? What do they do badly?',
+      'Define what Dante Craft will NOT do — the services it will decline, the clients it will not serve, the markets it will not enter. Strategy is also exclusion.',
+    ],
+    resources:[
+      {icon:'📖',type:'Book',title:'Good Strategy / Bad Strategy',author:'Richard Rumelt',note:'The clearest book on what strategy actually is versus what people call strategy. The kernel: diagnosis, guiding policy, coherent actions. Apply it to Dante Craft.'},
+      {icon:'📖',type:'Book',title:'Playing to Win',author:'A.G. Lafley & Roger Martin',note:'Strategy as a set of integrated choices: winning aspiration, where to play, how to win, capabilities required, management systems. The framework works for companies of any size.'},
+      {icon:'▶️',type:'Video',title:'What is Competitive Advantage?',author:'Harvard Business Review — YouTube',note:'Michael Porter\'s competitive advantage framework applied accessibly. Cost leadership, differentiation, or focus. Where does Dante Craft sit and why?'},
+      {icon:'🎙️',type:'Podcast',title:'Acquired — Company Deep Dives',author:'Ben Gilbert & David Rosenthal',note:'Each episode is a masterclass in how a great company made its strategic choices. Study the reasoning, not just the outcomes.'},
+      {icon:'⚙️',type:'Framework',title:'Porter\'s Five Forces',author:'Michael Porter',note:'Analyse the engineering services industry in Nigeria through the five forces lens: competitor rivalry, supplier power, buyer power, threat of substitutes, threat of new entrants. Brings the competitive landscape into focus.'},
+    ],
+    practice:[
+      'Complete the Playing to Win strategy framework for Dante Craft: winning aspiration, where to play, how to win.',
+      'What is Dante Craft\'s single most important competitive advantage — the one thing that makes it the right choice for the right client?',
+      'What does Dante Craft need to be true of in five years — revenue, reputation, team, client base — for the dAnTE Inc. vision to be on track?',
+    ],
+    bringBack:'What is Dante Craft\'s strategy in one paragraph — where it competes, how it wins, and what it will not do? What is the biggest strategic gap between where the company is now and where it needs to be? How does Dante Craft\'s strategy feed the dAnTE Inc. long-term vision?',
+  },
+  {
+    id:'be12',num:'12',tier:'advanced',tierLabel:'Tier IV — Vision',
+    name:'Building a Conglomerate — The dAnTE Inc. Layer',
+    why:'dAnTE Inc. is not just Dante Craft scaled up. It is a holding company structure with multiple operating entities across different sectors — engineering, energy, waste management, hospitality, and education. Understanding how conglomerates are built, how holding companies work, and how to sequence the development of multiple entities is the work of this pillar.',
+    nigeria:'Nigerian conglomerates — Dangote Group, Zenith Group, BUA Group — offer local case studies in building diversified businesses from a single founding entity. Understanding how they structured growth, managed capital, and entered new sectors is directly applicable to the dAnTE Inc. vision.',
+    dante:'The sequence matters: Dante Craft must be profitable and operationally stable before energy or waste management is launched. The holding company structure exists on paper — it must be built into substance entity by entity, in the right order, with the right capital and the right people.',
+    actions:[
+      'Map the dAnTE Inc. entity structure: which company owns what, who directs each entity, how profits flow between entities and to the holding company.',
+      'Sequence the entity launches: which comes after Dante Craft and why? What must be true of Dante Craft before the next entity can be responsibly launched?',
+      'Research one Nigerian conglomerate — how they started, how they added entities, what their holding company structure looks like.',
+    ],
+    resources:[
+      {icon:'📖',type:'Book',title:'The Outsiders',author:'William Thorndike',note:'Eight unconventional CEOs who built extraordinary conglomerates. The common thread: disciplined capital allocation. This is the core skill of a holding company — deciding where to deploy resources across entities.'},
+      {icon:'📖',type:'Book',title:'Poor Charlie\'s Almanack',author:'Charlie Munger',note:'Charlie Munger built Berkshire Hathaway alongside Warren Buffett. The mental models, the capital allocation discipline, and the long-term thinking in this book are directly applicable to the dAnTE Inc. approach.'},
+      {icon:'▶️',type:'Video / Documentary',title:'Dangote — Building Africa\'s Largest Conglomerate',author:'YouTube — various documentary formats',note:'Study how Aliko Dangote sequenced his business building — cement first, then sugar, flour, oil refinery. The sequencing logic is instructive. What made each next step possible?'},
+      {icon:'🎙️',type:'Podcast',title:'Acquired — Berkshire Hathaway Episode',author:'Ben Gilbert & David Rosenthal',note:'The most thorough available analysis of how Berkshire Hathaway was built as a conglomerate. Long. Worth every minute for understanding the holding company model.'},
+      {icon:'📖',type:'Book',title:'The Founder',author:'Various biographies of Nigerian entrepreneurs',note:'Biographies of Otedola, Elumelu, Adenuga — Nigerian founders who built diversified empires. The local context, the specific obstacles, and the sequencing decisions are the curriculum.'},
+    ],
+    practice:[
+      'Draw the full dAnTE Inc. corporate structure: holding company, operating entities, ownership percentages, governance relationships.',
+      'Write the investment thesis for each dAnTE Inc. entity: why this sector, why now (or why later), what the entry strategy is.',
+      'What does the dAnTE Inc. founding document need to contain — mission, vision, values, entity structure, governance, capital allocation principles?',
+    ],
+    bringBack:'What does the dAnTE Inc. entity map look like — on paper, right now? What needs to be true of Dante Craft before the second entity can be launched responsibly? What is the 20-year horizon for dAnTE Inc. — in concrete terms, not aspirational language?',
+  },
+];
+
+const TIER_COLORS={foundation:'var(--found)',development:'var(--dev)',integration:'var(--integ)',advanced:'var(--adv)'};
+let started=JSON.parse(localStorage.getItem('be-started')||'[]');
+const TOTAL=12;
+
+function toggleTheme(){
+  const dark=document.documentElement.getAttribute('data-theme')==='dark';
+  document.documentElement.setAttribute('data-theme',dark?'light':'dark');
+  document.getElementById('theme-icon').textContent=dark?'☾':'☀';
+  localStorage.setItem('be-theme',dark?'light':'dark');
+}
+function switchTab(name,btn){
+  document.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
+  document.getElementById('tab-'+name).classList.add('active');
+  btn.classList.add('active');
+  if(name==='progress')updateProgress();
+}
+function togglePillar(el){el.classList.toggle('open');}
+function toggleStarted(id,dot){
+  const idx=started.indexOf(id);
+  if(idx>-1){started.splice(idx,1);}else{started.push(id);}
+  localStorage.setItem('be-started',JSON.stringify(started));
+  dot.classList.toggle('active',started.includes(id));
+  updateProgressLabel();updateProgress();
+}
+function updateProgressLabel(){document.getElementById('progress-label').textContent=started.length+' of '+TOTAL+' started';}
+function updateProgress(){
+  const s=started.length;
+  document.getElementById('prog-started').textContent=s;
+  document.getElementById('prog-remaining').textContent=TOTAL-s;
+  const pct=Math.round((s/TOTAL)*100);
+  document.getElementById('prog-pct').textContent=pct+'%';
+  document.getElementById('prog-fill').style.width=pct+'%';
+}
+function saveNotes(){
+  localStorage.setItem('be-notes',document.getElementById('notes-area').value);
+  const btn=document.querySelector('.save-notes-btn');
+  btn.textContent='Saved.';setTimeout(()=>btn.textContent='Save Notes',2000);
+}
+function buildPillars(){
+  const list=document.getElementById('pillar-list');
+  PILLARS.forEach(p=>{
+    const isStarted=started.includes(p.id);
+    const tc=TIER_COLORS[p.tier];
+    const el=document.createElement('div');
+    el.className='pillar-item';
+    el.innerHTML=`
+      <div class="pillar-header" onclick="togglePillar(this.closest('.pillar-item'))">
+        <div class="pillar-num">${p.num}</div>
+        <div class="pillar-meta">
+          <div class="pillar-name">${p.name}</div>
+          <div class="pillar-tier-tag" style="color:${tc};">${p.tierLabel}</div>
+        </div>
+        <div class="pillar-status">
+          <div class="status-dot${isStarted?' active':''}" title="Mark as started" onclick="event.stopPropagation();toggleStarted('${p.id}',this)"></div>
+          <span class="pillar-toggle">▾</span>
+        </div>
+      </div>
+      <div class="pillar-body">
+        <div class="pillar-why">${p.why}</div>
+        ${p.nigeria?`<div class="nigeria-note"><div class="nigeria-note-label">Nigeria Context</div>${p.nigeria}</div>`:''}
+        ${p.dante?`<div class="dante-note"><div class="dante-note-label">Dante Craft / dAnTE Inc.</div>${p.dante}</div>`:''}
+        ${p.actions?`<div class="resource-section"><div class="action-label">Immediate Actions — Dante Craft</div><ul class="action-list">${p.actions.map(a=>`<li>${a}</li>`).join('')}</ul></div>`:''}
+        <div class="resource-section">
+          <div class="resource-label">Resources</div>
+          ${p.resources.map(r=>`
+            <div class="resource-item">
+              <div class="resource-icon">${r.icon}</div>
+              <div class="resource-info">
+                <div class="resource-type">${r.type}</div>
+                <div class="resource-title">${r.title}</div>
+                <div class="resource-author">${r.author}</div>
+                <div class="resource-note">${r.note}</div>
+              </div>
+            </div>`).join('')}
+        </div>
+        <div class="resource-section">
+          <div class="resource-label">Practice</div>
+          <ul class="practice-list">${p.practice.map(pr=>`<li>${pr}</li>`).join('')}</ul>
+        </div>
+        <div class="bring-back">
+          <div class="bring-back-label">Bring back to Claude</div>
+          <p>${p.bringBack}</p>
+        </div>
+      </div>`;
+    list.appendChild(el);
+  });
+}
+function init(){
+  const theme=localStorage.getItem('be-theme')||'dark';
+  document.documentElement.setAttribute('data-theme',theme);
+  document.getElementById('theme-icon').textContent=theme==='dark'?'☀':'☾';
+  document.getElementById('notes-area').value=localStorage.getItem('be-notes')||'';
+  buildPillars();updateProgressLabel();updateProgress();
+}
+init();
+</script>
+</body>
+</html>

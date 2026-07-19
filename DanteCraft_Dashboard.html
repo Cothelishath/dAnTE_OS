@@ -1,0 +1,801 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dante Craft — Site Dashboard</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --g1:#1A5C38;--g2:#2E8B57;--g3:#C8E6C9;
+  --bg:#0d1117;--s1:#161b22;--s2:#21262d;--s3:rgba(255,255,255,0.05);
+  --bdr:rgba(255,255,255,0.08);--bdrg:rgba(26,92,56,0.4);
+  --t1:#e6edf3;--t2:#8b949e;--t3:#484f58;--t4:#30363d;
+  --amber:#d29922;--red:#f85149;--purple:#bc8cff;--blue:#58a6ff;
+  --font:-apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif;
+  --mono:"SFMono-Regular","Consolas","Liberation Mono",Menlo,monospace;
+}
+html,body{min-height:100%;background:var(--bg);color:var(--t1);font-family:var(--font);font-size:14px}
+::-webkit-scrollbar{width:6px;height:6px}
+::-webkit-scrollbar-track{background:var(--bg)}
+::-webkit-scrollbar-thumb{background:var(--g1);border-radius:3px}
+#topbar{background:var(--s1);border-bottom:1px solid var(--bdrg);padding:0 20px;height:52px;
+  display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100}
+#logo-wrap{display:flex;align-items:center;gap:10px}
+#logo{width:30px;height:30px;background:linear-gradient(135deg,var(--g1),var(--g2));border-radius:7px;
+  display:flex;align-items:center;justify-content:center;font-weight:800;font-size:12px;color:#fff;flex-shrink:0}
+#proj-title{font-size:14px;font-weight:700;color:var(--t1);line-height:1.2}
+#proj-loc{font-size:11px;color:var(--t3)}
+#topbar-right{display:flex;align-items:center;gap:8px}
+#overall-pct{font-size:13px;font-weight:700;color:var(--g2);font-family:var(--mono)}
+#overall-track{width:70px;height:5px;border-radius:3px;background:var(--s3);overflow:hidden}
+#overall-fill{height:100%;background:var(--g2);border-radius:3px;transition:width .4s}
+#tabnav{display:flex;overflow-x:auto;background:var(--s1);border-bottom:1px solid var(--bdr);
+  padding:0 8px;gap:2px;position:sticky;top:52px;z-index:99;scrollbar-width:none}
+#tabnav::-webkit-scrollbar{display:none}
+.tnb{display:flex;align-items:center;gap:5px;padding:10px 14px;background:none;
+  border:none;border-bottom:2px solid transparent;color:var(--t3);font-size:13px;
+  font-weight:500;cursor:pointer;white-space:nowrap;font-family:var(--font);transition:color .15s}
+.tnb:hover{color:var(--t2)}
+.tnb.active{color:var(--g3);border-bottom-color:var(--g2);font-weight:700}
+#content{padding:24px;max-width:1400px}
+.tab{display:none}
+.tab.active{display:block}
+.pg-title{font-size:20px;font-weight:700;margin-bottom:4px}
+.pg-sub{font-size:13px;color:var(--t3);margin-bottom:20px}
+.shdr{display:flex;align-items:center;justify-content:space-between;margin:22px 0 14px}
+.shdr-l{display:flex;align-items:center;gap:8px;font-size:15px;font-weight:700}
+.btn{display:inline-flex;align-items:center;gap:5px;border-radius:6px;padding:7px 16px;
+  font-size:13px;font-weight:600;border:none;cursor:pointer;white-space:nowrap;font-family:var(--font)}
+.btn-p{background:var(--g1);color:#fff}
+.btn-p:hover{background:var(--g2)}
+.btn-s{background:var(--s3);color:var(--t2);border:1px solid var(--bdr)}
+.btn-d{background:rgba(248,81,73,.12);color:#f85149;border:1px solid rgba(248,81,73,.3)}
+.btn-d:hover{background:rgba(248,81,73,.22)}
+.btn-sm{padding:4px 10px;font-size:11px}
+.scards{display:flex;flex-wrap:wrap;gap:12px;margin-bottom:20px}
+.scard{background:var(--s1);border:1px solid var(--bdr);border-radius:8px;padding:14px 18px;min-width:148px}
+.scard-lbl{font-size:11px;color:var(--t3);letter-spacing:.06em;text-transform:uppercase;font-weight:600;margin-bottom:4px}
+.scard-val{font-size:20px;font-weight:800;color:var(--t1);font-family:var(--mono)}
+.scard-sub{font-size:11px;color:var(--t4);margin-top:2px}
+.bbar{background:var(--s1);border:1px solid var(--bdr);border-radius:8px;padding:16px;margin-bottom:20px}
+.bbar-hdr{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
+.bbar-track{height:8px;border-radius:4px;background:var(--s3);overflow:hidden}
+.bbar-fill{height:100%;border-radius:4px;transition:width .5s}
+.twrap{overflow-x:auto;border-radius:8px;border:1px solid var(--bdr);margin-top:4px}
+table{width:100%;border-collapse:collapse;font-size:12px}
+thead th{padding:9px 12px;background:rgba(26,92,56,0.12);color:var(--t2);font-weight:600;
+  font-size:10px;letter-spacing:.06em;text-transform:uppercase;white-space:nowrap;text-align:left}
+th.r{text-align:right}
+tbody tr{border-top:1px solid rgba(255,255,255,0.04)}
+tbody tr:hover{background:rgba(255,255,255,0.03)}
+tbody td{padding:8px 12px;color:var(--t2);white-space:nowrap}
+td.wrap{white-space:normal;max-width:200px;line-height:1.4}
+td.r{text-align:right}
+td.money{text-align:right;font-family:var(--mono);color:#7ee787;font-weight:600}
+.empty-msg{text-align:center;color:var(--t4);font-size:13px;padding:28px;font-style:italic}
+#ov{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.82);z-index:500;
+  align-items:center;justify-content:center;padding:16px}
+#ov.open{display:flex}
+#mbox{background:var(--s1);border:1px solid var(--bdrg);border-radius:12px;padding:26px;
+  width:100%;max-width:720px;max-height:92vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,.7)}
+.mhdr{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px}
+.mtitle{font-size:16px;font-weight:700;color:var(--t1)}
+.mclose{background:none;border:none;color:var(--t3);font-size:22px;cursor:pointer;
+  padding:2px 8px;border-radius:4px;font-family:var(--font)}
+.mclose:hover{color:var(--t1);background:var(--s3)}
+.mfooter{display:flex;gap:10px;justify-content:flex-end;margin-top:20px;
+  padding-top:16px;border-top:1px solid var(--bdr)}
+.fg{display:grid;gap:14px}
+.fg2{grid-template-columns:1fr 1fr}
+.fg3{grid-template-columns:1fr 1fr 1fr}
+.full{grid-column:1/-1}
+.field{display:flex;flex-direction:column;gap:5px}
+.field label{font-size:11px;color:var(--t3);font-weight:600;letter-spacing:.06em;text-transform:uppercase}
+.field input,.field select,.field textarea{background:var(--s2);border:1px solid var(--bdr);
+  border-radius:6px;padding:8px 11px;color:var(--t1);font-size:13px;outline:none;
+  width:100%;font-family:var(--font)}
+.field select{background:var(--s2);cursor:pointer}
+.field textarea{resize:vertical;line-height:1.5}
+.field input:focus,.field select:focus,.field textarea:focus{border-color:rgba(26,92,56,.7);box-shadow:0 0 0 2px rgba(26,92,56,.18)}
+.field input::placeholder,.field textarea::placeholder{color:var(--t4)}
+.calc-lbl{font-size:13px;font-weight:700;color:var(--amber);font-family:var(--mono);
+  display:flex;align-items:flex-end;padding-bottom:2px}
+.panels{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-bottom:18px}
+.panel{background:var(--s1);border:1px solid var(--bdr);border-radius:8px;padding:18px}
+.panel-t{font-size:13px;font-weight:700;color:var(--t2);margin-bottom:14px}
+.act-item{padding:7px 0;border-bottom:1px solid rgba(255,255,255,0.04)}
+.act-meta{display:flex;justify-content:space-between;margin-bottom:2px;font-size:11px}
+.act-date{color:var(--t2);font-weight:600}
+.act-ms{color:var(--t3)}
+.act-desc{font-size:12px;color:var(--t4);line-height:1.4}
+.msbar{margin-bottom:9px}
+.msbar-hdr{display:flex;justify-content:space-between;margin-bottom:4px;font-size:11px}
+.msbar-track{height:5px;border-radius:3px;background:var(--s3);overflow:hidden}
+.msbar-fill{height:100%;border-radius:3px;transition:width .4s}
+.msc-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:10px}
+.msc{padding:11px 13px;border-radius:7px;background:var(--s2)}
+.msc-name{font-size:11px;color:var(--t3);margin-bottom:4px}
+.msc-total{font-size:15px;font-weight:800;font-family:var(--mono)}
+.msc-detail{font-size:10px;color:var(--t3);margin-top:3px}
+.pg-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:14px}
+.pgcard{background:var(--s1);border:1px solid var(--bdr);border-radius:8px;padding:16px;border-top-width:3px}
+.pgcard-t{font-size:13px;font-weight:700;color:var(--t1);margin-bottom:12px}
+.pg-sldr-row{display:flex;justify-content:space-between;margin-bottom:5px;font-size:11px;color:var(--t3)}
+input[type=range]{width:100%;cursor:pointer;margin-bottom:10px}
+.mini-costs{display:flex;gap:8px}
+.mini-c{flex:1;text-align:center;padding:6px 4px;background:var(--s2);border-radius:6px}
+.mini-cl{font-size:10px;color:var(--t3);margin-bottom:2px}
+.mini-cv{font-size:11px;font-weight:700;font-family:var(--mono)}
+.ph-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:12px}
+.ph-card{border-radius:8px;overflow:hidden;border:1px solid var(--bdr);background:var(--s2)}
+.ph-card img{width:100%;height:155px;object-fit:cover;display:block}
+.ph-meta{padding:9px 11px}
+.ph-date{font-size:11px;color:var(--t3);margin-bottom:4px}
+.ph-cap{background:none;border:none;color:var(--t2);font-size:12px;width:100%;outline:none;font-family:var(--font)}
+.ph-del{background:none;border:none;color:var(--t3);font-size:11px;cursor:pointer;margin-top:4px;display:block}
+.ph-del:hover{color:#f85149}
+.ph-ul{display:inline-flex;align-items:center;gap:6px;border-radius:6px;padding:7px 16px;
+  font-size:13px;font-weight:600;background:var(--g1);color:#fff;cursor:pointer}
+.ph-ul:hover{background:var(--g2)}
+.sform{max-width:460px;display:flex;flex-direction:column;gap:14px}
+.dzone{margin-top:18px;padding:14px;border-radius:8px;border:1px solid rgba(248,81,73,.25);background:rgba(248,81,73,.06)}
+.dzone-t{font-size:11px;color:#f85149;font-weight:700;margin-bottom:8px;text-transform:uppercase;letter-spacing:.05em}
+@media(max-width:700px){
+  .fg2,.fg3{grid-template-columns:1fr}
+  .panels{grid-template-columns:1fr}
+  .pg-grid{grid-template-columns:1fr}
+  #content{padding:14px}
+  .tnb{padding:9px 10px;font-size:12px}
+}
+</style>
+</head>
+<body>
+
+<div id="topbar">
+  <div id="logo-wrap">
+    <div id="logo">DC</div>
+    <div>
+      <div id="proj-title">Dante Craft Limited</div>
+      <div id="proj-loc"></div>
+    </div>
+  </div>
+  <div id="topbar-right">
+    <span style="font-size:11px;color:var(--t3)">Progress</span>
+    <span id="overall-pct">0%</span>
+    <div id="overall-track"><div id="overall-fill" style="width:0%"></div></div>
+  </div>
+</div>
+
+<div id="tabnav">
+  <button class="tnb active" onclick="switchTab('dashboard',this)">&#9670; Dashboard</button>
+  <button class="tnb" onclick="switchTab('logs',this)">&#128203; Daily Log</button>
+  <button class="tnb" onclick="switchTab('materials',this)">&#129521; Materials</button>
+  <button class="tnb" onclick="switchTab('labour',this)">&#128119; Labour</button>
+  <button class="tnb" onclick="switchTab('equipment',this)">&#127959; Equipment</button>
+  <button class="tnb" onclick="switchTab('payments',this)">&#8358; Payments</button>
+  <button class="tnb" onclick="switchTab('progress',this)">&#128202; Progress</button>
+  <button class="tnb" onclick="switchTab('photos',this)">&#128247; Photos</button>
+  <button class="tnb" onclick="switchTab('settings',this)">&#9881; Settings</button>
+</div>
+
+<div id="content">
+
+  <div class="tab active" id="tab-dashboard">
+    <div class="pg-title">Site Dashboard</div>
+    <div class="pg-sub" id="dash-sub">Loading...</div>
+    <div class="scards" id="dash-stats"></div>
+    <div id="budget-section"></div>
+    <div class="panels">
+      <div class="panel"><div class="panel-t">Milestone Progress</div><div id="dash-msbars"></div></div>
+      <div class="panel"><div class="panel-t">Recent Activity</div><div id="dash-recent"></div></div>
+    </div>
+    <div class="panel"><div class="panel-t">Spending by Milestone</div><div class="msc-grid" id="dash-mscosts"></div></div>
+  </div>
+
+  <div class="tab" id="tab-logs">
+    <div class="shdr">
+      <div class="shdr-l">&#128203; Daily Site Log</div>
+      <button class="btn btn-p" onclick="openModal('log')">+ Add Entry</button>
+    </div>
+    <div class="twrap">
+      <table><thead><tr>
+        <th>Date</th><th>Stage</th><th>Weather</th><th>Workers</th>
+        <th>Work Done</th><th>Issues</th><th>Next Steps</th><th></th>
+      </tr></thead><tbody id="logs-body"></tbody></table>
+    </div>
+    <div class="empty-msg" id="logs-empty" style="display:none">No daily log entries yet. Click + Add Entry to start.</div>
+  </div>
+
+  <div class="tab" id="tab-materials">
+    <div class="shdr">
+      <div class="shdr-l">&#129521; Materials Tracker</div>
+      <button class="btn btn-p" onclick="openModal('material')">+ Record Delivery</button>
+    </div>
+    <div class="scards" id="mat-stats"></div>
+    <div class="twrap">
+      <table><thead><tr>
+        <th>Date</th><th>Stage</th><th>Category</th><th>Description</th>
+        <th class="r">Qty Ordered</th><th class="r">Qty Delivered</th><th class="r">Qty Used</th>
+        <th>Unit</th><th class="r">Unit Cost</th><th class="r">Total</th>
+        <th>Supplier</th><th>Invoice No.</th><th>Notes</th><th></th>
+      </tr></thead><tbody id="mat-body"></tbody></table>
+    </div>
+    <div class="empty-msg" id="mat-empty" style="display:none">No material records yet.</div>
+  </div>
+
+  <div class="tab" id="tab-labour">
+    <div class="shdr">
+      <div class="shdr-l">&#128119; Labour &amp; Craftsmen</div>
+      <button class="btn btn-p" onclick="openModal('labour')">+ Record Labour</button>
+    </div>
+    <div class="scards" id="lab-stats"></div>
+    <div class="twrap">
+      <table><thead><tr>
+        <th>Date</th><th>Stage</th><th>Trade</th><th>Name / Gang</th>
+        <th class="r">Days</th><th class="r">Rate/Day</th><th class="r">Expected</th>
+        <th class="r">Paid (N)</th><th>Work Done</th><th>Paid By</th><th>Notes</th><th></th>
+      </tr></thead><tbody id="lab-body"></tbody></table>
+    </div>
+    <div class="empty-msg" id="lab-empty" style="display:none">No labour records yet.</div>
+  </div>
+
+  <div class="tab" id="tab-equipment">
+    <div class="shdr">
+      <div class="shdr-l">&#127959; Equipment &amp; Plant Hire</div>
+      <button class="btn btn-p" onclick="openModal('equipment')">+ Record Hire</button>
+    </div>
+    <div class="scards" id="eq-stats"></div>
+    <div class="twrap">
+      <table><thead><tr>
+        <th>Date</th><th>Stage</th><th>Plant / Equipment</th><th>Operator</th>
+        <th class="r">Days</th><th class="r">Rate/Day</th><th class="r">Expected</th>
+        <th class="r">Paid (N)</th><th>Purpose</th><th>Vendor</th><th>Notes</th><th></th>
+      </tr></thead><tbody id="eq-body"></tbody></table>
+    </div>
+    <div class="empty-msg" id="eq-empty" style="display:none">No equipment records yet.</div>
+  </div>
+
+  <div class="tab" id="tab-payments">
+    <div class="shdr">
+      <div class="shdr-l">&#8358; Payment Register</div>
+      <button class="btn btn-p" onclick="openModal('payment')">+ Record Payment</button>
+    </div>
+    <div class="scards" id="pmt-stats"></div>
+    <div class="twrap">
+      <table><thead><tr>
+        <th>Date</th><th>Category</th><th>Payee</th><th>Description</th>
+        <th class="r">Amount (N)</th><th>Method</th><th>Receipt No.</th>
+        <th>Approved By</th><th>Stage</th><th>Notes</th><th></th>
+      </tr></thead><tbody id="pmt-body"></tbody></table>
+    </div>
+    <div class="empty-msg" id="pmt-empty" style="display:none">No payment records yet.</div>
+  </div>
+
+  <div class="tab" id="tab-progress">
+    <div class="shdr"><div class="shdr-l">&#128202; Milestone Progress Tracker</div></div>
+    <div class="pg-grid" id="prog-grid"></div>
+  </div>
+
+  <div class="tab" id="tab-photos">
+    <div class="shdr">
+      <div class="shdr-l">&#128247; Site Photos</div>
+      <label class="ph-ul">&#128247; Upload Photos
+        <input type="file" id="ph-input" multiple accept="image/*" style="display:none" onchange="addPhotos(event)">
+      </label>
+    </div>
+    <div class="empty-msg" id="ph-empty" style="display:none">No site photos yet. Upload from your device or phone camera.</div>
+    <div class="ph-grid" id="ph-grid"></div>
+  </div>
+
+  <div class="tab" id="tab-settings">
+    <div class="shdr"><div class="shdr-l">&#9881; Project Settings</div></div>
+    <div class="sform">
+      <div class="field"><label>Project Name</label>
+        <input id="s-name" oninput="savePF('name',this.value)" placeholder="e.g. 4-Bedroom Duplex, Lekki Phase 1"></div>
+      <div class="field"><label>Client / Owner</label>
+        <input id="s-client" oninput="savePF('client',this.value)"></div>
+      <div class="field"><label>Site Location</label>
+        <input id="s-location" oninput="savePF('location',this.value)" placeholder="e.g. Port Harcourt, Rivers State"></div>
+      <div class="field"><label>Project Start Date</label>
+        <input id="s-start" type="date" oninput="savePF('startDate',this.value)"></div>
+      <div class="field"><label>Total Budget (Naira)</label>
+        <input id="s-budget" type="number" oninput="savePF('budget',this.value)" placeholder="e.g. 85000000"></div>
+      <div class="field"><label>Site Supervisor</label>
+        <input id="s-super" oninput="savePF('supervisor',this.value)"></div>
+      <div class="dzone">
+        <div class="dzone-t">Danger Zone</div>
+        <p style="font-size:12px;color:var(--t3);margin-bottom:10px">Permanently deletes ALL site data. Cannot be undone.</p>
+        <button class="btn btn-d" onclick="clearAll()">Clear All Site Data</button>
+      </div>
+      <p style="font-size:11px;color:var(--t4)">All data saves automatically to your browser and persists between sessions.</p>
+    </div>
+  </div>
+
+</div>
+
+<div id="ov" onclick="ovClick(event)">
+  <div id="mbox">
+    <div class="mhdr">
+      <div class="mtitle" id="mtitle"></div>
+      <button class="mclose" onclick="closeModal()">&#x2715;</button>
+    </div>
+    <div id="mbody"></div>
+  </div>
+</div>
+
+<script>
+var MS = [
+  {id:"prelim",   label:"Preliminaries & Site Setup",         color:"#6366f1", progress:0},
+  {id:"substr",   label:"Substructure / Foundation",          color:"#0ea5e9", progress:0},
+  {id:"dpc",      label:"DPC & Ground Floor Slab",            color:"#06b6d4", progress:0},
+  {id:"gfwall",   label:"GF Walling to DPC",                  color:"#10b981", progress:0},
+  {id:"super",    label:"Superstructure Columns & Beams",     color:"#1A5C38", progress:0},
+  {id:"swall",    label:"Superstructure Walling",             color:"#2E8B57", progress:0},
+  {id:"stairs",   label:"Staircases",                         color:"#84cc16", progress:0},
+  {id:"roof",     label:"Roof Structure & Covering",          color:"#d29922", progress:0},
+  {id:"finishes", label:"Finishes (Plaster/Tiles/Paint)",     color:"#f97316", progress:0},
+  {id:"windows",  label:"Windows & Doors",                    color:"#f85149", progress:0},
+  {id:"mep",      label:"MEP (Plumbing/Electrical)",          color:"#bc8cff", progress:0},
+  {id:"external", label:"External Works",                     color:"#ec4899", progress:0}
+];
+
+var MAT_CATS = ["Cement","Sand","Granite / Chippings","Sandcrete Blocks","Rebar (Y8-Y25)",
+  "Timber / Formwork","Roofing Sheets","Tiles (Floor)","Tiles (Wall)","Paint",
+  "Plumbing Materials","Electrical Materials","BRC Mesh","DPC Membrane","Hardcore / Fill","Other"];
+
+var TRADES = ["Mason / Bricklayer","Mason Helper","Carpenter","Carpenter Helper",
+  "Steel Fixer / Iron Bender","Concreter","Plasterer","Plasterer Helper","Tiler","Tiler Helper",
+  "Painter","Plumber","Plumber Helper","Electrician","Electrician Helper","Roofer","Roofer Helper",
+  "General Labourer","POP Artisan","POP Helper","Site Manager / Foreman","Equipment Operator",
+  "Welder / Fabricator","Aluminium Fabricator","Security / Watchman","Other"];
+
+var proj = {name:"Untitled Project",location:"",client:"",startDate:"",budget:"",supervisor:""};
+var logs=[], materials=[], labour=[], equipment=[], payments=[], photos=[];
+
+function td(){ return new Date().toISOString().split("T")[0]; }
+function uid(){ return Date.now().toString(36)+Math.random().toString(36).slice(2,6); }
+function num(v){ return Number(v)||0; }
+function fmt(v){ return num(v).toLocaleString("en-NG",{minimumFractionDigits:0,maximumFractionDigits:0}); }
+function fmtM(v){ return "N"+fmt(v); }
+function esc(s){
+  return String(s||"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
+}
+function sv(k,v){ try{ localStorage.setItem(k,JSON.stringify(v)); }catch(e){} }
+function ld(k){ try{ var v=localStorage.getItem(k); return v?JSON.parse(v):null; }catch(e){ return null; } }
+function msLbl(id){ var m=MS.find(function(x){return x.id===id;}); return m?m.label:id; }
+function msMini(id){ var l=msLbl(id); return l.length>18?l.slice(0,16)+"...":l; }
+function gel(id){ return document.getElementById(id); }
+function gv(id){ var el=gel(id); return el?el.value:""; }
+
+function init(){
+  var p=ld("dc_proj"); if(p){ Object.keys(p).forEach(function(k){ proj[k]=p[k]; }); }
+  var ms=ld("dc_ms"); if(ms){ MS=ms; }
+  logs      = ld("dc_logs")||[];
+  materials = ld("dc_mat") ||[];
+  labour    = ld("dc_lab") ||[];
+  equipment = ld("dc_eq")  ||[];
+  payments  = ld("dc_pmt") ||[];
+  photos    = ld("dc_ph")  ||[];
+  loadSettings();
+  renderAll();
+}
+
+function renderAll(){
+  updateTopbar(); renderDash(); renderLogs(); renderMaterials();
+  renderLabour(); renderEquipment(); renderPayments(); renderProgress(); renderPhotos();
+}
+
+function switchTab(id,btn){
+  document.querySelectorAll(".tab").forEach(function(t){ t.classList.remove("active"); });
+  document.querySelectorAll(".tnb").forEach(function(b){ b.classList.remove("active"); });
+  var t=gel("tab-"+id); if(t) t.classList.add("active");
+  if(btn) btn.classList.add("active");
+}
+
+function updateTopbar(){
+  gel("proj-title").textContent=proj.name||"Dante Craft";
+  gel("proj-loc").textContent=(proj.client?"Client: "+proj.client+" | ":"")+proj.location;
+  var avg=MS.length?Math.round(MS.reduce(function(s,m){return s+num(m.progress);},0)/MS.length):0;
+  gel("overall-pct").textContent=avg+"%";
+  gel("overall-fill").style.width=avg+"%";
+}
+
+function totals(){
+  return {
+    matC: materials.reduce(function(s,m){return s+num(m.qtyDelivered)*num(m.unitCost);},0),
+    labC: labour.reduce(function(s,l){return s+num(l.amountPaid);},0),
+    eqC:  equipment.reduce(function(s,e){return s+num(e.amountPaid);},0),
+    pmtC: payments.reduce(function(s,p){return s+num(p.amount);},0)
+  };
+}
+
+function msCosts(id){
+  var matC=materials.filter(function(m){return m.milestone===id;}).reduce(function(s,m){return s+num(m.qtyDelivered)*num(m.unitCost);},0);
+  var labC=labour.filter(function(l){return l.milestone===id;}).reduce(function(s,l){return s+num(l.amountPaid);},0);
+  var eqC=equipment.filter(function(e){return e.milestone===id;}).reduce(function(s,e){return s+num(e.amountPaid);},0);
+  return {matC:matC, labC:labC, eqC:eqC, total:matC+labC+eqC};
+}
+
+function sc(lbl,val,sub,color){
+  return '<div class="scard" style="border-left:3px solid '+color+'">'
+    +'<div class="scard-lbl">'+lbl+'</div>'
+    +'<div class="scard-val">'+val+'</div>'
+    +(sub?'<div class="scard-sub">'+sub+'</div>':'')
+    +'</div>';
+}
+
+function renderDash(){
+  var t=totals();
+  var budget=num(proj.budget), spent=t.pmtC;
+  var bp=budget>0?Math.min(100,Math.round(spent/budget*100)):0;
+  var avg=MS.length?Math.round(MS.reduce(function(s,m){return s+num(m.progress);},0)/MS.length):0;
+
+  gel("dash-sub").textContent=(proj.location||"Location not set")+" | Started "+(proj.startDate||"not set")+(proj.supervisor?" | Supervisor: "+proj.supervisor:"");
+
+  gel("dash-stats").innerHTML=
+    sc("Total Payments",fmtM(spent),budget?bp+"% of budget":"No budget set","#1A5C38")+
+    sc("Materials Cost",fmtM(t.matC),"","#0ea5e9")+
+    sc("Labour Paid",fmtM(t.labC),"","#d29922")+
+    sc("Equipment Cost",fmtM(t.eqC),"","#bc8cff")+
+    sc("Overall Progress",avg+"%","Across all milestones","#2E8B57")+
+    sc("Daily Logs",logs.length,"","#10b981")+
+    sc("Material Entries",materials.length,"","#06b6d4")+
+    sc("Site Photos",photos.length,"","#ec4899");
+
+  var bs=gel("budget-section");
+  if(budget>0){
+    var col=bp>90?"#f85149":bp>70?"#d29922":"#1A5C38";
+    bs.innerHTML='<div class="bbar"><div class="bbar-hdr">'
+      +'<span style="font-size:13px;font-weight:600;color:var(--t2)">Budget Utilisation</span>'
+      +'<span style="font-size:13px;font-weight:700;font-family:var(--mono);color:'+col+'">'
+      +fmtM(spent)+" / "+fmtM(budget)+" ("+bp+"%)</span></div>"
+      +'<div class="bbar-track"><div class="bbar-fill" style="width:'+bp+'%;background:'+col+'"></div></div></div>';
+  } else { bs.innerHTML=""; }
+
+  gel("dash-msbars").innerHTML=MS.map(function(ms){
+    var pct=Math.min(100,Math.max(0,num(ms.progress)));
+    return '<div class="msbar"><div class="msbar-hdr">'
+      +'<span style="color:var(--t2)">'+esc(ms.label)+'</span>'
+      +'<span style="color:'+ms.color+';font-weight:700;font-family:var(--mono)">'+pct+'%</span>'
+      +'</div><div class="msbar-track"><div class="msbar-fill" style="width:'+pct+'%;background:'+ms.color+'"></div></div></div>';
+  }).join("");
+
+  var rec=logs.slice(0,6).map(function(l){
+    return '<div class="act-item"><div class="act-meta">'
+      +'<span class="act-date">'+esc(l.date)+'</span>'
+      +'<span class="act-ms">'+esc(msMini(l.milestone))+'</span></div>'
+      +'<div class="act-desc">'+esc((l.description||"").slice(0,100))+((l.description||"").length>100?"...":"")+'</div></div>';
+  }).join("");
+  gel("dash-recent").innerHTML=rec||'<div class="act-desc" style="font-style:italic;padding:8px 0">No log entries yet.</div>';
+
+  var costs=MS.map(function(ms){
+    var c=msCosts(ms.id);
+    if(!c.total) return "";
+    return '<div class="msc" style="border-left:3px solid '+ms.color+'">'
+      +'<div class="msc-name">'+esc(ms.label)+'</div>'
+      +'<div class="msc-total" style="color:var(--t1)">'+fmtM(c.total)+'</div>'
+      +'<div class="msc-detail">Mat: '+fmtM(c.matC)+' | Lab: '+fmtM(c.labC)+' | Eq: '+fmtM(c.eqC)+'</div></div>';
+  }).join("");
+  gel("dash-mscosts").innerHTML=costs||'<div style="color:var(--t4);font-size:13px;font-style:italic;padding:8px">No spending recorded yet.</div>';
+}
+
+function renderLogs(){
+  var b=gel("logs-body"), e=gel("logs-empty");
+  if(!logs.length){ b.innerHTML=""; e.style.display="block"; return; }
+  e.style.display="none";
+  b.innerHTML=logs.map(function(l){
+    return '<tr><td>'+esc(l.date)+'</td><td>'+esc(msMini(l.milestone))+'</td>'
+      +'<td>'+esc(l.weather)+'</td><td>'+esc(l.workers)+'</td>'
+      +'<td class="wrap">'+esc(l.description)+'</td>'
+      +'<td class="wrap">'+esc(l.issues)+'</td>'
+      +'<td class="wrap">'+esc(l.nextSteps)+'</td>'
+      +'<td><button class="btn btn-sm btn-d" onclick="delRec(\'logs\',\''+l.id+'\')">X</button></td></tr>';
+  }).join("");
+}
+
+function renderMaterials(){
+  var t=totals();
+  gel("mat-stats").innerHTML=sc("Total Material Cost",fmtM(t.matC),"","#0ea5e9")+sc("Entries",materials.length,"","#06b6d4");
+  var b=gel("mat-body"), e=gel("mat-empty");
+  if(!materials.length){ b.innerHTML=""; e.style.display="block"; return; }
+  e.style.display="none";
+  b.innerHTML=materials.map(function(m){
+    return '<tr><td>'+esc(m.date)+'</td><td>'+esc(msMini(m.milestone))+'</td>'
+      +'<td>'+esc(m.category)+'</td><td class="wrap">'+esc(m.description)+'</td>'
+      +'<td class="r">'+fmt(m.qtyOrdered)+'</td><td class="r">'+fmt(m.qtyDelivered)+'</td>'
+      +'<td class="r">'+fmt(m.qtyUsed)+'</td><td>'+esc(m.unit)+'</td>'
+      +'<td class="r">'+fmt(m.unitCost)+'</td>'
+      +'<td class="money">'+fmtM(num(m.qtyDelivered)*num(m.unitCost))+'</td>'
+      +'<td>'+esc(m.supplier)+'</td><td>'+esc(m.invoiceNo)+'</td>'
+      +'<td class="wrap">'+esc(m.notes)+'</td>'
+      +'<td><button class="btn btn-sm btn-d" onclick="delRec(\'materials\',\''+m.id+'\')">X</button></td></tr>';
+  }).join("");
+}
+
+function renderLabour(){
+  var t=totals();
+  gel("lab-stats").innerHTML=sc("Total Labour Paid",fmtM(t.labC),"","#d29922")+sc("Records",labour.length,"","#f0883e");
+  var b=gel("lab-body"), e=gel("lab-empty");
+  if(!labour.length){ b.innerHTML=""; e.style.display="block"; return; }
+  e.style.display="none";
+  b.innerHTML=labour.map(function(l){
+    return '<tr><td>'+esc(l.date)+'</td><td>'+esc(msMini(l.milestone))+'</td>'
+      +'<td>'+esc(l.trade)+'</td><td>'+esc(l.name)+'</td>'
+      +'<td class="r">'+fmt(l.daysWorked)+'</td><td class="r">'+fmt(l.ratePerDay)+'</td>'
+      +'<td class="r">'+fmtM(num(l.daysWorked)*num(l.ratePerDay))+'</td>'
+      +'<td class="money">'+fmtM(l.amountPaid)+'</td>'
+      +'<td class="wrap">'+esc(l.workDone)+'</td><td>'+esc(l.paidBy)+'</td>'
+      +'<td class="wrap">'+esc(l.notes)+'</td>'
+      +'<td><button class="btn btn-sm btn-d" onclick="delRec(\'labour\',\''+l.id+'\')">X</button></td></tr>';
+  }).join("");
+}
+
+function renderEquipment(){
+  var t=totals();
+  gel("eq-stats").innerHTML=sc("Total Equipment Cost",fmtM(t.eqC),"","#bc8cff")+sc("Records",equipment.length,"","#a78bfa");
+  var b=gel("eq-body"), e=gel("eq-empty");
+  if(!equipment.length){ b.innerHTML=""; e.style.display="block"; return; }
+  e.style.display="none";
+  b.innerHTML=equipment.map(function(eq){
+    return '<tr><td>'+esc(eq.date)+'</td><td>'+esc(msMini(eq.milestone))+'</td>'
+      +'<td>'+esc(eq.equipment)+'</td><td>'+esc(eq.operator)+'</td>'
+      +'<td class="r">'+fmt(eq.daysHired)+'</td><td class="r">'+fmt(eq.ratePerDay)+'</td>'
+      +'<td class="r">'+fmtM(num(eq.daysHired)*num(eq.ratePerDay))+'</td>'
+      +'<td class="money">'+fmtM(eq.amountPaid)+'</td>'
+      +'<td class="wrap">'+esc(eq.purpose)+'</td><td>'+esc(eq.vendor)+'</td>'
+      +'<td class="wrap">'+esc(eq.notes)+'</td>'
+      +'<td><button class="btn btn-sm btn-d" onclick="delRec(\'equipment\',\''+eq.id+'\')">X</button></td></tr>';
+  }).join("");
+}
+
+function renderPayments(){
+  var t=totals();
+  gel("pmt-stats").innerHTML=sc("Total Payments",fmtM(t.pmtC),"","#1A5C38")+sc("Records",payments.length,"","#2E8B57");
+  var b=gel("pmt-body"), e=gel("pmt-empty");
+  if(!payments.length){ b.innerHTML=""; e.style.display="block"; return; }
+  e.style.display="none";
+  b.innerHTML=payments.map(function(p){
+    return '<tr><td>'+esc(p.date)+'</td><td>'+esc(p.category)+'</td>'
+      +'<td>'+esc(p.payee)+'</td><td class="wrap">'+esc(p.description)+'</td>'
+      +'<td class="money">'+fmtM(p.amount)+'</td><td>'+esc(p.paymentMethod)+'</td>'
+      +'<td>'+esc(p.receiptNo)+'</td><td>'+esc(p.approvedBy)+'</td>'
+      +'<td>'+esc(msMini(p.milestone))+'</td><td class="wrap">'+esc(p.notes)+'</td>'
+      +'<td><button class="btn btn-sm btn-d" onclick="delRec(\'payments\',\''+p.id+'\')">X</button></td></tr>';
+  }).join("");
+}
+
+function renderProgress(){
+  gel("prog-grid").innerHTML=MS.map(function(ms){
+    var pct=Math.min(100,Math.max(0,num(ms.progress)));
+    var c=msCosts(ms.id);
+    return '<div class="pgcard" style="border-top-color:'+ms.color+'">'
+      +'<div class="pgcard-t">'+esc(ms.label)+'</div>'
+      +'<div class="pg-sldr-row"><span>Progress</span>'
+      +'<span id="pct-'+ms.id+'" style="color:'+ms.color+';font-weight:700;font-family:var(--mono)">'+pct+'%</span></div>'
+      +'<input type="range" min="0" max="100" value="'+pct+'" style="accent-color:'+ms.color+'" '
+      +'oninput="updProg(\''+ms.id+'\',this.value)">'
+      +'<div class="mini-costs">'
+      +'<div class="mini-c"><div class="mini-cl">Materials</div><div class="mini-cv" style="color:#0ea5e9">'+fmtM(c.matC)+'</div></div>'
+      +'<div class="mini-c"><div class="mini-cl">Labour</div><div class="mini-cv" style="color:#d29922">'+fmtM(c.labC)+'</div></div>'
+      +'<div class="mini-c"><div class="mini-cl">Equipment</div><div class="mini-cv" style="color:#bc8cff">'+fmtM(c.eqC)+'</div></div>'
+      +'</div></div>';
+  }).join("");
+}
+
+function updProg(id,val){
+  MS=MS.map(function(m){ return m.id===id?Object.assign({},m,{progress:Number(val)}):m; });
+  sv("dc_ms",MS);
+  var el=gel("pct-"+id); if(el) el.textContent=val+"%";
+  updateTopbar(); renderDash();
+}
+
+function renderPhotos(){
+  var grid=gel("ph-grid"), empty=gel("ph-empty");
+  if(!photos.length){ grid.innerHTML=""; empty.style.display="block"; return; }
+  empty.style.display="none";
+  grid.innerHTML=photos.map(function(ph){
+    return '<div class="ph-card"><img src="'+ph.data+'" alt="" loading="lazy">'
+      +'<div class="ph-meta"><div class="ph-date">'+esc(ph.date)+'</div>'
+      +'<input class="ph-cap" value="'+esc(ph.caption||"")+'" placeholder="Add caption..." oninput="updCap(\''+ph.id+'\',this.value)">'
+      +'<button class="ph-del" onclick="delRec(\'photos\',\''+ph.id+'\')">Remove photo</button></div></div>';
+  }).join("");
+}
+
+function addPhotos(e){
+  var files=Array.from(e.target.files), loaded=0;
+  files.forEach(function(file){
+    var r=new FileReader();
+    r.onload=function(ev){
+      photos=[{id:uid(),date:td(),name:file.name,data:ev.target.result,caption:""}].concat(photos);
+      loaded++; if(loaded===files.length){ sv("dc_ph",photos); renderPhotos(); renderDash(); }
+    };
+    r.readAsDataURL(file);
+  });
+  e.target.value="";
+}
+
+function updCap(id,val){
+  photos=photos.map(function(p){ return p.id===id?Object.assign({},p,{caption:val}):p; });
+  sv("dc_ph",photos);
+}
+
+function loadSettings(){
+  gel("s-name").value    = proj.name      ||"";
+  gel("s-client").value  = proj.client    ||"";
+  gel("s-location").value= proj.location  ||"";
+  gel("s-start").value   = proj.startDate ||"";
+  gel("s-budget").value  = proj.budget    ||"";
+  gel("s-super").value   = proj.supervisor||"";
+}
+
+function savePF(field,val){
+  proj[field]=val; sv("dc_proj",proj); updateTopbar();
+}
+
+function clearAll(){
+  if(!confirm("Permanently delete ALL site data? This cannot be undone.")) return;
+  ["dc_proj","dc_ms","dc_logs","dc_mat","dc_lab","dc_eq","dc_pmt","dc_ph"].forEach(function(k){ localStorage.removeItem(k); });
+  location.reload();
+}
+
+function delRec(type,id){
+  if(!confirm("Delete this record?")) return;
+  if(type==="logs")      { logs     =logs.filter(function(r){return r.id!==id;}); sv("dc_logs",logs);      renderLogs(); }
+  if(type==="materials") { materials=materials.filter(function(r){return r.id!==id;}); sv("dc_mat",materials); renderMaterials(); }
+  if(type==="labour")    { labour   =labour.filter(function(r){return r.id!==id;}); sv("dc_lab",labour);    renderLabour(); }
+  if(type==="equipment") { equipment=equipment.filter(function(r){return r.id!==id;}); sv("dc_eq",equipment); renderEquipment(); }
+  if(type==="payments")  { payments =payments.filter(function(r){return r.id!==id;}); sv("dc_pmt",payments); renderPayments(); }
+  if(type==="photos")    { photos   =photos.filter(function(r){return r.id!==id;}); sv("dc_ph",photos);    renderPhotos(); }
+  renderDash();
+}
+
+function msOpts(sel){
+  return MS.map(function(m){ return '<option value="'+m.id+'"'+(m.id===sel?" selected":"")+'>'+esc(m.label)+'</option>'; }).join("");
+}
+function trOpts(){
+  return TRADES.map(function(t){ return '<option>'+esc(t)+'</option>'; }).join("");
+}
+function mcOpts(){
+  return MAT_CATS.map(function(c){ return '<option>'+esc(c)+'</option>'; }).join("");
+}
+
+function openModal(type){
+  gel("ov").classList.add("open");
+  var mt=gel("mtitle"), mb=gel("mbody");
+
+  if(type==="log"){
+    mt.textContent="New Daily Log Entry";
+    mb.innerHTML='<div class="fg fg2">'
+      +'<div class="field"><label>Date</label><input type="date" id="f-date" value="'+td()+'"></div>'
+      +'<div class="field"><label>Stage / Milestone</label><select id="f-ms">'+msOpts("prelim")+'</select></div>'
+      +'<div class="field"><label>Weather</label><select id="f-weather"><option>Sunny</option><option>Cloudy</option><option>Rainy</option><option>Heavy Rain</option><option>Harmattan</option><option>Very Hot</option><option>Windy</option></select></div>'
+      +'<div class="field"><label>Workers on Site</label><input type="number" id="f-workers" placeholder="e.g. 18"></div>'
+      +'<div class="field full"><label>Work Done Today</label><textarea id="f-desc" rows="4" placeholder="Describe all work carried out today..."></textarea></div>'
+      +'<div class="field full"><label>Issues / Problems</label><textarea id="f-issues" rows="2" placeholder="Delays, shortages, disputes, incidents..."></textarea></div>'
+      +'<div class="field full"><label>Next Steps / Instructions for Tomorrow</label><textarea id="f-nextsteps" rows="2" placeholder="Work planned for tomorrow..."></textarea></div>'
+      +'</div><div class="mfooter"><button class="btn btn-s" onclick="closeModal()">Cancel</button><button class="btn btn-p" onclick="submitLog()">Save Log Entry</button></div>';
+  }
+  else if(type==="material"){
+    mt.textContent="Record Material Delivery / Usage";
+    mb.innerHTML='<div class="fg fg3">'
+      +'<div class="field"><label>Date</label><input type="date" id="f-date" value="'+td()+'"></div>'
+      +'<div class="field"><label>Stage</label><select id="f-ms">'+msOpts("prelim")+'</select></div>'
+      +'<div class="field"><label>Category</label><select id="f-cat">'+mcOpts()+'</select></div>'
+      +'<div class="field full"><label>Description (brand, size, grade)</label><input id="f-desc" placeholder="e.g. Dangote Cement 50kg, Y16 12m bars, 9-inch hollow blocks"></div>'
+      +'<div class="field"><label>Unit (bags/trips/lengths/No/m2)</label><input id="f-unit" placeholder="bags"></div>'
+      +'<div class="field"><label>Qty Ordered</label><input type="number" id="f-qord" placeholder="0"></div>'
+      +'<div class="field"><label>Qty Delivered</label><input type="number" id="f-qdel" oninput="calcMat()" placeholder="0"></div>'
+      +'<div class="field"><label>Qty Used</label><input type="number" id="f-qused" placeholder="0"></div>'
+      +'<div class="field"><label>Unit Cost (Naira)</label><input type="number" id="f-ucost" oninput="calcMat()" placeholder="e.g. 9000"></div>'
+      +'<div class="calc-lbl" id="f-mattot">Total: N0</div>'
+      +'<div class="field"><label>Supplier / Vendor</label><input id="f-supplier"></div>'
+      +'<div class="field"><label>Invoice / Waybill No.</label><input id="f-inv"></div>'
+      +'<div class="field full"><label>Notes</label><input id="f-notes" placeholder="Storage location, condition on delivery..."></div>'
+      +'</div><div class="mfooter"><button class="btn btn-s" onclick="closeModal()">Cancel</button><button class="btn btn-p" onclick="submitMat()">Save Material Record</button></div>';
+  }
+  else if(type==="labour"){
+    mt.textContent="Record Labour / Craftsman Payment";
+    mb.innerHTML='<div class="fg fg3">'
+      +'<div class="field"><label>Date</label><input type="date" id="f-date" value="'+td()+'"></div>'
+      +'<div class="field"><label>Stage</label><select id="f-ms">'+msOpts("prelim")+'</select></div>'
+      +'<div class="field"><label>Trade</label><select id="f-trade">'+trOpts()+'</select></div>'
+      +'<div class="field"><label>Name / Gang ID</label><input id="f-name" placeholder="e.g. Emeka and gang (optional)"></div>'
+      +'<div class="field"><label>Days Worked</label><input type="number" id="f-days" value="1" oninput="calcLab()"></div>'
+      +'<div class="field"><label>Rate Per Day (Naira)</label><input type="number" id="f-rate" oninput="calcLab()" placeholder="e.g. 11000"></div>'
+      +'<div class="field"><label>Amount Actually Paid (Naira)</label><input type="number" id="f-paid" placeholder="Enter what was paid"></div>'
+      +'<div class="calc-lbl" id="f-labexp">Expected: N0</div>'
+      +'<div class="field"><label>Paid By</label><input id="f-paidby" placeholder="e.g. Paul / Site Manager"></div>'
+      +'<div class="field full"><label>Work Done (describe specifically)</label><textarea id="f-workdone" rows="3" placeholder="e.g. Laid 320 blocks on east wall, 2nd floor, columns A2 to A5..."></textarea></div>'
+      +'<div class="field full"><label>Notes</label><input id="f-notes"></div>'
+      +'</div><div class="mfooter"><button class="btn btn-s" onclick="closeModal()">Cancel</button><button class="btn btn-p" onclick="submitLab()">Save Labour Record</button></div>';
+  }
+  else if(type==="equipment"){
+    mt.textContent="Record Equipment / Plant Hire";
+    mb.innerHTML='<div class="fg fg3">'
+      +'<div class="field"><label>Date</label><input type="date" id="f-date" value="'+td()+'"></div>'
+      +'<div class="field"><label>Stage</label><select id="f-ms">'+msOpts("prelim")+'</select></div>'
+      +'<div class="field"><label>Plant / Equipment Name</label><input id="f-equip" placeholder="e.g. CAT 320 Excavator, drum mixer"></div>'
+      +'<div class="field"><label>Operator Name</label><input id="f-oper"></div>'
+      +'<div class="field"><label>Days Hired</label><input type="number" id="f-days" value="1" oninput="calcEq()"></div>'
+      +'<div class="field"><label>Rate Per Day (Naira)</label><input type="number" id="f-rate" oninput="calcEq()"></div>'
+      +'<div class="field"><label>Amount Paid (Naira)</label><input type="number" id="f-paid"></div>'
+      +'<div class="calc-lbl" id="f-eqexp">Expected: N0</div>'
+      +'<div class="field"><label>Vendor / Hire Company</label><input id="f-vendor"></div>'
+      +'<div class="field full"><label>Purpose / Work Done</label><input id="f-purpose" placeholder="e.g. Excavation of column footings grid A1 to C3"></div>'
+      +'<div class="field full"><label>Notes (mob/demob, fuel provided, etc.)</label><input id="f-notes"></div>'
+      +'</div><div class="mfooter"><button class="btn btn-s" onclick="closeModal()">Cancel</button><button class="btn btn-p" onclick="submitEq()">Save Equipment Record</button></div>';
+  }
+  else if(type==="payment"){
+    mt.textContent="Record Payment";
+    mb.innerHTML='<div class="fg fg3">'
+      +'<div class="field"><label>Date</label><input type="date" id="f-date" value="'+td()+'"></div>'
+      +'<div class="field"><label>Category</label><select id="f-cat"><option>Materials</option><option>Labour</option><option>Equipment Hire</option><option>Sub-contractor</option><option>Transport</option><option>Permits and Fees</option><option>Professional Fees</option><option>Miscellaneous</option></select></div>'
+      +'<div class="field"><label>Stage</label><select id="f-ms">'+msOpts("prelim")+'</select></div>'
+      +'<div class="field"><label>Payee (who was paid)</label><input id="f-payee" placeholder="e.g. Dangote Cement Ltd"></div>'
+      +'<div class="field"><label>Amount (Naira)</label><input type="number" id="f-amount"></div>'
+      +'<div class="field"><label>Payment Method</label><select id="f-method"><option>Cash</option><option>Bank Transfer</option><option>Cheque</option><option>Mobile Money (OPay/Palmpay)</option><option>POS</option></select></div>'
+      +'<div class="field"><label>Receipt / Reference No.</label><input id="f-ref"></div>'
+      +'<div class="field"><label>Approved By</label><input id="f-appby" placeholder="e.g. Paul / MD"></div>'
+      +'<div class="field full"><label>Description / Purpose</label><textarea id="f-desc" rows="2" placeholder="What this payment was for..."></textarea></div>'
+      +'<div class="field full"><label>Notes</label><input id="f-notes"></div>'
+      +'</div><div class="mfooter"><button class="btn btn-s" onclick="closeModal()">Cancel</button><button class="btn btn-p" onclick="submitPmt()">Save Payment</button></div>';
+  }
+}
+
+function closeModal(){ gel("ov").classList.remove("open"); }
+function ovClick(e){ if(e.target===gel("ov")) closeModal(); }
+
+function calcMat(){ var el=gel("f-mattot"); if(el) el.textContent="Total: "+fmtM(num(gv("f-qdel"))*num(gv("f-ucost"))); }
+function calcLab(){ var el=gel("f-labexp"); if(el) el.textContent="Expected: "+fmtM(num(gv("f-days"))*num(gv("f-rate"))); }
+function calcEq(){  var el=gel("f-eqexp");  if(el) el.textContent="Expected: "+fmtM(num(gv("f-days"))*num(gv("f-rate"))); }
+
+function submitLog(){
+  var desc=gv("f-desc").trim();
+  if(!desc){ alert("Please describe the work done today."); return; }
+  logs=[{id:uid(),date:gv("f-date"),milestone:gv("f-ms"),weather:gv("f-weather"),
+    workers:gv("f-workers"),description:desc,issues:gv("f-issues"),nextSteps:gv("f-nextsteps")}].concat(logs);
+  sv("dc_logs",logs); renderLogs(); renderDash(); closeModal();
+}
+
+function submitMat(){
+  var desc=gv("f-desc").trim();
+  if(!desc){ alert("Please enter a material description."); return; }
+  materials=[{id:uid(),date:gv("f-date"),milestone:gv("f-ms"),category:gv("f-cat"),
+    description:desc,unit:gv("f-unit"),qtyOrdered:gv("f-qord"),qtyDelivered:gv("f-qdel"),
+    qtyUsed:gv("f-qused"),unitCost:gv("f-ucost"),supplier:gv("f-supplier"),
+    invoiceNo:gv("f-inv"),notes:gv("f-notes")}].concat(materials);
+  sv("dc_mat",materials); renderMaterials(); renderDash(); closeModal();
+}
+
+function submitLab(){
+  var trade=gv("f-trade");
+  if(!trade){ alert("Please select a trade."); return; }
+  labour=[{id:uid(),date:gv("f-date"),milestone:gv("f-ms"),trade:trade,name:gv("f-name"),
+    daysWorked:gv("f-days"),ratePerDay:gv("f-rate"),amountPaid:gv("f-paid"),
+    workDone:gv("f-workdone"),paidBy:gv("f-paidby"),notes:gv("f-notes")}].concat(labour);
+  sv("dc_lab",labour); renderLabour(); renderDash(); closeModal();
+}
+
+function submitEq(){
+  var eq=gv("f-equip").trim();
+  if(!eq){ alert("Please enter the equipment name."); return; }
+  equipment=[{id:uid(),date:gv("f-date"),milestone:gv("f-ms"),equipment:eq,
+    operator:gv("f-oper"),daysHired:gv("f-days"),ratePerDay:gv("f-rate"),
+    amountPaid:gv("f-paid"),purpose:gv("f-purpose"),vendor:gv("f-vendor"),notes:gv("f-notes")}].concat(equipment);
+  sv("dc_eq",equipment); renderEquipment(); renderDash(); closeModal();
+}
+
+function submitPmt(){
+  var payee=gv("f-payee").trim(), amt=gv("f-amount");
+  if(!payee||!amt){ alert("Payee and amount are required."); return; }
+  payments=[{id:uid(),date:gv("f-date"),category:gv("f-cat"),milestone:gv("f-ms"),
+    payee:payee,description:gv("f-desc"),amount:amt,paymentMethod:gv("f-method"),
+    receiptNo:gv("f-ref"),approvedBy:gv("f-appby"),notes:gv("f-notes")}].concat(payments);
+  sv("dc_pmt",payments); renderPayments(); renderDash(); closeModal();
+}
+
+init();
+</script>
+</body>
+</html>

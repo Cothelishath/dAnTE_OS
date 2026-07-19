@@ -1,0 +1,1507 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+<title>Trading Lab — dAnTE</title>
+<style>
+/* Fonts loaded via link tag instead */
+
+:root {
+  --bg:#080808; --bg2:#0f0f0f; --bg3:#161616; --bg4:#1e1e1e; --bg5:#252525;
+  --border:#1e1e1e; --border2:#2a2a2a; --border3:#363636;
+  --gold:#c9a84c; --gold-dim:#7a5f28; --gold-pale:#e8d5a3;
+  --gold-glow:rgba(201,168,76,0.08); --gold-glow2:rgba(201,168,76,0.15);
+  --text:#ddd8ce; --text-dim:#888; --text-muted:#4a4a4a;
+  --green:#4caf7d; --green-bg:rgba(76,175,125,0.1);
+  --red:#c0392b; --red-bg:rgba(192,57,43,0.1);
+  --blue:#4a8cc9; --orange:#ffa050; --purple:#8b6bff;
+  --radius:5px; --radius-lg:10px;
+}
+.light {
+  --bg:#f2ede6; --bg2:#eae4dc; --bg3:#e0d9d0; --bg4:#d6cfc5; --bg5:#ccc4b8;
+  --border:#d8d1c8; --border2:#c8c1b7; --border3:#b8b0a5;
+  --gold:#8a6020; --gold-dim:#b8902a; --gold-pale:#6a4810;
+  --gold-glow:rgba(138,96,32,0.07); --gold-glow2:rgba(138,96,32,0.14);
+  --text:#1a1714; --text-dim:#666; --text-muted:#aaa;
+}
+
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;overflow:hidden;-webkit-tap-highlight-color:transparent}
+body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;font-size:13px;line-height:1.5;display:flex;flex-direction:column}
+
+/* SCROLLBARS */
+::-webkit-scrollbar{width:3px;height:3px}
+::-webkit-scrollbar-thumb{background:var(--border3);border-radius:2px}
+
+/* ── HEADER ── */
+header{flex-shrink:0;background:var(--bg);border-bottom:1px solid var(--border);padding:10px 16px;display:flex;align-items:center;gap:10px;z-index:100}
+.logo{display:flex;flex-direction:column;gap:0;margin-right:auto}
+.logo-brand{font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:.22em;color:var(--gold);text-transform:uppercase}
+.logo-title{font-family:'Cormorant Garamond',serif;font-size:19px;font-weight:300;color:var(--text);letter-spacing:.04em;line-height:1}
+.logo-title em{color:var(--gold);font-style:italic}
+.hdr-btn{background:none;border:1px solid var(--border2);border-radius:var(--radius);color:var(--text-dim);font-family:'Inter',sans-serif;font-size:11px;padding:6px 11px;cursor:pointer;transition:all .18s;white-space:nowrap;display:inline-flex;align-items:center;gap:5px}
+.hdr-btn:hover{border-color:var(--gold);color:var(--gold)}
+.hdr-btn-gold{border-color:var(--gold);color:var(--gold)}
+.hdr-btn-gold:hover{background:var(--gold-glow)}
+
+/* ── TABS ── */
+.tabs{flex-shrink:0;display:flex;background:var(--bg2);border-bottom:1px solid var(--border);padding:0 16px;gap:0;overflow-x:auto}
+.tab{padding:10px 16px;font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--text-muted);cursor:pointer;border-bottom:2px solid transparent;transition:all .18s;white-space:nowrap;flex-shrink:0}
+.tab:hover{color:var(--text-dim)}
+.tab.active{color:var(--gold);border-bottom-color:var(--gold)}
+
+/* ── PAGES ── */
+.page{display:none;flex:1;overflow:hidden;flex-direction:column}
+.page.active{display:flex}
+.page-scroll{flex:1;overflow-y:auto;padding:16px}
+
+/* ── CARDS ── */
+.card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius-lg);overflow:hidden;margin-bottom:12px}
+.card-header{padding:14px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;gap:10px}
+.card-title{font-family:'Cormorant Garamond',serif;font-size:16px;font-weight:400;color:var(--text);letter-spacing:.03em}
+.card-body{padding:16px}
+
+/* ── BUTTONS ── */
+.btn{display:inline-flex;align-items:center;gap:5px;padding:8px 14px;border-radius:var(--radius);border:1px solid var(--border2);background:transparent;color:var(--text-dim);font-family:'Inter',sans-serif;font-size:12px;cursor:pointer;transition:all .18s;white-space:nowrap}
+.btn:hover{border-color:var(--gold);color:var(--gold)}
+.btn-gold{border-color:var(--gold);color:var(--gold)}
+.btn-gold:hover{background:var(--gold-glow)}
+.btn-solid{background:var(--gold);border-color:var(--gold);color:#000;font-weight:500}
+.btn-solid:hover{background:var(--gold-pale);border-color:var(--gold-pale)}
+.btn-sm{padding:5px 10px;font-size:11px}
+.btn-red{border-color:var(--red);color:var(--red)}
+.btn-green{border-color:var(--green);color:var(--green)}
+.btn-icon{padding:6px 8px;font-size:14px}
+
+/* ── FORM ELEMENTS ── */
+.field{margin-bottom:14px}
+.field-label{font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--text-muted);margin-bottom:5px;display:block}
+.field-sublabel{font-size:11px;color:var(--text-muted);margin-bottom:6px;margin-top:-3px;font-style:italic}
+.input{width:100%;background:var(--bg3);border:1px solid var(--border2);border-radius:var(--radius);color:var(--text);font-family:'Inter',sans-serif;font-size:12px;padding:9px 12px;outline:none;transition:border-color .18s}
+.input:focus{border-color:var(--gold)}
+.input::placeholder{color:var(--text-muted)}
+textarea.input{resize:vertical;min-height:70px;line-height:1.5}
+select.input{cursor:pointer;appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%23666'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 10px center}
+
+/* ── OUTCOME PILLS ── */
+.outcome-row{display:flex;gap:6px;flex-wrap:wrap}
+.outcome-pill{padding:6px 12px;border-radius:20px;border:1px solid var(--border2);font-size:11px;cursor:pointer;transition:all .15s;color:var(--text-muted)}
+.outcome-pill:hover{border-color:var(--text-dim);color:var(--text-dim)}
+.outcome-pill.win{border-color:var(--green);color:var(--green);background:var(--green-bg)}
+.outcome-pill.loss{border-color:var(--red);color:var(--red);background:var(--red-bg)}
+.outcome-pill.be{border-color:var(--gold);color:var(--gold);background:var(--gold-glow)}
+.outcome-pill.obs{border-color:var(--blue);color:var(--blue);background:rgba(74,140,201,.1)}
+.outcome-pill.active{font-weight:600}
+
+/* ── TAG INPUT ── */
+.tag-row{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:6px}
+.tag{display:inline-flex;align-items:center;gap:4px;padding:3px 8px;border-radius:12px;background:var(--bg4);border:1px solid var(--border2);font-size:11px;color:var(--text-dim)}
+.tag-del{background:none;border:none;color:var(--text-muted);cursor:pointer;font-size:12px;padding:0 1px;line-height:1;transition:color .12s}
+.tag-del:hover{color:var(--red)}
+.tag-input{background:transparent;border:none;outline:none;color:var(--text);font-family:'Inter',sans-serif;font-size:11px;min-width:80px}
+.tag-input::placeholder{color:var(--text-muted)}
+
+/* ── SETUP GALLERY ── */
+.gallery-filters{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px}
+.filter-pill{padding:4px 11px;border-radius:12px;border:1px solid var(--border2);font-size:11px;cursor:pointer;transition:all .15s;color:var(--text-muted);background:transparent}
+.filter-pill:hover{border-color:var(--gold-dim);color:var(--text)}
+.filter-pill.active{border-color:var(--gold);color:var(--gold);background:var(--gold-glow)}
+.gallery-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:10px}
+.setup-card{background:var(--bg3);border:1px solid var(--border2);border-radius:8px;overflow:hidden;cursor:pointer;transition:all .18s;position:relative}
+.setup-card:hover{border-color:var(--gold-dim);transform:translateY(-1px)}
+.setup-thumb{width:100%;aspect-ratio:16/10;object-fit:cover;display:block;background:var(--bg4)}
+.setup-thumb-placeholder{width:100%;aspect-ratio:16/10;background:var(--bg4);display:flex;align-items:center;justify-content:center;color:var(--text-muted);font-size:11px;font-family:'JetBrains Mono',monospace}
+.setup-card-body{padding:8px 10px}
+.setup-card-name{font-size:12px;color:var(--text);font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.setup-card-meta{font-size:10px;color:var(--text-muted);margin-top:2px;font-family:'JetBrains Mono',monospace}
+.setup-outcome-dot{position:absolute;top:7px;right:7px;width:8px;height:8px;border-radius:50%;border:1px solid rgba(0,0,0,.3)}
+.dot-win{background:var(--green)}
+.dot-loss{background:var(--red)}
+.dot-be{background:var(--gold)}
+.dot-obs{background:var(--blue)}
+.dot-none{background:var(--text-muted)}
+
+/* ── RULESET ── */
+.ruleset-section{background:var(--bg3);border:1px solid var(--border);border-radius:8px;margin-bottom:10px;overflow:hidden}
+.rs-header{padding:12px 14px;display:flex;align-items:center;justify-content:space-between;cursor:pointer;user-select:none}
+.rs-header:hover{background:var(--gold-glow)}
+.rs-title{font-family:'Cormorant Garamond',serif;font-size:15px;color:var(--text);letter-spacing:.03em}
+.rs-meta{font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--text-muted);letter-spacing:.1em}
+.rs-chevron{font-size:10px;color:var(--text-muted);transition:transform .2s}
+.rs-collapsed .rs-chevron{transform:rotate(-90deg)}
+.rs-body{padding:12px 14px;border-top:1px solid var(--border)}
+.rs-collapsed .rs-body{display:none}
+.rs-rule{display:flex;align-items:flex-start;gap:8px;padding:7px 8px;border-radius:4px;border:1px solid transparent;margin-bottom:5px}
+.rs-rule:hover{background:var(--bg4);border-color:var(--border2)}
+.rs-bullet{color:var(--gold);font-size:10px;margin-top:3px;flex-shrink:0}
+.rs-rule-text{flex:1;font-size:12px;color:var(--text);line-height:1.5;outline:none}
+.rs-rule-text:focus{color:var(--gold-pale)}
+.rs-del{background:none;border:none;color:transparent;cursor:pointer;font-size:11px;padding:2px 4px;border-radius:2px;transition:all .12s;flex-shrink:0}
+.rs-rule:hover .rs-del{color:var(--text-muted)}
+.rs-rule:hover .rs-del:hover{color:var(--red)}
+.rs-add-row{display:flex;gap:6px;margin-top:8px}
+.rs-add-inp{flex:1;background:var(--bg4);border:1px solid var(--border);border-radius:var(--radius);color:var(--text);font-family:'Inter',sans-serif;font-size:11px;padding:6px 10px;outline:none}
+.rs-add-inp:focus{border-color:var(--gold-dim)}
+.rs-add-inp::placeholder{color:var(--text-muted)}
+.rs-updated{font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--text-muted);margin-top:10px;text-align:right}
+
+/* ── JOURNAL ── */
+.journal-entry{background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:12px 14px;margin-bottom:10px;cursor:pointer;transition:all .15s}
+.journal-entry:hover{border-color:var(--border2)}
+.je-top{display:flex;align-items:flex-start;justify-content:space-between;gap:8px;margin-bottom:6px}
+.je-date{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--text-muted)}
+.je-outcome{font-family:'JetBrains Mono',monospace;font-size:10px;padding:2px 7px;border-radius:10px;font-weight:500}
+.je-outcome.win{background:var(--green-bg);color:var(--green)}
+.je-outcome.loss{background:var(--red-bg);color:var(--red)}
+.je-outcome.be{background:var(--gold-glow);color:var(--gold)}
+.je-outcome.obs{background:rgba(74,140,201,.1);color:var(--blue)}
+.je-title{font-size:13px;color:var(--text);font-weight:500;margin-bottom:3px}
+.je-lesson{font-size:11px;color:var(--text-dim);line-height:1.5;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+
+/* ── STATS ── */
+.stats-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-bottom:14px}
+.stat-box{background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:12px 14px}
+.stat-num{font-family:'Cormorant Garamond',serif;font-size:28px;font-weight:300;color:var(--gold);line-height:1}
+.stat-label{font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--text-muted);text-transform:uppercase;letter-spacing:.12em;margin-top:3px}
+.stat-sub{font-size:11px;color:var(--text-dim);margin-top:4px}
+
+/* ── ANNOTATION CANVAS ── */
+.canvas-wrap{position:relative;width:100%;background:var(--bg4);border-radius:6px;overflow:hidden;touch-action:none;user-select:none}
+.anno-canvas{display:block;width:100%;cursor:crosshair}
+.anno-img{position:absolute;top:0;left:0;width:100%;height:100%;object-fit:contain;pointer-events:none}
+.canvas-toolbar{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px;align-items:center}
+.tool-btn{background:var(--bg4);border:1px solid var(--border2);border-radius:var(--radius);color:var(--text-dim);font-size:12px;padding:6px 10px;cursor:pointer;transition:all .15s;font-family:'Inter',sans-serif}
+.tool-btn:hover,.tool-btn.active{border-color:var(--gold);color:var(--gold);background:var(--gold-glow)}
+.color-btn{width:26px;height:26px;border-radius:50%;border:2px solid var(--border2);cursor:pointer;flex-shrink:0;transition:border-color .15s}
+.color-btn.active{border-color:var(--gold)}
+.stroke-select{background:var(--bg4);border:1px solid var(--border2);border-radius:var(--radius);color:var(--text-dim);font-size:11px;padding:5px 8px;outline:none;cursor:pointer;font-family:'JetBrains Mono',monospace}
+
+/* ── MODAL ── */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.82);z-index:200;display:flex;align-items:flex-end;justify-content:center;padding:0;backdrop-filter:blur(8px)}
+.modal-overlay.hidden{display:none}
+.modal{background:var(--bg2);border:1px solid var(--border2);border-radius:16px 16px 0 0;padding:20px 18px;width:100%;max-width:600px;max-height:92vh;overflow-y:auto;display:flex;flex-direction:column;gap:14px}
+.modal-handle{width:36px;height:3px;background:var(--border3);border-radius:2px;margin:0 auto -6px}
+.modal-title{font-family:'Cormorant Garamond',serif;font-size:20px;font-weight:300;color:var(--text)}
+.modal-actions{display:flex;gap:8px;justify-content:flex-end;padding-top:4px}
+
+/* ── EMPTY STATES ── */
+.empty{text-align:center;padding:48px 20px;color:var(--text-muted)}
+.empty-icon{font-size:36px;margin-bottom:12px;opacity:.4}
+.empty-label{font-family:'Cormorant Garamond',serif;font-size:17px;color:var(--text-dim);margin-bottom:6px}
+.empty-sub{font-size:12px;color:var(--text-muted);line-height:1.6}
+
+
+/* ── STUDY ── */
+.study-entry{background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:12px 14px;margin-bottom:8px;cursor:pointer;transition:all .15s}
+.study-entry:hover{border-color:var(--border2)}
+.study-top{display:flex;align-items:center;gap:8px;margin-bottom:6px;flex-wrap:wrap}
+.study-date{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--text-muted)}
+.mode-badge{font-family:'JetBrains Mono',monospace;font-size:9px;padding:2px 8px;border-radius:10px;letter-spacing:.08em;font-weight:500;text-transform:uppercase}
+.mode-intake{background:rgba(139,107,255,.12);color:var(--purple);border:1px solid rgba(139,107,255,.3)}
+.mode-processing{background:var(--gold-glow);color:var(--gold);border:1px solid var(--gold-dim)}
+.mode-testing{background:var(--green-bg);color:var(--green);border:1px solid rgba(76,175,125,.3)}
+.study-topic{font-size:13px;color:var(--text);font-weight:500;margin-bottom:4px}
+.study-understood{font-size:11px;color:var(--text-dim);line-height:1.5;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.study-next{margin-top:8px;padding-top:8px;border-top:1px solid var(--border);font-size:11px;color:var(--text-muted);font-style:italic}
+.study-next span{color:var(--gold)}
+.mode-guide-hidden{display:none}
+
+/* TOAST */
+.toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%) translateY(8px);background:var(--bg3);border:1px solid var(--gold-dim);color:var(--gold);font-family:'JetBrains Mono',monospace;font-size:11px;padding:9px 18px;border-radius:20px;z-index:400;opacity:0;transition:all .25s;pointer-events:none;white-space:nowrap}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
+/* DIVIDER */
+.divider{height:1px;background:var(--border);margin:8px 0}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">
+    <div class="logo-brand">dAnTE</div>
+    <div class="logo-title">Trading <em>Lab</em></div>
+  </div>
+  <button class="hdr-btn" onclick="toggleTheme()">☀︎</button>
+  <button class="hdr-btn" onclick="exportAll()">⬇ Export</button>
+  <button class="hdr-btn" onclick="importAll()">⬆ Import</button>
+  <button class="hdr-btn hdr-btn-gold" onclick="saveAll()">Save</button>
+</header>
+
+<div class="tabs">
+  <div class="tab active" data-tab="library" onclick="switchTab('library')">Library</div>
+  <div class="tab" data-tab="journal" onclick="switchTab('journal')">Journal</div>
+  <div class="tab" data-tab="ruleset" onclick="switchTab('ruleset')">Ruleset</div>
+  <div class="tab" data-tab="stats" onclick="switchTab('stats')">Stats</div>
+  <div class="tab" data-tab="study" onclick="switchTab('study')">Study</div>
+</div>
+
+<!-- ── LIBRARY PAGE ── -->
+<div class="page active" id="page-library">
+  <div style="padding:12px 16px 0;display:flex;gap:8px;align-items:center;flex-shrink:0">
+    <div class="gallery-filters" id="galleryFilters" style="margin-bottom:0;flex:1"></div>
+    <button class="btn btn-solid btn-sm" onclick="openNewSetup()">+ Setup</button>
+  </div>
+  <div class="page-scroll">
+    <div class="gallery-grid" id="galleryGrid"></div>
+    <div class="empty hidden" id="libraryEmpty">
+      <div class="empty-icon">◎</div>
+      <div class="empty-label">No setups yet</div>
+      <div class="empty-sub">Every trade you study becomes a data point.<br>Start with one chart screenshot.</div>
+    </div>
+  </div>
+</div>
+
+<!-- ── JOURNAL PAGE ── -->
+<div class="page" id="page-journal">
+  <div style="padding:12px 16px 0;display:flex;gap:8px;align-items:center;justify-content:space-between;flex-shrink:0">
+    <div style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--text-muted);letter-spacing:.12em;text-transform:uppercase">Session Log</div>
+    <button class="btn btn-solid btn-sm" onclick="openNewJournal()">+ Session</button>
+  </div>
+  <div class="page-scroll">
+    <div id="journalList"></div>
+    <div class="empty hidden" id="journalEmpty">
+      <div class="empty-icon">◈</div>
+      <div class="empty-label">No sessions logged</div>
+      <div class="empty-sub">Log every session — wins, losses, observations.<br>The journal is where patterns become visible.</div>
+    </div>
+  </div>
+</div>
+
+<!-- ── RULESET PAGE ── -->
+<div class="page" id="page-ruleset">
+  <div style="padding:12px 16px 0;display:flex;gap:8px;align-items:center;justify-content:space-between;flex-shrink:0">
+    <div style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--text-muted);letter-spacing:.12em;text-transform:uppercase">Living Ruleset — V75-1s</div>
+    <button class="btn btn-sm btn-gold" onclick="addRuleSection()">+ Section</button>
+  </div>
+  <div class="page-scroll">
+    <div style="font-size:11px;color:var(--text-muted);font-style:italic;margin-bottom:14px;padding-top:4px">This is a living document. Update it when testing produces a verdict, not when you read something new.</div>
+    <div id="rulesetContainer"></div>
+  </div>
+</div>
+
+<!-- ── STATS PAGE ── -->
+<div class="page" id="page-stats">
+  <div class="page-scroll">
+    <div class="stats-grid" id="statsGrid"></div>
+    <div class="card">
+      <div class="card-header"><div class="card-title">Outcome breakdown</div></div>
+      <div class="card-body" id="outcomeBreakdown"></div>
+    </div>
+    <div class="card">
+      <div class="card-header"><div class="card-title">Setup type frequency</div></div>
+      <div class="card-body" id="setupFrequency"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ── STUDY PAGE ── -->
+<div class="page" id="page-study">
+  <div style="padding:12px 16px 0;display:flex;gap:8px;align-items:center;justify-content:space-between;flex-shrink:0">
+    <div style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--text-muted);letter-spacing:.12em;text-transform:uppercase">Study Framework — V75-1s</div>
+    <button class="btn btn-solid btn-sm" onclick="openNewStudy()">+ Session</button>
+  </div>
+  <div class="page-scroll">
+    <!-- NEXT SESSION CARD -->
+    <div class="card" id="nextSessionCard" style="border-color:var(--gold-dim);background:var(--gold-glow)">
+      <div class="card-header" style="border-color:var(--gold-dim)">
+        <div class="card-title" style="color:var(--gold)">Next session</div>
+        <button class="btn btn-sm btn-gold" onclick="openNewStudy(true)">Start this →</button>
+      </div>
+      <div class="card-body" id="nextSessionBody">
+        <div style="font-size:12px;color:var(--text-muted);font-style:italic">No next session defined yet. Log a study session and set what comes next.</div>
+      </div>
+    </div>
+
+    <!-- MODE EXPLAINER -->
+    <div class="card">
+      <div class="card-header" style="cursor:pointer" onclick="toggleModeGuide()">
+        <div class="card-title">The three modes</div>
+        <div id="modeGuideChevron" style="font-size:10px;color:var(--text-muted);transition:transform .2s">▾</div>
+      </div>
+      <div class="card-body" id="modeGuideBody">
+        <div style="display:flex;flex-direction:column;gap:10px">
+          <div style="padding:10px 12px;border-radius:6px;background:var(--bg3);border-left:3px solid var(--purple)">
+            <div style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--purple);letter-spacing:.1em;margin-bottom:4px">INTAKE</div>
+            <div style="font-size:12px;color:var(--text-dim);line-height:1.6">Consume material only. Video, article, chapter. Your only job is to stay present and note what feels important. No analysis, no testing, no writing definitions. Just receive. Background audio is fine here.</div>
+          </div>
+          <div style="padding:10px 12px;border-radius:6px;background:var(--bg3);border-left:3px solid var(--gold)">
+            <div style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--gold);letter-spacing:.1em;margin-bottom:4px">PROCESSING</div>
+            <div style="font-size:12px;color:var(--text-dim);line-height:1.6">Take one concept from intake and work it until you own it. Write the definition in your own words. Answer: under what exact conditions is this true, and when does it break? No new material comes in. This is where ruleset entries are written.</div>
+          </div>
+          <div style="padding:10px 12px;border-radius:6px;background:var(--bg3);border-left:3px solid var(--green)">
+            <div style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--green);letter-spacing:.1em;margin-bottom:4px">TESTING</div>
+            <div style="font-size:12px;color:var(--text-dim);line-height:1.6">Take one processed concept and go find it in charts. Not to trade — to confirm it exists, to see what valid looks like versus invalid, to break it. This is what turns theory into pattern recognition.</div>
+          </div>
+          <div style="font-size:11px;color:var(--text-muted);font-style:italic;padding-top:4px">Declare your mode before you open anything. That declaration alone removes most of the paralysis — you now know what done looks like.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SESSION LOG -->
+    <div style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--text-muted);letter-spacing:.12em;text-transform:uppercase;margin-bottom:10px">Session log</div>
+    <div id="studyList"></div>
+    <div class="empty hidden" id="studyEmpty">
+      <div class="empty-icon">◌</div>
+      <div class="empty-label">No study sessions yet</div>
+      <div class="empty-sub">Log every session — what you studied, which mode, what you understood.<br>The thread you build here is what you follow next time.</div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ── SETUP MODAL ── -->
+<div class="modal-overlay hidden" id="setupModal">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-title" id="setupModalTitle">New Setup</div>
+
+    <div class="field">
+      <label class="field-label">Setup name</label>
+      <input class="input" id="sm-name" placeholder="e.g. BOS + OB retest, FVG fill, CHoCH entry...">
+    </div>
+
+    <!-- ANNOTATION -->
+    <div class="field">
+      <label class="field-label">Chart screenshot</label>
+      <div class="field-sublabel">Upload a screenshot, then annotate on top of it</div>
+      <div class="canvas-toolbar" id="canvasToolbar">
+        <button class="tool-btn active" id="tool-pen" onclick="setTool('pen')" title="Draw">✏</button>
+        <button class="tool-btn" id="tool-arrow" onclick="setTool('arrow')" title="Arrow">→</button>
+        <button class="tool-btn" id="tool-rect" onclick="setTool('rect')" title="Rectangle">▭</button>
+        <button class="tool-btn" id="tool-text" onclick="setTool('text')" title="Text label">T</button>
+        <button class="tool-btn" id="tool-erase" onclick="setTool('erase')" title="Erase">⌫</button>
+        <div style="width:1px;height:20px;background:var(--border2);flex-shrink:0"></div>
+        <div class="color-btn active" style="background:#c9a84c" onclick="setColor('#c9a84c',this)" title="Gold"></div>
+        <div class="color-btn" style="background:#4caf7d" onclick="setColor('#4caf7d',this)" title="Green"></div>
+        <div class="color-btn" style="background:#c0392b" onclick="setColor('#c0392b',this)" title="Red"></div>
+        <div class="color-btn" style="background:#4a8cc9" onclick="setColor('#4a8cc9',this)" title="Blue"></div>
+        <div class="color-btn" style="background:#ffffff" onclick="setColor('#ffffff',this)" title="White"></div>
+        <div style="width:1px;height:20px;background:var(--border2);flex-shrink:0"></div>
+        <select class="stroke-select" id="strokeSize" onchange="strokeWidth=parseInt(this.value)">
+          <option value="2">Thin</option>
+          <option value="3" selected>Medium</option>
+          <option value="5">Thick</option>
+        </select>
+        <button class="tool-btn btn-sm" onclick="clearCanvas()" title="Clear annotations" style="margin-left:auto">Clear</button>
+      </div>
+      <div class="canvas-wrap" id="canvasWrap" style="min-height:180px">
+        <canvas id="annoCanvas" style="display:block;width:100%"></canvas>
+        <div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;pointer-events:none" id="canvasPlaceholder">
+          <div style="font-size:28px;opacity:.3">📷</div>
+          <div style="font-size:11px;color:var(--text-muted)">Tap to upload a chart screenshot</div>
+        </div>
+      </div>
+      <div style="display:flex;gap:6px;margin-top:6px">
+        <button class="btn btn-sm" onclick="document.getElementById('imgUpload').click()" style="flex:1">Upload screenshot</button>
+        <button class="btn btn-sm" onclick="undoStroke()" title="Undo last stroke">↩ Undo</button>
+      </div>
+      <input type="file" id="imgUpload" accept="image/*" style="display:none" onchange="loadImage(event)">
+    </div>
+
+    <div class="divider"></div>
+
+    <!-- SETUP COMPONENTS FORM -->
+    <div class="field">
+      <label class="field-label">Setup type / pattern</label>
+      <input class="input" id="sm-type" placeholder="BOS, CHoCH, OB, FVG, Liquidity sweep...">
+    </div>
+
+    <div class="field">
+      <label class="field-label">Timeframe(s)</label>
+      <input class="input" id="sm-tf" placeholder="e.g. 1s, 5s, 1m — or multi-TF confluence">
+    </div>
+
+    <div class="field">
+      <label class="field-label">Zone / structure identified</label>
+      <textarea class="input" id="sm-zone" placeholder="What zone or structure anchored this setup? What made it valid?"></textarea>
+    </div>
+
+    <div class="field">
+      <label class="field-label">Entry condition</label>
+      <textarea class="input" id="sm-entry" placeholder="Exact trigger for entry. What had to happen before you pulled the trigger?"></textarea>
+    </div>
+
+    <div class="field">
+      <label class="field-label">Confirmation</label>
+      <textarea class="input" id="sm-confirm" placeholder="What confirmed the entry was valid? M1 candle close? Break of structure?"></textarea>
+    </div>
+
+    <div class="field">
+      <label class="field-label">Invalidation</label>
+      <textarea class="input" id="sm-invalid" placeholder="What would have told you the setup was wrong before entry?"></textarea>
+    </div>
+
+    <div class="field">
+      <label class="field-label">Stop placement</label>
+      <input class="input" id="sm-stop" placeholder="Where was the stop? What logic justified it?">
+    </div>
+
+    <div class="field">
+      <label class="field-label">Target logic</label>
+      <input class="input" id="sm-target" placeholder="Where was the target? Next liquidity? Structure? FVG?">
+    </div>
+
+    <div class="field">
+      <label class="field-label">Outcome</label>
+      <div class="outcome-row" id="sm-outcome-row">
+        <div class="outcome-pill obs active" data-outcome="obs" onclick="selectOutcome(this)">Observation</div>
+        <div class="outcome-pill win" data-outcome="win" onclick="selectOutcome(this)">Win ✓</div>
+        <div class="outcome-pill loss" data-outcome="loss" onclick="selectOutcome(this)">Loss ✗</div>
+        <div class="outcome-pill be" data-outcome="be" onclick="selectOutcome(this)">Break Even</div>
+      </div>
+    </div>
+
+    <div class="field">
+      <label class="field-label">The lesson</label>
+      <div class="field-sublabel">What does this chart tell you? One clear sentence.</div>
+      <textarea class="input" id="sm-lesson" placeholder="e.g. When OB is inside a premium array with a prior FVG above, price consistently rejects from the midpoint..."></textarea>
+    </div>
+
+    <div class="field">
+      <label class="field-label">Tags</label>
+      <div class="tag-row" id="sm-tags-row">
+        <input class="tag-input" id="sm-tag-input" placeholder="Add tag, press Enter..." onkeydown="handleTagKey(event,'sm')">
+      </div>
+    </div>
+
+    <div class="modal-actions">
+      <button class="btn btn-red btn-sm" id="setupDeleteBtn" onclick="deleteSetup()" style="display:none">Delete</button>
+      <button class="btn btn-sm" onclick="closeSetupModal()">Cancel</button>
+      <button class="btn btn-solid btn-sm" onclick="saveSetup()">Save Setup</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── JOURNAL MODAL ── -->
+<div class="modal-overlay hidden" id="journalModal">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-title" id="jModalTitle">New Session</div>
+
+    <div class="field">
+      <label class="field-label">Date</label>
+      <input class="input" id="jm-date" type="date">
+    </div>
+
+    <div class="field">
+      <label class="field-label">Session label</label>
+      <input class="input" id="jm-label" placeholder="e.g. London open, NY kill zone, backtesting session...">
+    </div>
+
+    <div class="field">
+      <label class="field-label">Outcome</label>
+      <div class="outcome-row" id="jm-outcome-row">
+        <div class="outcome-pill obs active" data-outcome="obs" onclick="selectOutcomeJ(this)">Observation</div>
+        <div class="outcome-pill win" data-outcome="win" onclick="selectOutcomeJ(this)">Win ✓</div>
+        <div class="outcome-pill loss" data-outcome="loss" onclick="selectOutcomeJ(this)">Loss ✗</div>
+        <div class="outcome-pill be" data-outcome="be" onclick="selectOutcomeJ(this)">Break Even</div>
+      </div>
+    </div>
+
+    <div class="field">
+      <label class="field-label">What I saw</label>
+      <textarea class="input" id="jm-saw" style="min-height:80px" placeholder="Describe the market structure, what setup appeared, what the chart was showing..."></textarea>
+    </div>
+
+    <div class="field">
+      <label class="field-label">What I did</label>
+      <textarea class="input" id="jm-did" placeholder="What action did you take? Did you follow the ruleset?"></textarea>
+    </div>
+
+    <div class="field">
+      <label class="field-label">What happened</label>
+      <textarea class="input" id="jm-happened" placeholder="Result. Price action after entry or after you chose not to enter."></textarea>
+    </div>
+
+    <div class="field">
+      <label class="field-label">What I'd change</label>
+      <textarea class="input" id="jm-change" placeholder="If anything — what would you do differently next time?"></textarea>
+    </div>
+
+    <div class="field">
+      <label class="field-label">Ruleset followed?</label>
+      <div class="outcome-row" id="jm-rs-row">
+        <div class="outcome-pill win active" data-rs="yes" onclick="selectRS(this)">Yes</div>
+        <div class="outcome-pill loss" data-rs="no" onclick="selectRS(this)">No</div>
+        <div class="outcome-pill be" data-rs="partial" onclick="selectRS(this)">Partially</div>
+        <div class="outcome-pill obs" data-rs="na" onclick="selectRS(this)">N/A</div>
+      </div>
+    </div>
+
+    <div class="field">
+      <label class="field-label">Tags</label>
+      <div class="tag-row" id="jm-tags-row">
+        <input class="tag-input" id="jm-tag-input" placeholder="Add tag, press Enter..." onkeydown="handleTagKey(event,'jm')">
+      </div>
+    </div>
+
+    <div class="modal-actions">
+      <button class="btn btn-red btn-sm" id="journalDeleteBtn" onclick="deleteJournal()" style="display:none">Delete</button>
+      <button class="btn btn-sm" onclick="closeJournalModal()">Cancel</button>
+      <button class="btn btn-solid btn-sm" onclick="saveJournal()">Save Session</button>
+    </div>
+  </div>
+</div>
+
+
+<!-- ── STUDY MODAL ── -->
+<div class="modal-overlay hidden" id="studyModal">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-title" id="stModalTitle">Study Session</div>
+
+    <div class="field">
+      <label class="field-label">Date</label>
+      <input class="input" id="st-date" type="date">
+    </div>
+
+    <div class="field">
+      <label class="field-label">Mode — declare before you begin</label>
+      <div class="outcome-row" id="st-mode-row">
+        <div class="outcome-pill obs active" data-mode="intake" onclick="selectMode(this)" style="border-color:var(--purple);color:var(--purple);background:rgba(139,107,255,.1)">Intake</div>
+        <div class="outcome-pill" data-mode="processing" onclick="selectMode(this)" style="border-color:var(--border2)">Processing</div>
+        <div class="outcome-pill" data-mode="testing" onclick="selectMode(this)" style="border-color:var(--border2)">Testing</div>
+      </div>
+    </div>
+
+    <div class="field">
+      <label class="field-label">Topic / concept studied</label>
+      <input class="input" id="st-topic" placeholder="e.g. Order Block definition, FVG identification, CHoCH vs BOS...">
+    </div>
+
+    <div class="field">
+      <label class="field-label">Source material</label>
+      <input class="input" id="st-source" placeholder="Video, article, your own notes, charts...">
+    </div>
+
+    <div class="field">
+      <label class="field-label">What I understood — in my own words</label>
+      <div class="field-sublabel" style="font-size:10px;color:var(--text-muted);font-style:italic;margin-bottom:6px">If you cannot write this, the session is not done yet.</div>
+      <textarea class="input" id="st-understood" style="min-height:90px" placeholder="Explain the concept as if teaching it to someone. No jargon. What exactly is it, when does it apply, when does it not?"></textarea>
+    </div>
+
+    <div class="field">
+      <label class="field-label">What is still unclear</label>
+      <textarea class="input" id="st-unclear" placeholder="Be precise. Vague confusion is not useful. Name the exact thing you do not understand."></textarea>
+    </div>
+
+    <div class="field">
+      <label class="field-label">Questions this session raised</label>
+      <textarea class="input" id="st-questions" placeholder="What new questions came up? These become future session topics."></textarea>
+    </div>
+
+    <div class="field">
+      <label class="field-label">Does this belong in the ruleset?</label>
+      <div class="outcome-row" id="st-rs-row">
+        <div class="outcome-pill win active" data-strs="yes" onclick="selectStudyRS(this)">Yes — I will add it</div>
+        <div class="outcome-pill loss" data-strs="no" onclick="selectStudyRS(this)">Not yet</div>
+        <div class="outcome-pill be" data-strs="maybe" onclick="selectStudyRS(this)">Needs more testing</div>
+      </div>
+    </div>
+
+    <div class="section-divider"></div>
+    <div style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--gold);letter-spacing:.12em;text-transform:uppercase;margin-bottom:10px">Next session →</div>
+
+    <div class="field">
+      <label class="field-label">Next session topic</label>
+      <input class="input" id="st-next-topic" placeholder="What do you study next? Write it now while it is clear.">
+    </div>
+
+    <div class="field">
+      <label class="field-label">Next session mode</label>
+      <div class="outcome-row" id="st-next-mode-row">
+        <div class="outcome-pill obs active" data-nextmode="intake" onclick="selectNextMode(this)" style="border-color:var(--purple);color:var(--purple);background:rgba(139,107,255,.1)">Intake</div>
+        <div class="outcome-pill" data-nextmode="processing" onclick="selectNextMode(this)" style="border-color:var(--border2)">Processing</div>
+        <div class="outcome-pill" data-nextmode="testing" onclick="selectNextMode(this)" style="border-color:var(--border2)">Testing</div>
+      </div>
+    </div>
+
+    <div class="field">
+      <label class="field-label">Next session intention</label>
+      <input class="input" id="st-next-intention" placeholder="What specifically do you want to be able to say at the end of that session?">
+    </div>
+
+    <div class="modal-actions">
+      <button class="btn btn-red btn-sm" id="studyDeleteBtn" onclick="deleteStudy()" style="display:none">Delete</button>
+      <button class="btn btn-sm" onclick="closeStudyModal()">Cancel</button>
+      <button class="btn btn-solid btn-sm" onclick="saveStudy()">Save Session</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+<input type="file" id="importFile" accept=".json" style="display:none" onchange="handleImport(event)">
+
+<script>
+// ── STATE ──────────────────────────────────────────────────
+function uid(){return Date.now().toString(36)+Math.random().toString(36).slice(2,6)}
+
+let setups=[];
+let journals=[];
+let ruleset=[];
+let isDark=true;
+
+// Canvas state
+let ctx=null, canvas=null;
+let isDrawing=false;
+let currentTool='pen';
+let currentColor='#c9a84c';
+let strokeWidth=3;
+let strokes=[];
+let currentStroke=null;
+let imgDataURL=null;
+let imgEl=null;
+let canvasW=0, canvasH=0;
+let startX=0, startY=0;
+let textMode=false;
+
+// Edit context
+let editSetupId=null;
+let editJournalId=null;
+let galleryFilter='all';
+let smOutcome='obs';
+let jmOutcome='obs';
+let jmRS='yes';
+let smTags=[];
+let jmTags=[];
+
+// ── TABS ──────────────────────────────────────────────────
+function switchTab(tab){
+  document.querySelectorAll('.tab').forEach(t=>t.classList.toggle('active',t.dataset.tab===tab));
+  document.querySelectorAll('.page').forEach(p=>p.classList.toggle('active',p.id==='page-'+tab));
+  if(tab==='library') renderGallery();
+  if(tab==='journal') renderJournal();
+  if(tab==='ruleset') renderRuleset();
+  if(tab==='stats') renderStats();
+  if(tab==='study') renderStudy();
+}
+
+// ── CANVAS SETUP ──────────────────────────────────────────
+function initCanvas(){
+  canvas=document.getElementById('annoCanvas');
+  ctx=canvas.getContext('2d');
+  const wrap=document.getElementById('canvasWrap');
+  const w=wrap.offsetWidth||360;
+  const h=Math.round(w*(10/16));
+  canvas.width=w; canvas.height=h;
+  canvasW=w; canvasH=h;
+  canvas.style.width='100%';
+  canvas.style.height=h+'px';
+  wrap.style.minHeight=h+'px';
+  redrawCanvas();
+
+  canvas.addEventListener('mousedown',startDraw);
+  canvas.addEventListener('mousemove',moveDraw);
+  canvas.addEventListener('mouseup',endDraw);
+  canvas.addEventListener('mouseleave',endDraw);
+  canvas.addEventListener('touchstart',e=>{e.preventDefault();startDraw(e.touches[0])},{passive:false});
+  canvas.addEventListener('touchmove',e=>{e.preventDefault();moveDraw(e.touches[0])},{passive:false});
+  canvas.addEventListener('touchend',e=>{e.preventDefault();endDraw()},{passive:false});
+  canvas.addEventListener('click',handleCanvasClick);
+}
+
+function getPos(e){
+  const r=canvas.getBoundingClientRect();
+  const scaleX=canvasW/r.width, scaleY=canvasH/r.height;
+  return {x:(e.clientX-r.left)*scaleX, y:(e.clientY-r.top)*scaleY};
+}
+
+function startDraw(e){
+  if(currentTool==='text') return;
+  isDrawing=true;
+  const p=getPos(e);
+  startX=p.x; startY=p.y;
+  if(currentTool==='pen'||currentTool==='erase'){
+    currentStroke={tool:currentTool,color:currentColor,width:strokeWidth,points:[p]};
+  } else {
+    currentStroke={tool:currentTool,color:currentColor,width:strokeWidth,x1:p.x,y1:p.y,x2:p.x,y2:p.y};
+  }
+}
+
+function moveDraw(e){
+  if(!isDrawing||!currentStroke) return;
+  const p=getPos(e);
+  if(currentTool==='pen'||currentTool==='erase'){
+    currentStroke.points.push(p);
+  } else {
+    currentStroke.x2=p.x; currentStroke.y2=p.y;
+  }
+  redrawCanvas();
+  drawStroke(ctx,currentStroke);
+}
+
+function endDraw(){
+  if(!isDrawing||!currentStroke) return;
+  isDrawing=false;
+  strokes.push(currentStroke);
+  currentStroke=null;
+  redrawCanvas();
+}
+
+function handleCanvasClick(e){
+  if(currentTool!=='text') return;
+  const p=getPos(e);
+  const text=prompt('Label text:');
+  if(!text) return;
+  strokes.push({tool:'text',color:currentColor,width:strokeWidth,x:p.x,y:p.y,text});
+  redrawCanvas();
+}
+
+function redrawCanvas(){
+  ctx.clearRect(0,0,canvasW,canvasH);
+  if(imgEl){
+    const ar=imgEl.naturalWidth/imgEl.naturalHeight;
+    const cAr=canvasW/canvasH;
+    let dw,dh,dx,dy;
+    if(ar>cAr){dw=canvasW;dh=canvasW/ar;dx=0;dy=(canvasH-dh)/2}
+    else{dh=canvasH;dw=canvasH*ar;dy=0;dx=(canvasW-dw)/2}
+    ctx.drawImage(imgEl,dx,dy,dw,dh);
+    document.getElementById('canvasPlaceholder').style.display='none';
+  }
+  strokes.forEach(s=>drawStroke(ctx,s));
+}
+
+function drawStroke(c,s){
+  c.save();
+  if(s.tool==='erase'){c.globalCompositeOperation='destination-out';c.strokeStyle='rgba(0,0,0,1)'}
+  else{c.globalCompositeOperation='source-over';c.strokeStyle=s.color}
+  c.lineWidth=s.width; c.lineCap='round'; c.lineJoin='round';
+  if(s.tool==='pen'||s.tool==='erase'){
+    if(!s.points||s.points.length<2){c.restore();return}
+    c.beginPath(); c.moveTo(s.points[0].x,s.points[0].y);
+    s.points.forEach(p=>c.lineTo(p.x,p.y));
+    c.stroke();
+  } else if(s.tool==='arrow'){
+    const dx=s.x2-s.x1,dy=s.y2-s.y1,len=Math.sqrt(dx*dx+dy*dy);
+    if(len<4){c.restore();return}
+    const angle=Math.atan2(dy,dx),hw=Math.min(14,len/2);
+    c.beginPath(); c.moveTo(s.x1,s.y1); c.lineTo(s.x2,s.y2); c.stroke();
+    c.beginPath();
+    c.moveTo(s.x2,s.y2);
+    c.lineTo(s.x2-hw*Math.cos(angle-0.4),s.y2-hw*Math.sin(angle-0.4));
+    c.lineTo(s.x2-hw*Math.cos(angle+0.4),s.y2-hw*Math.sin(angle+0.4));
+    c.closePath(); c.fillStyle=s.color; c.fill();
+  } else if(s.tool==='rect'){
+    c.strokeRect(s.x1,s.y1,s.x2-s.x1,s.y2-s.y1);
+  } else if(s.tool==='text'){
+    c.font=`${Math.max(12,s.width*4)}px Inter,sans-serif`;
+    c.fillStyle=s.color;
+    c.fillText(s.text,s.x,s.y);
+  }
+  c.restore();
+}
+
+function setTool(t){
+  currentTool=t;
+  document.querySelectorAll('.tool-btn').forEach(b=>b.classList.toggle('active',b.id==='tool-'+t));
+}
+function setColor(c,el){
+  currentColor=c;
+  document.querySelectorAll('.color-btn').forEach(b=>b.classList.remove('active'));
+  el.classList.add('active');
+}
+function clearCanvas(){strokes=[];imgEl=null;imgDataURL=null;document.getElementById('canvasPlaceholder').style.display='';redrawCanvas()}
+function undoStroke(){if(strokes.length){strokes.pop();redrawCanvas()}}
+
+function loadImage(e){
+  const file=e.target.files[0]; if(!file) return;
+  const reader=new FileReader();
+  reader.onload=ev=>{
+    imgDataURL=ev.target.result;
+    const img=new Image();
+    img.onload=()=>{imgEl=img;redrawCanvas()};
+    img.src=imgDataURL;
+  };
+  reader.readAsDataURL(file);
+  e.target.value='';
+}
+
+function getAnnotatedImage(){
+  return canvas.toDataURL('image/jpeg',0.85);
+}
+
+// ── SETUP MODAL ───────────────────────────────────────────
+function openNewSetup(){
+  editSetupId=null;
+  document.getElementById('setupModalTitle').textContent='New Setup';
+  document.getElementById('setupDeleteBtn').style.display='none';
+  clearSetupForm();
+  document.getElementById('setupModal').classList.remove('hidden');
+  setTimeout(()=>initCanvas(),50);
+}
+
+function openEditSetup(id){
+  const s=setups.find(x=>x.id===id); if(!s) return;
+  editSetupId=id;
+  document.getElementById('setupModalTitle').textContent='Edit Setup';
+  document.getElementById('setupDeleteBtn').style.display='';
+  clearSetupForm();
+
+  document.getElementById('sm-name').value=s.name||'';
+  document.getElementById('sm-type').value=s.type||'';
+  document.getElementById('sm-tf').value=s.tf||'';
+  document.getElementById('sm-zone').value=s.zone||'';
+  document.getElementById('sm-entry').value=s.entry||'';
+  document.getElementById('sm-confirm').value=s.confirm||'';
+  document.getElementById('sm-invalid').value=s.invalid||'';
+  document.getElementById('sm-stop').value=s.stop||'';
+  document.getElementById('sm-target').value=s.target||'';
+  document.getElementById('sm-lesson').value=s.lesson||'';
+  smOutcome=s.outcome||'obs';
+  smTags=s.tags?[...s.tags]:[];
+
+  document.querySelectorAll('#sm-outcome-row .outcome-pill').forEach(p=>{
+    p.classList.toggle('active',p.dataset.outcome===smOutcome);
+  });
+  renderTags('sm');
+  document.getElementById('setupModal').classList.remove('hidden');
+
+  setTimeout(()=>{
+    initCanvas();
+    if(s.image){
+      imgDataURL=s.image;
+      const img=new Image();
+      img.onload=()=>{imgEl=img;redrawCanvas()};
+      img.src=imgDataURL;
+    }
+    if(s.strokes) strokes=[...s.strokes];
+    redrawCanvas();
+  },50);
+}
+
+function clearSetupForm(){
+  ['sm-name','sm-type','sm-tf','sm-zone','sm-entry','sm-confirm','sm-invalid','sm-stop','sm-target','sm-lesson'].forEach(id=>document.getElementById(id).value='');
+  smOutcome='obs'; smTags=[];
+  document.querySelectorAll('#sm-outcome-row .outcome-pill').forEach(p=>p.classList.toggle('active',p.dataset.outcome==='obs'));
+  renderTags('sm');
+  strokes=[]; imgEl=null; imgDataURL=null;
+  if(canvas) redrawCanvas();
+}
+
+function selectOutcome(el){
+  smOutcome=el.dataset.outcome;
+  document.querySelectorAll('#sm-outcome-row .outcome-pill').forEach(p=>p.classList.toggle('active',p===el));
+}
+
+function saveSetup(){
+  const name=document.getElementById('sm-name').value.trim();
+  if(!name){showToast('Give this setup a name');return}
+  const annotated=getAnnotatedImage();
+  const setup={
+    id:editSetupId||uid(),
+    name,
+    type:document.getElementById('sm-type').value.trim(),
+    tf:document.getElementById('sm-tf').value.trim(),
+    zone:document.getElementById('sm-zone').value.trim(),
+    entry:document.getElementById('sm-entry').value.trim(),
+    confirm:document.getElementById('sm-confirm').value.trim(),
+    invalid:document.getElementById('sm-invalid').value.trim(),
+    stop:document.getElementById('sm-stop').value.trim(),
+    target:document.getElementById('sm-target').value.trim(),
+    lesson:document.getElementById('sm-lesson').value.trim(),
+    outcome:smOutcome,
+    tags:[...smTags],
+    image:annotated,
+    strokes:strokes.map(s=>({...s,points:s.points?[...s.points]:undefined})),
+    date:editSetupId?(setups.find(x=>x.id===editSetupId)||{}).date||Date.now():Date.now(),
+    updated:Date.now()
+  };
+  if(editSetupId) setups=setups.map(x=>x.id===editSetupId?setup:x);
+  else setups.unshift(setup);
+  closeSetupModal(); renderGallery(); saveAll(); showToast('Setup saved');
+}
+
+function deleteSetup(){
+  if(!confirm('Delete this setup?')) return;
+  setups=setups.filter(x=>x.id!==editSetupId);
+  closeSetupModal(); renderGallery(); saveAll(); showToast('Deleted');
+}
+
+function closeSetupModal(){
+  document.getElementById('setupModal').classList.add('hidden');
+  editSetupId=null;
+}
+
+// ── GALLERY ───────────────────────────────────────────────
+const OUTCOME_LABELS={win:'Win',loss:'Loss',be:'Break Even',obs:'Observation'};
+
+function renderGallery(){
+  buildFilters();
+  const grid=document.getElementById('galleryGrid');
+  const empty=document.getElementById('libraryEmpty');
+  let filtered=galleryFilter==='all'?setups:setups.filter(s=>s.outcome===galleryFilter||s.type===galleryFilter||(s.tags&&s.tags.includes(galleryFilter)));
+  grid.innerHTML='';
+  if(!filtered.length){empty.classList.remove('hidden');return}
+  empty.classList.add('hidden');
+  filtered.forEach(s=>{
+    const card=document.createElement('div');
+    card.className='setup-card';
+    card.onclick=()=>openEditSetup(s.id);
+    const dotClass={win:'dot-win',loss:'dot-loss',be:'dot-be',obs:'dot-obs'}[s.outcome]||'dot-none';
+    card.innerHTML=`
+      <div class="setup-outcome-dot ${dotClass}"></div>
+      ${s.image?`<img class="setup-thumb" src="${s.image}" loading="lazy">`:`<div class="setup-thumb-placeholder">no chart</div>`}
+      <div class="setup-card-body">
+        <div class="setup-card-name">${s.name}</div>
+        <div class="setup-card-meta">${s.type||'—'} · ${OUTCOME_LABELS[s.outcome]||s.outcome}</div>
+      </div>`;
+    grid.appendChild(card);
+  });
+}
+
+function buildFilters(){
+  const cont=document.getElementById('galleryFilters');
+  cont.innerHTML='';
+  const filters=[{id:'all',label:'All'},...['win','loss','be','obs'].map(o=>({id:o,label:OUTCOME_LABELS[o]}))];
+  // Add unique types
+  const types=[...new Set(setups.map(s=>s.type).filter(Boolean))];
+  types.forEach(t=>filters.push({id:t,label:t}));
+  filters.forEach(f=>{
+    const pill=document.createElement('div');
+    pill.className='filter-pill'+(galleryFilter===f.id?' active':'');
+    pill.textContent=f.label;
+    pill.onclick=()=>{galleryFilter=f.id;renderGallery()};
+    cont.appendChild(pill);
+  });
+}
+
+// ── JOURNAL ───────────────────────────────────────────────
+function openNewJournal(){
+  editJournalId=null;
+  document.getElementById('jModalTitle').textContent='New Session';
+  document.getElementById('journalDeleteBtn').style.display='none';
+  clearJournalForm();
+  document.getElementById('journalModal').classList.remove('hidden');
+}
+
+function openEditJournal(id){
+  const j=journals.find(x=>x.id===id); if(!j) return;
+  editJournalId=id;
+  document.getElementById('jModalTitle').textContent='Edit Session';
+  document.getElementById('journalDeleteBtn').style.display='';
+  clearJournalForm();
+  document.getElementById('jm-date').value=j.date||'';
+  document.getElementById('jm-label').value=j.label||'';
+  document.getElementById('jm-saw').value=j.saw||'';
+  document.getElementById('jm-did').value=j.did||'';
+  document.getElementById('jm-happened').value=j.happened||'';
+  document.getElementById('jm-change').value=j.change||'';
+  jmOutcome=j.outcome||'obs'; jmRS=j.rs||'yes';
+  jmTags=j.tags?[...j.tags]:[];
+  document.querySelectorAll('#jm-outcome-row .outcome-pill').forEach(p=>p.classList.toggle('active',p.dataset.outcome===jmOutcome));
+  document.querySelectorAll('#jm-rs-row .outcome-pill').forEach(p=>p.classList.toggle('active',p.dataset.rs===jmRS));
+  renderTags('jm');
+  document.getElementById('journalModal').classList.remove('hidden');
+}
+
+function clearJournalForm(){
+  ['jm-date','jm-label','jm-saw','jm-did','jm-happened','jm-change'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('jm-date').value=new Date().toISOString().slice(0,10);
+  jmOutcome='obs'; jmRS='yes'; jmTags=[];
+  document.querySelectorAll('#jm-outcome-row .outcome-pill').forEach(p=>p.classList.toggle('active',p.dataset.outcome==='obs'));
+  document.querySelectorAll('#jm-rs-row .outcome-pill').forEach(p=>p.classList.toggle('active',p.dataset.rs==='yes'));
+  renderTags('jm');
+}
+
+function selectOutcomeJ(el){
+  jmOutcome=el.dataset.outcome;
+  document.querySelectorAll('#jm-outcome-row .outcome-pill').forEach(p=>p.classList.toggle('active',p===el));
+}
+function selectRS(el){
+  jmRS=el.dataset.rs;
+  document.querySelectorAll('#jm-rs-row .outcome-pill').forEach(p=>p.classList.toggle('active',p===el));
+}
+
+function saveJournal(){
+  const label=document.getElementById('jm-label').value.trim();
+  if(!label){showToast('Give this session a label');return}
+  const entry={
+    id:editJournalId||uid(),
+    date:document.getElementById('jm-date').value,
+    label,
+    saw:document.getElementById('jm-saw').value.trim(),
+    did:document.getElementById('jm-did').value.trim(),
+    happened:document.getElementById('jm-happened').value.trim(),
+    change:document.getElementById('jm-change').value.trim(),
+    outcome:jmOutcome,
+    rs:jmRS,
+    tags:[...jmTags],
+    updated:Date.now()
+  };
+  if(editJournalId) journals=journals.map(x=>x.id===editJournalId?entry:x);
+  else journals.unshift(entry);
+  closeJournalModal(); renderJournal(); saveAll(); showToast('Session saved');
+}
+
+function deleteJournal(){
+  if(!confirm('Delete this session?')) return;
+  journals=journals.filter(x=>x.id!==editJournalId);
+  closeJournalModal(); renderJournal(); saveAll(); showToast('Deleted');
+}
+
+function closeJournalModal(){document.getElementById('journalModal').classList.add('hidden')}
+
+function renderJournal(){
+  const list=document.getElementById('journalList');
+  const empty=document.getElementById('journalEmpty');
+  list.innerHTML='';
+  if(!journals.length){empty.classList.remove('hidden');return}
+  empty.classList.add('hidden');
+  journals.forEach(j=>{
+    const div=document.createElement('div');
+    div.className='journal-entry';
+    div.onclick=()=>openEditJournal(j.id);
+    div.innerHTML=`
+      <div class="je-top">
+        <div class="je-date">${j.date||'—'}</div>
+        <div class="je-outcome ${j.outcome}">${OUTCOME_LABELS[j.outcome]||j.outcome}</div>
+      </div>
+      <div class="je-title">${j.label}</div>
+      ${j.saw?`<div class="je-lesson">${j.saw}</div>`:''}`;
+    list.appendChild(div);
+  });
+}
+
+// ── TAGS ──────────────────────────────────────────────────
+function handleTagKey(e,prefix){
+  if(e.key!=='Enter') return;
+  const inp=document.getElementById(prefix+'-tag-input');
+  const val=inp.value.trim(); if(!val) return;
+  if(prefix==='sm'){if(!smTags.includes(val))smTags.push(val);renderTags('sm')}
+  else{if(!jmTags.includes(val))jmTags.push(val);renderTags('jm')}
+  inp.value='';
+}
+function removeTag(prefix,tag){
+  if(prefix==='sm') smTags=smTags.filter(t=>t!==tag);
+  else jmTags=jmTags.filter(t=>t!==tag);
+  renderTags(prefix);
+}
+function renderTags(prefix){
+  const row=document.getElementById(prefix+'-tags-row');
+  const inp=document.getElementById(prefix+'-tag-input');
+  const tags=prefix==='sm'?smTags:jmTags;
+  row.innerHTML='';
+  tags.forEach(t=>{
+    const span=document.createElement('span'); span.className='tag';
+    span.innerHTML=`${t}<button class="tag-del" onclick="removeTag('${prefix}','${t}')">✕</button>`;
+    row.appendChild(span);
+  });
+  row.appendChild(inp);
+}
+
+// ── RULESET ───────────────────────────────────────────────
+const DEFAULT_RULESET=[
+  {id:'rs1',title:'Zone Identification',updated:null,collapsed:false,rules:[
+    {id:'r1',text:'A valid Order Block is the last opposing candle before a significant move that created a BOS or CHoCH'},
+    {id:'r2',text:'An OB is invalid if price has traded through it more than once without a significant reaction'},
+    {id:'r3',text:'FVG: three candles, the gap between candle 1 high and candle 3 low (bullish) is untouched'},
+  ]},
+  {id:'rs2',title:'Entry Conditions',updated:null,collapsed:false,rules:[
+    {id:'r4',text:'Entry is only valid after a confirmed displacement into the zone — not before'},
+    {id:'r5',text:'On V75-1s: wait for a 1s candle close inside or at the zone before any entry consideration'},
+    {id:'r6',text:'No entry on the first touch of a zone — watch the reaction first'},
+  ]},
+  {id:'rs3',title:'Confirmation',updated:null,collapsed:false,rules:[
+    {id:'r7',text:'A confirmed CHoCH on the entry timeframe is the minimum confirmation required'},
+    {id:'r8',text:'Ideal: CHoCH + candle close + volume shift alignment'},
+  ]},
+  {id:'rs4',title:'Invalidation',updated:null,collapsed:false,rules:[
+    {id:'r9',text:'Zone is invalid if price closes a full body beyond the OB boundary'},
+    {id:'r10',text:'Setup is invalid if HTF structure has shifted against the trade direction since identification'},
+  ]},
+  {id:'rs5',title:'Stop & Target',updated:null,collapsed:false,rules:[
+    {id:'r11',text:'Stop sits beyond the invalidation point — outside the OB or the swing that created the zone'},
+    {id:'r12',text:'Minimum target: the opposing liquidity pool or the next untested FVG'},
+    {id:'r13',text:'Minimum RR before entry: 1:2. Below this the setup does not meet criteria.'},
+  ]},
+  {id:'rs6',title:'Session Rules',updated:null,collapsed:false,rules:[
+    {id:'r14',text:'Mark key levels before the session opens — never while price is moving'},
+    {id:'r15',text:'Maximum 2 live setups per session. Close the charts after the second.'},
+    {id:'r16',text:'Journal entry required after every session — win, loss, or observation. No exceptions.'},
+  ]},
+];
+
+function renderRuleset(){
+  const cont=document.getElementById('rulesetContainer');
+  cont.innerHTML='';
+  ruleset.forEach(sec=>{
+    const div=document.createElement('div');
+    div.className='ruleset-section'+(sec.collapsed?' rs-collapsed':'');
+    div.id='rs-'+sec.id;
+    div.innerHTML=`
+      <div class="rs-header" onclick="toggleRS('${sec.id}')">
+        <div>
+          <div class="rs-title" contenteditable="true" onclick="event.stopPropagation()" onblur="renameRS('${sec.id}',this.innerText)">${sec.title}</div>
+          ${sec.updated?`<div class="rs-meta">Updated ${new Date(sec.updated).toLocaleDateString()}</div>`:'<div class="rs-meta">Not yet updated from defaults</div>'}
+        </div>
+        <div style="display:flex;align-items:center;gap:8px">
+          <button class="btn btn-sm" style="color:var(--red);border-color:var(--red)" onclick="event.stopPropagation();deleteRS('${sec.id}')">✕</button>
+          <div class="rs-chevron">▾</div>
+        </div>
+      </div>
+      <div class="rs-body">
+        <div id="rs-rules-${sec.id}"></div>
+        <div class="rs-add-row">
+          <input class="rs-add-inp" id="rs-inp-${sec.id}" placeholder="Add a rule..." onkeydown="if(event.key==='Enter')addRule('${sec.id}')">
+          <button class="btn btn-sm btn-gold" onclick="addRule('${sec.id}')">+</button>
+        </div>
+      </div>`;
+    cont.appendChild(div);
+    renderRules(sec.id);
+  });
+}
+
+function renderRules(secId){
+  const sec=ruleset.find(s=>s.id===secId); if(!sec) return;
+  const cont=document.getElementById('rs-rules-'+secId); if(!cont) return;
+  cont.innerHTML='';
+  sec.rules.forEach(r=>{
+    const div=document.createElement('div'); div.className='rs-rule';
+    div.innerHTML=`<div class="rs-bullet">◆</div>
+      <div class="rs-rule-text" contenteditable="true" onblur="updateRule('${secId}','${r.id}',this.innerText)">${r.text}</div>
+      <button class="rs-del" onclick="deleteRule('${secId}','${r.id}')">✕</button>`;
+    cont.appendChild(div);
+  });
+}
+
+function toggleRS(secId){
+  const sec=ruleset.find(s=>s.id===secId); if(!sec) return;
+  sec.collapsed=!sec.collapsed;
+  document.getElementById('rs-'+secId).classList.toggle('rs-collapsed',sec.collapsed);
+}
+function renameRS(secId,text){
+  const sec=ruleset.find(s=>s.id===secId);
+  if(sec){sec.title=text.trim();sec.updated=Date.now();saveAll()}
+}
+function deleteRS(secId){
+  if(!confirm('Remove this section?')) return;
+  ruleset=ruleset.filter(s=>s.id!==secId);
+  renderRuleset(); saveAll();
+}
+function addRule(secId){
+  const inp=document.getElementById('rs-inp-'+secId);
+  const text=inp.value.trim(); if(!text) return;
+  const sec=ruleset.find(s=>s.id===secId); if(!sec) return;
+  sec.rules.push({id:uid(),text}); sec.updated=Date.now();
+  inp.value=''; renderRules(secId); saveAll();
+}
+function updateRule(secId,ruleId,text){
+  const sec=ruleset.find(s=>s.id===secId); if(!sec) return;
+  const rule=sec.rules.find(r=>r.id===ruleId);
+  if(rule){rule.text=text.trim();sec.updated=Date.now();saveAll()}
+}
+function deleteRule(secId,ruleId){
+  const sec=ruleset.find(s=>s.id===secId); if(!sec) return;
+  sec.rules=sec.rules.filter(r=>r.id!==ruleId);
+  sec.updated=Date.now(); renderRules(secId); saveAll();
+}
+function addRuleSection(){
+  const title=prompt('Section title:');
+  if(!title) return;
+  ruleset.push({id:uid(),title,updated:Date.now(),collapsed:false,rules:[]});
+  renderRuleset(); saveAll();
+}
+
+// ── STATS ─────────────────────────────────────────────────
+function renderStats(){
+  const grid=document.getElementById('statsGrid');
+  const total=journals.length;
+  const wins=journals.filter(j=>j.outcome==='win').length;
+  const losses=journals.filter(j=>j.outcome==='loss').length;
+  const wr=total?Math.round(wins/total*100):0;
+  const rsFollowed=journals.filter(j=>j.rs==='yes'||j.rs==='partial').length;
+  const rsRate=total?Math.round(rsFollowed/total*100):0;
+  grid.innerHTML=`
+    <div class="stat-box"><div class="stat-num">${total}</div><div class="stat-label">Sessions logged</div></div>
+    <div class="stat-box"><div class="stat-num" style="color:${wins>losses?'var(--green)':'var(--text-dim)'}">${wr}%</div><div class="stat-label">Win rate</div><div class="stat-sub">${wins}W · ${losses}L</div></div>
+    <div class="stat-box"><div class="stat-num">${setups.length}</div><div class="stat-label">Setups in library</div></div>
+    <div class="stat-box"><div class="stat-num" style="color:${rsRate>=80?'var(--green)':rsRate>=60?'var(--gold)':'var(--red)'}">${rsRate}%</div><div class="stat-label">Ruleset adherence</div></div>`;
+
+  // Outcome breakdown
+  const ob=document.getElementById('outcomeBreakdown');
+  const outcomes={win:0,loss:0,be:0,obs:0};
+  journals.forEach(j=>{if(outcomes[j.outcome]!==undefined)outcomes[j.outcome]++});
+  ob.innerHTML=Object.entries(outcomes).map(([k,v])=>{
+    const pct=total?Math.round(v/total*100):0;
+    const colors={win:'var(--green)',loss:'var(--red)',be:'var(--gold)',obs:'var(--blue)'};
+    return `<div style="margin-bottom:10px">
+      <div style="display:flex;justify-content:space-between;margin-bottom:4px">
+        <span style="font-size:12px;color:${colors[k]}">${OUTCOME_LABELS[k]}</span>
+        <span style="font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--text-muted)">${v} · ${pct}%</span>
+      </div>
+      <div style="height:4px;background:var(--border2);border-radius:2px;overflow:hidden">
+        <div style="height:100%;width:${pct}%;background:${colors[k]};border-radius:2px;transition:width .4s"></div>
+      </div></div>`;
+  }).join('');
+
+  // Setup frequency
+  const sf=document.getElementById('setupFrequency');
+  const types={};
+  setups.forEach(s=>{if(s.type){types[s.type]=(types[s.type]||0)+1}});
+  const sorted=Object.entries(types).sort((a,b)=>b[1]-a[1]);
+  sf.innerHTML=sorted.length?sorted.map(([t,c])=>`
+    <div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--border)">
+      <span style="font-size:12px;color:var(--text)">${t}</span>
+      <span style="font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--gold)">${c}</span>
+    </div>`).join(''):`<div style="color:var(--text-muted);font-size:12px;padding:12px 0">No setup types recorded yet</div>`;
+}
+
+// ── PERSISTENCE ───────────────────────────────────────────
+function saveAll(){
+  try{
+    localStorage.setItem('tradingLabSetups',JSON.stringify(setups));
+    localStorage.setItem('tradingLabStudy',JSON.stringify(studySessions));
+    localStorage.setItem('tradingLabJournals',JSON.stringify(journals));
+    localStorage.setItem('tradingLabRuleset',JSON.stringify(ruleset));
+  }catch(e){showToast('Storage full — export to save')}
+}
+function loadAll(){
+  try{
+    const s=localStorage.getItem('tradingLabSetups');
+    const j=localStorage.getItem('tradingLabJournals');
+    const r=localStorage.getItem('tradingLabRuleset');
+    if(s) setups=JSON.parse(s);
+    const ss=localStorage.getItem('tradingLabStudy'); if(ss) studySessions=JSON.parse(ss);
+    if(j) journals=JSON.parse(j);
+    if(r) ruleset=JSON.parse(r); else ruleset=DEFAULT_RULESET.map(s=>({...s,rules:s.rules.map(r=>({...r}))}));
+  }catch(e){ruleset=DEFAULT_RULESET.map(s=>({...s,rules:s.rules.map(r=>({...r}))}))}
+}
+function exportAll(){
+  const blob=new Blob([JSON.stringify({setups,journals,ruleset},null,2)],{type:'application/json'});
+  const a=document.createElement('a'); a.href=URL.createObjectURL(blob);
+  a.download=`trading-lab-${new Date().toISOString().slice(0,10)}.json`; a.click();
+  showToast('Exported');
+}
+function importAll(){document.getElementById('importFile').click()}
+function handleImport(e){
+  const file=e.target.files[0]; if(!file) return;
+  const r=new FileReader();
+  r.onload=ev=>{
+    try{
+      const d=JSON.parse(ev.target.result);
+      if(d.setups) setups=d.setups;
+      if(d.journals) journals=d.journals;
+      if(d.ruleset) ruleset=d.ruleset;
+      if(d.studySessions) studySessions=d.studySessions;
+      const active=document.querySelector('.tab.active').dataset.tab;
+      switchTab(active); showToast('Imported');
+    }catch(err){showToast('Import failed')}
+  };
+  r.readAsText(file); e.target.value='';
+}
+
+function toggleTheme(){
+  isDark=!isDark;
+  document.body.classList.toggle('light',!isDark);
+  localStorage.setItem('tradingLabTheme',isDark?'dark':'light');
+}
+
+function showToast(msg){
+  const t=document.getElementById('toast'); t.textContent=msg;
+  t.classList.add('show'); setTimeout(()=>t.classList.remove('show'),2200);
+}
+
+// Close modals on overlay click
+['setupModal','journalModal'].forEach(id=>{
+  document.getElementById(id).addEventListener('click',e=>{
+    if(e.target===document.getElementById(id)){
+      if(id==='setupModal') closeSetupModal();
+      else closeJournalModal();
+    }
+  });
+});
+document.addEventListener('keydown',e=>{
+  if(e.key==='Escape'){closeSetupModal();closeJournalModal();closeStudyModal()}
+});
+
+
+// ── STUDY ─────────────────────────────────────────────────
+let studySessions=[];
+let editStudyId=null;
+let stMode='intake';
+let stNextMode='intake';
+let stRS='yes';
+let modeGuideVisible=true;
+
+const MODE_LABELS={intake:'Intake',processing:'Processing',testing:'Testing'};
+const MODE_CLASS={intake:'mode-intake',processing:'mode-processing',testing:'mode-testing'};
+
+function openNewStudy(useNext=false){
+  editStudyId=null;
+  document.getElementById('stModalTitle').textContent='New Study Session';
+  document.getElementById('studyDeleteBtn').style.display='none';
+  clearStudyForm();
+  // Pre-fill from next session if available and useNext
+  if(useNext){
+    const last=studySessions[0];
+    if(last&&last.nextTopic){
+      document.getElementById('st-topic').value=last.nextTopic||'';
+      document.getElementById('st-next-intention').value=last.nextIntention||'';
+      stMode=last.nextMode||'intake';
+      document.querySelectorAll('#st-mode-row .outcome-pill').forEach(p=>{
+        const m=p.dataset.mode;
+        p.classList.toggle('active',m===stMode);
+        p.style.borderColor=m===stMode?modeColor(m):'var(--border2)';
+        p.style.color=m===stMode?modeColor(m):'var(--text-muted)';
+        p.style.background=m===stMode?modeBg(m):'transparent';
+      });
+    }
+  }
+  document.getElementById('studyModal').classList.remove('hidden');
+  setTimeout(()=>document.getElementById('st-topic').focus(),80);
+}
+
+function openEditStudy(id){
+  const s=studySessions.find(x=>x.id===id); if(!s) return;
+  editStudyId=id;
+  document.getElementById('stModalTitle').textContent='Edit Session';
+  document.getElementById('studyDeleteBtn').style.display='';
+  clearStudyForm();
+  document.getElementById('st-date').value=s.date||'';
+  document.getElementById('st-topic').value=s.topic||'';
+  document.getElementById('st-source').value=s.source||'';
+  document.getElementById('st-understood').value=s.understood||'';
+  document.getElementById('st-unclear').value=s.unclear||'';
+  document.getElementById('st-questions').value=s.questions||'';
+  document.getElementById('st-next-topic').value=s.nextTopic||'';
+  document.getElementById('st-next-intention').value=s.nextIntention||'';
+  stMode=s.mode||'intake';
+  stNextMode=s.nextMode||'intake';
+  stRS=s.rs||'yes';
+  applyModeUI('#st-mode-row','data-mode',stMode);
+  applyModeUI('#st-next-mode-row','data-nextmode',stNextMode);
+  document.querySelectorAll('#st-rs-row .outcome-pill').forEach(p=>p.classList.toggle('active',p.dataset.strs===stRS));
+  document.getElementById('studyModal').classList.remove('hidden');
+}
+
+function clearStudyForm(){
+  ['st-date','st-topic','st-source','st-understood','st-unclear','st-questions','st-next-topic','st-next-intention'].forEach(id=>{
+    const el=document.getElementById(id); if(el) el.value='';
+  });
+  document.getElementById('st-date').value=new Date().toISOString().slice(0,10);
+  stMode='intake'; stNextMode='intake'; stRS='yes';
+  applyModeUI('#st-mode-row','data-mode','intake');
+  applyModeUI('#st-next-mode-row','data-nextmode','intake');
+  document.querySelectorAll('#st-rs-row .outcome-pill').forEach(p=>p.classList.toggle('active',p.dataset.strs==='yes'));
+}
+
+function modeColor(m){return m==='intake'?'var(--purple)':m==='processing'?'var(--gold)':'var(--green)'}
+function modeBg(m){return m==='intake'?'rgba(139,107,255,.1)':m==='processing'?'var(--gold-glow)':'var(--green-bg)'}
+
+function applyModeUI(selector,attr,val){
+  document.querySelectorAll(selector+' .outcome-pill').forEach(p=>{
+    const m=p.dataset[attr.replace('data-','')];
+    const active=m===val;
+    p.classList.toggle('active',active);
+    p.style.borderColor=active?modeColor(m):'var(--border2)';
+    p.style.color=active?modeColor(m):'var(--text-muted)';
+    p.style.background=active?modeBg(m):'transparent';
+  });
+}
+
+function selectMode(el){
+  stMode=el.dataset.mode;
+  applyModeUI('#st-mode-row','data-mode',stMode);
+}
+function selectNextMode(el){
+  stNextMode=el.dataset.nextmode;
+  applyModeUI('#st-next-mode-row','data-nextmode',stNextMode);
+}
+function selectStudyRS(el){
+  stRS=el.dataset.strs;
+  document.querySelectorAll('#st-rs-row .outcome-pill').forEach(p=>p.classList.toggle('active',p===el));
+}
+
+function saveStudy(){
+  const topic=document.getElementById('st-topic').value.trim();
+  if(!topic){showToast('Name the topic you studied');return}
+  const session={
+    id:editStudyId||uid(),
+    date:document.getElementById('st-date').value,
+    mode:stMode,
+    topic,
+    source:document.getElementById('st-source').value.trim(),
+    understood:document.getElementById('st-understood').value.trim(),
+    unclear:document.getElementById('st-unclear').value.trim(),
+    questions:document.getElementById('st-questions').value.trim(),
+    rs:stRS,
+    nextTopic:document.getElementById('st-next-topic').value.trim(),
+    nextMode:stNextMode,
+    nextIntention:document.getElementById('st-next-intention').value.trim(),
+    updated:Date.now()
+  };
+  if(editStudyId) studySessions=studySessions.map(x=>x.id===editStudyId?session:x);
+  else studySessions.unshift(session);
+  closeStudyModal(); renderStudy(); saveAll(); showToast('Session saved');
+}
+
+function deleteStudy(){
+  if(!confirm('Delete this study session?')) return;
+  studySessions=studySessions.filter(x=>x.id!==editStudyId);
+  closeStudyModal(); renderStudy(); saveAll(); showToast('Deleted');
+}
+
+function closeStudyModal(){document.getElementById('studyModal').classList.add('hidden')}
+
+function renderStudy(){
+  const list=document.getElementById('studyList');
+  const empty=document.getElementById('studyEmpty');
+
+  // Next session card
+  const next=studySessions.find(s=>s.nextTopic);
+  const nextBody=document.getElementById('nextSessionBody');
+  if(next&&next.nextTopic){
+    nextBody.innerHTML=`
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">
+        <div class="mode-badge ${MODE_CLASS[next.nextMode]||'mode-intake'}">${MODE_LABELS[next.nextMode]||'Intake'}</div>
+        <div style="font-size:13px;color:var(--text);font-weight:500">${next.nextTopic}</div>
+      </div>
+      ${next.nextIntention?`<div style="font-size:11px;color:var(--text-dim);font-style:italic">Intention: ${next.nextIntention}</div>`:''}
+      <div style="font-size:10px;color:var(--text-muted);margin-top:6px;font-family:'JetBrains Mono',monospace">Set after: ${next.topic} · ${next.date||'—'}</div>`;
+    document.getElementById('nextSessionCard').style.display='';
+  } else {
+    document.getElementById('nextSessionCard').style.display='none';
+  }
+
+  if(!studySessions.length){empty.classList.remove('hidden');list.innerHTML='';return}
+  empty.classList.add('hidden');
+  list.innerHTML='';
+  studySessions.forEach(s=>{
+    const div=document.createElement('div');
+    div.className='study-entry';
+    div.onclick=()=>openEditStudy(s.id);
+    div.innerHTML=`
+      <div class="study-top">
+        <div class="study-date">${s.date||'—'}</div>
+        <div class="mode-badge ${MODE_CLASS[s.mode]||'mode-intake'}">${MODE_LABELS[s.mode]||s.mode}</div>
+      </div>
+      <div class="study-topic">${s.topic}</div>
+      ${s.understood?`<div class="study-understood">${s.understood}</div>`:''}
+      ${s.nextTopic?`<div class="study-next">Next → <span>${s.nextTopic}</span> <span style="color:var(--text-muted)">(${MODE_LABELS[s.nextMode]||s.nextMode})</span></div>`:''}`;
+    list.appendChild(div);
+  });
+}
+
+function toggleModeGuide(){
+  modeGuideVisible=!modeGuideVisible;
+  document.getElementById('modeGuideBody').classList.toggle('mode-guide-hidden',!modeGuideVisible);
+  document.getElementById('modeGuideChevron').style.transform=modeGuideVisible?'':'rotate(-90deg)';
+}
+
+
+document.getElementById('studyModal').addEventListener('click',e=>{
+  if(e.target===document.getElementById('studyModal')) closeStudyModal();
+});
+
+// ── INIT ─────────────────────────────────────────────────
+const t=localStorage.getItem('tradingLabTheme');
+if(t==='light'){isDark=false;document.body.classList.add('light')}
+loadAll();
+renderGallery();
+</script>
+</body>
+</html>

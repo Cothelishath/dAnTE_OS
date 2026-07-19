@@ -1,0 +1,877 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Finances — dAnTE Inc</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400;1,700&family=IBM+Plex+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:#080a0f; --s1:#0d1018; --s2:#131722; --s3:#1a2030;
+  --border:rgba(88,160,220,0.1); --border-b:rgba(88,160,220,0.22);
+  --tx:#d0dcea; --dim:#3a4e62; --mid:#6a8aa8;
+  --blue:#58a0dc; --blue-b:#88c8f8; --blue-d:#2a5878;
+  --green:#4aaa7a; --red:#c46858; --gold:#c8a848; --lav:#8878c8;
+  --fd:'Playfair Display',serif; --fm:'IBM Plex Mono',monospace;
+}
+body.light {
+  --bg:#f0f4f8; --s1:#e4eaf2; --s2:#d8e2ee; --s3:#c8d6e6;
+  --border:rgba(30,80,140,0.12); --border-b:rgba(30,80,140,0.25);
+  --tx:#0a1828; --dim:#7a9ab8; --mid:#2a5878;
+  --blue:#1a5898; --blue-b:#2a78c8; --blue-d:#0a3060;
+  --green:#1a6a4a; --red:#8a3828; --gold:#7a6010; --lav:#4a3898;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{background:var(--bg);color:var(--tx);font-family:var(--fm);font-size:12px;line-height:1.65;min-height:100vh;transition:background .3s,color .3s;}
+
+/* HEADER */
+.hdr{padding:28px 22px 20px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:flex-start;position:relative;z-index:1;}
+.hdr-left{}
+.hdr-brand{font-size:9px;letter-spacing:0.28em;text-transform:uppercase;color:var(--blue-d);margin-bottom:5px;}
+.hdr-title{font-family:var(--fd);font-size:clamp(24px,5vw,36px);font-weight:400;line-height:1.1;color:var(--tx);}
+.hdr-title em{font-style:italic;color:var(--blue);}
+.hdr-right{display:flex;gap:7px;flex-shrink:0;align-items:flex-start;flex-wrap:wrap;}
+.hdr-meta{font-size:8px;color:var(--dim);letter-spacing:0.1em;margin-top:6px;}
+.hdr-meta span{color:var(--blue);margin:0 6px;}
+.act-btn{background:none;border:1px solid var(--border-b);border-radius:2px;color:var(--mid);font-family:var(--fm);font-size:8px;letter-spacing:0.12em;padding:5px 11px;cursor:pointer;transition:all .2s;white-space:nowrap;}
+.act-btn:hover,.act-btn.on{color:var(--blue);border-color:var(--blue);background:rgba(88,160,220,0.06);}
+
+/* NAV */
+.nav{display:flex;padding:0 22px;border-bottom:1px solid var(--border);position:sticky;top:0;z-index:50;background:rgba(8,10,15,.97);backdrop-filter:blur(12px);overflow-x:auto;gap:0;}
+body.light .nav{background:rgba(240,244,248,.97);}
+.nt{font-size:8px;letter-spacing:0.13em;text-transform:uppercase;color:var(--dim);padding:12px 12px;cursor:pointer;border-bottom:2px solid transparent;transition:all .2s;white-space:nowrap;flex-shrink:0;background:none;border-top:none;border-left:none;border-right:none;font-family:var(--fm);}
+.nt:hover{color:var(--mid);}
+.nt.active{color:var(--blue);border-bottom-color:var(--blue);}
+
+/* CONTENT */
+.content{max-width:900px;margin:0 auto;padding:22px 18px 80px;}
+.page{display:none;}
+.page.active{display:block;}
+
+/* PAGE TITLE */
+.pg-title{font-family:var(--fd);font-size:22px;font-weight:400;margin-bottom:3px;}
+.pg-title em{font-style:italic;color:var(--blue);}
+.pg-sub{font-size:9px;color:var(--dim);letter-spacing:0.1em;margin-bottom:18px;}
+
+/* SECTION LABEL */
+.sec-lbl{font-size:8px;letter-spacing:0.22em;text-transform:uppercase;color:var(--blue-d);margin-bottom:10px;padding-bottom:6px;border-bottom:1px solid var(--border-b);display:flex;align-items:center;justify-content:space-between;}
+
+/* ACCOUNT CARDS */
+.accounts-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:18px;}
+.acc-card{background:var(--s1);border:1px solid var(--border);border-radius:3px;padding:13px 14px;transition:border-color .2s;}
+.acc-card:hover{border-color:var(--border-b);}
+.acc-card.funded{border-color:rgba(74,170,122,0.3);}
+.acc-top{display:flex;align-items:flex-start;gap:8px;margin-bottom:8px;}
+.acc-num{font-family:var(--fd);font-size:20px;font-weight:400;color:var(--blue-d);line-height:1;flex-shrink:0;margin-top:1px;}
+.acc-purpose{flex:1;}
+.acc-purpose input{background:transparent;border:none;border-bottom:1px solid var(--border);color:var(--tx);font-family:var(--fm);font-size:10px;width:100%;outline:none;padding:1px 0;transition:border-color .2s;}
+.acc-purpose input:focus{border-bottom-color:var(--blue);}
+.acc-purpose input::placeholder{color:var(--dim);}
+.acc-inst input{background:transparent;border:none;color:var(--mid);font-family:var(--fm);font-size:9px;width:100%;outline:none;margin-top:3px;}
+.acc-inst input::placeholder{color:var(--dim);}
+.acc-balances{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:6px;}
+.bal-box{background:var(--s2);border-radius:2px;padding:6px 8px;}
+.bal-cur{font-size:7px;letter-spacing:0.1em;text-transform:uppercase;color:var(--dim);margin-bottom:2px;}
+.bal-input{background:transparent;border:none;color:var(--tx);font-family:var(--fd);font-size:14px;width:100%;outline:none;}
+.bal-input::placeholder{color:var(--dim);}
+.acc-flow{display:grid;grid-template-columns:1fr 1fr;gap:5px;margin-bottom:5px;}
+.flow-box{display:flex;align-items:center;gap:5px;font-size:8px;}
+.flow-lbl{color:var(--dim);flex-shrink:0;width:28px;}
+.flow-lbl.in{color:var(--green);}
+.flow-lbl.out{color:var(--red);}
+.flow-input{background:transparent;border:none;border-bottom:1px solid var(--border);color:var(--tx);font-family:var(--fm);font-size:9px;flex:1;outline:none;}
+.acc-notes input{background:transparent;border:none;border-bottom:1px solid var(--border);color:var(--dim);font-family:var(--fm);font-size:8px;width:100%;outline:none;font-style:italic;}
+.acc-notes input::placeholder{color:var(--dim);opacity:0.5;}
+.add-acc-btn{background:none;border:1px dashed var(--border-b);border-radius:3px;color:var(--dim);font-family:var(--fm);font-size:9px;letter-spacing:0.1em;padding:14px;width:100%;cursor:pointer;transition:all .2s;text-align:center;}
+.add-acc-btn:hover{color:var(--blue);border-color:var(--blue);}
+
+/* INCOME */
+.income-table{width:100%;border-collapse:collapse;margin-bottom:16px;}
+.income-table th{background:var(--s2);padding:7px 10px;text-align:left;font-size:7px;letter-spacing:0.16em;text-transform:uppercase;color:var(--dim);font-weight:400;border-bottom:1px solid var(--border);}
+.income-table td{padding:8px 10px;border-bottom:1px solid rgba(88,160,220,0.04);vertical-align:middle;}
+.income-table tr:hover td{background:rgba(88,160,220,0.02);}
+.it-input{background:transparent;border:none;border-bottom:1px solid var(--border);color:var(--tx);font-family:var(--fm);font-size:10px;width:100%;outline:none;padding:2px 0;}
+.it-input::placeholder{color:var(--dim);}
+.it-input.amount{font-family:var(--fd);font-size:13px;color:var(--green);}
+.it-input.amount::placeholder{color:var(--dim);}
+.it-sel{background:var(--s2);border:1px solid var(--border);border-radius:2px;color:var(--tx);font-family:var(--fm);font-size:9px;padding:3px 7px;outline:none;cursor:pointer;}
+
+/* FLOW MAP */
+.flow-map{background:var(--s1);border:1px solid var(--border);border-radius:3px;padding:16px 18px;margin-bottom:16px;}
+.fm-title{font-family:var(--fd);font-size:14px;font-style:italic;color:var(--blue);margin-bottom:12px;}
+.flow-chain{display:flex;flex-direction:column;gap:8px;}
+.flow-node{display:flex;align-items:stretch;gap:0;}
+.fn-label{font-size:8px;letter-spacing:0.14em;text-transform:uppercase;color:var(--dim);width:100px;flex-shrink:0;padding-top:2px;}
+.fn-buckets{display:flex;flex-wrap:wrap;gap:6px;flex:1;}
+.bucket{background:var(--s2);border:1px solid var(--border);border-radius:2px;padding:6px 10px;display:flex;flex-direction:column;gap:3px;min-width:100px;}
+.bucket.primary{border-color:rgba(88,160,220,0.3);background:rgba(88,160,220,0.06);}
+.bk-name{font-size:8px;letter-spacing:0.1em;text-transform:uppercase;color:var(--mid);}
+.bk-pct{font-family:var(--fd);font-size:16px;color:var(--blue);}
+.bk-pct input{background:transparent;border:none;color:var(--blue);font-family:var(--fd);font-size:16px;width:60px;outline:none;}
+.bk-pct input::placeholder{color:var(--dim);}
+.flow-arrow{display:flex;align-items:center;padding:0 4px;color:var(--blue-d);font-size:10px;}
+
+/* MOVING PLANNER */
+.moving-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px;}
+.mv-card{background:var(--s1);border:1px solid var(--border);border-radius:3px;padding:13px 14px;}
+.mv-title{font-family:var(--fd);font-size:13px;font-style:italic;color:var(--blue);margin-bottom:10px;}
+.mv-row{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:6px;padding-bottom:6px;border-bottom:1px solid rgba(88,160,220,0.04);}
+.mv-row:last-child{border-bottom:none;margin-bottom:0;padding-bottom:0;}
+.mv-item{font-size:10px;color:var(--mid);}
+.mv-amt{background:transparent;border:none;border-bottom:1px solid var(--border);color:var(--tx);font-family:var(--fd);font-size:14px;width:110px;outline:none;text-align:right;}
+.mv-amt::placeholder{color:var(--dim);}
+.mv-total{display:flex;justify-content:space-between;align-items:center;padding:9px 10px;background:rgba(88,160,220,0.06);border:1px solid var(--border-b);border-radius:2px;margin-top:8px;}
+.mv-total-lbl{font-size:8px;letter-spacing:0.14em;text-transform:uppercase;color:var(--blue-d);}
+.mv-total-amt{font-family:var(--fd);font-size:18px;color:var(--blue);}
+.mv-checklist{display:flex;flex-direction:column;gap:5px;}
+.mv-check{display:flex;align-items:center;gap:8px;padding:6px 8px;background:var(--s2);border-radius:2px;cursor:pointer;transition:all .2s;}
+.mv-check:hover{background:var(--s3);}
+.mv-check.done{opacity:0.55;}
+.mv-check.done .mv-check-lbl{text-decoration:line-through;color:var(--dim);}
+.mv-chk{width:12px;height:12px;border:1px solid var(--border-b);border-radius:1px;display:flex;align-items:center;justify-content:center;font-size:7px;flex-shrink:0;transition:all .18s;}
+.mv-check.done .mv-chk{background:var(--green);border-color:var(--green);color:var(--bg);}
+.mv-check-lbl{font-size:10px;color:var(--tx);}
+
+/* PORTFOLIO */
+.port-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px;}
+.port-card{background:var(--s1);border:1px solid var(--border);border-radius:3px;padding:14px 15px;transition:border-color .2s;}
+.port-card:hover{border-color:var(--border-b);}
+.pc-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;}
+.pc-name{font-family:var(--fd);font-size:15px;font-style:italic;color:var(--tx);}
+.pc-type{font-size:7px;letter-spacing:0.14em;text-transform:uppercase;padding:2px 7px;border-radius:2px;}
+.pc-type.trading{background:rgba(88,160,220,0.1);color:var(--blue);border:1px solid rgba(88,160,220,0.2);}
+.pc-type.stocks{background:rgba(74,170,122,0.1);color:var(--green);border:1px solid rgba(74,170,122,0.2);}
+.pc-type.crypto{background:rgba(200,168,72,0.1);color:var(--gold);border:1px solid rgba(200,168,72,0.2);}
+.pc-type.other{background:rgba(136,120,200,0.1);color:var(--lav);border:1px solid rgba(136,120,200,0.2);}
+.pc-balances{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:8px;}
+.pb-box{background:var(--s2);border-radius:2px;padding:6px 8px;}
+.pb-lbl{font-size:7px;letter-spacing:0.1em;text-transform:uppercase;color:var(--dim);margin-bottom:2px;}
+.pb-cur{font-size:7px;color:var(--dim);margin-bottom:1px;}
+.pb-val{background:transparent;border:none;color:var(--tx);font-family:var(--fd);font-size:14px;width:100%;outline:none;}
+.pb-val::placeholder{color:var(--dim);}
+.pb-val.up{color:var(--green);}
+.pb-val.dn{color:var(--red);}
+.pc-gl{display:flex;gap:6px;}
+.gl-box{flex:1;background:var(--s2);border-radius:2px;padding:5px 8px;}
+.gl-lbl{font-size:7px;color:var(--dim);margin-bottom:1px;letter-spacing:0.08em;}
+.gl-val{font-family:var(--fd);font-size:13px;}
+.gl-val.up{color:var(--green);}
+.gl-val.dn{color:var(--red);}
+.pc-inst{background:transparent;border:none;border-bottom:1px solid var(--border);color:var(--mid);font-family:var(--fm);font-size:9px;width:100%;outline:none;margin-top:8px;}
+.pc-inst::placeholder{color:var(--dim);}
+.pc-notes{background:transparent;border:none;color:var(--dim);font-family:var(--fm);font-size:8px;width:100%;outline:none;font-style:italic;margin-top:5px;}
+.pc-notes::placeholder{color:var(--dim);opacity:.5;}
+.add-port-btn{background:none;border:1px dashed var(--border-b);border-radius:3px;color:var(--dim);font-family:var(--fm);font-size:9px;letter-spacing:0.1em;padding:14px;width:100%;cursor:pointer;transition:all .2s;text-align:center;}
+.add-port-btn:hover{color:var(--blue);border-color:var(--blue);}
+
+/* WEEKLY REVIEW */
+.review-block{background:var(--s1);border:1px solid var(--border);border-radius:3px;padding:15px 17px;margin-bottom:12px;}
+.rb-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;}
+.rb-title{font-family:var(--fd);font-size:14px;font-style:italic;color:var(--tx);}
+.rb-date{font-size:8px;color:var(--dim);letter-spacing:0.1em;}
+.rb-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;}
+.rb-field{background:var(--s2);border-radius:2px;padding:8px 10px;}
+.rb-label{font-size:7px;letter-spacing:0.13em;text-transform:uppercase;color:var(--dim);margin-bottom:4px;}
+.rb-input{background:transparent;border:none;border-bottom:1px solid var(--border);color:var(--tx);font-family:var(--fd);font-size:14px;width:100%;outline:none;}
+.rb-input::placeholder{color:var(--dim);}
+.rb-ta{background:transparent;border:none;border-bottom:1px solid var(--border);color:var(--tx);font-family:var(--fm);font-size:9px;font-style:italic;width:100%;outline:none;resize:none;line-height:1.55;}
+.rb-ta::placeholder{color:var(--dim);}
+
+/* SUMMARY BAR */
+.summary-bar{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:18px;}
+.sb-box{background:var(--s1);border:1px solid var(--border);border-radius:3px;padding:11px 13px;}
+.sb-val{font-family:var(--fd);font-size:22px;font-weight:400;color:var(--blue);line-height:1;}
+.sb-lbl{font-size:7px;letter-spacing:0.13em;text-transform:uppercase;color:var(--dim);margin-top:3px;}
+
+/* SAVE BAR */
+.save-bar{display:flex;gap:10px;align-items:center;margin-top:14px;}
+.save-btn{background:rgba(88,160,220,0.1);border:1px solid rgba(88,160,220,0.3);border-radius:2px;color:var(--blue);font-family:var(--fm);font-size:9px;letter-spacing:0.16em;padding:10px 20px;cursor:pointer;transition:all .2s;}
+.save-btn:hover{background:rgba(88,160,220,0.18);border-color:var(--blue);}
+.save-status{font-size:9px;color:var(--dim);font-style:italic;}
+
+.toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%) translateY(40px);background:var(--s2);border:1px solid var(--border-b);color:var(--blue);font-size:8px;letter-spacing:0.1em;padding:8px 16px;border-radius:2px;transition:transform .38s cubic-bezier(.34,1.56,.64,1);z-index:999;white-space:nowrap;}
+.toast.show{transform:translateX(-50%) translateY(0);}
+.divider{height:1px;background:var(--border);margin:16px 0;}
+.note-box{background:rgba(88,160,220,0.05);border:1px solid var(--border-b);border-radius:3px;padding:11px 14px;margin-bottom:14px;font-size:10px;color:var(--mid);line-height:1.7;font-style:italic;}
+
+@media(max-width:560px){
+  .accounts-grid,.port-grid,.moving-grid,.summary-bar,.rb-grid{grid-template-columns:1fr;}
+  .hdr{flex-direction:column;gap:10px;}
+  .content{padding:16px 12px 60px;}
+  .pc-balances{grid-template-columns:1fr;}
+}
+</style>
+</head>
+<body>
+
+<div class="hdr">
+  <div class="hdr-left">
+    <div class="hdr-brand">dAnTE Inc · Financial Command</div>
+    <div class="hdr-title">Finances <em>Dashboard</em></div>
+    <div class="hdr-meta">Weekly updates · Monthly reviews<span>|</span><span id="lastSaved">Never saved</span></div>
+  </div>
+  <div class="hdr-right">
+    <button class="act-btn" onclick="toggleTheme()">☀ / ☾</button>
+    <button class="act-btn on" onclick="saveAll()">Save All</button>
+  </div>
+</div>
+
+<nav class="nav">
+  <button class="nt active" onclick="showPage('accounts',this)">Accounts</button>
+  <button class="nt" onclick="showPage('income',this)">Income</button>
+  <button class="nt" onclick="showPage('flow',this)">Flow Map</button>
+  <button class="nt" onclick="showPage('portfolio',this)">Portfolio</button>
+  <button class="nt" onclick="showPage('moving',this)">Moving</button>
+  <button class="nt" onclick="showPage('review',this)">Weekly Review</button>
+</nav>
+
+<div class="content">
+
+<!-- ══ ACCOUNTS ══ -->
+<div class="page active" id="page-accounts">
+  <div class="pg-title">Bank <em>Accounts</em></div>
+  <div class="pg-sub">Up to 15 accounts · Label by purpose · Track flows in and out</div>
+
+  <div class="summary-bar">
+    <div class="sb-box"><div class="sb-val" id="sumAccounts">0</div><div class="sb-lbl">Active Accounts</div></div>
+    <div class="sb-box"><div class="sb-val" id="sumNGN">—</div><div class="sb-lbl">Total NGN</div></div>
+    <div class="sb-box"><div class="sb-val" id="sumUSD">—</div><div class="sb-lbl">Total USD</div></div>
+    <div class="sb-box"><div class="sb-val" id="sumFunded">0</div><div class="sb-lbl">Funded Accts</div></div>
+  </div>
+
+  <div class="sec-lbl">
+    Your Accounts
+    <span id="accCount" style="color:var(--dim)">0 / 15</span>
+  </div>
+  <div class="accounts-grid" id="accountsGrid"></div>
+  <button class="add-acc-btn" onclick="addAccount()" id="addAccBtn">+ Add Account</button>
+</div>
+
+<!-- ══ INCOME ══ -->
+<div class="page" id="page-income">
+  <div class="pg-title">Income <em>Streams</em></div>
+  <div class="pg-sub">Track all sources · Set landing accounts · Monitor what arrives</div>
+
+  <div class="sec-lbl">Known & Active Streams</div>
+  <table class="income-table" id="incomeTable">
+    <thead>
+      <tr>
+        <th>Source</th>
+        <th>Frequency</th>
+        <th>Expected (NGN)</th>
+        <th>Last Received</th>
+        <th>Lands In</th>
+        <th>Status</th>
+      </tr>
+    </thead>
+    <tbody id="incomeTbody"></tbody>
+  </table>
+
+  <div class="divider"></div>
+  <div class="sec-lbl">Open Slots — Future Streams</div>
+  <table class="income-table" id="futureTable">
+    <thead>
+      <tr>
+        <th>Stream Name</th>
+        <th>Type</th>
+        <th>Target Amount (NGN)</th>
+        <th>Target Date</th>
+        <th>Notes</th>
+      </tr>
+    </thead>
+    <tbody id="futureTbody"></tbody>
+  </table>
+  <div class="save-bar">
+    <button class="save-btn" onclick="saveAll()">Save</button>
+    <span class="save-status" id="incSaveStatus"></span>
+  </div>
+</div>
+
+<!-- ══ FLOW MAP ══ -->
+<div class="page" id="page-flow">
+  <div class="pg-title">Money <em>Flow Map</em></div>
+  <div class="pg-sub">Where income lands · How it moves · What each bucket receives</div>
+
+  <div class="note-box">Set the percentage allocation for each bucket. Allocations should total 100%. The flow map updates as you adjust — use it as a living document, reviewed monthly.</div>
+
+  <div class="flow-map">
+    <div class="fm-title">Income → Landing → Allocation</div>
+    <div class="flow-chain" id="flowChain"></div>
+  </div>
+
+  <div class="sec-lbl" style="margin-top:16px">Allocation Buckets</div>
+  <div id="bucketGrid" style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:9px;margin-bottom:16px;"></div>
+
+  <div class="save-bar">
+    <button class="save-btn" onclick="saveAll()">Save</button>
+    <div id="totalPct" style="font-size:10px;color:var(--dim);margin-left:auto;font-style:italic;"></div>
+  </div>
+</div>
+
+<!-- ══ PORTFOLIO ══ -->
+<div class="page" id="page-portfolio">
+  <div class="pg-title">Investment <em>Portfolio</em></div>
+  <div class="pg-sub">Trading · Stocks · Crypto CEX · Crypto DEX · Other instruments</div>
+
+  <div class="summary-bar">
+    <div class="sb-box"><div class="sb-val" id="portTotalNGN">—</div><div class="sb-lbl">Total NGN</div></div>
+    <div class="sb-box"><div class="sb-val" id="portTotalUSD">—</div><div class="sb-lbl">Total USD</div></div>
+    <div class="sb-box"><div class="sb-val" id="portGLNGN" style="color:var(--green)">—</div><div class="sb-lbl">Week G/L NGN</div></div>
+    <div class="sb-box"><div class="sb-val" id="portGLUSD" style="color:var(--green)">—</div><div class="sb-lbl">Week G/L USD</div></div>
+  </div>
+
+  <div class="sec-lbl">Instruments</div>
+  <div class="port-grid" id="portfolioGrid"></div>
+  <button class="add-port-btn" onclick="addPortItem()" id="addPortBtn">+ Add Instrument</button>
+
+  <div class="save-bar" style="margin-top:14px">
+    <button class="save-btn" onclick="saveAll()">Save</button>
+    <span class="save-status"></span>
+  </div>
+</div>
+
+<!-- ══ MOVING ══ -->
+<div class="page" id="page-moving">
+  <div class="pg-title">Moving <em>House</em></div>
+  <div class="pg-sub">3-bed shared with brother · Two private rooms · One shared workspace</div>
+
+  <div class="note-box">Rent in Nigeria is paid annually. Plan the full move cost before committing. Track each line item carefully — moving costs have a way of multiplying.</div>
+
+  <div class="moving-grid">
+    <div class="mv-card">
+      <div class="mv-title">Rent & Deposit</div>
+      <div class="mv-row">
+        <div class="mv-item">Annual Rent (full)</div>
+        <input class="mv-amt" id="mv_annualRent" placeholder="₦0" oninput="calcMoving()">
+      </div>
+      <div class="mv-row">
+        <div class="mv-item">Your share (monthly equiv.)</div>
+        <input class="mv-amt" id="mv_rentShare" placeholder="₦0" oninput="calcMoving()">
+      </div>
+      <div class="mv-row">
+        <div class="mv-item">Security Deposit</div>
+        <input class="mv-amt" id="mv_deposit" placeholder="₦0" oninput="calcMoving()">
+      </div>
+      <div class="mv-row">
+        <div class="mv-item">Agency / Legal Fee</div>
+        <input class="mv-amt" id="mv_agency" placeholder="₦0" oninput="calcMoving()">
+      </div>
+      <div class="mv-total">
+        <div class="mv-total-lbl">Rent Total</div>
+        <div class="mv-total-amt" id="mv_rentTotal">₦0</div>
+      </div>
+    </div>
+
+    <div class="mv-card">
+      <div class="mv-title">Your Bedroom</div>
+      <div class="mv-row"><div class="mv-item">Bed + mattress</div><input class="mv-amt" id="mv_bed" placeholder="₦0" oninput="calcMoving()"></div>
+      <div class="mv-row"><div class="mv-item">Wardrobe / storage</div><input class="mv-amt" id="mv_wardrobe" placeholder="₦0" oninput="calcMoving()"></div>
+      <div class="mv-row"><div class="mv-item">Desk + chair</div><input class="mv-amt" id="mv_desk" placeholder="₦0" oninput="calcMoving()"></div>
+      <div class="mv-row"><div class="mv-item">Lighting</div><input class="mv-amt" id="mv_lighting" placeholder="₦0" oninput="calcMoving()"></div>
+      <div class="mv-row"><div class="mv-item">Other bedroom items</div><input class="mv-amt" id="mv_bedroomOther" placeholder="₦0" oninput="calcMoving()"></div>
+      <div class="mv-total">
+        <div class="mv-total-lbl">Bedroom Total</div>
+        <div class="mv-total-amt" id="mv_bedroomTotal">₦0</div>
+      </div>
+    </div>
+
+    <div class="mv-card">
+      <div class="mv-title">Shared Workspace</div>
+      <div class="mv-row"><div class="mv-item">Desk (your contribution)</div><input class="mv-amt" id="mv_wsDesk" placeholder="₦0" oninput="calcMoving()"></div>
+      <div class="mv-row"><div class="mv-item">Chair</div><input class="mv-amt" id="mv_wsChair" placeholder="₦0" oninput="calcMoving()"></div>
+      <div class="mv-row"><div class="mv-item">Shelving / storage</div><input class="mv-amt" id="mv_wsShelves" placeholder="₦0" oninput="calcMoving()"></div>
+      <div class="mv-row"><div class="mv-item">Lighting</div><input class="mv-amt" id="mv_wsLight" placeholder="₦0" oninput="calcMoving()"></div>
+      <div class="mv-row"><div class="mv-item">Other workspace items</div><input class="mv-amt" id="mv_wsOther" placeholder="₦0" oninput="calcMoving()"></div>
+      <div class="mv-total">
+        <div class="mv-total-lbl">Workspace Total</div>
+        <div class="mv-total-amt" id="mv_wsTotal">₦0</div>
+      </div>
+    </div>
+
+    <div class="mv-card">
+      <div class="mv-title">Moving Costs & Setup</div>
+      <div class="mv-row"><div class="mv-item">Moving truck / labour</div><input class="mv-amt" id="mv_truck" placeholder="₦0" oninput="calcMoving()"></div>
+      <div class="mv-row"><div class="mv-item">Utilities setup</div><input class="mv-amt" id="mv_utilities" placeholder="₦0" oninput="calcMoving()"></div>
+      <div class="mv-row"><div class="mv-item">Internet setup</div><input class="mv-amt" id="mv_internet" placeholder="₦0" oninput="calcMoving()"></div>
+      <div class="mv-row"><div class="mv-item">Kitchen / essentials</div><input class="mv-amt" id="mv_kitchen" placeholder="₦0" oninput="calcMoving()"></div>
+      <div class="mv-row"><div class="mv-item">Contingency (10%)</div><input class="mv-amt" id="mv_contingency" placeholder="auto" readonly style="color:var(--dim)"></div>
+      <div class="mv-total">
+        <div class="mv-total-lbl">Setup Total</div>
+        <div class="mv-total-amt" id="mv_setupTotal">₦0</div>
+      </div>
+    </div>
+  </div>
+
+  <div style="background:var(--s1);border:1px solid var(--border-b);border-radius:3px;padding:14px 18px;margin-bottom:16px;display:flex;justify-content:space-between;align-items:center;">
+    <div style="font-size:9px;letter-spacing:0.2em;text-transform:uppercase;color:var(--blue-d)">Total Move Budget</div>
+    <div style="font-family:var(--fd);font-size:28px;color:var(--blue)" id="mv_grandTotal">₦0</div>
+  </div>
+
+  <div class="sec-lbl">Move Checklist</div>
+  <div class="mv-checklist" id="moveChecklist"></div>
+
+  <div class="save-bar" style="margin-top:14px">
+    <button class="save-btn" onclick="saveAll()">Save</button>
+  </div>
+</div>
+
+<!-- ══ WEEKLY REVIEW ══ -->
+<div class="page" id="page-review">
+  <div class="pg-title">Weekly <em>Review</em></div>
+  <div class="pg-sub">Every Sunday · 15 minutes · Your financial pulse</div>
+
+  <div class="sec-lbl">This Week's Review
+    <span style="color:var(--dim)" id="reviewDateLbl"></span>
+  </div>
+
+  <div class="review-block">
+    <div class="rb-head">
+      <div class="rb-title">Income Received</div>
+      <div class="rb-date" id="reviewDate"></div>
+    </div>
+    <div class="rb-grid">
+      <div class="rb-field"><div class="rb-label">CGSL Salary (NGN)</div><input class="rb-input" id="rv_salary" placeholder="₦0"></div>
+      <div class="rb-field"><div class="rb-label">Site Allowance (NGN)</div><input class="rb-input" id="rv_site" placeholder="₦0"></div>
+      <div class="rb-field"><div class="rb-label">Trade Profits (USD)</div><input class="rb-input" id="rv_trades" placeholder="$0"></div>
+    </div>
+  </div>
+
+  <div class="review-block">
+    <div class="rb-head"><div class="rb-title">Key Movements</div></div>
+    <div class="rb-grid">
+      <div class="rb-field"><div class="rb-label">Debt Paid (NGN)</div><input class="rb-input" id="rv_debt" placeholder="₦0"></div>
+      <div class="rb-field"><div class="rb-label">Saved (NGN)</div><input class="rb-input" id="rv_saved" placeholder="₦0"></div>
+      <div class="rb-field"><div class="rb-label">Trading Funded (USD)</div><input class="rb-input" id="rv_funded" placeholder="$0"></div>
+    </div>
+  </div>
+
+  <div class="review-block">
+    <div class="rb-head"><div class="rb-title">Reflection</div></div>
+    <div class="rb-grid">
+      <div class="rb-field" style="grid-column:1/-1"><div class="rb-label">What was well-managed this week</div><textarea class="rb-ta" id="rv_good" rows="2" placeholder="Where did the money go intentionally?"></textarea></div>
+      <div class="rb-field" style="grid-column:1/-1"><div class="rb-label">What leaked or was unplanned</div><textarea class="rb-ta" id="rv_leak" rows="2" placeholder="What surprised you or went untracked?"></textarea></div>
+      <div class="rb-field" style="grid-column:1/-1"><div class="rb-label">One adjustment for next week</div><textarea class="rb-ta" id="rv_next" rows="2" placeholder="One concrete change..."></textarea></div>
+    </div>
+  </div>
+
+  <div class="save-bar">
+    <button class="save-btn" onclick="saveReview()">Save Review</button>
+    <span class="save-status" id="rvSaveStatus"></span>
+  </div>
+</div>
+
+</div><!-- end content -->
+<div class="toast" id="toast"></div>
+
+<script>
+const LS = 'dante_finances_v1';
+let data = { accounts:[], income:[], future:[], buckets:{}, portfolio:[], moving:{}, reviews:{} };
+
+// ── LOAD / SAVE ──
+function loadData() {
+  try { const s=localStorage.getItem(LS); if(s) data=JSON.parse(s); } catch(e) {}
+}
+function saveAll() {
+  collectCurrentFields();
+  try { localStorage.setItem(LS, JSON.stringify(data)); } catch(e) {}
+  const now = new Date();
+  const lbl = `Saved ${now.getDate()} ${['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'][now.getMonth()]} ${now.getHours()}:${String(now.getMinutes()).padStart(2,'0')}`;
+  document.getElementById('lastSaved').textContent = lbl;
+  toast('All data saved.');
+}
+function collectCurrentFields() {
+  // Accounts
+  data.accounts = [];
+  document.querySelectorAll('.acc-card').forEach((card,i) => {
+    data.accounts.push({
+      purpose: card.querySelector('.acc-purpose input')?.value||'',
+      institution: card.querySelector('.acc-inst input')?.value||'',
+      ngnBal: card.querySelector('[data-field="ngn"]')?.value||'',
+      usdBal: card.querySelector('[data-field="usd"]')?.value||'',
+      flowIn: card.querySelector('[data-field="flowin"]')?.value||'',
+      flowOut: card.querySelector('[data-field="flowout"]')?.value||'',
+      notes: card.querySelector('.acc-notes input')?.value||'',
+    });
+  });
+  // Income
+  data.income = [];
+  document.querySelectorAll('#incomeTbody tr').forEach(row => {
+    const inputs = row.querySelectorAll('input,select');
+    if(inputs.length) data.income.push([...inputs].map(i=>i.value));
+  });
+  data.future = [];
+  document.querySelectorAll('#futureTbody tr').forEach(row => {
+    const inputs = row.querySelectorAll('input,select');
+    if(inputs.length) data.future.push([...inputs].map(i=>i.value));
+  });
+  // Buckets
+  document.querySelectorAll('.bucket').forEach(bk => {
+    const key = bk.dataset.key;
+    const inp = bk.querySelector('input');
+    if(key && inp) data.buckets[key] = inp.value;
+  });
+  // Portfolio
+  data.portfolio = [];
+  document.querySelectorAll('.port-card:not(.add-port-btn)').forEach(card => {
+    data.portfolio.push({
+      name: card.querySelector('.pc-name')?.textContent||'',
+      type: card.dataset.type||'',
+      currNGN: card.querySelector('[data-f="currNGN"]')?.value||'',
+      currUSD: card.querySelector('[data-f="currUSD"]')?.value||'',
+      prevNGN: card.querySelector('[data-f="prevNGN"]')?.value||'',
+      prevUSD: card.querySelector('[data-f="prevUSD"]')?.value||'',
+      institution: card.querySelector('.pc-inst')?.value||'',
+      notes: card.querySelector('.pc-notes')?.value||'',
+    });
+  });
+  // Moving fields
+  const mvIds = ['annualRent','rentShare','deposit','agency','bed','wardrobe','desk','lighting','bedroomOther','wsDesk','wsChair','wsShelves','wsLight','wsOther','truck','utilities','internet','kitchen'];
+  mvIds.forEach(id => { const el=document.getElementById('mv_'+id); if(el) data.moving[id]=el.value; });
+  // Move checklist
+  data.moveChecked = [];
+  document.querySelectorAll('.mv-check').forEach((c,i) => { data.moveChecked[i]=c.classList.contains('done'); });
+}
+
+// ── ACCOUNTS ──
+const DEFAULT_ACCOUNTS = [
+  {purpose:'Primary Current Account',institution:'',ngnBal:'',usdBal:'',flowIn:'Salary, Site Allowance',flowOut:'Living expenses',notes:'Main operating account'},
+  {purpose:'Trading Float',institution:'Deriv',ngnBal:'',usdBal:'1.34',flowIn:'Top-ups',flowOut:'Trades',notes:''},
+  {purpose:'Savings',institution:'',ngnBal:'',usdBal:'',flowIn:'10% of every payment',flowOut:'Emergency only',notes:''},
+  {purpose:'dAnTE Inc Operations',institution:'',ngnBal:'',usdBal:'',flowIn:'',flowOut:'',notes:'Business account — to be opened'},
+];
+
+function renderAccounts() {
+  const grid = document.getElementById('accountsGrid');
+  const accs = data.accounts.length ? data.accounts : DEFAULT_ACCOUNTS;
+  grid.innerHTML = '';
+  accs.forEach((acc,i) => { grid.appendChild(buildAccCard(acc,i)); });
+  updateAccSummary();
+  document.getElementById('accCount').textContent = `${accs.length} / 15`;
+  document.getElementById('addAccBtn').style.display = accs.length>=15 ? 'none' : 'block';
+}
+function buildAccCard(acc, idx) {
+  const div = document.createElement('div');
+  div.className = 'acc-card' + (acc.ngnBal||acc.usdBal?' funded':'');
+  div.innerHTML = `
+    <div class="acc-top">
+      <div class="acc-num">${String(idx+1).padStart(2,'0')}</div>
+      <div class="acc-purpose">
+        <input placeholder="Purpose / label..." value="${esc(acc.purpose)}" oninput="updateAccSummary()">
+        <div class="acc-inst"><input placeholder="Institution / platform..." value="${esc(acc.institution)}"></div>
+      </div>
+    </div>
+    <div class="acc-balances">
+      <div class="bal-box"><div class="bal-cur">NGN</div><input class="bal-input" data-field="ngn" placeholder="₦0" value="${esc(acc.ngnBal)}" oninput="updateAccSummary()"></div>
+      <div class="bal-box"><div class="bal-cur">USD</div><input class="bal-input" data-field="usd" placeholder="$0" value="${esc(acc.usdBal)}" oninput="updateAccSummary()"></div>
+    </div>
+    <div class="acc-flow">
+      <div class="flow-box"><div class="flow-lbl in">In</div><input class="flow-input" data-field="flowin" placeholder="Income sources..." value="${esc(acc.flowIn)}"></div>
+      <div class="flow-box"><div class="flow-lbl out">Out</div><input class="flow-input" data-field="flowout" placeholder="Outflows..." value="${esc(acc.flowOut)}"></div>
+    </div>
+    <div class="acc-notes"><input placeholder="Notes..." value="${esc(acc.notes)}"></div>`;
+  return div;
+}
+function addAccount() {
+  const cards = document.querySelectorAll('.acc-card').length;
+  if(cards>=15) return;
+  const grid = document.getElementById('accountsGrid');
+  grid.appendChild(buildAccCard({purpose:'',institution:'',ngnBal:'',usdBal:'',flowIn:'',flowOut:'',notes:''},cards));
+  document.getElementById('accCount').textContent = `${cards+1} / 15`;
+  if(cards+1>=15) document.getElementById('addAccBtn').style.display='none';
+}
+function updateAccSummary() {
+  const cards = document.querySelectorAll('.acc-card');
+  let funded=0, totalNGN=0, totalUSD=0;
+  cards.forEach(c => {
+    const ngn = parseNum(c.querySelector('[data-field="ngn"]')?.value||'0');
+    const usd = parseNum(c.querySelector('[data-field="usd"]')?.value||'0');
+    if(ngn>0||usd>0) funded++;
+    totalNGN+=ngn; totalUSD+=usd;
+  });
+  document.getElementById('sumAccounts').textContent = cards.length;
+  document.getElementById('sumFunded').textContent = funded;
+  document.getElementById('sumNGN').textContent = totalNGN ? '₦'+fmtNum(totalNGN) : '—';
+  document.getElementById('sumUSD').textContent = totalUSD ? '$'+fmtNum(totalUSD) : '—';
+}
+
+// ── INCOME ──
+const KNOWN_STREAMS = [
+  ['CGSL Salary','Monthly','','','Primary Current Account','Active'],
+  ['CGSL Site Allowance','Variable (on-site)','','','Primary Current Account','Active'],
+  ['Trade Profits','Variable','','','Trading Float','Active'],
+];
+const FUTURE_STREAMS = [
+  ['','','','',''],
+  ['','','','',''],
+  ['','','','',''],
+];
+function renderIncome() {
+  const tbody = document.getElementById('incomeTbody');
+  const streams = data.income.length ? data.income : KNOWN_STREAMS;
+  tbody.innerHTML = streams.map((s,i) => `
+    <tr>
+      <td><input class="it-input" value="${esc(s[0]||'')}" placeholder="Source name..."></td>
+      <td><input class="it-input" value="${esc(s[1]||'')}" placeholder="Monthly / Variable..."></td>
+      <td><input class="it-input amount" value="${esc(s[2]||'')}" placeholder="₦0"></td>
+      <td><input class="it-input" value="${esc(s[3]||'')}" placeholder="Date..."></td>
+      <td><input class="it-input" value="${esc(s[4]||'')}" placeholder="Account name..."></td>
+      <td><select class="it-sel"><option ${s[5]==='Active'?'selected':''}>Active</option><option ${s[5]==='Paused'?'selected':''}>Paused</option><option ${s[5]==='Planned'?'selected':''}>Planned</option></select></td>
+    </tr>`).join('');
+
+  const ftbody = document.getElementById('futureTbody');
+  const future = data.future.length ? data.future : FUTURE_STREAMS;
+  ftbody.innerHTML = future.map((s,i) => `
+    <tr>
+      <td><input class="it-input" value="${esc(s[0]||'')}" placeholder="e.g. Freelance Engineering..."></td>
+      <td><input class="it-input" value="${esc(s[1]||'')}" placeholder="Type..."></td>
+      <td><input class="it-input amount" value="${esc(s[2]||'')}" placeholder="₦0"></td>
+      <td><input class="it-input" value="${esc(s[3]||'')}" placeholder="Target date..."></td>
+      <td><input class="it-input" value="${esc(s[4]||'')}" placeholder="Notes..."></td>
+    </tr>`).join('');
+}
+
+// ── FLOW MAP ──
+const BUCKETS = [
+  {key:'debt',    name:'Debt Repayment',  pct:'', color:'var(--red)'},
+  {key:'savings', name:'Savings',          pct:'', color:'var(--green)'},
+  {key:'trading', name:'Trading Top-Up',  pct:'', color:'var(--blue)'},
+  {key:'living',  name:'Living (Food, Transport, Utils)', pct:'', color:'var(--mid)'},
+  {key:'rent',    name:'Rent (Annual)',    pct:'', color:'var(--gold)'},
+  {key:'giving',  name:'Giving',           pct:'', color:'var(--lav)'},
+  {key:'treats',  name:'Self-Treats',      pct:'', color:'var(--blue-b)'},
+  {key:'dante',   name:'dAnTE Inc',        pct:'', color:'var(--blue)'},
+];
+function renderFlow() {
+  const grid = document.getElementById('bucketGrid');
+  grid.innerHTML = BUCKETS.map(b => `
+    <div class="bucket" data-key="${b.key}">
+      <div class="bk-name" style="color:${b.color}">${b.name}</div>
+      <div class="bk-pct"><input placeholder="0%" value="${esc(data.buckets[b.key]||'')}" oninput="updateFlowTotal()" style="color:${b.color}"></div>
+    </div>`).join('');
+
+  const chain = document.getElementById('flowChain');
+  chain.innerHTML = `
+    <div class="flow-node">
+      <div class="fn-label">Income sources</div>
+      <div class="fn-buckets">
+        <div class="bucket primary" style="min-width:140px"><div class="bk-name">CGSL Salary</div></div>
+        <div class="bucket primary" style="min-width:140px"><div class="bk-name">Site Allowance</div></div>
+        <div class="bucket primary" style="min-width:140px"><div class="bk-name">Trade Profits</div></div>
+        <div class="bucket" style="min-width:100px;border-style:dashed"><div class="bk-name" style="color:var(--dim)">+ Others</div></div>
+      </div>
+    </div>
+    <div style="padding:6px 0 6px 100px;color:var(--blue-d);font-size:18px;">↓</div>
+    <div class="flow-node">
+      <div class="fn-label">Landing account</div>
+      <div class="fn-buckets">
+        <div class="bucket primary" style="min-width:200px"><div class="bk-name">Primary Current Account</div><div style="font-size:9px;color:var(--mid);margin-top:3px">All income arrives here first</div></div>
+      </div>
+    </div>
+    <div style="padding:6px 0 6px 100px;color:var(--blue-d);font-size:18px;">↓</div>
+    <div class="flow-node">
+      <div class="fn-label">Allocated to</div>
+      <div class="fn-buckets" id="flowBuckets">
+        ${BUCKETS.map(b=>`<div class="bucket" style="min-width:90px"><div class="bk-name" style="color:${b.color};font-size:7px">${b.name}</div><div style="font-family:var(--fd);font-size:14px;color:${b.color}">${data.buckets[b.key]||'—'}</div></div>`).join('')}
+      </div>
+    </div>`;
+  updateFlowTotal();
+}
+function updateFlowTotal() {
+  let total=0;
+  document.querySelectorAll('.bucket[data-key] input').forEach(inp => {
+    const v=parseFloat(inp.value)||0; total+=v;
+  });
+  document.getElementById('totalPct').textContent = `Total allocated: ${total.toFixed(0)}% ${total===100?'✓':total>100?'(over 100%)':'(under 100%)'}`;
+}
+
+// ── PORTFOLIO ──
+const DEFAULT_PORTFOLIO = [
+  {name:'Deriv — V75 (1s)',type:'trading',currNGN:'',currUSD:'1.34',prevNGN:'',prevUSD:'',institution:'Deriv',notes:'Primary trading account — Volatility 75 (1s)'},
+  {name:'Stocks',type:'stocks',currNGN:'',currUSD:'',prevNGN:'',prevUSD:'',institution:'',notes:'NGX / International'},
+  {name:'Crypto CEX',type:'crypto',currNGN:'',currUSD:'',prevNGN:'',prevUSD:'',institution:'',notes:'Centralised exchange wallets'},
+  {name:'Crypto DEX',type:'crypto',currNGN:'',currUSD:'',prevNGN:'',prevUSD:'',institution:'',notes:'Decentralised / self-custody wallets'},
+];
+function renderPortfolio() {
+  const grid = document.getElementById('portfolioGrid');
+  const items = data.portfolio.length ? data.portfolio : DEFAULT_PORTFOLIO;
+  grid.innerHTML = '';
+  items.forEach((p,i) => grid.appendChild(buildPortCard(p,i)));
+  updatePortSummary();
+}
+function buildPortCard(p,i) {
+  const card = document.createElement('div');
+  card.className = 'port-card';
+  card.dataset.type = p.type||'other';
+
+  const currN = parseNum(p.currNGN||'0');
+  const prevN = parseNum(p.prevNGN||'0');
+  const currU = parseNum(p.currUSD||'0');
+  const prevU = parseNum(p.prevUSD||'0');
+  const glN = currN - prevN;
+  const glU = currU - prevU;
+
+  card.innerHTML = `
+    <div class="pc-head">
+      <div class="pc-name">${esc(p.name)}</div>
+      <div class="pc-type ${p.type||'other'}">${(p.type||'other').toUpperCase()}</div>
+    </div>
+    <div class="pc-balances">
+      <div class="pb-box"><div class="pb-lbl">Current NGN</div><input class="pb-val" data-f="currNGN" placeholder="₦0" value="${esc(p.currNGN)}" oninput="updatePortSummary()"></div>
+      <div class="pb-box"><div class="pb-lbl">Current USD</div><input class="pb-val" data-f="currUSD" placeholder="$0" value="${esc(p.currUSD)}" oninput="updatePortSummary()"></div>
+      <div class="pb-box"><div class="pb-lbl">Last Week NGN</div><input class="pb-val" data-f="prevNGN" placeholder="₦0" value="${esc(p.prevNGN)}" oninput="updatePortSummary()"></div>
+      <div class="pb-box"><div class="pb-lbl">Last Week USD</div><input class="pb-val" data-f="prevUSD" placeholder="$0" value="${esc(p.prevUSD)}" oninput="updatePortSummary()"></div>
+    </div>
+    <div class="pc-gl">
+      <div class="gl-box"><div class="gl-lbl">Week G/L NGN</div><div class="gl-val ${glN>=0?'up':'dn'}" id="gl_ngn_${i}">${glN>=0?'+':''}${glN?fmtNum(glN):'—'}</div></div>
+      <div class="gl-box"><div class="gl-lbl">Week G/L USD</div><div class="gl-val ${glU>=0?'up':'dn'}" id="gl_usd_${i}">${glU>=0?'+':''}${glU?fmtNum(glU):'—'}</div></div>
+    </div>
+    <input class="pc-inst" placeholder="Institution / platform..." value="${esc(p.institution)}">
+    <input class="pc-notes" placeholder="Notes..." value="${esc(p.notes)}">`;
+  return card;
+}
+function addPortItem() {
+  const grid = document.getElementById('portfolioGrid');
+  const count = document.querySelectorAll('.port-card').length;
+  grid.appendChild(buildPortCard({name:'New Instrument',type:'other',currNGN:'',currUSD:'',prevNGN:'',prevUSD:'',institution:'',notes:''},count));
+}
+function updatePortSummary() {
+  let tNGN=0,tUSD=0,glNGN=0,glUSD=0;
+  document.querySelectorAll('.port-card').forEach(card => {
+    const cN=parseNum(card.querySelector('[data-f="currNGN"]')?.value||'0');
+    const cU=parseNum(card.querySelector('[data-f="currUSD"]')?.value||'0');
+    const pN=parseNum(card.querySelector('[data-f="prevNGN"]')?.value||'0');
+    const pU=parseNum(card.querySelector('[data-f="prevUSD"]')?.value||'0');
+    tNGN+=cN; tUSD+=cU; glNGN+=cN-pN; glUSD+=cU-pU;
+  });
+  document.getElementById('portTotalNGN').textContent = tNGN?'₦'+fmtNum(tNGN):'—';
+  document.getElementById('portTotalUSD').textContent = tUSD?'$'+fmtNum(tUSD):'—';
+  const glNEl=document.getElementById('portGLNGN'), glUEl=document.getElementById('portGLUSD');
+  glNEl.textContent = glNGN?(glNGN>=0?'+':'')+fmtNum(glNGN):'—';
+  glNEl.style.color = glNGN>=0?'var(--green)':'var(--red)';
+  glUEl.textContent = glUSD?(glUSD>=0?'+':'')+fmtNum(glUSD):'—';
+  glUEl.style.color = glUSD>=0?'var(--green)':'var(--red)';
+}
+
+// ── MOVING ──
+const MOVE_CHECKS = [
+  'Budget confirmed and funds set aside',
+  'Apartment / duplex shortlisted',
+  'Apartment viewed and approved',
+  'Rent negotiated and terms agreed',
+  'Documents signed',
+  'Rent paid',
+  'Utilities in name / set up',
+  'Internet ordered',
+  'Bedroom furniture ordered',
+  'Workspace furniture agreed with brother',
+  'Moving date confirmed',
+  'Boxes and packing started',
+  'Move completed',
+  'Post-move punch list done',
+];
+function renderMoving() {
+  const mvIds = ['annualRent','rentShare','deposit','agency','bed','wardrobe','desk','lighting','bedroomOther','wsDesk','wsChair','wsShelves','wsLight','wsOther','truck','utilities','internet','kitchen'];
+  mvIds.forEach(id => { const el=document.getElementById('mv_'+id); if(el&&data.moving[id]) el.value=data.moving[id]; });
+  calcMoving();
+
+  const cl = document.getElementById('moveChecklist');
+  cl.innerHTML = MOVE_CHECKS.map((item,i) => `
+    <div class="mv-check ${(data.moveChecked||[])[i]?'done':''}" onclick="togMoveCheck(this,${i})">
+      <div class="mv-chk">${(data.moveChecked||[])[i]?'✓':''}</div>
+      <div class="mv-check-lbl">${item}</div>
+    </div>`).join('');
+}
+function togMoveCheck(el,i) {
+  el.classList.toggle('done');
+  const chk = el.querySelector('.mv-chk');
+  chk.textContent = el.classList.contains('done')?'✓':'';
+  if(!data.moveChecked) data.moveChecked=[];
+  data.moveChecked[i]=el.classList.contains('done');
+}
+function calcMoving() {
+  const g = (id) => parseNum(document.getElementById('mv_'+id)?.value||'0');
+  const rentTotal = g('annualRent')+g('deposit')+g('agency');
+  const bedTotal  = g('bed')+g('wardrobe')+g('desk')+g('lighting')+g('bedroomOther');
+  const wsTotal   = g('wsDesk')+g('wsChair')+g('wsShelves')+g('wsLight')+g('wsOther');
+  const setupBase = g('truck')+g('utilities')+g('internet')+g('kitchen');
+  const contingency = Math.round((bedTotal+wsTotal+setupBase)*0.1);
+  const setupTotal = setupBase + contingency;
+  const grand = rentTotal+bedTotal+wsTotal+setupTotal;
+  const el = document.getElementById('mv_contingency');
+  if(el) el.value = contingency ? '₦'+fmtNum(contingency) : '';
+  setText('mv_rentTotal','₦'+fmtNum(rentTotal));
+  setText('mv_bedroomTotal','₦'+fmtNum(bedTotal));
+  setText('mv_wsTotal','₦'+fmtNum(wsTotal));
+  setText('mv_setupTotal','₦'+fmtNum(setupTotal));
+  setText('mv_grandTotal','₦'+fmtNum(grand));
+}
+
+// ── WEEKLY REVIEW ──
+function renderReview() {
+  const d = new Date();
+  const lbl = `Week of ${d.getDate()} ${['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'][d.getMonth()]} ${d.getFullYear()}`;
+  document.getElementById('reviewDate').textContent = lbl;
+  document.getElementById('reviewDateLbl').textContent = lbl;
+  const wk = getWeekKey();
+  const rv = (data.reviews||{})[wk] || {};
+  ['salary','site','trades','debt','saved','funded','good','leak','next'].forEach(k => {
+    const el=document.getElementById('rv_'+k); if(el&&rv[k]) el.value=rv[k];
+  });
+}
+function getWeekKey() {
+  const d=new Date(); const day=d.getDay(); const diff=d.getDate()-day+(day===0?-6:1);
+  const mon=new Date(d.setDate(diff));
+  return `${mon.getFullYear()}-${String(mon.getMonth()+1).padStart(2,'0')}-${String(mon.getDate()).padStart(2,'0')}`;
+}
+function saveReview() {
+  const wk=getWeekKey();
+  if(!data.reviews) data.reviews={};
+  data.reviews[wk]={};
+  ['salary','site','trades','debt','saved','funded','good','leak','next'].forEach(k => {
+    const el=document.getElementById('rv_'+k); if(el) data.reviews[wk][k]=el.value;
+  });
+  saveAll();
+  const el=document.getElementById('rvSaveStatus');
+  el.textContent='✓ Review saved';
+  setTimeout(()=>{el.textContent=''},2400);
+}
+
+// ── HELPERS ──
+function parseNum(s) { if(!s) return 0; return parseFloat(String(s).replace(/[₦$,\s]/g,''))||0; }
+function fmtNum(n) { if(!n) return '0'; return Math.round(n).toLocaleString(); }
+function esc(s) { return String(s||'').replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;'); }
+function setText(id,v) { const el=document.getElementById(id); if(el) el.textContent=v; }
+
+function showPage(id, btn) {
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.nt').forEach(t=>t.classList.remove('active'));
+  document.getElementById('page-'+id).classList.add('active');
+  btn.classList.add('active');
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+function toggleTheme() {
+  document.body.classList.toggle('light');
+  try { localStorage.setItem('dante_fin_theme', document.body.classList.contains('light')?'light':'dark'); } catch(e) {}
+}
+
+function toast(msg) {
+  const t=document.getElementById('toast'); t.textContent=msg; t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'),2400);
+}
+
+// ── INIT ──
+function init() {
+  loadData();
+  try { if(localStorage.getItem('dante_fin_theme')==='light') document.body.classList.add('light'); } catch(e) {}
+  renderAccounts();
+  renderIncome();
+  renderFlow();
+  renderPortfolio();
+  renderMoving();
+  renderReview();
+}
+init();
+</script>
+</body>
+</html>

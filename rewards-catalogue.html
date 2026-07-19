@@ -1,0 +1,558 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Rewards Catalogue — The Quickening</title>
+<link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=IBM+Plex+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:#faf7f2; --surface:#f2ede4; --surface2:#e8e1d5;
+  --ink:#1c1814; --ink-mid:#5a5248; --ink-dim:#9a9088;
+  --gold:#9a7c3a; --gold-light:#c9a84c; --gold-pale:#f5ead0;
+  --rust:#7a3a28; --sage:#3a5a3a; --blue:#2a4a6a;
+  --bronze:#9a6c3a; --silver:#7a8a8a; --plat:#6a7a8a; --legend:#6a3a8a;
+  --border:rgba(28,24,20,0.1); --border-strong:rgba(28,24,20,0.18);
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{background:var(--bg);color:var(--ink);font-family:'IBM Plex Mono',monospace;font-size:13px;line-height:1.6;}
+
+.masthead{background:var(--ink);color:var(--bg);padding:40px 48px 36px;position:relative;overflow:hidden;}
+.masthead::before{content:'';position:absolute;top:-40px;right:-40px;width:300px;height:300px;border-radius:50%;border:1px solid rgba(250,247,242,0.06);}
+.masthead-eyebrow{font-size:9px;letter-spacing:0.35em;text-transform:uppercase;color:rgba(250,247,242,0.4);margin-bottom:10px;}
+.masthead h1{font-family:'Libre Baskerville',serif;font-size:clamp(24px,5vw,40px);font-weight:400;line-height:1.15;margin-bottom:8px;}
+.masthead h1 em{font-style:italic;color:var(--gold-light);}
+.masthead-sub{font-size:10px;color:rgba(250,247,242,0.45);letter-spacing:0.08em;}
+
+.page-nav{background:var(--surface);border-bottom:1px solid var(--border-strong);display:flex;padding:0 32px;position:sticky;top:0;z-index:50;overflow-x:auto;scrollbar-width:none;}
+.page-nav::-webkit-scrollbar{display:none;}
+.pnav-tab{font-size:9px;letter-spacing:0.2em;text-transform:uppercase;color:var(--ink-dim);padding:14px 18px;cursor:pointer;border-bottom:2px solid transparent;transition:all 0.2s;white-space:nowrap;}
+.pnav-tab:hover{color:var(--ink-mid);}
+.pnav-tab.active{color:var(--gold);border-bottom-color:var(--gold);}
+
+.content{max-width:980px;margin:0 auto;padding:36px 28px 80px;}
+.tab-section{display:none;}
+.tab-section.active{display:block;}
+
+.s-title{font-family:'Libre Baskerville',serif;font-size:22px;font-weight:400;margin-bottom:5px;}
+.s-sub{font-size:10px;color:var(--ink-dim);margin-bottom:24px;}
+.s-mini{font-family:'Libre Baskerville',serif;font-size:17px;font-style:italic;margin-bottom:4px;margin-top:28px;}
+.s-mini-sub{font-size:10px;color:var(--ink-dim);margin-bottom:14px;}
+
+.note-block{background:var(--gold-pale);border-left:3px solid var(--gold-light);border-radius:0 4px 4px 0;padding:14px 18px;margin-bottom:24px;font-size:10px;color:var(--ink-mid);line-height:1.7;font-style:italic;}
+
+/* RANK CARDS */
+.rank-tier-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:16px;margin-bottom:32px;}
+.rank-card{border-radius:4px;overflow:hidden;border:1px solid var(--border-strong);}
+.rank-head{padding:14px 18px;display:flex;align-items:center;gap:12px;}
+.rank-head-bronze{background:rgba(154,108,58,0.12);}
+.rank-head-silver{background:rgba(122,138,138,0.1);}
+.rank-head-gold{background:rgba(154,124,58,0.12);}
+.rank-head-legend{background:rgba(106,58,138,0.1);}
+.rank-icon{font-size:22px;}
+.rank-info{flex:1;}
+.rank-name{font-family:'Libre Baskerville',serif;font-size:16px;font-style:italic;}
+.rank-name-bronze{color:var(--bronze);}
+.rank-name-silver{color:var(--silver);}
+.rank-name-gold{color:var(--gold);}
+.rank-name-legend{color:var(--legend);}
+.rank-threshold{font-size:9px;color:var(--ink-dim);letter-spacing:0.1em;margin-top:2px;}
+.rank-desc{font-size:10px;color:var(--ink-mid);padding:12px 18px;border-top:1px solid var(--border);line-height:1.65;font-style:italic;}
+.rank-rewards{padding:0 0 4px;}
+.rr-row{display:flex;gap:12px;padding:10px 18px;border-top:1px solid var(--border);align-items:flex-start;}
+.rr-cat{font-size:8px;letter-spacing:0.14em;text-transform:uppercase;color:var(--ink-dim);width:64px;flex-shrink:0;padding-top:2px;}
+.rr-items{font-size:10px;color:var(--ink);line-height:1.6;flex:1;}
+.rr-items em{font-style:italic;color:var(--ink-mid);font-size:9px;}
+
+/* WEEKLY REWARDS */
+.weekly-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:14px;margin-bottom:28px;}
+.wk-card{background:var(--surface);border:1px solid var(--border-strong);border-radius:4px;overflow:hidden;}
+.wk-head{padding:11px 16px;font-size:9px;letter-spacing:0.2em;text-transform:uppercase;}
+.wk-consistent .wk-head{background:rgba(58,90,58,0.1);color:var(--sage);}
+.wk-builder .wk-head{background:rgba(42,74,106,0.1);color:var(--blue);}
+.wk-momentum .wk-head{background:rgba(154,124,58,0.12);color:var(--gold);}
+.wk-unstoppable .wk-head{background:rgba(106,58,138,0.1);color:var(--legend);}
+.wk-row{display:flex;gap:10px;padding:10px 16px;border-top:1px solid var(--border);align-items:flex-start;}
+.wk-icon{font-size:14px;flex-shrink:0;}
+.wk-name{font-family:'Libre Baskerville',serif;font-size:13px;font-style:italic;margin-bottom:2px;}
+.wk-desc{font-size:9px;color:var(--ink-dim);line-height:1.5;}
+
+/* STREAK REWARDS */
+.streak-timeline{display:flex;flex-direction:column;gap:0;margin-bottom:28px;border:1px solid var(--border-strong);border-radius:4px;overflow:hidden;}
+.st-row{display:grid;grid-template-columns:80px 1fr 1fr;border-top:1px solid var(--border);}
+.st-row:first-child{border-top:none;}
+.st-head .st-row{background:var(--ink);}
+.st-streak{padding:14px 16px;font-size:10px;font-weight:500;background:var(--surface);border-right:1px solid var(--border);}
+.st-title{padding:14px 16px;border-right:1px solid var(--border);}
+.st-title-name{font-family:'Libre Baskerville',serif;font-size:13px;font-style:italic;margin-bottom:2px;}
+.st-title-desc{font-size:9px;color:var(--ink-dim);line-height:1.5;}
+.st-reward{padding:14px 16px;}
+.st-reward-name{font-size:10px;color:var(--ink);margin-bottom:2px;font-weight:500;}
+.st-reward-desc{font-size:9px;color:var(--ink-dim);line-height:1.5;}
+
+/* MILESTONE REWARDS */
+.milestone-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:14px;margin-bottom:28px;}
+.ms-card{background:var(--surface);border:1px solid var(--border);border-radius:4px;padding:16px 18px;}
+.ms-icon{font-size:20px;margin-bottom:6px;}
+.ms-trigger{font-size:8px;letter-spacing:0.18em;text-transform:uppercase;color:var(--ink-dim);margin-bottom:4px;}
+.ms-name{font-family:'Libre Baskerville',serif;font-size:14px;font-style:italic;margin-bottom:6px;}
+.ms-reward{font-size:10px;color:var(--ink);margin-bottom:4px;font-weight:500;}
+.ms-desc{font-size:9px;color:var(--ink-mid);line-height:1.55;}
+
+/* BASKET */
+.basket-intro{background:rgba(90,58,40,0.05);border:1px solid rgba(90,58,40,0.2);border-radius:4px;padding:18px 22px;margin-bottom:24px;font-family:'Libre Baskerville',serif;font-size:13px;font-style:italic;color:var(--ink-mid);line-height:1.8;}
+.basket-cats{display:grid;grid-template-columns:repeat(2,1fr);gap:16px;margin-bottom:28px;}
+.bc-card{background:var(--surface);border:1px solid var(--border-strong);border-radius:4px;overflow:hidden;}
+.bc-head{padding:11px 16px;font-size:9px;letter-spacing:0.2em;text-transform:uppercase;color:var(--ink-mid);background:var(--surface2);}
+.bc-item{display:flex;gap:12px;padding:10px 16px;border-top:1px solid var(--border);align-items:flex-start;}
+.bc-icon{font-size:14px;flex-shrink:0;}
+.bc-name{font-size:10px;color:var(--ink);margin-bottom:2px;font-weight:500;}
+.bc-desc{font-size:9px;color:var(--ink-dim);line-height:1.5;}
+.bc-note{font-size:8px;color:var(--gold);margin-top:2px;letter-spacing:0.06em;}
+
+/* NON-MATERIAL */
+.nonmat-grid{display:flex;flex-direction:column;gap:8px;margin-bottom:28px;}
+.nm-item{display:flex;gap:14px;padding:12px 16px;background:var(--surface);border:1px solid var(--border);border-radius:3px;}
+.nm-icon{font-size:16px;flex-shrink:0;}
+.nm-name{font-size:10px;color:var(--ink);font-weight:500;margin-bottom:2px;}
+.nm-desc{font-size:9px;color:var(--ink-dim);line-height:1.55;}
+
+@media(max-width:600px){
+  .masthead{padding:26px 18px 22px;}
+  .page-nav{padding:0 12px;}
+  .content{padding:20px 14px 60px;}
+  .rank-tier-grid,.weekly-grid,.milestone-grid,.basket-cats{grid-template-columns:1fr;}
+  .st-row{grid-template-columns:60px 1fr;}
+  .st-reward{display:none;}
+}
+</style>
+</head>
+<body>
+
+<div class="masthead">
+  <div class="masthead-eyebrow">The Quickening — Paul Bassey</div>
+  <h1>The <em>Rewards</em> Catalogue</h1>
+  <div class="masthead-sub">Daily ranks · Weekly milestones · Streaks · Personal milestones · The Basket</div>
+</div>
+
+<nav class="page-nav">
+  <div class="pnav-tab active" onclick="showTab('daily',this)">Daily Ranks</div>
+  <div class="pnav-tab" onclick="showTab('weekly',this)">Weekly</div>
+  <div class="pnav-tab" onclick="showTab('streaks',this)">Streaks</div>
+  <div class="pnav-tab" onclick="showTab('milestones',this)">Milestones</div>
+  <div class="pnav-tab" onclick="showTab('basket',this)">The Basket</div>
+</nav>
+
+<div class="content">
+
+<!-- ═══ DAILY RANKS ═══ -->
+<div class="tab-section active" id="tab-daily">
+  <div class="s-title">Daily Activity Ranks</div>
+  <div class="s-sub">What each rank earns · Suggestions, not prescriptions · Pick what fits the moment</div>
+
+  <div class="note-block">Rewards here are not purchases to be forced. They are suggestions — a menu of things you already enjoy or want, matched to what you have earned. Some are free. Some cost something. None require spending money you don't have. The point is to name the milestone and attach something to it that makes reaching it feel like something worth reaching for.</div>
+
+  <div class="rank-tier-grid">
+
+    <div class="rank-card">
+      <div class="rank-head rank-head-bronze">
+        <div class="rank-icon">🌱</div>
+        <div class="rank-info">
+          <div class="rank-name rank-name-bronze">Bronze Day</div>
+          <div class="rank-threshold">100+ AP · The covenant held</div>
+        </div>
+      </div>
+      <div class="rank-desc">You showed up. The minimum was honoured. Bronze days are the bedrock — they compound into silver weeks and gold months. This deserves acknowledgement, not indifference.</div>
+      <div class="rank-rewards">
+        <div class="rr-row"><div class="rr-cat">Free</div><div class="rr-items">A deliberately good cup of coffee or tea — made properly, not rushed. Sit with it. 10 minutes of something beautiful on YouTube — architecture, travel, design. A walk that goes nowhere particular. <em>Permission to enjoy the evening without guilt.</em></div></div>
+        <div class="rr-row"><div class="rr-cat">Small treat</div><div class="rr-items">A favourite snack or drink — something you'd normally think twice about. A good meal instead of a convenient one. A cold Guinness or a spirit you like, enjoyed slowly. One track from a playlist you love, played loud.</div></div>
+        <div class="rr-row"><div class="rr-cat">Experience</div><div class="rr-items">An episode of something you're watching — guilt-free, not a compromise. A meal at a sit-down spot instead of eating in. Call someone you've been meaning to call.</div></div>
+      </div>
+    </div>
+
+    <div class="rank-card">
+      <div class="rank-head rank-head-silver">
+        <div class="rank-icon">🌿</div>
+        <div class="rank-info">
+          <div class="rank-name rank-name-silver">Silver Day</div>
+          <div class="rank-threshold">160+ AP · Building territory</div>
+        </div>
+      </div>
+      <div class="rank-desc">More than the minimum. You moved into building territory — the day had real traction. Silver days are where the work starts to feel like yours. Something slightly more is earned.</div>
+      <div class="rank-rewards">
+        <div class="rr-row"><div class="rr-cat">Free</div><div class="rr-items">An hour of pure leisure — a sport you're watching, a film you've wanted to see, an evening of music and doing nothing in particular. <em>Fully guilt-free because it was earned.</em> Pinterest or dreaming session with no time pressure.</div></div>
+        <div class="rr-row"><div class="rr-cat">Small spend</div><div class="rr-items">A restaurant meal — sit-down, good atmosphere, take your time. A new book added to the reading list. A bottle of something good for the apartment. A quality item for the daily routine — good soap, a candle, something small that makes the space better.</div></div>
+        <div class="rr-row"><div class="rr-cat">Experience</div><div class="rr-items">Cinema visit — pick something you've wanted to see. A long walk somewhere new in the city. An evening out — a bar with a good atmosphere, somewhere to sit and observe people and life.</div></div>
+      </div>
+    </div>
+
+    <div class="rank-card">
+      <div class="rank-head rank-head-gold">
+        <div class="rank-icon">🌳</div>
+        <div class="rank-info">
+          <div class="rank-name rank-name-gold">Gold Day</div>
+          <div class="rank-threshold">210+ AP · A genuinely full day</div>
+        </div>
+      </div>
+      <div class="rank-desc">Full engagement across all categories. A genuinely good day — the kind that, replicated enough times, changes the trajectory. Gold days deserve something deliberate, not incidental.</div>
+      <div class="rank-rewards">
+        <div class="rr-row"><div class="rr-cat">Free</div><div class="rr-items">Document the day. Write what fired, what felt good, what you want to remember. This is the record that matters more than any purchase. <em>A Gold Day entry in the Living Notes of the Identity Papers.</em></div></div>
+        <div class="rr-row"><div class="rr-cat">Experience</div><div class="rr-items">A proper restaurant experience — somewhere with atmosphere, not just food. A live sport event if one is available. A film at the cinema with a good pre-film meal. An evening that feels like a celebration rather than a wind-down.</div></div>
+        <div class="rr-row"><div class="rr-cat">Personal</div><div class="rr-items">An item from the wardrobe list — a single well-chosen piece, not a haul. A skincare product you've been researching. A photography tutorial or the first lesson toward a new skill. A book you've been saving for a meaningful moment.</div></div>
+      </div>
+    </div>
+
+    <div class="rank-card">
+      <div class="rank-head rank-head-legend">
+        <div class="rank-icon">🌲</div>
+        <div class="rank-info">
+          <div class="rank-name rank-name-legend">Legendary Day</div>
+          <div class="rank-threshold">270+ AP · Rare and earned</div>
+        </div>
+      </div>
+      <div class="rank-desc">Everything fired. You are reminded today of exactly who you can be when the friction is removed. Legendary days are rare by design — and their reward should match the rarity.</div>
+      <div class="rank-rewards">
+        <div class="rr-row"><div class="rr-cat">Mark it</div><div class="rr-items">Date noted in the Identity Papers. Entry written — not just a log, a reflection on what the day felt like. This day enters the permanent record. <em>You will return to this entry when momentum is low.</em></div></div>
+        <div class="rr-row"><div class="rr-cat">Experience</div><div class="rr-items">A meal at the best restaurant you can access — the kind you'd take someone to impress them. A full cinema experience — good seat, good film, no rushing. A live event if possible — sport, music, culture. Something that costs real money and produces a real memory.</div></div>
+        <div class="rr-row"><div class="rr-cat">Personal</div><div class="rr-items">A meaningful wardrobe piece — not fast fashion, something that will still matter in 5 years. A watch research session — begin identifying what you actually want. A photography class booking. A quality whisky or spirit to open on a future milestone. Something that says: <em>I am the kind of person who earns this.</em></div></div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ═══ WEEKLY ═══ -->
+<div class="tab-section" id="tab-weekly">
+  <div class="s-title">Weekly Growth Milestones</div>
+  <div class="s-sub">GP accumulated across the week · Rewards scale with achievement</div>
+
+  <div class="note-block">Weekly rewards are cumulative — hitting Momentum (600 GP) means you also get what Consistent and Builder earned. Stack them. The week that hits Unstoppable gets everything on the table.</div>
+
+  <div class="weekly-grid">
+
+    <div class="wk-card wk-consistent">
+      <div class="wk-head">Consistent · 150 GP</div>
+      <div class="wk-row"><div class="wk-icon">✓</div><div><div class="wk-name">You were present all week</div><div class="wk-desc">Showing up consistently is underrated. Most people can't sustain it. You did. This week compounded — even when it didn't feel like it.</div></div></div>
+      <div class="wk-row"><div class="wk-icon">☕</div><div><div class="wk-name">Sunday ritual reward</div><div class="wk-desc">One deliberate Sunday pleasure — a long breakfast somewhere you enjoy, a morning walk with no agenda, a film in the afternoon. Something that says the week was worth it.</div></div></div>
+      <div class="wk-row"><div class="wk-icon">📖</div><div><div class="wk-name">Add one book to the list</div><div class="wk-desc">Research and add the next book. Not buy — add. The anticipation is part of the reward.</div></div></div>
+    </div>
+
+    <div class="wk-card wk-builder">
+      <div class="wk-head">Builder · 350 GP</div>
+      <div class="wk-row"><div class="wk-icon">🏗</div><div><div class="wk-name">You produced something real</div><div class="wk-desc">Not just present — contributing. The institution takes shape in weeks like this. You built, not just maintained.</div></div></div>
+      <div class="wk-row"><div class="wk-icon">🍽</div><div><div class="wk-name">A proper meal out</div><div class="wk-desc">Sit-down restaurant. Good atmosphere. Take your time. Order what you want. This is a builder's meal — earned, not indulged.</div></div></div>
+      <div class="wk-row"><div class="wk-icon">🎬</div><div><div class="wk-name">Cinema or live event</div><div class="wk-desc">Book it in advance for the following week. A film you've wanted to see, a match, a show. Something to look forward to that the week earned.</div></div></div>
+      <div class="wk-row"><div class="wk-icon">🛍</div><div><div class="wk-name">One small personal item</div><div class="wk-desc">From the wardrobe list, the grooming list, or the home list. One considered purchase — quality over quantity.</div></div></div>
+    </div>
+
+    <div class="wk-card wk-momentum">
+      <div class="wk-head">Momentum · 600 GP</div>
+      <div class="wk-row"><div class="wk-icon">🔥</div><div><div class="wk-name">Trading, output and spirit all fired</div><div class="wk-desc">A week of genuine results across multiple categories. You are in momentum. The compound curve bent upward this week.</div></div></div>
+      <div class="wk-row"><div class="wk-icon">📷</div><div><div class="wk-name">Photography lesson or session</div><div class="wk-desc">Book or complete one photography tutorial. Or: go out with the phone camera with the specific intention of practising composition. Not casual — deliberate.</div></div></div>
+      <div class="wk-row"><div class="wk-icon">🎵</div><div><div class="wk-name">Instrument research session</div><div class="wk-desc">Dedicated time researching which instrument, which style, what it would take to begin. This is the week where that conversation with yourself starts.</div></div></div>
+      <div class="wk-row"><div class="wk-icon">🥃</div><div><div class="wk-name">A quality drink, properly enjoyed</div><div class="wk-desc">A bottle of something genuinely good — whisky, rum, wine. Not for a party. For a quiet evening that deserves it.</div></div></div>
+      <div class="wk-row"><div class="wk-icon">🏟</div><div><div class="wk-name">Book a live sport event</div><div class="wk-desc">Research what's available in Port Harcourt or plan ahead. Book it for the following month. The week earned a future experience.</div></div></div>
+    </div>
+
+    <div class="wk-card wk-unstoppable">
+      <div class="wk-head">Unstoppable · 950 GP</div>
+      <div class="wk-row"><div class="wk-icon">⚡</div><div><div class="wk-name">Every category fired this week</div><div class="wk-desc">Exceptional. The kind of week that, replicated, changes financial and spiritual status within months. This deserves something that matches the scale.</div></div></div>
+      <div class="wk-row"><div class="wk-icon">🌍</div><div><div class="wk-name">Travel planning session</div><div class="wk-desc">One hour researching a trip — anywhere. Prices, dates, logistics. Even if it's 6 months away and not yet financially possible. The planning is the reward. The vision becomes specific.</div></div></div>
+      <div class="wk-row"><div class="wk-icon">👔</div><div><div class="wk-name">A meaningful wardrobe piece</div><div class="wk-desc">Not fast fashion. A piece that will still be worn in 5 years — a quality shirt, shoes, or outerwear. Something that reflects the man being built.</div></div></div>
+      <div class="wk-row"><div class="wk-icon">📚</div><div><div class="wk-name">Buy the next three books</div><div class="wk-desc">Not the whole list. Three. The next three you genuinely want to read. A small library investment in the person becoming.</div></div></div>
+      <div class="wk-row"><div class="wk-icon">🎭</div><div><div class="wk-name">A cultural or live experience</div><div class="wk-desc">Art exhibition, live music, a cultural event — something outside the usual. An Unstoppable week earns a memory, not just a comfort.</div></div></div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ═══ STREAKS ═══ -->
+<div class="tab-section" id="tab-streaks">
+  <div class="s-title">Streak Milestones</div>
+  <div class="s-sub">Consistency is the rarest discipline · Each threshold earned, not given</div>
+
+  <div class="note-block">Streak rewards are cumulative in spirit but discrete in practice — hitting 7 days earns its own reward separately from the 3-day reward. These are character statements, not just metrics. Reward them accordingly.</div>
+
+  <div class="streak-timeline">
+    <div class="st-row" style="background:var(--ink);">
+      <div style="padding:10px 16px;font-size:8px;letter-spacing:0.2em;text-transform:uppercase;color:rgba(250,247,242,0.5);">Streak</div>
+      <div style="padding:10px 16px;font-size:8px;letter-spacing:0.2em;text-transform:uppercase;color:rgba(250,247,242,0.5);border-left:1px solid rgba(255,255,255,0.1);">Milestone</div>
+      <div style="padding:10px 16px;font-size:8px;letter-spacing:0.2em;text-transform:uppercase;color:rgba(250,247,242,0.5);border-left:1px solid rgba(255,255,255,0.1);">Reward Suggestion</div>
+    </div>
+
+    <div class="st-row">
+      <div class="st-streak" style="color:var(--sage);">3 days</div>
+      <div class="st-title">
+        <div class="st-title-name">🌱 Seedling</div>
+        <div class="st-title-desc">A pattern is beginning. Three is enough to prove you can. Now prove it can become seven.</div>
+      </div>
+      <div class="st-reward">
+        <div class="st-reward-name">A good evening — your design</div>
+        <div class="st-reward-desc">No obligations. Pick one thing you genuinely enjoy and do it without guilt. A film, a drink, a long call with someone you like, a walk at sunset. The 3-day streak earns a free evening.</div>
+      </div>
+    </div>
+
+    <div class="st-row" style="background:var(--surface);">
+      <div class="st-streak" style="color:var(--sage);">7 days</div>
+      <div class="st-title">
+        <div class="st-title-name">🌿 Week Strong</div>
+        <div class="st-title-desc">A full unbroken week. You've reset your baseline. What you've done once, you can do again — and again.</div>
+      </div>
+      <div class="st-reward">
+        <div class="st-reward-name">A proper restaurant or experience</div>
+        <div class="st-reward-desc">A sit-down meal somewhere with atmosphere. Or a cinema outing. Something that marks the week as distinct from ordinary weeks. Tell yourself why you're there — you earned it with seven consecutive days of showing up.</div>
+      </div>
+    </div>
+
+    <div class="st-row">
+      <div class="st-streak" style="color:var(--gold);">14 days</div>
+      <div class="st-title">
+        <div class="st-title-name">🌳 Fortnight</div>
+        <div class="st-title-desc">Two unbroken weeks. Neuroscience says habits begin forming here. The system is becoming part of you.</div>
+      </div>
+      <div class="st-reward">
+        <div class="st-reward-name">A meaningful personal purchase</div>
+        <div class="st-reward-desc">Something from the wardrobe list, a quality grooming product, a book you've been saving, a tool for photography or a new skill. One considered item that reflects the person the 14 days are building. Not a reward for the body — a reward for the identity.</div>
+      </div>
+    </div>
+
+    <div class="st-row" style="background:var(--surface);">
+      <div class="st-streak" style="color:var(--gold);">30 days</div>
+      <div class="st-title">
+        <div class="st-title-name">🏔 The Month</div>
+        <div class="st-title-desc">A month of showing up. This is a character statement. You are the kind of person who does this.</div>
+      </div>
+      <div class="st-reward">
+        <div class="st-reward-name">An experience + a quality item</div>
+        <div class="st-reward-desc">Two-part reward: (1) A night out — dinner and a live event or film, somewhere deliberately good. (2) One quality purchase from the growth list — photography course access, instrument research turned into first lesson, a watch you've researched, quality shoes. The month earns something that lasts beyond the moment.</div>
+      </div>
+    </div>
+
+    <div class="st-row">
+      <div class="st-streak" style="color:var(--legend);">60 days</div>
+      <div class="st-title">
+        <div class="st-title-name">🌟 Two Months</div>
+        <div class="st-title-desc">The discipline is no longer a project. It is a practice. Sixty days of compounding has changed something permanent.</div>
+      </div>
+      <div class="st-reward">
+        <div class="st-reward-name">A deliberate trip or excursion</div>
+        <div class="st-reward-desc">A weekend away — even within Nigeria. A city you haven't visited, a resort, a natural location. The 60-day streak earns a proper change of scene. If finances don't allow travel: an experience day — somewhere you've never been in your own city, done properly.</div>
+      </div>
+    </div>
+
+    <div class="st-row" style="background:var(--surface);">
+      <div class="st-streak" style="color:var(--legend);">100 days</div>
+      <div class="st-title">
+        <div class="st-title-name">👑 Centurion</div>
+        <div class="st-title-desc">One hundred days. You have earned the right to call this a practice, not a project. This is identity now.</div>
+      </div>
+      <div class="st-reward">
+        <div class="st-reward-name">Something you've been planning</div>
+        <div class="st-reward-desc">By 100 days, you'll know what you've been wanting to do or buy that felt premature. This is when it becomes earned. A first international trip planning session turned into a booked ticket. A significant wardrobe investment. A quality watch — researched, chosen, owned. Or: a photography course completed. Whatever the 100-day version of Paul wants — he has earned the right to it.</div>
+      </div>
+    </div>
+
+    <div class="st-row">
+      <div class="st-streak" style="color:var(--legend);">365 days</div>
+      <div class="st-title">
+        <div class="st-title-name">🌍 The Year</div>
+        <div class="st-title-desc">A full year of deliberate living. You are unrecognisable from who you were on day one. This is what a life looks like when it is chosen.</div>
+      </div>
+      <div class="st-reward">
+        <div class="st-reward-name">An international experience</div>
+        <div class="st-reward-desc">A year of compounding earns a year-defining experience. A trip — booked, taken, remembered. A first real travel memory. The kind of thing you describe to people for years. If not international yet: a domestic trip of real significance — somewhere meaningful, done right. The year earns a story.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ MILESTONES ═══ -->
+<div class="tab-section" id="tab-milestones">
+  <div class="s-title">Personal Milestones</div>
+  <div class="s-sub">Real-world achievements that mark genuine progress · These are the ones that matter most</div>
+
+  <div class="milestone-grid">
+
+    <div class="ms-card">
+      <div class="ms-icon">📈</div>
+      <div class="ms-trigger">First profitable trade</div>
+      <div class="ms-name">The Strategy Works</div>
+      <div class="ms-reward">A proper celebratory drink — something you've been saving</div>
+      <div class="ms-desc">Document the trade in full. Save a screenshot. Write what you did right. This is the proof of concept. The drink is a toast to the method, not just the result.</div>
+    </div>
+
+    <div class="ms-card">
+      <div class="ms-icon">💰</div>
+      <div class="ms-trigger">Account balance doubled</div>
+      <div class="ms-name">First Double</div>
+      <div class="ms-reward">A quality meal out + one wardrobe piece</div>
+      <div class="ms-desc">The account grew 100%. Small account, real result. The system is working — now scale it carefully. The reward reflects the discipline, not the amount. Both parts of this reward matter.</div>
+    </div>
+
+    <div class="ms-card">
+      <div class="ms-icon">🎯</div>
+      <div class="ms-trigger">5× Gold Days in history</div>
+      <div class="ms-name">Gold Standard</div>
+      <div class="ms-reward">A photography session — deliberate, documented</div>
+      <div class="ms-desc">Five times you've been the full version of yourself in a single day. The reward activates a new skill area — photography is the creative expression value made tangible. A session, not a tutorial. Go out and shoot.</div>
+    </div>
+
+    <div class="ms-card">
+      <div class="ms-icon">✍</div>
+      <div class="ms-trigger">Output work 5 days running</div>
+      <div class="ms-name">The Maker</div>
+      <div class="ms-reward">A quality notebook or journal</div>
+      <div class="ms-desc">Five consecutive days of visible, completable output. You are a builder. The reward is an object that holds the next five days of building — a proper journal, not a cheap one. Something that feels good to write in.</div>
+    </div>
+
+    <div class="ms-card">
+      <div class="ms-icon">🕊</div>
+      <div class="ms-trigger">Debt fully cleared</div>
+      <div class="ms-name">Free</div>
+      <div class="ms-reward">A trip — wherever you've wanted to go</div>
+      <div class="ms-desc">The weight is gone. Note this date permanently. What you built to get here — keep building, now for vision, not survival. The debt-clear reward is a trip. It doesn't have to be far. It has to be free of the feeling that brought you here.</div>
+    </div>
+
+    <div class="ms-card">
+      <div class="ms-icon">🏗</div>
+      <div class="ms-trigger">First Dante Craft paid job</div>
+      <div class="ms-name">The Company Works</div>
+      <div class="ms-reward">A company dinner — alone or with someone significant</div>
+      <div class="ms-desc">First payment to the company account. The institution exists and has now earned its first money. Mark it with a meal that feels like a founding dinner. Document what the company felt like on day one of being real.</div>
+    </div>
+
+    <div class="ms-card">
+      <div class="ms-icon">📜</div>
+      <div class="ms-trigger">First certification completed</div>
+      <div class="ms-name">IOSH — Done</div>
+      <div class="ms-reward">A quality professional item</div>
+      <div class="ms-desc">A quality briefcase, portfolio, or professional accessory — something that says the engineer has credentials to match the presentation. The certification earns the item that carries it into rooms.</div>
+    </div>
+
+    <div class="ms-card">
+      <div class="ms-icon">🎓</div>
+      <div class="ms-trigger">MSc application submitted</div>
+      <div class="ms-name">The Next Level</div>
+      <div class="ms-reward">A fine meal + one evening fully yours</div>
+      <div class="ms-desc">The application is out of your hands and in the world. Celebrate that — not acceptance, but the act of reaching. The evening is yours completely: dinner, something cultural or enjoyable, no obligations.</div>
+    </div>
+
+    <div class="ms-card">
+      <div class="ms-icon">🌍</div>
+      <div class="ms-trigger">Passport in hand</div>
+      <div class="ms-name">The Doors Open</div>
+      <div class="ms-reward">Plan the first trip it makes possible</div>
+      <div class="ms-desc">The document is physical. The possibilities are now literal. The reward is a planning session for the first trip the passport makes possible — wherever that is. Not a vague intention. A researched, dated plan.</div>
+    </div>
+
+    <div class="ms-card">
+      <div class="ms-icon">📷</div>
+      <div class="ms-trigger">First photography course completed</div>
+      <div class="ms-name">The Eye Opens</div>
+      <div class="ms-reward">A dedicated photography outing</div>
+      <div class="ms-desc">A full day or morning dedicated to going somewhere beautiful and shooting deliberately. Not on the phone — with intention. If a proper camera is accessible: use it. This is the creative expression value expressed in full.</div>
+    </div>
+
+    <div class="ms-card">
+      <div class="ms-icon">🎸</div>
+      <div class="ms-trigger">First instrument lesson taken</div>
+      <div class="ms-name">The Music Begins</div>
+      <div class="ms-reward">The instrument, if not yet owned</div>
+      <div class="ms-desc">The first lesson is the commitment. The reward is what the lesson required — or a quality piece of practice equipment. The music starts here. Whatever the instrument: something that belongs to you now.</div>
+    </div>
+
+    <div class="ms-card">
+      <div class="ms-icon">🌱</div>
+      <div class="ms-trigger">dAnTE Inc founding docs complete</div>
+      <div class="ms-name">Foundation Stone</div>
+      <div class="ms-reward">A deliberate vision evening</div>
+      <div class="ms-desc">A full evening dedicated to the vision — Pinterest, planning, drawing the future. No pressure to produce. Just inhabit the picture of what is being built. The founding docs exist. Now dream about what comes next.</div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ═══ THE BASKET ═══ -->
+<div class="tab-section" id="tab-basket">
+  <div class="s-title">The Basket</div>
+  <div class="s-sub">Solid options that don't fit a single category · Growth rewards · Things worth having and doing</div>
+
+  <div class="basket-intro">The basket is the overflow. These are things you've indicated wanting, things that align with who you're becoming, and things that don't fit neatly into a daily or weekly framework. They are here for when the question is: "I've earned something meaningful — what do I actually want?" Reach in. Pick something real.</div>
+
+  <div class="basket-cats">
+
+    <div class="bc-card">
+      <div class="bc-head">Wardrobe & Presentation</div>
+      <div class="bc-item"><div class="bc-icon">👔</div><div><div class="bc-name">Quality shirts — linen or cotton</div><div class="bc-desc">The foundation of a wardrobe with 100-outfit potential. Neutral tones build the base; colour adds the dimension.</div><div class="bc-note">↑ Builder week / 14-day streak</div></div></div>
+      <div class="bc-item"><div class="bc-icon">👞</div><div><div class="bc-name">Quality leather shoes or boots</div><div class="bc-desc">One pair that works for both professional and smart casual. The piece that elevates everything worn with it.</div><div class="bc-note">↑ Momentum week / 30-day streak</div></div></div>
+      <div class="bc-item"><div class="bc-icon">⌚</div><div><div class="bc-name">A watch — researched and chosen</div><div class="bc-desc">Not purchased impulsively. Researched properly — movement, case, strap. The watch that suits the man being built, not the man of the moment.</div><div class="bc-note">↑ 100-day streak / First Double</div></div></div>
+      <div class="bc-item"><div class="bc-icon">🧴</div><div><div class="bc-name">Complete skincare system</div><div class="bc-desc">Not a collection of products — a system. Cleanser, moisturiser, SPF. Research the right brands for Nigerian skin. Start the routine, maintain it.</div><div class="bc-note">↑ Gold Day / Builder week</div></div></div>
+      <div class="bc-item"><div class="bc-icon">🌸</div><div><div class="bc-name">Signature scent — identified and owned</div><div class="bc-desc">Not just a fragrance. A signature. Try before buying. Research fragrance notes. The scent that is yours, recognised without introduction.</div><div class="bc-note">↑ 30-day streak / Momentum week</div></div></div>
+      <div class="bc-item"><div class="bc-icon">🧳</div><div><div class="bc-name">A quality bag — professional or daily carry</div><div class="bc-desc">A briefcase, leather backpack, or structured tote that works for both site and office. Durability over trend.</div><div class="bc-note">↑ First certification / Legendary Day</div></div></div>
+    </div>
+
+    <div class="bc-card">
+      <div class="bc-head">Experiences & Leisure</div>
+      <div class="bc-item"><div class="bc-icon">🍽</div><div><div class="bc-name">A restaurant you've never been to</div><div class="bc-desc">Not familiar comfort. Somewhere with a reputation — for food, for atmosphere, for experience. Eat alone and observe, or take someone worth observing with.</div><div class="bc-note">↑ Any Silver Day or above</div></div></div>
+      <div class="bc-item"><div class="bc-icon">🎬</div><div><div class="bc-name">Cinema — proper occasion</div><div class="bc-desc">Good seat, good film, good snacks. The cinema is a sensory experience when treated as one, not a habit. Make it the former.</div><div class="bc-note">↑ Builder week / Silver Day</div></div></div>
+      <div class="bc-item"><div class="bc-icon">⚽</div><div><div class="bc-name">Live sport event</div><div class="bc-desc">In-person, in the stands. The energy of a crowd watching sport live is genuinely different from a screen. Find what's available and go.</div><div class="bc-note">↑ Momentum week / 30-day streak</div></div></div>
+      <div class="bc-item"><div class="bc-icon">🎵</div><div><div class="bc-name">Live music or cultural event</div><div class="bc-desc">A concert, a jazz evening, a cultural festival — something that puts you in a room with people experiencing the same thing. Beauty in a crowd is its own category.</div><div class="bc-note">↑ Unstoppable week / Legendary Day</div></div></div>
+      <div class="bc-item"><div class="bc-icon">🌅</div><div><div class="bc-name">A day trip with intention</div><div class="bc-desc">Somewhere outside your usual geography. Not tourism — deliberate presence in a different place. Take the camera. Observe differently.</div><div class="bc-note">↑ 60-day streak / Momentum week</div></div></div>
+      <div class="bc-item"><div class="bc-icon">🏊</div><div><div class="bc-name">A resort or pool day</div><div class="bc-desc">A day at a good hotel pool or resort — deliberately relaxing, not productive. The Connoisseur value expressed in rest: doing nothing beautifully.</div><div class="bc-note">↑ Legendary Day / 30-day streak</div></div></div>
+    </div>
+
+    <div class="bc-card">
+      <div class="bc-head">Skills & Growth</div>
+      <div class="bc-item"><div class="bc-icon">📷</div><div><div class="bc-name">Photography course — online or in-person</div><div class="bc-desc">Composition, light, framing. Start with a structured course, not YouTube rabbit holes. One course, completed.</div><div class="bc-note">↑ Momentum week / 30-day streak</div></div></div>
+      <div class="bc-item"><div class="bc-icon">🎸</div><div><div class="bc-name">Instrument — first lessons</div><div class="bc-desc">Guitar, piano, or whatever the research identifies as the right instrument for Paul's lifestyle and space. First 4 lessons booked as a block.</div><div class="bc-note">↑ Unstoppable week / 60-day streak</div></div></div>
+      <div class="bc-item"><div class="bc-icon">🌐</div><div><div class="bc-name">A language learning subscription</div><div class="bc-desc">French or Spanish — both open significant doors professionally and for travel. Three months of Duolingo or Babbel premium to test the commitment before investing more.</div><div class="bc-note">↑ 30-day streak / Builder week</div></div></div>
+      <div class="bc-item"><div class="bc-icon">🎨</div><div><div class="bc-name">An art or design class</div><div class="bc-desc">Sketch, watercolour, or digital design. One workshop to test the interest. Beauty and creativity as a value needs an outlet — find which one fits.</div><div class="bc-note">↑ Gold Day / Momentum week</div></div></div>
+      <div class="bc-item"><div class="bc-icon">✍</div><div><div class="bc-name">A writing or journaling workshop</div><div class="bc-desc">You already write well and find it useful. A structured workshop on craft or personal essay would sharpen what's already there.</div><div class="bc-note">↑ 14-day streak / Builder week</div></div></div>
+      <div class="bc-item"><div class="bc-icon">🍳</div><div><div class="bc-name">A cooking class or serious recipe</div><div class="bc-desc">Not learning to cook out of necessity — learning one genuinely impressive dish or technique. The Connoisseur value applied to the table.</div><div class="bc-note">↑ Silver Day / Consistent week</div></div></div>
+    </div>
+
+    <div class="bc-card">
+      <div class="bc-head">Home & Environment</div>
+      <div class="bc-item"><div class="bc-icon">🕯</div><div><div class="bc-name">Quality candles or diffuser</div><div class="bc-desc">Scent as environment. A room that smells considered feels different to inhabit. One quality candle or diffuser changes the register of a space.</div><div class="bc-note">↑ Bronze Day / Consistent week</div></div></div>
+      <div class="bc-item"><div class="bc-icon">📚</div><div><div class="bc-name">A curated bookshelf addition</div><div class="bc-desc">Not just the next read — a book that earns its place on the shelf permanently. A reference work, a classic, a beautiful edition of something meaningful.</div><div class="bc-note">↑ Silver Day / Builder week</div></div></div>
+      <div class="bc-item"><div class="bc-icon">🎧</div><div><div class="bc-name">Quality headphones or speaker</div><div class="bc-desc">The audio environment matters — for prayer, for work, for pleasure. An upgrade to how music and sermons are experienced at home is an upgrade to the whole system.</div><div class="bc-note">↑ Momentum week / 30-day streak</div></div></div>
+      <div class="bc-item"><div class="bc-icon">🖼</div><div><div class="bc-name">A piece of art for the apartment</div><div class="bc-desc">One piece — print, photograph, or original — that the wall deserves. Beauty as an underlying note in the daily environment, applied literally.</div><div class="bc-note">↑ Legendary Day / First Double</div></div></div>
+      <div class="bc-item"><div class="bc-icon">🪴</div><div><div class="bc-name">A plant — something living in the space</div><div class="bc-desc">Small but meaningful. Something that requires tending and adds life to the apartment. Low maintenance — a succulent or snake plant. Beauty that you keep alive.</div><div class="bc-note">↑ Consistent week / 7-day streak</div></div></div>
+      <div class="bc-item"><div class="bc-icon">☕</div><div><div class="bc-name">A proper coffee setup</div><div class="bc-desc">A French press, a moka pot, or a proper pour-over kit. The 4AM morning deserves better than instant. One considered upgrade to how the morning begins.</div><div class="bc-note">↑ 14-day streak / Silver Day</div></div></div>
+    </div>
+
+    <div class="bc-card">
+      <div class="bc-head">Travel — The Horizon</div>
+      <div class="bc-item"><div class="bc-icon">🇳🇬</div><div><div class="bc-name">Lagos — a proper weekend</div><div class="bc-desc">Not for work. A weekend in Lagos with the specific intention of experiencing the city as a visitor — restaurants, culture, a good hotel. The closest international-quality city experience.</div><div class="bc-note">↑ 60-day streak / Debt cleared</div></div></div>
+      <div class="bc-item"><div class="bc-icon">🌍</div><div><div class="bc-name">First international trip — Ghana or Senegal</div><div class="bc-desc">Accessible, culturally rich, and genuinely different. The first stamp in the passport. A 3–4 day trip, planned properly, experienced fully.</div><div class="bc-note">↑ 100-day streak / First Double</div></div></div>
+      <div class="bc-item"><div class="bc-icon">🇬🇧</div><div><div class="bc-name">UK — MSc visit or scouting trip</div><div class="bc-desc">If the MSc application progresses: a trip to visit the shortlisted university. Work and vision combined. The trip that makes the decision real.</div><div class="bc-note">↑ MSc application milestone</div></div></div>
+      <div class="bc-item"><div class="bc-icon">🏖</div><div><div class="bc-name">A beach destination — rest and beauty</div><div class="bc-desc">Not a working trip. Somewhere beautiful, near water, for the specific purpose of being somewhere beautiful near water. The Connoisseur demands this once in a while.</div><div class="bc-note">↑ 365-day streak / Account milestone</div></div></div>
+      <div class="bc-item"><div class="bc-icon">🏙</div><div><div class="bc-name">A city with architecture — Marrakech, Cairo, Accra</div><div class="bc-desc">The engineer who loves architectural lines in a city built for beauty. One deliberate trip to a city chosen for its built environment and aesthetic.</div><div class="bc-note">↑ Unstoppable month / dAnTE milestone</div></div></div>
+    </div>
+
+    <div class="bc-card">
+      <div class="bc-head">Non-Material Rewards</div>
+      <div class="bc-item"><div class="bc-icon">🌅</div><div><div class="bc-name">A morning with no agenda</div><div class="bc-desc">Not a rest day structured around productivity. A morning where nothing is planned and nothing is required. Sit outside. Read nothing. Observe. Rare enough to be a reward.</div></div></div>
+      <div class="bc-item"><div class="bc-icon">📵</div><div><div class="bc-name">A full device-free afternoon</div><div class="bc-desc">Phone in another room. No charts, no dashboard, no notifications. A genuine break from the system — which makes returning to it stronger.</div></div></div>
+      <div class="bc-item"><div class="bc-icon">🙏</div><div><div class="bc-name">An extended prayer and fasting day</div><div class="bc-desc">Not as punishment — as deliberate investment. A full day of prayer and fasting as a reward to the Spirit for what the flesh has produced. The deepest reset available.</div></div></div>
+      <div class="bc-item"><div class="bc-icon">🎨</div><div><div class="bc-name">A Pinterest day — vision with no limit</div><div class="bc-desc">Three hours of pure dreaming — no financial filter, no practicality. Save everything that resonates. Let the vision become specific and visual. This is not wasted time. This is direction.</div></div></div>
+      <div class="bc-item"><div class="bc-icon">🤝</div><div><div class="bc-name">A deliberate conversation</div><div class="bc-desc">Call or meet someone whose mind you respect — not for networking, for genuine exchange. A reward that feeds the relational life value and the wisdom value simultaneously.</div></div></div>
+      <div class="bc-item"><div class="bc-icon">📓</div><div><div class="bc-name">A reflection session — Identity Papers</div><div class="bc-desc">Return to the document. Read it. Update the Self section. Add a Living Note. The reward of revisiting who you are and noticing how it has changed.</div></div></div>
+    </div>
+
+  </div>
+</div>
+
+</div>
+
+<script>
+function showTab(id, el) {
+  document.querySelectorAll('.tab-section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.pnav-tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('tab-' + id).classList.add('active');
+  el.classList.add('active');
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Declaration — Living Document</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400;1,600&family=Jost:wght@200;300;400&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#07090b;--s1:#0d1115;--s2:#131820;--border:rgba(255,255,255,0.06);--border-g:rgba(255,255,255,0.11);--tx:#edeae2;--mid:rgba(237,234,226,0.55);--dim:rgba(237,234,226,0.22);--gold:#c9a84c;--gold-d:rgba(201,168,76,0.12);--fd:'Cormorant Garamond',serif;--fm:'Jost',sans-serif;}
+body.light{--bg:#f4f2ec;--s1:#eceae2;--s2:#e2e0d8;--border:rgba(0,0,0,0.07);--border-g:rgba(0,0,0,0.13);--tx:#141210;--mid:rgba(20,18,16,0.55);--dim:rgba(20,18,16,0.25);--gold:#7a5810;}
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{background:var(--bg);color:var(--tx);font-family:var(--fd);line-height:1.7;transition:background .25s,color .25s;}
+
+.toolbar{position:sticky;top:0;z-index:100;background:rgba(7,9,11,0.94);backdrop-filter:blur(10px);border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;padding:10px 2rem;}
+body.light .toolbar{background:rgba(244,242,236,0.94);}
+.tb-title{font-family:var(--fm);font-size:0.58rem;letter-spacing:0.25em;text-transform:uppercase;color:var(--dim);}
+.tb-btns{display:flex;gap:8px;}
+.tb-btn{background:none;border:1px solid var(--border-g);border-radius:2px;color:var(--mid);font-family:var(--fm);font-size:0.55rem;letter-spacing:0.1em;padding:4px 10px;cursor:pointer;transition:all .2s;}
+.tb-btn:hover{color:var(--gold);border-color:var(--gold);}
+
+.header{padding:4rem 3rem 3rem;max-width:800px;margin:0 auto;text-align:center;}
+.h-cross{font-size:1.5rem;color:var(--gold);opacity:0.5;margin-bottom:1.5rem;}
+.h-title{font-family:var(--fd);font-size:clamp(2rem,5vw,3.5rem);font-weight:300;font-style:italic;color:var(--tx);margin-bottom:0.5rem;}
+.h-sub{font-family:var(--fm);font-size:0.58rem;letter-spacing:0.25em;text-transform:uppercase;color:var(--dim);}
+.h-divider{width:40px;height:1px;background:rgba(201,168,76,0.3);margin:2rem auto;}
+
+.content{max-width:800px;margin:0 auto;padding:0 2rem 6rem;}
+
+.segment{margin-bottom:2.5rem;border-left:2px solid var(--border);padding-left:2rem;position:relative;transition:border-color .2s;}
+.segment:hover{border-left-color:rgba(201,168,76,0.3);}
+.segment.has-notes{border-left-color:rgba(201,168,76,0.5);}
+
+.seg-theme{font-family:var(--fm);font-size:0.52rem;letter-spacing:0.25em;text-transform:uppercase;color:var(--gold);opacity:0.7;margin-bottom:0.6rem;}
+.seg-text{font-family:var(--fd);font-size:clamp(1rem,2.5vw,1.25rem);font-weight:300;color:var(--tx);line-height:1.8;margin-bottom:0.75rem;}
+.seg-text.amen{font-size:clamp(1.5rem,4vw,2.5rem);font-style:italic;color:var(--gold);text-align:center;border-left:none;padding-left:0;margin:3rem 0;}
+
+.seg-actions{display:flex;gap:8px;align-items:center;opacity:0;transition:opacity .2s;}
+.segment:hover .seg-actions{opacity:1;}
+.seg-note-btn{background:none;border:1px solid var(--border-g);border-radius:2px;color:var(--dim);font-family:var(--fm);font-size:0.5rem;letter-spacing:0.1em;padding:3px 9px;cursor:pointer;transition:all .2s;}
+.seg-note-btn:hover{color:var(--gold);border-color:var(--gold);}
+
+.notes-area{margin-top:1rem;display:none;}
+.notes-area.open{display:block;}
+.notes-list{display:flex;flex-direction:column;gap:0.5rem;margin-bottom:0.75rem;}
+.note-item{background:var(--s1);border:1px solid var(--border);padding:0.75rem 1rem;border-radius:2px;}
+.note-date{font-family:var(--fm);font-size:0.5rem;letter-spacing:0.1em;color:var(--gold);opacity:0.7;margin-bottom:0.3rem;}
+.note-text{font-family:var(--fd);font-size:0.9rem;color:var(--mid);line-height:1.6;font-style:italic;}
+.note-delete{float:right;background:none;border:none;color:var(--dim);cursor:pointer;font-size:0.65rem;opacity:0.5;}
+.note-delete:hover{opacity:1;color:#c46858;}
+
+.add-note-wrap{display:flex;gap:8px;}
+.add-note-inp{flex:1;background:var(--s2);border:1px solid var(--border);border-radius:2px;color:var(--tx);font-family:var(--fd);font-size:0.9rem;font-style:italic;padding:8px 12px;outline:none;resize:none;min-height:60px;transition:border-color .2s;}
+.add-note-inp:focus{border-color:rgba(201,168,76,0.4);}
+.add-note-inp::placeholder{color:var(--dim);}
+.add-note-btn{background:none;border:1px solid rgba(201,168,76,0.3);color:var(--gold);font-family:var(--fm);font-size:0.52rem;letter-spacing:0.1em;padding:0 14px;cursor:pointer;border-radius:2px;transition:all .2s;white-space:nowrap;}
+.add-note-btn:hover{background:var(--gold-d);}
+
+.toast{position:fixed;bottom:18px;left:50%;transform:translateX(-50%) translateY(44px);background:var(--s2);border:1px solid var(--border-g);color:var(--gold);font-family:var(--fm);font-size:0.55rem;letter-spacing:0.1em;padding:7px 16px;border-radius:2px;transition:transform .35s cubic-bezier(.34,1.56,.64,1);z-index:999;white-space:nowrap;}
+.toast.show{transform:translateX(-50%) translateY(0);}
+
+@media(max-width:480px){.content,.header{padding-left:1.25rem;padding-right:1.25rem;}.toolbar{padding:8px 1.25rem;}}
+</style>
+</head>
+<body>
+
+<div class="toolbar">
+  <div class="tb-title">The Declaration &mdash; Living Document</div>
+  <div class="tb-btns">
+    <button class="tb-btn" onclick="exportNotes()">Export</button>
+    <button class="tb-btn" onclick="toggleTheme()">&#9788; / &#9790;</button>
+  </div>
+</div>
+
+<div class="header">
+  <div class="h-cross">✝</div>
+  <div class="h-title">The Declaration</div>
+  <div class="h-sub">A Living Record &middot; Paul Akpan Bassey</div>
+  <div class="h-divider"></div>
+</div>
+
+<div class="content" id="content"></div>
+<div class="toast" id="toast"></div>
+
+<script>
+const LINES = [
+  {id:"foundation",text:"By the Grace, Mercy, Favour and Faithfulness of God, and by the Blood of Jesus Christ which has redeemed us, Exceeding Great Fortune is our portion, We flourish on every side.",theme:"Foundation"},
+  {id:"standing",text:"We can not, We will not fail; We can not, We will not fall, because God is for us, God is with us, God is in us.",theme:"Standing"},
+  {id:"inheritance",text:"The lines fall for us in pleasant places, ours is a delightful, goodly inheritance.",theme:"Inheritance"},
+  {id:"harvest",text:"For us, harvesting season meets and overtakes planting season: our lives yield sweet wine and fruit.",theme:"Harvest"},
+  {id:"newthings",text:"Our Father is doing a new thing for us, in us and through us: see it spring forth! He makes for us roads in the wilderness and streams in the wasteland.",theme:"New Things"},
+  {id:"doors",text:"Great and effectual doors are open to us and in Jesus' Name every adversary is conquered — for He has given us a mouth and wisdom which no adversary can gainsay or resist.",theme:"Open Doors"},
+  {id:"abundance",text:"Therefore in times of famine We are satisfied and overflowing in abundance, and our Father gives us beauty for ashes, the wealth and riches of the heathen for our inheritance, and this day He gives us our daily bread.",theme:"Abundance"},
+  {id:"shepherd",text:"All things work together for our good according to the Will of God for us, the Lord is our Shepherd, We lack nothing and we fear no evil for by His Spirit and divine power He has blessed us with all things that pertain to life and godliness — and through Christ who strengthens us we can do all things, and we prosper in all we do because God is with us.",theme:"The Shepherd"},
+  {id:"fruit",text:"As trees planted by God and in God, we bring forth and bear fruit in season and out of season.",theme:"Fruit"},
+  {id:"manifest",text:"We manifest Greatness and Life abundant, We manifest the Nature and Wisdom of God, and we do greater works. We transcend limitations, boundaries and possibilities.",theme:"Manifestation"},
+  {id:"identity",text:"We are blessed of God, we are marvellously helped, we are co-labourers with God, we are His investment, we are vessels for His purpose.",theme:"Identity"},
+  {id:"witness",text:"We are testimonies, we are signs and wonders in the earth, we are carriers of God's glory, we embody God's Life and Faith, we are stewards, beneficiaries and expressions of God's manifold Grace, we are conduit of His power.",theme:"Witness"},
+  {id:"partners",text:"We are partners with His Holy Spirit and we are Witness. Everyday, everywhere, we walk in prepared places and prepared blessings.",theme:"Partnership"},
+  {id:"triumph",text:"Thanks be to God who causes us to triumph in all things through Christ Jesus. Thanks be to God who teaches us to make wealth, teaches our hand to make war and our fingers to fight.",theme:"Triumph"},
+  {id:"valiant",text:"Thanks be to God through whom we run through troops, leap over walls, and perform valiantly. In this era, great things continue to happen in our lives of their own accord, and supernatural doors are open to us as we hold fast to God and His promises to us.",theme:"Valiant"},
+  {id:"amen",text:"Amen.",theme:""}
+];
+
+const LS = 'declaration_living';
+let notes = {};
+try{notes = JSON.parse(localStorage.getItem(LS)||'{}');}catch(e){}
+
+function save(){try{localStorage.setItem(LS,JSON.stringify(notes));}catch(e){}}
+function toast(m){const t=document.getElementById('toast');t.textContent=m;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2200);}
+function toggleTheme(){document.body.classList.toggle('light');try{localStorage.setItem('decl_living_theme',document.body.classList.contains('light')?'light':'dark');}catch(e){}}
+
+function fmtDate(){
+  const now=new Date();
+  const m=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  return now.getDate()+' '+m[now.getMonth()]+' '+now.getFullYear();
+}
+
+function render(){
+  const c = document.getElementById('content');
+  c.innerHTML = '';
+  LINES.forEach(line=>{
+    const lineNotes = notes[line.id]||[];
+    const hasNotes = lineNotes.length > 0;
+    const div = document.createElement('div');
+    div.className = 'segment'+(hasNotes?' has-notes':'');
+    if(line.id==='amen'){
+      div.style.borderLeft='none';div.style.paddingLeft='0';
+      div.innerHTML='<div class="seg-text amen">'+line.text+'</div>';
+    } else {
+      div.innerHTML = `
+        ${line.theme?'<div class="seg-theme">'+line.theme+'</div>':''}
+        <div class="seg-text">${line.text}</div>
+        <div class="seg-actions">
+          <button class="seg-note-btn" onclick="toggleNotes('${line.id}')">
+            ${hasNotes?'✦ '+lineNotes.length+' note'+(lineNotes.length>1?'s':''):'+ Add note'}
+          </button>
+        </div>
+        <div class="notes-area" id="notes_${line.id}">
+          <div class="notes-list" id="list_${line.id}">
+            ${lineNotes.map((n,i)=>`
+              <div class="note-item">
+                <div class="note-date">${n.date}</div>
+                <button class="note-delete" onclick="deleteNote('${line.id}',${i})">✕</button>
+                <div class="note-text">${n.text}</div>
+              </div>
+            `).join('')}
+          </div>
+          <div class="add-note-wrap">
+            <textarea class="add-note-inp" id="inp_${line.id}" placeholder="What this line means today, or where you saw it proven..."></textarea>
+            <button class="add-note-btn" onclick="addNote('${line.id}')">Save</button>
+          </div>
+        </div>`;
+    }
+    c.appendChild(div);
+  });
+}
+
+function toggleNotes(id){
+  const area = document.getElementById('notes_'+id);
+  area.classList.toggle('open');
+  if(area.classList.contains('open')){
+    const inp = document.getElementById('inp_'+id);
+    if(inp) setTimeout(()=>inp.focus(),100);
+  }
+}
+
+function addNote(id){
+  const inp = document.getElementById('inp_'+id);
+  const val = inp.value.trim();
+  if(!val) return;
+  if(!notes[id]) notes[id]=[];
+  notes[id].unshift({date:fmtDate(),text:val});
+  inp.value='';
+  save();
+  render();
+  document.getElementById('notes_'+id).classList.add('open');
+  toast('Note saved.');
+}
+
+function deleteNote(id,idx){
+  if(!notes[id]) return;
+  notes[id].splice(idx,1);
+  save();
+  render();
+  document.getElementById('notes_'+id).classList.add('open');
+}
+
+function exportNotes(){
+  let out = 'THE DECLARATION — NOTES\n\n';
+  LINES.forEach(line=>{
+    const lineNotes = notes[line.id]||[];
+    if(lineNotes.length){
+      out += '— '+line.theme+' —\n';
+      out += line.text+'\n\n';
+      lineNotes.forEach(n=>{ out += '['+n.date+']\n'+n.text+'\n\n'; });
+      out += '---\n\n';
+    }
+  });
+  const blob = new Blob([out],{type:'text/plain'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'declaration-notes.txt';
+  a.click();
+  toast('Exported.');
+}
+
+try{if(localStorage.getItem('decl_living_theme')==='light')document.body.classList.add('light');}catch(e){}
+render();
+</script>
+</body>
+</html>

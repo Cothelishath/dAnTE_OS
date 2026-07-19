@@ -1,0 +1,1208 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Q2 2026 — 91 Days</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400;1,600&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:#0d0c0a; --s1:#131210; --s2:#1a1815; --s3:#222018;
+  --border:rgba(212,175,90,0.1); --border-g:rgba(212,175,90,0.22);
+  --text:#e4ddd0; --dim:#5a5245; --mid:#9a8e7a; --gold:#d4af5a;
+  --gold-b:#f0cc78; --gold-d:#8a7040;
+  --green:#6aaa7a; --red:#c46a5a; --blue:#6a8aaa;
+  --plat:#88c8e8; --rust:#c4784a; --sage:#7aaa88; --lavender:#a890c8;
+  --fd:'Cormorant Garamond',serif; --fm:'DM Mono',monospace;
+}
+body.light {
+  --bg:#f7f4ee; --s1:#eeeadf; --s2:#e4dfd2; --s3:#dad4c4;
+  --border:rgba(138,112,64,0.15); --border-g:rgba(138,112,64,0.28);
+  --text:#2a2418; --dim:#9a8e72; --mid:#6a5e42;
+  --gold:#8a7040; --gold-b:#c9a84c; --gold-d:#6a5430;
+  --green:#3a7a4a; --red:#8a3a2a; --blue:#2a5a8a;
+  --plat:#2a6a8a; --rust:#8a4a2a; --sage:#3a6a48; --lavender:#5a4a8a;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{background:var(--bg);color:var(--text);font-family:var(--fm);font-size:12px;line-height:1.65;min-height:100vh;overflow-x:hidden;transition:background 0.3s,color 0.3s;}
+.theme-btn{background:none;border:1px solid var(--border-g);border-radius:2px;color:var(--gold-d);font-family:var(--fm);font-size:9px;letter-spacing:0.12em;padding:5px 11px;cursor:pointer;transition:all 0.2s;position:absolute;top:20px;right:24px;z-index:10;}
+.theme-btn:hover{color:var(--gold);border-color:var(--gold);}
+body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellipse 70% 50% at 0% 0%,rgba(212,175,90,0.03) 0%,transparent 60%),radial-gradient(ellipse 50% 70% at 100% 100%,rgba(106,138,170,0.03) 0%,transparent 60%);pointer-events:none;z-index:0;}
+
+/* MASTHEAD */
+.masthead{padding:40px 28px 32px;border-bottom:1px solid var(--border);position:relative;z-index:1;}
+.mast-eyebrow{font-size:9px;letter-spacing:0.3em;text-transform:uppercase;color:var(--gold-d);margin-bottom:10px;}
+.mast-title{font-family:var(--fd);font-size:clamp(36px,7vw,58px);font-weight:300;line-height:1.05;margin-bottom:8px;}
+.mast-title em{font-style:italic;color:var(--gold);}
+.mast-sub{font-size:10px;color:var(--dim);letter-spacing:0.12em;margin-bottom:20px;}
+.mast-mission{font-family:var(--fd);font-size:15px;font-style:italic;color:var(--mid);line-height:1.75;max-width:600px;border-left:2px solid var(--border-g);padding-left:16px;}
+
+/* QUARTER OVERVIEW */
+.quarter-bar{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;padding:24px 28px;border-bottom:1px solid var(--border);position:relative;z-index:1;}
+.qb-month{background:var(--s1);border:1px solid var(--border);border-radius:3px;padding:14px 16px;}
+.qb-name{font-family:var(--fd);font-size:18px;font-style:italic;color:var(--gold);margin-bottom:4px;}
+.qb-dates{font-size:8px;letter-spacing:0.14em;color:var(--dim);margin-bottom:8px;}
+.qb-focus{font-size:10px;color:var(--mid);line-height:1.55;}
+.qb-focus strong{color:var(--text);display:block;font-size:9px;letter-spacing:0.1em;text-transform:uppercase;margin-bottom:3px;font-family:var(--fm);}
+
+/* NAV */
+.nav{position:sticky;top:0;z-index:50;background:rgba(13,12,10,0.97);backdrop-filter:blur(12px);border-bottom:1px solid var(--border);display:flex;padding:0 20px;overflow-x:auto;gap:0;}
+.nt{font-size:8px;letter-spacing:0.15em;text-transform:uppercase;color:var(--dim);padding:14px 12px;cursor:pointer;border-bottom:2px solid transparent;transition:all 0.2s;white-space:nowrap;flex-shrink:0;}
+.nt:hover{color:var(--mid);}
+.nt.active{color:var(--gold);border-bottom-color:var(--gold);}
+
+/* CONTENT */
+.content{max-width:860px;margin:0 auto;padding:28px 20px 80px;position:relative;z-index:1;}
+.page{display:none;}
+.page.active{display:block;}
+
+/* SECTION TITLE */
+.s-title{font-family:var(--fd);font-size:26px;font-weight:300;margin-bottom:4px;}
+.s-title em{font-style:italic;color:var(--gold);}
+.s-sub{font-size:10px;color:var(--dim);letter-spacing:0.1em;margin-bottom:22px;}
+
+/* CATEGORY CARD */
+.cat-card{background:var(--s1);border:1px solid var(--border);border-radius:4px;margin-bottom:14px;overflow:hidden;}
+.cat-head{display:flex;align-items:center;gap:12px;padding:14px 18px;cursor:pointer;border-bottom:1px solid transparent;transition:all 0.2s;}
+.cat-head:hover{background:rgba(255,255,255,0.015);}
+.cat-card.open .cat-head{border-bottom-color:var(--border);}
+.cat-icon{font-size:18px;flex-shrink:0;}
+.cat-name{font-family:var(--fd);font-size:18px;flex:1;}
+.cat-arrow{font-size:10px;color:var(--dim);transition:transform 0.2s;}
+.cat-card.open .cat-arrow{transform:rotate(90deg);}
+.cat-badge{font-size:8px;padding:2px 8px;border-radius:2px;letter-spacing:0.1em;text-transform:uppercase;}
+.cat-body{display:none;padding:16px 18px;}
+.cat-card.open .cat-body{display:block;}
+
+/* GOAL ITEM */
+.goal-section{margin-bottom:18px;}
+.goal-section-title{font-size:8px;letter-spacing:0.22em;text-transform:uppercase;color:var(--gold-d);margin-bottom:10px;padding-bottom:6px;border-bottom:1px solid var(--border);}
+
+.goal-item{display:flex;align-items:flex-start;gap:10px;margin-bottom:8px;padding:10px 12px;background:var(--s2);border-radius:3px;border:1px solid transparent;transition:all 0.2s;cursor:pointer;}
+.goal-item:hover{border-color:rgba(212,175,90,0.15);}
+.goal-item.done{opacity:0.5;}
+.goal-item.done .gi-title{text-decoration:line-through;color:var(--dim);}
+.gi-check{width:14px;height:14px;border:1px solid rgba(212,175,90,0.35);border-radius:2px;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:8px;margin-top:1px;transition:all 0.18s;}
+.goal-item.done .gi-check{background:var(--gold);border-color:var(--gold);color:var(--bg);}
+.gi-content{flex:1;}
+.gi-title{font-size:11px;color:var(--text);margin-bottom:3px;line-height:1.5;}
+.gi-desc{font-size:9px;color:var(--dim);line-height:1.55;}
+.gi-meta{display:flex;gap:8px;margin-top:5px;flex-wrap:wrap;}
+.gi-tag{font-size:7px;padding:2px 7px;border-radius:2px;letter-spacing:0.08em;}
+.gi-tag.april{background:rgba(212,175,90,0.1);color:var(--gold);border:1px solid rgba(212,175,90,0.2);}
+.gi-tag.may{background:rgba(106,170,122,0.1);color:var(--sage);border:1px solid rgba(106,170,122,0.2);}
+.gi-tag.june{background:rgba(106,138,170,0.1);color:var(--blue);border:1px solid rgba(106,138,170,0.2);}
+.gi-tag.q2{background:rgba(168,144,200,0.1);color:var(--lavender);border:1px solid rgba(168,144,200,0.2);}
+.gi-tag.daily{background:rgba(255,255,255,0.06);color:var(--mid);border:1px solid rgba(255,255,255,0.08);}
+.gi-tag.urgent{background:rgba(196,106,90,0.1);color:var(--red);border:1px solid rgba(196,106,90,0.2);}
+.gi-tag.weekly{background:rgba(136,200,232,0.08);color:var(--plat);border:1px solid rgba(136,200,232,0.15);}
+
+/* HABITS TABLE */
+.habit-table{width:100%;border-collapse:collapse;margin-bottom:14px;}
+.habit-table th{background:var(--s3);padding:8px 12px;text-align:left;font-size:7px;letter-spacing:0.18em;text-transform:uppercase;color:var(--dim);font-weight:400;border-bottom:1px solid var(--border);}
+.habit-table td{padding:9px 12px;border-bottom:1px solid rgba(255,255,255,0.03);font-size:10px;vertical-align:top;}
+.habit-table tr:last-child td{border-bottom:none;}
+.habit-table tr:hover td{background:rgba(255,255,255,0.015);}
+.ht-name{color:var(--text);}
+.ht-freq{color:var(--gold-d);font-size:9px;}
+.ht-measure{color:var(--mid);font-size:9px;}
+.ht-why{color:var(--dim);font-size:9px;font-style:italic;}
+
+/* SACRIFICE BOX */
+.sacrifice-box{background:rgba(196,106,90,0.06);border:1px solid rgba(196,106,90,0.18);border-radius:3px;padding:12px 14px;margin-bottom:14px;}
+.sb-title{font-size:8px;letter-spacing:0.18em;text-transform:uppercase;color:var(--red);margin-bottom:8px;}
+.sb-item{display:flex;gap:8px;margin-bottom:5px;font-size:10px;color:var(--mid);}
+.sb-dot{color:var(--red);flex-shrink:0;}
+
+/* MILESTONE BOX */
+.milestone-box{background:rgba(212,175,90,0.05);border:1px solid var(--border-g);border-radius:3px;padding:12px 14px;margin-bottom:14px;}
+.mb-title{font-size:8px;letter-spacing:0.18em;text-transform:uppercase;color:var(--gold-d);margin-bottom:8px;}
+.milestone-item{display:flex;align-items:center;gap:10px;margin-bottom:6px;padding:7px 10px;background:rgba(212,175,90,0.04);border-radius:2px;cursor:pointer;transition:all 0.18s;}
+.milestone-item:hover{background:rgba(212,175,90,0.08);}
+.milestone-item.reached{opacity:0.6;}
+.milestone-item.reached .mi-name{text-decoration:line-through;color:var(--dim);}
+.mi-check{width:13px;height:13px;border:1px solid var(--border-g);border-radius:50%;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:7px;transition:all 0.18s;}
+.milestone-item.reached .mi-check{background:var(--gold);border-color:var(--gold);color:var(--bg);}
+.mi-name{flex:1;font-size:10px;color:var(--text);}
+.mi-when{font-size:8px;color:var(--dim);}
+
+/* WEEKLY SCHEDULE */
+.week-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;margin-bottom:14px;}
+.wg-day{background:var(--s2);border:1px solid var(--border);border-radius:2px;padding:8px 6px;text-align:center;}
+.wg-name{font-size:7px;letter-spacing:0.1em;text-transform:uppercase;color:var(--dim);margin-bottom:5px;}
+.wg-items{display:flex;flex-direction:column;gap:2px;}
+.wg-item{font-size:7px;color:var(--mid);background:rgba(255,255,255,0.04);border-radius:1px;padding:2px 4px;text-align:left;line-height:1.4;}
+
+/* PROGRESS TRACKERS */
+.tracker-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px;}
+.tracker-box{background:var(--s1);border:1px solid var(--border);border-radius:3px;padding:12px 14px;}
+.tb-label{font-size:8px;letter-spacing:0.15em;text-transform:uppercase;color:var(--dim);margin-bottom:4px;}
+.tb-val{font-family:var(--fd);font-size:28px;font-weight:300;color:var(--gold);line-height:1;}
+.tb-sub{font-size:8px;color:var(--dim);margin-top:2px;}
+.tb-bar{height:3px;background:rgba(212,175,90,0.08);border-radius:2px;margin-top:8px;overflow:hidden;}
+.tb-fill{height:100%;background:linear-gradient(90deg,var(--gold-d),var(--gold-b));border-radius:2px;transition:width 0.5s ease;}
+
+/* MONTH TABS */
+.month-tabs{display:flex;gap:6px;margin-bottom:16px;flex-wrap:wrap;}
+.mtab{font-size:8px;letter-spacing:0.12em;text-transform:uppercase;padding:5px 12px;border:1px solid var(--border);border-radius:2px;cursor:pointer;color:var(--dim);transition:all 0.2s;}
+.mtab:hover{border-color:var(--border-g);color:var(--mid);}
+.mtab.active{border-color:var(--gold);background:rgba(212,175,90,0.08);color:var(--gold);}
+
+/* REWARDS */
+.rewards-section{margin-bottom:18px;}
+.reward-tier{background:var(--s1);border:1px solid var(--border);border-radius:3px;margin-bottom:8px;overflow:hidden;}
+.rt-head{display:flex;align-items:center;gap:12px;padding:12px 16px;border-bottom:1px solid var(--border);}
+.rt-icon{font-size:20px;}
+.rt-title{font-family:var(--fd);font-size:16px;flex:1;}
+.rt-pts{font-size:9px;color:var(--gold-d);letter-spacing:0.1em;}
+.rt-items{padding:10px 16px;display:flex;flex-direction:column;gap:5px;}
+.ri-item{display:flex;align-items:center;gap:8px;font-size:10px;color:var(--mid);padding:5px 0;border-bottom:1px solid rgba(255,255,255,0.03);}
+.ri-item:last-child{border-bottom:none;}
+.ri-dot{width:4px;height:4px;border-radius:50%;background:var(--gold-d);flex-shrink:0;}
+
+/* TOAST */
+.toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%) translateY(44px);background:var(--s2);border:1px solid var(--border-g);color:var(--gold);font-size:8px;letter-spacing:0.1em;padding:8px 16px;border-radius:2px;transition:transform 0.4s cubic-bezier(0.34,1.56,0.64,1);z-index:999;white-space:nowrap;}
+.toast.show{transform:translateX(-50%) translateY(0);}
+
+.divider{border:none;border-top:1px solid var(--border);margin:16px 0;}
+.note-box{background:rgba(212,175,90,0.05);border:1px solid var(--border-g);border-radius:3px;padding:12px 14px;margin-bottom:14px;font-size:10px;color:var(--mid);line-height:1.7;font-style:italic;}
+
+@media(max-width:600px){
+  .masthead{padding:28px 16px 22px;}
+  .quarter-bar{grid-template-columns:1fr;}
+  .content{padding:20px 14px 60px;}
+  .tracker-row{grid-template-columns:1fr;}
+  .week-grid{grid-template-columns:repeat(4,1fr);}
+}
+</style>
+</head>
+<body>
+
+<div class="masthead">
+  <button class="theme-btn" onclick="toggleTheme()">☀ / ☾</button>
+  <div class="mast-eyebrow">April · May · June 2026</div>
+  <div class="mast-title">91 <em>Days</em></div>
+  <div class="mast-sub">Q2 2026 — Life Design & Quarterly Plan</div>
+  <div class="mast-mission">This quarter carries a real financial deadline — the debt must be cleared, and trading is the most direct path to making that happen fast. April is the sprint that builds the weapon. May and June are when you use it. <em>$5,000 by June 30 is the BAG.</em> Everything in this plan is calibrated to that target.</div>
+</div>
+
+<div class="quarter-bar">
+  <div class="qb-month">
+    <div class="qb-name">April</div>
+    <div class="qb-dates">Days 1–30 · Apr 1–30</div>
+    <div class="qb-focus"><strong>Theme: The Sprint</strong>Build the weapon. Prove the strategy with disciplined execution. Clear the debt or put a plan in place. Tier 1 every single day. This month makes everything else possible.</div>
+  </div>
+  <div class="qb-month">
+    <div class="qb-name">May</div>
+    <div class="qb-dates">Days 31–61 · May 1–31</div>
+    <div class="qb-focus"><strong>Theme: Scale</strong>Strategy proven — now push the lot size. 20 documented trades, win rate above 50%, scale to 0.10 then 0.20 lots. Account above $100. Debt cleared. CGSL site resumes. Dante Craft bank account open.</div>
+  </div>
+  <div class="qb-month">
+    <div class="qb-name">June</div>
+    <div class="qb-dates">Days 62–91 · Jun 1–30</div>
+    <div class="qb-focus"><strong>Theme: The BAG</strong>$5,000 target. Aggressive but disciplined scaling. Dante Craft first service defined. Skills visibly compounding. Quarter reviewed, Q3 planned with the confidence of someone who delivered.</div>
+  </div>
+</div>
+
+<nav class="nav">
+  <div class="nt active" onclick="showPage('overview',this)">Overview</div>
+  <div class="nt" onclick="showPage('trading',this)">Trading</div>
+  <div class="nt" onclick="showPage('finances',this)">Finances</div>
+  <div class="nt" onclick="showPage('spiritual',this)">Spiritual</div>
+  <div class="nt" onclick="showPage('career',this)">Career & Dante</div>
+  <div class="nt" onclick="showPage('health',this)">Health</div>
+  <div class="nt" onclick="showPage('development',this)">Development</div>
+  <div class="nt" onclick="showPage('rewards',this)">Rewards</div>
+  <div class="nt" onclick="showPage('creative',this)">Creative</div>
+  <div class="nt" onclick="showPage('intellectual',this)">Intellectual</div>
+  <div class="nt" onclick="showPage('social',this)">Social</div>
+  <div class="nt" onclick="showPage('environment',this)">Environment</div>
+  <div class="nt" onclick="showPage('rest',this)">Rest</div>
+  <div class="nt" onclick="showPage('legacy',this)">Legacy</div>
+  <div class="nt" onclick="showPage('habits',this)">Weekly Schedule</div>
+</nav>
+
+<div class="content">
+
+<!-- OVERVIEW -->
+<div class="page active" id="page-overview">
+  <div class="s-title">The <em>Quarter</em></div>
+  <div class="s-sub">91 days · 7 categories · one honest starting point</div>
+
+  <div class="note-box">You are starting this quarter with $1.34 in your trading account, two consecutive Tier 1 days, a registered company with no bank account, and a debt with a deadline measured in days — not months. This plan does not pretend that away. It is built around it. April is the sprint that either proves the strategy or shows what needs fixing. May and June are when you scale. $5,000 by June 30 is the target. It is ambitious. It is also the natural consequence of a 1:5RR strategy executed with discipline and scaled appropriately.</div>
+
+  <div class="tracker-row">
+    <div class="tracker-box">
+      <div class="tb-label">Days Elapsed</div>
+      <div class="tb-val" id="daysElapsed">0</div>
+      <div class="tb-sub">of 91 days</div>
+      <div class="tb-bar"><div class="tb-fill" id="quarterBar" style="width:0%"></div></div>
+    </div>
+    <div class="tracker-box">
+      <div class="tb-label">Days Remaining</div>
+      <div class="tb-val" id="daysRemaining">91</div>
+      <div class="tb-sub">until June 30</div>
+      <div class="tb-bar"><div class="tb-fill" style="width:100%;background:linear-gradient(90deg,var(--blue),var(--plat))"></div></div>
+    </div>
+  </div>
+
+  <!-- MILESTONES -->
+  <div class="milestone-box">
+    <div class="mb-title">Quarter Milestones — Mark as Reached</div>
+
+    <div class="milestone-item" onclick="togMilestone(this)">
+      <div class="mi-check"></div>
+      <div class="mi-name">7-day Momentum streak achieved</div>
+      <div class="mi-when">April</div>
+    </div>
+    <div class="milestone-item" onclick="togMilestone(this)">
+      <div class="mi-check"></div>
+      <div class="mi-name">First profitable trade recorded in journal</div>
+      <div class="mi-when">April</div>
+    </div>
+    <div class="milestone-item" onclick="togMilestone(this)">
+      <div class="mi-check"></div>
+      <div class="mi-name">Trading account funded above $5</div>
+      <div class="mi-when">April–May</div>
+    </div>
+    <div class="milestone-item" onclick="togMilestone(this)">
+      <div class="mi-check"></div>
+      <div class="mi-name">10 fully documented trades in journal</div>
+      <div class="mi-when">April–May</div>
+    </div>
+    <div class="milestone-item" onclick="togMilestone(this)">
+      <div class="mi-check"></div>
+      <div class="mi-name">Debt conversation had — repayment agreed</div>
+      <div class="mi-when">April</div>
+    </div>
+    <div class="milestone-item" onclick="togMilestone(this)">
+      <div class="mi-check"></div>
+      <div class="mi-name">14-day Momentum streak</div>
+      <div class="mi-when">April–May</div>
+    </div>
+    <div class="milestone-item" onclick="togMilestone(this)">
+      <div class="mi-check"></div>
+      <div class="mi-name">20 disciplined strategy-rule trades logged</div>
+      <div class="mi-when">May</div>
+    </div>
+    <div class="milestone-item" onclick="togMilestone(this)">
+      <div class="mi-check"></div>
+      <div class="mi-name">CGSL site work resumed</div>
+      <div class="mi-when">May</div>
+    </div>
+    <div class="milestone-item" onclick="togMilestone(this)">
+      <div class="mi-check"></div>
+      <div class="mi-name">Dante Craft bank account opened</div>
+      <div class="mi-when">May–June</div>
+    </div>
+    <div class="milestone-item" onclick="togMilestone(this)">
+      <div class="mi-check"></div>
+      <div class="mi-name">First Dante Craft service or offer defined</div>
+      <div class="mi-when">June</div>
+    </div>
+    <div class="milestone-item" onclick="togMilestone(this)">
+      <div class="mi-check"></div>
+      <div class="mi-name">Trading account above $50</div>
+      <div class="mi-when">June</div>
+    </div>
+    <div class="milestone-item" onclick="togMilestone(this)">
+      <div class="mi-check"></div>
+      <div class="mi-name">30-day Momentum streak</div>
+      <div class="mi-when">May–June</div>
+    </div>
+    <div class="milestone-item" onclick="togMilestone(this)">
+      <div class="mi-check"></div>
+      <div class="mi-name">Debt fully repaid or formal plan in place</div>
+      <div class="mi-when">June</div>
+    </div>
+    <div class="milestone-item" onclick="togMilestone(this)">
+      <div class="mi-check"></div>
+      <div class="mi-name">Q3 plan drafted before June 30</div>
+      <div class="mi-when">June</div>
+    </div>
+    <!-- New milestones -->
+    <div class="milestone-item" onclick="togMilestone(this)">
+      <div class="mi-check"></div>
+      <div class="mi-name">First leisure activity deliberately protected and enjoyed</div>
+      <div class="mi-when">April</div>
+    </div>
+    <div class="milestone-item" onclick="togMilestone(this)">
+      <div class="mi-check"></div>
+      <div class="mi-name">One new hobby or skill explored — three sessions given to it</div>
+      <div class="mi-when">April–May</div>
+    </div>
+    <div class="milestone-item" onclick="togMilestone(this)">
+      <div class="mi-check"></div>
+      <div class="mi-name">8 books read by June 30</div>
+      <div class="mi-when">Q2</div>
+    </div>
+    <div class="milestone-item" onclick="togMilestone(this)">
+      <div class="mi-check"></div>
+      <div class="mi-name">One trading / SMC community joined and active in</div>
+      <div class="mi-when">April</div>
+    </div>
+    <div class="milestone-item" onclick="togMilestone(this)">
+      <div class="mi-check"></div>
+      <div class="mi-name">Moving house — apartment found and secured</div>
+      <div class="mi-when">April–May</div>
+    </div>
+    <div class="milestone-item" onclick="togMilestone(this)">
+      <div class="mi-check"></div>
+      <div class="mi-name">Move completed — new space set up and functioning</div>
+      <div class="mi-when">May–June</div>
+    </div>
+    <div class="milestone-item" onclick="togMilestone(this)">
+      <div class="mi-check"></div>
+      <div class="mi-name">dAnTE Inc conglomerate map drawn — full vision on one page</div>
+      <div class="mi-when">June</div>
+    </div>
+    <div class="milestone-item" onclick="togMilestone(this)">
+      <div class="mi-check"></div>
+      <div class="mi-name">Values & principles session completed — why I engage the way I do, written down</div>
+      <div class="mi-when">Q2</div>
+    </div>
+    <div class="milestone-item" onclick="togMilestone(this)">
+      <div class="mi-check"></div>
+      <div class="mi-name">One genuine connection made — someone new in the network</div>
+      <div class="mi-when">Q2</div>
+    </div>
+  </div>
+
+  <!-- WHAT THIS QUARTER IS NOT -->
+  <div class="sacrifice-box">
+    <div class="sb-title">What This Quarter Is Not</div>
+    <div class="sb-item"><div class="sb-dot">✕</div><div>This is not the quarter you make $5,000 by drifting. It is the quarter you make it by building a replicable, disciplined system that scales. The number follows the discipline — not the other way around.</div></div>
+    <div class="sb-item"><div class="sb-dot">✕</div><div>This is not the quarter Dante Craft becomes a revenue-generating business. It is the quarter you lay the groundwork — bank account, first idea, first step.</div></div>
+    <div class="sb-item"><div class="sb-dot">✕</div><div>This is not the quarter you resolve all emotional matters or build a social life from scratch. Those seeds will be planted.</div></div>
+    <div class="sb-item"><div class="sb-dot">✕</div><div>This is not the quarter perfection returns. Execution returns. Perfection is a later consequence.</div></div>
+  </div>
+</div>
+
+<!-- FINANCES -->
+<div class="page" id="page-finances">
+  <div class="s-title"><em>Finances</em></div>
+  <div class="s-sub">Debt · income · trading account · savings · financial architecture</div>
+
+  <div class="note-box">Finance is not just a trading question. It is a life question. This quarter you are managing an urgent debt, building a trading income, earning from CGSL, and beginning to lay a financial foundation for Dante Craft. Each of these is a separate stream — and all four must be tracked deliberately. Money left unmanaged leaks. Money managed intentionally compounds.</div>
+
+  <div class="cat-card open">
+    <div class="cat-head" onclick="togCard(this)">
+      <div class="cat-icon">🔴</div>
+      <div class="cat-name" style="font-family:var(--fd)">The Debt — Most Urgent</div>
+      <div class="cat-arrow">▶</div>
+    </div>
+    <div class="cat-body">
+      <div class="goal-item" onclick="togGoal(this)"><div class="gi-check"></div><div class="gi-content"><div class="gi-title">Have the conversation — this week, not this month</div><div class="gi-desc">The debt has a deadline measured in days. The conversation that produces a plan — even a partial repayment plan — removes the background threat and frees your mental energy for everything else. Silence makes it worse. A conversation makes it manageable.</div><div class="gi-meta"><span class="gi-tag urgent">This week</span></div></div></div>
+      <div class="goal-item" onclick="togGoal(this)"><div class="gi-check"></div><div class="gi-content"><div class="gi-title">Clear the debt in full — target: before April 30</div><div class="gi-desc">This is the financial non-negotiable of the quarter. Everything else — savings, Dante Craft capital, trading account growth — comes after this. Until it is cleared, it costs mental energy every single day.</div><div class="gi-meta"><span class="gi-tag april">April</span><span class="gi-tag urgent">Priority 1</span></div></div></div>
+    </div>
+  </div>
+
+  <div class="cat-card open">
+    <div class="cat-head" onclick="togCard(this)">
+      <div class="cat-icon">💰</div>
+      <div class="cat-name" style="font-family:var(--fd)">Trading Account — The Growth Engine</div>
+      <div class="cat-arrow">▶</div>
+    </div>
+    <div class="cat-body">
+      <div class="note-box" style="margin-bottom:12px">The path from $1.34 to $5,000 in one quarter is not impossible at 1:5RR with disciplined scaling. Here is what it requires: a win rate above 50%, strict lot sizing discipline, and no revenge trades. The math works. The variable is execution.</div>
+      <div class="goal-section">
+        <div class="goal-section-title">Scaling Ladder — Lot Size by Account Balance</div>
+        <div class="goal-item" onclick="togGoal(this)"><div class="gi-check"></div><div class="gi-content"><div class="gi-title">$1–$10 → 0.05 lots ($0.50 per trade)</div><div class="gi-desc">Minimum viable. Prove the strategy. No exceptions downward from here. Every trade at this size is a data point, not a potential fortune.</div><div class="gi-meta"><span class="gi-tag april">April — now</span></div></div></div>
+        <div class="goal-item" onclick="togGoal(this)"><div class="gi-check"></div><div class="gi-content"><div class="gi-title">$10–$50 → 0.10 lots ($1.00 per trade)</div><div class="gi-desc">Only once the account reaches $10 AND 10 profitable trades are documented. Not one condition — both.</div><div class="gi-meta"><span class="gi-tag april">April–May</span></div></div></div>
+        <div class="goal-item" onclick="togGoal(this)"><div class="gi-check"></div><div class="gi-content"><div class="gi-title">$50–$200 → 0.20 lots ($2.00 per trade)</div><div class="gi-desc">At 1:5RR, a $2 stake returns $10. Ten wins at this level = $100 net. This is where the account begins to feel real.</div><div class="gi-meta"><span class="gi-tag may">May</span></div></div></div>
+        <div class="goal-item" onclick="togGoal(this)"><div class="gi-check"></div><div class="gi-content"><div class="gi-title">$200–$1,000 → 0.50 lots ($5.00 per trade)</div><div class="gi-desc">At 1:5RR, a $5 stake returns $25. Twenty wins = $500 net. This is the May–June scaling target if April and early May execute cleanly.</div><div class="gi-meta"><span class="gi-tag may">May–June</span></div></div></div>
+        <div class="goal-item" onclick="togGoal(this)"><div class="gi-check"></div><div class="gi-content"><div class="gi-title">$1,000+ → 1.00 lot ($10.00 per trade)</div><div class="gi-desc">At 1:5RR, a $10 stake returns $50. Twenty wins = $1,000 net. This is the June target. $5,000 becomes reachable from here with consistent execution across the final weeks.</div><div class="gi-meta"><span class="gi-tag june">June</span></div></div></div>
+      </div>
+      <div class="goal-section">
+        <div class="goal-section-title">Account Milestones</div>
+        <div class="goal-item" onclick="togGoal(this)"><div class="gi-check"></div><div class="gi-content"><div class="gi-title">Fund account to $5 minimum — from CGSL or savings, not trading profit</div><div class="gi-desc">$1.34 allows 2 trades. $5 allows 10. Give yourself a sustainable operating floor so one losing streak doesn't end the session entirely.</div><div class="gi-meta"><span class="gi-tag april">This week</span></div></div></div>
+        <div class="goal-item" onclick="togGoal(this)"><div class="gi-check"></div><div class="gi-content"><div class="gi-title">Account above $50 — April target</div><div class="gi-meta"><span class="gi-tag april">April</span></div></div></div>
+        <div class="goal-item" onclick="togGoal(this)"><div class="gi-check"></div><div class="gi-content"><div class="gi-title">Account above $500 — May target</div><div class="gi-meta"><span class="gi-tag may">May</span></div></div></div>
+        <div class="goal-item" onclick="togGoal(this)"><div class="gi-check"></div><div class="gi-content"><div class="gi-title">Account above $5,000 — June 30 BAG</div><div class="gi-meta"><span class="gi-tag june">June 30</span><span class="gi-tag urgent">BAG</span></div></div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="cat-card">
+    <div class="cat-head" onclick="togCard(this)">
+      <div class="cat-icon">💼</div>
+      <div class="cat-name" style="font-family:var(--fd)">CGSL Income — Managing It Deliberately</div>
+      <div class="cat-arrow">▶</div>
+    </div>
+    <div class="cat-body">
+      <div class="goal-item" onclick="togGoal(this)"><div class="gi-check"></div><div class="gi-content"><div class="gi-title">Every CGSL payment is allocated before it arrives — not after</div><div class="gi-desc">Decide in advance: what percentage goes to debt repayment, what to trading account top-up, what to living expenses, what to Dante Craft. Money without a plan disappears. Money with a plan compounds.</div><div class="gi-meta"><span class="gi-tag q2">Every payment</span></div></div></div>
+      <div class="goal-item" onclick="togGoal(this)"><div class="gi-check"></div><div class="gi-content"><div class="gi-title">Set aside a minimum 10% of every CGSL payment — even if it goes into a simple savings account</div><div class="gi-desc">Not when you have more. Now. 10% of something small is a habit. 10% of something large is a foundation. The habit must exist before the large amount arrives.</div><div class="gi-meta"><span class="gi-tag q2">Every payment</span></div></div></div>
+    </div>
+  </div>
+
+  <div class="cat-card">
+    <div class="cat-head" onclick="togCard(this)">
+      <div class="cat-icon">🏗</div>
+      <div class="cat-name" style="font-family:var(--fd)">Financial Architecture — Building the Foundation</div>
+      <div class="cat-arrow">▶</div>
+    </div>
+    <div class="cat-body">
+      <div class="goal-item" onclick="togGoal(this)"><div class="gi-check"></div><div class="gi-content"><div class="gi-title">Open a personal savings account separate from your current account — April</div><div class="gi-desc">Even with nothing in it. The separation creates the habit of distinguishing between spending money and building money. Two accounts. Two purposes. Two mindsets.</div><div class="gi-meta"><span class="gi-tag april">April</span></div></div></div>
+      <div class="goal-item" onclick="togGoal(this)"><div class="gi-check"></div><div class="gi-content"><div class="gi-title">Open Dante Craft business account — May at the latest</div><div class="gi-desc">This is both a financial and a psychological step. A business account makes Dante Craft financially real. Any income — even ₦1 — that flows through it is business income, not personal income.</div><div class="gi-meta"><span class="gi-tag april">April–May</span></div></div></div>
+      <div class="goal-item" onclick="togGoal(this)"><div class="gi-check"></div><div class="gi-content"><div class="gi-title">By June 30 — know your monthly income, monthly expenses, and net position clearly</div><div class="gi-desc">You cannot build a conglomerate without knowing your personal financial baseline. One simple spreadsheet: income in, expenses out, what's left. This becomes the foundation of every financial decision from Q3 onward.</div><div class="gi-meta"><span class="gi-tag june">June</span></div></div></div>
+    </div>
+  </div>
+</div>
+
+<!-- TRADING -->
+<div class="page" id="page-trading">
+  <div class="s-title"><em>Trading</em></div>
+  <div class="s-sub">Volatility 75 (1s) · Deriv · Strategy: SMC / Price Action · Current balance: $1.34</div>
+
+  <div class="note-box">The debt deadline is this week. Trading is the fastest path to clearing it. That means April is not a slow warm-up — it is the sprint that either proves the strategy or exposes what needs fixing immediately. The lot size discipline is not caution — it is the only way to stay in the game long enough to scale. A blown account in week one solves nothing.</div>
+
+  <div class="cat-card open">
+    <div class="cat-head" onclick="togCard(this)">
+      <div class="cat-icon">📊</div>
+      <div class="cat-name" style="font-family:var(--fd)">April — Proof of Concept</div>
+      <div class="cat-badge gi-tag april">Month 1</div>
+      <div class="cat-arrow">▶</div>
+    </div>
+    <div class="cat-body">
+      <div class="goal-section">
+        <div class="goal-section-title">Non-Negotiable Rules — Lock These In</div>
+        <div class="goal-item" onclick="togGoal(this)"><div class="gi-check"></div><div class="gi-content"><div class="gi-title">Only trade with 0.05 lots ($0.50 per trade) until 10 profitable trades are documented</div><div class="gi-desc">No exceptions. Not one. The strategy must prove itself at the minimum viable stake before any scaling. One undisciplined large lot can end the account.</div><div class="gi-meta"><span class="gi-tag daily">Every trade</span><span class="gi-tag urgent">Non-negotiable</span></div></div></div>
+        <div class="goal-item" onclick="togGoal(this)"><div class="gi-check"></div><div class="gi-content"><div class="gi-title">Every trade must be documented in the Trading Journal before the next session</div><div class="gi-desc">No undocumented trades. Entry, setup, confluences, before screenshot, result, lesson. The journal is part of the trade — not optional.</div><div class="gi-meta"><span class="gi-tag daily">Every trade</span></div></div></div>
+        <div class="goal-item" onclick="togGoal(this)"><div class="gi-check"></div><div class="gi-content"><div class="gi-title">Maximum 1 trade per session. Maximum 2 trades per day.</div><div class="gi-desc">This is not about opportunity — it is about discipline. Overtrading is the primary account killer at this stage. One clear setup, fully validated. That is enough.</div><div class="gi-meta"><span class="gi-tag daily">Daily limit</span></div></div></div>
+        <div class="goal-item" onclick="togGoal(this)"><div class="gi-check"></div><div class="gi-content"><div class="gi-title">If 2 consecutive losses occur in a day — stop trading for that day</div><div class="gi-desc">Two losses means something is off — market conditions, your state, or your read. The third trade will likely be revenge. Stop.</div><div class="gi-meta"><span class="gi-tag urgent">Kill switch</span></div></div></div>
+      </div>
+      <div class="goal-section">
+        <div class="goal-section-title">Strategy Validation Targets — April</div>
+        <div class="goal-item" onclick="togGoal(this)"><div class="gi-check"></div><div class="gi-content"><div class="gi-title">Complete 5 fully documented chart study sessions — no trade, pure analysis</div><div class="gi-desc">Sit with the chart for 60–90 minutes. Mark levels. Write what you see. Document in journal. No positions. This builds the eye before the hand.</div><div class="gi-meta"><span class="gi-tag april">April</span><span class="gi-tag weekly">Weekly</span></div></div></div>
+        <div class="goal-item" onclick="togGoal(this)"><div class="gi-check"></div><div class="gi-content"><div class="gi-title">Identify and document 3 high-quality setups that you did NOT take — and track what happened</div><div class="gi-desc">These are your best teachers. Mark the entry, SL, TP. Come back 24 hours later. What did price do? Were you right? This is free backtesting from live price.</div><div class="gi-meta"><span class="gi-tag april">April</span></div></div></div>
+        <div class="goal-item" onclick="togGoal(this)"><div class="gi-check"></div><div class="gi-content"><div class="gi-title">Place 8–10 trades this month. Document every single one.</div><div class="gi-desc">Quality over quantity. If the criteria are not met, there is no trade. A week with no trades is acceptable. A week with 10 undisciplined trades is not.</div><div class="gi-meta"><span class="gi-tag april">April</span></div></div></div>
+        <div class="goal-item" onclick="togGoal(this)"><div class="gi-check"></div><div class="gi-content"><div class="gi-title">First fully rule-compliant trade — every criterion met, logged and marked as clean</div><div class="gi-desc">Not about whether it wins or loses. About whether every rule was followed. That trade is the proof of concept regardless of outcome.</div><div class="gi-meta"><span class="gi-tag april">April</span></div></div></div>
+        <div class="goal-item" onclick="togGoal(this)"><div class="gi-check"></div><div class="gi-content"><div class="gi-title">First week with zero revenge trades — note it explicitly in the journal</div><div class="gi-desc">A week where you took losses and did not chase them is worth more than a winning week built on discipline failures.</div><div class="gi-meta"><span class="gi-tag april">April</span></div></div></div>
+        <div class="goal-item" onclick="togGoal(this)"><div class="gi-check"></div><div class="gi-content"><div class="gi-title">First profitable trade recorded — whatever the size</div><div class="gi-desc">The first win that followed your rules exactly. Mark it. Screenshot it. It is evidence that the strategy works when you follow it.</div><div class="gi-meta"><span class="gi-tag april">April</span></div></div></div>
+        <div class="goal-item" onclick="togGoal(this)"><div class="gi-check"></div><div class="gi-content"><div class="gi-title">Fund account to minimum $5 from CGSL income or savings</div><div class="gi-desc">$1.34 allows for 2 trades at 0.05 lots. You need a minimum operating balance. $5 allows 10 trades without fear of account wipeout on a losing streak.</div><div class="gi-meta"><span class="gi-tag april">April</span><span class="gi-tag urgent">This week</span></div></div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="cat-card">
+    <div class="cat-head" onclick="togCard(this)">
+      <div class="cat-icon">📈</div>
+      <div class="cat-name" style="font-family:var(--fd)">May — Evidence</div>
+      <div class="cat-badge gi-tag may">Month 2</div>
+      <div class="cat-arrow">▶</div>
+    </div>
+    <div class="cat-body">
+      <div class="goal-section">
+        <div class="goal-section-title">May Targets</div>
+        <div class="goal-item" onclick="togGoal(this)"><div class="gi-check"></div><div class="gi-content"><div class="gi-title">20 documented trades total across April and May</div><div class="gi-desc">This is your minimum viable dataset. 20 trades tells you your actual win rate, your best setups, and your most consistent emotional patterns. You cannot refine what you have not measured.</div><div class="gi-meta"><span class="gi-tag may">May</span></div></div></div>
+        <div class="goal-item" onclick="togGoal(this)"><div class="gi-check"></div><div class="gi-content"><div class="gi-title">Review Edge Analyser tab in Trading Journal — extract 3 strategy rules</div><div class="gi-desc">By May you should have enough data to see what is actually working. Extract 3 explicit rules from the data. Write them in the Strategy Document. These become your updated rulebook.</div><div class="gi-meta"><span class="gi-tag may">May</span></div></div></div>
+        <div class="goal-item" onclick="togGoal(this)"><div class="gi-check"></div><div class="gi-content"><div class="gi-title">If win rate above 50% on documented trades — scale to 0.10 lots</div><div class="gi-desc">Not before. Not as a reward for effort. Only when the data says the strategy is working. This is what disciplined scaling looks like.</div><div class="gi-meta"><span class="gi-tag may">May</span><span class="gi-tag weekly">Conditional</span></div></div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="cat-card">
+    <div class="cat-head" onclick="togCard(this)">
+      <div class="cat-icon">⚡</div>
+      <div class="cat-name" style="font-family:var(--fd)">June — Momentum</div>
+      <div class="cat-badge gi-tag june">Month 3</div>
+      <div class="cat-arrow">▶</div>
+    </div>
+    <div class="cat-body">
+      <div class="goal-section">
+        <div class="goal-section-title">June Targets</div>
+        <div class="goal-item" onclick="togGoal(this)"><div class="gi-check"></div><div class="gi-content"><div class="gi-title">Account balance above $50</div><div class="gi-desc">This is realistic if the strategy is working and scaling has been disciplined. $50 from $1.34 in 3 months through disciplined trading is a 3,700% return — achievable at 1:5RR with scaling.</div><div class="gi-meta"><span class="gi-tag june">June</span></div></div></div>
+        <div class="goal-item" onclick="togGoal(this)"><div class="gi-check"></div><div class="gi-content"><div class="gi-title">Strategy document fully updated with Q2 learnings</div><div class="gi-desc">Your strategy at the end of June should be sharper, more specific, and more honest than it was in April. That sharpening is the product of the quarter.</div><div class="gi-meta"><span class="gi-tag june">June</span></div></div></div>
+        <div class="goal-item" onclick="togGoal(this)"><div class="gi-check"></div><div class="gi-content"><div class="gi-title">Write your trading rules as a single reference document</div><div class="gi-desc">By end of June you should be able to write: "I trade when X, Y and Z are present. I do not trade when A or B is present. My SL is always C. My TP is always D." If you cannot write this clearly, the quarter is not done yet.</div><div class="gi-meta"><span class="gi-tag june">June</span></div></div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- SPIRITUAL -->
+<div class="page" id="page-spiritual">
+  <div class="s-title"><em>Spiritual</em></div>
+  <div class="s-sub">Deepening the experience of God · outside religion · through being</div>
+
+  <div class="note-box">The most transformative spiritual practice this quarter is not adding more content. It is <em>digesting more deeply.</em> You are already reading the Bible daily, praying, listening to sermons. The question is not how much — it is how present. One passage that enters the bones is worth more than ten that pass through the eyes.</div>
+
+  <div class="cat-card open">
+    <div class="cat-head" onclick="togCard(this)">
+      <div class="cat-icon">🙏</div>
+      <div class="cat-name" style="font-family:var(--fd)">Prayer — Rebuilding the Habit</div>
+      <div class="cat-arrow">▶</div>
+    </div>
+    <div class="cat-body">
+      <div class="goal-item" onclick="togGoal(this)"><div class="gi-check"></div><div class="gi-content"><div class="gi-title">Hit 30-minute prayer minimum every day for 30 consecutive days</div><div class="gi-desc">Not as performance — as relationship. The goal is not the clock. The clock is the minimum you give God before the day begins. Start with 30 minutes. Let it become 60 naturally.</div><div class="gi-meta"><span class="gi-tag daily">Daily</span><span class="gi-tag q2">Q2</span></div></div></div>
+      <div class="goal-item" onclick="togGoal(this)"><div class="gi-check"></div><div class="gi-content"><div class="gi-title">Establish one extended prayer session per week — 90 minutes minimum</div><div class="gi-desc">Sunday mornings or a quiet weekday. No agenda. No requests. Just presence. This is the prayer that changes you rather than asks for things.</div><div class="gi-meta"><span class="gi-tag weekly">Weekly</span></div></div></div>
+      <div class="goal-item" onclick="togGoal(this)"><div class="gi-check"></div><div class="gi-content"><div class="gi-title">Fast and pray once this month — deliberately, with intention set before</div><div class="gi-desc">Not because you must. Because it is one of the most ancient and effective ways of quieting the noise of daily life and hearing more clearly. Choose a day, set the intention, and hold it.</div><div class="gi-meta"><span class="gi-tag april">April</span><span class="gi-tag may">May</span><span class="gi-tag june">June</span></div></div></div>
+    </div>
+  </div>
+
+  <div class="cat-card">
+    <div class="cat-head" onclick="togCard(this)">
+      <div class="cat-icon">📖</div>
+      <div class="cat-name" style="font-family:var(--fd)">Scripture — From Reading to Knowing</div>
+      <div class="cat-arrow">▶</div>
+    </div>
+    <div class="cat-body">
+      <div class="goal-item" onclick="togGoal(this)"><div class="gi-check"></div><div class="gi-content"><div class="gi-title">Complete April–June readings on the Biblica BibleInAYear plan without missing a day</div><div class="gi-desc">You are already doing this. The goal this quarter is no gaps — use the Bible tracker to mark every day. 91 days, 91 readings.</div><div class="gi-meta"><span class="gi-tag daily">Daily</span><span class="gi-tag q2">Q2</span></div></div></div>
+      <div class="goal-item" onclick="togGoal(this)"><div class="gi-check"></div><div class="gi-content"><div class="gi-title">Write one sentence of genuine reflection per Bible reading — not a summary, a response</div><div class="gi-desc">Not "today I read about X." But "what does this tell me about who God is, or who I am, or how I should live?" One honest sentence. Written. In the Bible tracker notes field.</div><div class="gi-meta"><span class="gi-tag daily">Daily</span></div></div></div>
+      <div class="goal-item" onclick="togGoal(this)"><div class="gi-check"></div><div class="gi-content"><div class="gi-title">Memorise one verse per month that truly speaks to your current season</div><div class="gi-desc">Not because memorisation is holy. Because a verse you carry inside you meets you in moments when you cannot open a Bible. Choose one in April, one in May, one in June.</div><div class="gi-meta"><span class="gi-tag monthly">Monthly</span></div></div></div>
+    </div>
+  </div>
+
+  <div class="cat-card">
+    <div class="cat-head" onclick="togCard(this)">
+      <div class="cat-icon">🕯</div>
+      <div class="cat-name" style="font-family:var(--fd)">Living It — Faith as a Way of Being</div>
+      <div class="cat-arrow">▶</div>
+    </div>
+    <div class="cat-body">
+      <div class="goal-item" onclick="togGoal(this)"><div class="gi-check"></div><div class="gi-content"><div class="gi-title">Identify one person per week to consciously offer wisdom, perspective or encouragement to</div><div class="gi-desc">This is your purpose in practice. Not a programme — just one person, one moment of genuine, unhurried attention. Log it in the Trading Journal GP bonuses as a mentoring moment.</div><div class="gi-meta"><span class="gi-tag weekly">Weekly</span></div></div></div>
+      <div class="goal-item" onclick="togGoal(this)"><div class="gi-check"></div><div class="gi-content"><div class="gi-title">Let the Morning Pages become genuinely spiritual — not just reflective</div><div class="gi-desc">The difference between reflection and prayer is direction. Reflection looks inward. Prayer speaks outward — to God. Let the morning pages become a daily conversation, not a daily audit.</div><div class="gi-meta"><span class="gi-tag daily">Daily</span></div></div></div>
+      <div class="goal-item" onclick="togGoal(this)"><div class="gi-check"></div><div class="gi-content"><div class="gi-title">Find a sermon series and complete it this quarter — not individual sermons</div><div class="gi-desc">A series builds understanding cumulatively. Individual sermons are single meals. A series is a course. Choose one by April 7. Complete it by June 30.</div><div class="gi-meta"><span class="gi-tag q2">Q2</span></div></div></div>
+    </div>
+  </div>
+</div>
+
+<!-- CAREER & DANTE -->
+<div class="page" id="page-career">
+  <div class="s-title">Career & <em>Dante Craft</em></div>
+  <div class="s-sub">CGSL civil engineering · Dante Craft conglomerate seed · first steps</div>
+
+  <div class="note-box">You are in a waiting period at CGSL. This is not dead time — it is preparation time. When site work resumes, it will consume energy and hours. Use the current quiet weeks to build the software skills and Dante Craft foundations that will be harder to find time for once the site is active.</div>
+
+  <div class="cat-card open">
+    <div class="cat-head" onclick="togCard(this)">
+      <div class="cat-icon">🏗</div>
+      <div class="cat-name" style="font-family:var(--fd)">CGSL — Civil Engineering</div>
+      <div class="cat-arrow">▶</div>
+    </div>
+    <div class="cat-body">
+      <div class="goal-section">
+        <div class="goal-section-title">Before Site Resumes — Use the Waiting Period</div>
+        <div class="goal-item" onclick="togGoal(this)"><div class="gi-check"></div><div class="gi-content"><div class="gi-title">Learn AutoCAD — complete one structured tutorial module per week</div><div class="gi-desc">AutoCAD is the most immediately applicable software skill. It directly upgrades your value on site and your ability to produce deliverables for Dante Craft. One module per week. Minimum 3 sessions per week practicing.</div><div class="gi-meta"><span class="gi-tag weekly">Weekly</span><span class="gi-tag q2">Q2</span></div></div></div>
+        <div class="goal-item" onclick="togGoal(this)"><div class="gi-check"></div><div class="gi-content"><div class="gi-title">Complete one engineering cost estimation template — functional, usable, yours</div><div class="gi-desc">You have templates from our earlier sessions. Customise one for the type of projects you work on at CGSL. A template you built yourself is more valuable than one you downloaded — you understand every cell.</div><div class="gi-meta"><span class="gi-tag april">April</span></div></div></div>
+        <div class="goal-item" onclick="togGoal(this)"><div class="gi-check"></div><div class="gi-content"><div class="gi-title">Complete one project management template — timeline, resources, deliverables</div><div class="gi-desc">This is both a career skill and a Dante Craft skill. A civil engineer who can manage a project document is more valuable than one who can only read drawings.</div><div class="gi-meta"><span class="gi-tag april">April</span></div></div></div>
+      </div>
+      <div class="goal-section">
+        <div class="goal-section-title">When Site Resumes</div>
+        <div class="goal-item" onclick="togGoal(this)"><div class="gi-check"></div><div class="gi-content"><div class="gi-title">Keep a site learning journal — one observation per day on site</div><div class="gi-desc">What did you see today? What process, decision, material or method? Written. This is how a junior engineer becomes a senior one — by being deliberately observant rather than just present.</div><div class="gi-meta"><span class="gi-tag daily">On site days</span></div></div></div>
+        <div class="goal-item" onclick="togGoal(this)"><div class="gi-check"></div><div class="gi-content"><div class="gi-title">Get close to the business side at CGSL — ask questions, observe, understand how the company runs</div><div class="gi-desc">You mentioned not knowing how close you'll get to the business side. Make it intentional. Ask your supervisor how projects are priced. How clients are managed. How tenders are won. This knowledge is directly transferable to Dante Craft.</div><div class="gi-meta"><span class="gi-tag may">May–June</span></div></div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="cat-card">
+    <div class="cat-head" onclick="togCard(this)">
+      <div class="cat-icon">🏢</div>
+      <div class="cat-name" style="font-family:var(--fd)">Dante Craft — First Steps</div>
+      <div class="cat-arrow">▶</div>
+    </div>
+    <div class="cat-body">
+      <div class="note-box" style="margin-bottom:12px">Dante Craft is registered but dormant. The first goal this quarter is not revenue — it is <em>identity and infrastructure.</em> What does Dante Craft do? Who does it serve? What is the first thing it can offer that someone would pay for? These questions must be answered before any other step.</div>
+      <div class="goal-section">
+        <div class="goal-section-title">April — Infrastructure</div>
+        <div class="goal-item" onclick="togGoal(this)"><div class="gi-check"></div><div class="gi-content"><div class="gi-title">Have the debt conversation — do not let it stay silent</div><div class="gi-desc">The debt is present but quiet in your head. That is not resolution — that is suppression. A conversation that produces a plan removes it from the background noise of every day. Have it this month.</div><div class="gi-meta"><span class="gi-tag april">April</span><span class="gi-tag urgent">Urgent</span></div></div></div>
+        <div class="goal-item" onclick="togGoal(this)"><div class="gi-check"></div><div class="gi-content"><div class="gi-title">Open Dante Craft bank account</div><div class="gi-desc">This is the first concrete step beyond registration. Even if the account starts empty, its existence makes the company real in a way that a certificate alone does not.</div><div class="gi-meta"><span class="gi-tag april">April</span></div></div></div>
+        <div class="goal-item" onclick="togGoal(this)"><div class="gi-check"></div><div class="gi-content"><div class="gi-title">Write a one-page Dante Craft founding document — what it is, what it will become, what it stands for</div><div class="gi-desc">Not a business plan. A founding document. The vision, the values, the long arc. This becomes the north star that every future decision is measured against.</div><div class="gi-meta"><span class="gi-tag april">April</span></div></div></div>
+      </div>
+      <div class="goal-section">
+        <div class="goal-section-title">May–June — Definition</div>
+        <div class="goal-item" onclick="togGoal(this)"><div class="gi-check"></div><div class="gi-content"><div class="gi-title">Define Dante Craft's first service — something you can deliver now with existing skills</div><div class="gi-desc">Given your civil engineering background: construction cost estimation, project planning documents, site supervision, or quantity surveying services are all immediately viable. Choose one. Price it. Tell someone about it.</div><div class="gi-meta"><span class="gi-tag may">May</span></div></div></div>
+        <div class="goal-item" onclick="togGoal(this)"><div class="gi-check"></div><div class="gi-content"><div class="gi-title">Have one conversation about Dante Craft with someone in your network</div><div class="gi-desc">Not a pitch. A conversation. Tell someone what you're building. Hear their questions. Their questions will tell you what you haven't thought about yet.</div><div class="gi-meta"><span class="gi-tag may">May–June</span></div></div></div>
+        <div class="goal-item" onclick="togGoal(this)"><div class="gi-check"></div><div class="gi-content"><div class="gi-title">Map the conglomerate vision — one page showing the full picture</div><div class="gi-desc">Dante Craft, energy production, waste management, hospitality. Draw the map. Show how they connect, what order they come in, what Dante Craft's role is in the larger picture. This map will guide every decision for the next 20 years.</div><div class="gi-meta"><span class="gi-tag june">June</span></div></div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- HEALTH -->
+<div class="page" id="page-health">
+  <div class="s-title"><em>Health</em></div>
+  <div class="s-sub">Movement · rest · the body as the vessel of everything else</div>
+
+  <div class="note-box">You are currently doing 20–30 minutes of daily movement as part of your Tier 1 practice. That is the foundation. This quarter, the goal is to make it something you look forward to rather than something you tick off — and to add one or two specific physical goals that give the movement a purpose beyond the streak.</div>
+
+  <div class="cat-card open">
+    <div class="cat-head" onclick="togCard(this)">
+      <div class="cat-icon">💪</div>
+      <div class="cat-name" style="font-family:var(--fd)">Movement & Physical Practice</div>
+      <div class="cat-arrow">▶</div>
+    </div>
+    <div class="cat-body">
+      <div class="goal-item" onclick="togGoal(this)"><div class="gi-check"></div><div class="gi-content"><div class="gi-title">Build a specific workout routine — not just "movement" but a defined programme</div><div class="gi-desc">Bodyweight is more than enough: push-ups, squats, lunges, core work. A defined programme with progression (week 1: 3 sets of 8, week 4: 3 sets of 15) gives the body a direction and the mind a visible metric of improvement.</div><div class="gi-meta"><span class="gi-tag april">April — design it</span></div></div></div>
+      <div class="goal-item" onclick="togGoal(this)"><div class="gi-check"></div><div class="gi-content"><div class="gi-title">Stretch deliberately for 10 minutes after every workout — not optional</div><div class="gi-desc">Flexibility is the most undervalued physical practice. Sitting at a desk trading and studying tightens the hips, chest and shoulders. Daily stretching reverses this over 91 days.</div><div class="gi-meta"><span class="gi-tag daily">Post-workout</span></div></div></div>
+      <div class="goal-item" onclick="togGoal(this)"><div class="gi-check"></div><div class="gi-content"><div class="gi-title">One physical challenge for the quarter — choose it by April 7</div><div class="gi-desc">Something with a tangible endpoint: 50 consecutive push-ups, running 5km without stopping, completing a specific calisthenics progression. A challenge gives the daily movement a destination.</div><div class="gi-meta"><span class="gi-tag q2">Q2 target</span></div></div></div>
+    </div>
+  </div>
+
+  <div class="cat-card">
+    <div class="cat-head" onclick="togCard(this)">
+      <div class="cat-icon">😴</div>
+      <div class="cat-name" style="font-family:var(--fd)">Rest & Recovery</div>
+      <div class="cat-arrow">▶</div>
+    </div>
+    <div class="cat-body">
+      <div class="goal-item" onclick="togGoal(this)"><div class="gi-check"></div><div class="gi-content"><div class="gi-title">Screens off by 22:00 every night — non-negotiable</div><div class="gi-desc">4am only becomes sustainable if 10pm is protected. The phone in bed is the single most disruptive thing to your morning. Put it face down and far away by 10pm.</div><div class="gi-meta"><span class="gi-tag daily">Daily</span></div></div></div>
+      <div class="goal-item" onclick="togGoal(this)"><div class="gi-check"></div><div class="gi-content"><div class="gi-title">Replace Netflix binges with a 30–45 minute intentional watch window</div><div class="gi-desc">You enjoy movies. That is fine. The problem is not the movies — it is the binge. A defined window (after dinner, before wind-down) makes enjoyment intentional rather than escapist.</div><div class="gi-meta"><span class="gi-tag daily">Evening</span></div></div></div>
+    </div>
+  </div>
+</div>
+
+<!-- DEVELOPMENT -->
+<div class="page" id="page-development">
+  <div class="s-title">Personal <em>Development</em></div>
+  <div class="s-sub">Academic · skills · hobbies · self-knowledge · community</div>
+
+  <div class="cat-card open">
+    <div class="cat-head" onclick="togCard(this)">
+      <div class="cat-icon">📚</div>
+      <div class="cat-name" style="font-family:var(--fd)">Reading & Learning</div>
+      <div class="cat-arrow">▶</div>
+    </div>
+    <div class="cat-body">
+      <div class="goal-item" onclick="togGoal(this)"><div class="gi-check"></div><div class="gi-content"><div class="gi-title">Read 3 books this quarter — one per month</div><div class="gi-desc">Not a target number — a pace. One book per month read deeply is worth ten read shallowly. Suggested: one trading/psychology book, one business/founder book, one personal development or philosophy book.</div><div class="gi-meta"><span class="gi-tag q2">Q2</span></div></div></div>
+      <div class="goal-item" onclick="togGoal(this)"><div class="gi-check"></div><div class="gi-content"><div class="gi-title">Suggested April read: "Trading in the Zone" — Mark Douglas</div><div class="gi-desc">Directly relevant to where you are with trading. Douglas addresses the gap between knowing a strategy and executing it consistently — which is precisely your current challenge. This book may be the most valuable 200 pages you read this quarter.</div><div class="gi-meta"><span class="gi-tag april">April</span></div></div></div>
+      <div class="goal-item" onclick="togGoal(this)"><div class="gi-check"></div><div class="gi-content"><div class="gi-title">Suggested May read: "The E-Myth Revisited" — Michael Gerber</div><div class="gi-desc">Essential reading for Dante Craft. Gerber explains why most small businesses fail and what the difference is between working in a business and building one. Read this before Dante Craft takes its first client.</div><div class="gi-meta"><span class="gi-tag may">May</span></div></div></div>
+    </div>
+  </div>
+
+  <div class="cat-card">
+    <div class="cat-head" onclick="togCard(this)">
+      <div class="cat-icon">🎨</div>
+      <div class="cat-name" style="font-family:var(--fd)">Hobbies & Skills — Beginning the Exploration</div>
+      <div class="cat-arrow">▶</div>
+    </div>
+    <div class="cat-body">
+      <div class="note-box" style="margin-bottom:12px">You mentioned paper craft, making things, enjoying art, watching UFC and football, and not knowing what you fully enjoy. This quarter is about beginning to find out. The goal is not mastery — it is exposure. Try things. Notice what makes time disappear.</div>
+      <div class="goal-item" onclick="togGoal(this)"><div class="gi-check"></div><div class="gi-content"><div class="gi-title">Spend one Sunday afternoon per month doing something purely for enjoyment — no productivity purpose</div><div class="gi-desc">Paper crafts, sketching, origami, collage — whatever appeals. The only rule is that it must produce something physical. Making things is where you said you find joy. Give it space.</div><div class="gi-meta"><span class="gi-tag monthly">Monthly</span></div></div></div>
+      <div class="goal-item" onclick="togGoal(this)"><div class="gi-check"></div><div class="gi-content"><div class="gi-title">Try one new skill or hobby this quarter — something completely outside your current world</div><div class="gi-desc">Options that might suit what you've described: sketching / drawing, leather crafting, calligraphy, basic woodwork or model making, photography with your phone. Try one. Give it 3 sessions before deciding if it's for you.</div><div class="gi-meta"><span class="gi-tag q2">Q2</span></div></div></div>
+      <div class="goal-item" onclick="togGoal(this)"><div class="gi-check"></div><div class="gi-content"><div class="gi-title">Keep a "what I enjoy" running list — add to it whenever you notice enjoyment</div><div class="gi-desc">You said you don't know what you fully enjoy. The way to find out is to pay attention. Start a note on your phone. Every time you notice something brings you genuine pleasure — however small — add it. By June you will have a real list.</div><div class="gi-meta"><span class="gi-tag daily">Running</span></div></div></div>
+    </div>
+  </div>
+
+  <div class="cat-card">
+    <div class="cat-head" onclick="togCard(this)">
+      <div class="cat-icon">🌐</div>
+      <div class="cat-name" style="font-family:var(--fd)">Community & Connection</div>
+      <div class="cat-arrow">▶</div>
+    </div>
+    <div class="cat-body">
+      <div class="note-box" style="margin-bottom:12px">You mentioned wanting to meet people, build a network, be part of a community — but finding it unappealing to go out alone, and not having someone to go with. This is a real constraint, not an excuse. The solution is finding communities organised around something you already care about — so you go for the thing, not for the socialising.</div>
+      <div class="goal-item" onclick="togGoal(this)"><div class="gi-check"></div><div class="gi-content"><div class="gi-title">Find one community or group related to trading, faith, engineering or creativity in your area</div><div class="gi-desc">A trading Discord or Telegram group, a church community group, a young professionals network, a creative or maker community. Online counts for now. The point is consistent presence in a shared space with others who care about the same things.</div><div class="gi-meta"><span class="gi-tag april">April</span></div></div></div>
+      <div class="goal-item" onclick="togGoal(this)"><div class="gi-check"></div><div class="gi-content"><div class="gi-title">Have one genuine, unhurried conversation per week with someone outside your immediate circle</div><div class="gi-desc">Not networking in the transactional sense. Just genuine human contact. A colleague, a neighbour, someone in a group you've joined. One real conversation per week. That's 13 new conversations by the end of the quarter.</div><div class="gi-meta"><span class="gi-tag weekly">Weekly</span></div></div></div>
+    </div>
+  </div>
+</div>
+
+<!-- REWARDS -->
+<div class="page" id="page-rewards">
+  <div class="s-title"><em>Rewards</em></div>
+  <div class="s-sub">Real, personal, earned — what you're actually working toward</div>
+
+  <div class="note-box">These rewards are calibrated to where you are financially — most cost nothing or very little right now, but they are genuinely enjoyable. As your trading account grows and CGSL income arrives, the higher-tier rewards become accessible. The point is always that the reward feels like something worth reaching for.</div>
+
+  <div class="rewards-section">
+
+    <div class="reward-tier">
+      <div class="rt-head">
+        <div class="rt-icon">🔶</div>
+        <div class="rt-title" style="font-family:var(--fd)">Bronze Day — 100+ AP</div>
+        <div class="rt-pts">Daily · Earned</div>
+      </div>
+      <div class="rt-items">
+        <div class="ri-item"><div class="ri-dot"></div>A small piece of chocolate — one square, eaten slowly and deliberately</div>
+        <div class="ri-item"><div class="ri-dot"></div>30 minutes of guilt-free YouTube — UFC clips, football, shorts, whatever calls</div>
+        <div class="ri-item"><div class="ri-dot"></div>Browse Pinterest freely for 20 minutes — save what inspires, dream without guilt</div>
+        <div class="ri-item"><div class="ri-dot"></div>One chapter of a book purely for enjoyment — no notes required</div>
+      </div>
+    </div>
+
+    <div class="reward-tier">
+      <div class="rt-head">
+        <div class="rt-icon">⬡</div>
+        <div class="rt-title" style="font-family:var(--fd)">Silver Day — 160+ AP</div>
+        <div class="rt-pts">Daily · Earned</div>
+      </div>
+      <div class="rt-items">
+        <div class="ri-item"><div class="ri-dot"></div>A full bag of your preferred chips — eaten during an evening movie or football match</div>
+        <div class="ri-item"><div class="ri-dot"></div>One full movie or series episode — no guilt, no timer</div>
+        <div class="ri-item"><div class="ri-dot"></div>An hour of making something — paper craft, sketching, anything with your hands</div>
+        <div class="ri-item"><div class="ri-dot"></div>Plan or research something on your wishlist — a book, a watch, a perfume — just for the pleasure of it</div>
+      </div>
+    </div>
+
+    <div class="reward-tier">
+      <div class="rt-head">
+        <div class="rt-icon">✦</div>
+        <div class="rt-title" style="font-family:var(--fd)">Gold Day — 210+ AP</div>
+        <div class="rt-pts">Daily · Rare</div>
+      </div>
+      <div class="rt-items">
+        <div class="ri-item"><div class="ri-dot"></div>A proper meat meal — whatever you genuinely enjoy, prepared or bought</div>
+        <div class="ri-item"><div class="ri-dot"></div>A new journal or notebook — bought specifically as a reward for this day</div>
+        <div class="ri-item"><div class="ri-dot"></div>A dedicated "dream session" — 90 minutes of vision boarding, planning the conglomerate, drawing the future</div>
+        <div class="ri-item"><div class="ri-dot"></div>Watch a full UFC event or extended football session — uninterrupted</div>
+      </div>
+    </div>
+
+    <div class="reward-tier">
+      <div class="rt-head">
+        <div class="rt-icon">✦✦</div>
+        <div class="rt-title" style="font-family:var(--fd)">Legendary Day — 270+ AP</div>
+        <div class="rt-pts">Daily · Exceptional</div>
+      </div>
+      <div class="rt-items">
+        <div class="ri-item"><div class="ri-dot"></div>A small purchase from your wishlist — stationery, a trinket, something that delights</div>
+        <div class="ri-item"><div class="ri-dot"></div>A complete rest evening — no timetable, no productivity, just what you feel like</div>
+        <div class="ri-item"><div class="ri-dot"></div>Begin a creative project you've been putting off — commit the evening to starting it</div>
+      </div>
+    </div>
+
+    <div class="divider"></div>
+
+    <div class="reward-tier">
+      <div class="rt-head">
+        <div class="rt-icon">✓</div>
+        <div class="rt-title" style="font-family:var(--fd)">Consistent Week — 150 GP</div>
+        <div class="rt-pts">Weekly</div>
+      </div>
+      <div class="rt-items">
+        <div class="ri-item"><div class="ri-dot"></div>A deliberate snack haul — chips, chocolate, whatever you enjoy — stocked for the next week</div>
+        <div class="ri-item"><div class="ri-dot"></div>One art piece saved or ordered — a print, a poster, something for your space</div>
+        <div class="ri-item"><div class="ri-dot"></div>An afternoon of doing exactly what you want — planned by you, for you, without justification</div>
+      </div>
+    </div>
+
+    <div class="reward-tier">
+      <div class="rt-head">
+        <div class="rt-icon">🏗</div>
+        <div class="rt-title" style="font-family:var(--fd)">Builder Week — 350 GP</div>
+        <div class="rt-pts">Weekly</div>
+      </div>
+      <div class="rt-items">
+        <div class="ri-item"><div class="ri-dot"></div>A new book — chosen from your wishlist, bought as a proper reward</div>
+        <div class="ri-item"><div class="ri-dot"></div>A piece of clothing or accessory — something small but chosen with genuine taste</div>
+        <div class="ri-item"><div class="ri-dot"></div>A full day design session with Claude — building something new, a template, a plan, a tool</div>
+      </div>
+    </div>
+
+    <div class="reward-tier">
+      <div class="rt-head">
+        <div class="rt-icon">🔥</div>
+        <div class="rt-title" style="font-family:var(--fd)">Momentum Week — 600 GP</div>
+        <div class="rt-pts">Weekly · Significant</div>
+      </div>
+      <div class="rt-items">
+        <div class="ri-item"><div class="ri-dot"></div>A perfume — one you've been wanting, chosen deliberately</div>
+        <div class="ri-item"><div class="ri-dot"></div>A significant book purchase — the one you keep looking at but haven't bought</div>
+        <div class="ri-item"><div class="ri-dot"></div>Go somewhere alone that you actually enjoy — a gallery, a park, a quiet café — and stay as long as you want</div>
+        <div class="ri-item"><div class="ri-dot"></div>An afternoon working on the Dante Craft founding document — treated as sacred creative time</div>
+      </div>
+    </div>
+
+    <div class="reward-tier">
+      <div class="rt-head">
+        <div class="rt-icon">⚡</div>
+        <div class="rt-title" style="font-family:var(--fd)">Unstoppable Week — 950 GP</div>
+        <div class="rt-pts">Weekly · Rare</div>
+      </div>
+      <div class="rt-items">
+        <div class="ri-item"><div class="ri-dot"></div>A wristwatch — even a modest one chosen with care is a daily reminder of an exceptional week</div>
+        <div class="ri-item"><div class="ri-dot"></div>A full set of quality stationery — pens, journals, whatever completes a set you want</div>
+        <div class="ri-item"><div class="ri-dot"></div>One full day of complete freedom — no timetable, no tracker, no obligations. Entirely yours.</div>
+      </div>
+    </div>
+
+    <div class="divider"></div>
+
+    <div class="reward-tier">
+      <div class="rt-head">
+        <div class="rt-icon">🌿</div>
+        <div class="rt-title" style="font-family:var(--fd)">7-Day Streak</div>
+        <div class="rt-pts">Milestone</div>
+      </div>
+      <div class="rt-items">
+        <div class="ri-item"><div class="ri-dot"></div>A proper meal — meat, your choice, eaten with full enjoyment and no guilt</div>
+        <div class="ri-item"><div class="ri-dot"></div>One item of clothing you've been considering — bought as a deliberate reward</div>
+      </div>
+    </div>
+
+    <div class="reward-tier">
+      <div class="rt-head">
+        <div class="rt-icon">🌳</div>
+        <div class="rt-title" style="font-family:var(--fd)">14-Day Streak</div>
+        <div class="rt-pts">Milestone</div>
+      </div>
+      <div class="rt-items">
+        <div class="ri-item"><div class="ri-dot"></div>A book from your list — a real one, bought with intention</div>
+        <div class="ri-item"><div class="ri-dot"></div>A new creative material or craft supply — something to make things with</div>
+        <div class="ri-item"><div class="ri-dot"></div>An afternoon entirely dedicated to something you find beautiful — art, architecture, nature</div>
+      </div>
+    </div>
+
+    <div class="reward-tier">
+      <div class="rt-head">
+        <div class="rt-icon">🏔</div>
+        <div class="rt-title" style="font-family:var(--fd)">30-Day Streak</div>
+        <div class="rt-pts">Milestone · Significant</div>
+      </div>
+      <div class="rt-items">
+        <div class="ri-item"><div class="ri-dot"></div>A quality perfume or cologne — one you've genuinely wanted</div>
+        <div class="ri-item"><div class="ri-dot"></div>A new pair of shoes — chosen with care, not convenience</div>
+        <div class="ri-item"><div class="ri-dot"></div>A full day off — no tracker, no timetable, nothing required. Complete freedom.</div>
+        <div class="ri-item"><div class="ri-dot"></div>A design session to plan the next 30 days — because you've earned the momentum to build on</div>
+      </div>
+    </div>
+
+    <div class="reward-tier">
+      <div class="rt-head">
+        <div class="rt-icon">🌟</div>
+        <div class="rt-title" style="font-family:var(--fd)">Quarter Complete — June 30</div>
+        <div class="rt-pts">91 Days</div>
+      </div>
+      <div class="rt-items">
+        <div class="ri-item"><div class="ri-dot"></div>A piece of art for your space — something that represents who you are becoming</div>
+        <div class="ri-item"><div class="ri-dot"></div>A quality wristwatch — a tangible daily reminder that you did this</div>
+        <div class="ri-item"><div class="ri-dot"></div>A proper outing to somewhere you've wanted to go — alone or with someone, but intentional</div>
+        <div class="ri-item"><div class="ri-dot"></div>Design Q3 with full intention — the best version of Q2 planning, informed by everything Q2 taught you</div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- CREATIVE -->
+<div class="page" id="page-creative">
+  <div class="s-title"><em>Creative</em></div>
+  <div class="s-sub">Making things · Art · Expression · The joy of building with your hands</div>
+
+  <div class="note-box">You mentioned paper craft, making things, enjoying art, wanting to produce complete sets, and finding deep satisfaction when an idea comes to life. This quarter is not about mastery — it is about discovery. Protected time to make things, follow what pulls you, and notice what makes time disappear.</div>
+
+  <div class="cat-card open">
+    <div class="cat-head" onclick="togCard(this)">
+      <div class="cat-icon">🎨</div>
+      <div class="cat-name" style="font-family:var(--fd)">April — Begin</div>
+      <div class="cat-arrow">▶</div>
+    </div>
+    <div class="cat-body">
+      <div class="goal-section">
+        <div class="goal-section-title">This Month</div>
+        <div class="goal-item" onclick="togGoal(this)"><div class="gi-check"></div><div class="gi-content"><div class="gi-title">Protect one creative session per week — minimum 60 minutes, no productivity purpose</div><div class="gi-desc">Paper craft, sketching, making something physical, arranging things into sets. The only rule is that it produces something — however small. This is not a task. It is a gift to yourself.</div><div class="gi-meta"><span class="gi-tag weekly">Weekly</span></div></div></div>
+        <div class="goal-item" onclick="togGoal(this)"><div class="gi-check"></div><div class="gi-content"><div class="gi-title">Try one completely new creative medium this month — give it three sessions</div><div class="gi-desc">Suggestions based on what you've shared: hand lettering / calligraphy (suits your love of stationery), bookbinding or paper craft (makes things with hands, produces complete objects), sketching / gesture drawing (low cost, deeply satisfying, improves over time). Three sessions before deciding if it's for you.</div><div class="gi-meta"><span class="gi-tag april">April</span></div></div></div>
+        <div class="goal-item" onclick="togGoal(this)"><div class="gi-check"></div><div class="gi-content"><div class="gi-title">Keep a "what I enjoy" running list — add to it whenever you notice genuine pleasure</div><div class="gi-desc">A note on your phone. Any time something brings enjoyment — however small or surprising — write it down. By June you will have a real picture of yourself as someone who enjoys things. That list feeds everything else.</div><div class="gi-meta"><span class="gi-tag daily">Running</span></div></div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="cat-card">
+    <div class="cat-head" onclick="togCard(this)">
+      <div class="cat-icon">✦</div>
+      <div class="cat-name" style="font-family:var(--fd)">May & June — Deepen</div>
+      <div class="cat-arrow">▶</div>
+    </div>
+    <div class="cat-body">
+      <div class="goal-section">
+        <div class="goal-section-title">Growing Into It</div>
+        <div class="goal-item" onclick="togGoal(this)"><div class="gi-check"></div><div class="gi-content"><div class="gi-title">Produce one finished creative piece by end of May — something you are genuinely pleased with</div><div class="gi-desc">Not perfect. Not for anyone else. Just something that existed in your imagination and now exists in the world. That gap closing is the whole point.</div><div class="gi-meta"><span class="gi-tag may">May</span></div></div></div>
+        <div class="goal-item" onclick="togGoal(this)"><div class="gi-check"></div><div class="gi-content"><div class="gi-title">Browse art and design deliberately — build a visual language for your aesthetic</div><div class="gi-desc">Pinterest, architecture, design. Not passive scrolling. Active looking. What draws you? What do you want your spaces, tools and work to feel like? This informs Dante Craft's eventual aesthetic identity too.</div><div class="gi-meta"><span class="gi-tag weekly">Weekly</span></div></div></div>
+        <div class="goal-item" onclick="togGoal(this)"><div class="gi-check"></div><div class="gi-content"><div class="gi-title">Produce one creative piece as a quarter-end gift to yourself — something for the new space</div><div class="gi-desc">Art for the wall, a crafted object, something made. Your new home deserves something made by you.</div><div class="gi-meta"><span class="gi-tag june">June</span></div></div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- INTELLECTUAL -->
+<div class="page" id="page-intellectual">
+  <div class="s-title"><em>Intellectual</em></div>
+  <div class="s-sub">Curiosity · Learning for its own sake · Ideas that have nothing to do with productivity</div>
+
+  <div class="note-box">Intellectual development is distinct from career learning. Career learning builds skills. Intellectual development builds the person. This quarter — read widely, think slowly, let ideas from different domains collide. The connections that emerge are where original thinking lives.</div>
+
+  <div class="cat-card open">
+    <div class="cat-head" onclick="togCard(this)">
+      <div class="cat-icon">📚</div>
+      <div class="cat-name" style="font-family:var(--fd)">Reading — 8 Books This Quarter</div>
+      <div class="cat-arrow">▶</div>
+    </div>
+    <div class="cat-body">
+      <div class="goal-section">
+        <div class="goal-section-title">Suggested Reading Cadence</div>
+        <div class="goal-item" onclick="togGoal(this)"><div class="gi-check"></div><div class="gi-content"><div class="gi-title">April Book 1 — Trading: "Trading in the Zone" — Mark Douglas</div><div class="gi-desc">The definitive book on the psychology of trading execution. Addresses precisely the gap you have identified: knowing the strategy and failing to execute it consistently. Read this before your next trade.</div><div class="gi-meta"><span class="gi-tag april">April</span></div></div></div>
+        <div class="goal-item" onclick="togGoal(this)"><div class="gi-check"></div><div class="gi-content"><div class="gi-title">April Book 2 — Business: "The E-Myth Revisited" — Michael Gerber</div><div class="gi-desc">Essential reading before dAnTE Inc takes its first client. The book explains why technically skilled people build bad businesses — and what the alternative looks like. A founding document of how not to build Dante Craft.</div><div class="gi-meta"><span class="gi-tag april">April</span></div></div></div>
+        <div class="goal-item" onclick="togGoal(this)"><div class="gi-check"></div><div class="gi-content"><div class="gi-title">May Book 3 — Choose freely from your list or by instinct</div><div class="gi-desc">One book purely because you want to read it. No productivity justification required.</div><div class="gi-meta"><span class="gi-tag may">May</span></div></div></div>
+        <div class="goal-item" onclick="togGoal(this)"><div class="gi-check"></div><div class="gi-content"><div class="gi-title">May Book 4 — Philosophy or Biography</div><div class="gi-desc">A thinker or a life that resonates with your vision. Suggestions: "Meditations" by Marcus Aurelius, "Long Walk to Freedom" by Mandela, "Shoe Dog" by Phil Knight, "The Alchemist" by Coelho.</div><div class="gi-meta"><span class="gi-tag may">May</span></div></div></div>
+        <div class="goal-item" onclick="togGoal(this)"><div class="gi-check"></div><div class="gi-content"><div class="gi-title">June Books 5–8 — Push to finish the quarter strong</div><div class="gi-desc">Two books per month in June is achievable if April and May built the habit. Mix: one technical, one enjoyable, one that surprises you.</div><div class="gi-meta"><span class="gi-tag june">June</span></div></div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="cat-card">
+    <div class="cat-head" onclick="togCard(this)">
+      <div class="cat-icon">💡</div>
+      <div class="cat-name" style="font-family:var(--fd)">Thinking Habits</div>
+      <div class="cat-arrow">▶</div>
+    </div>
+    <div class="cat-body">
+      <div class="goal-item" onclick="togGoal(this)"><div class="gi-check"></div><div class="gi-content"><div class="gi-title">Write one idea or observation per week — unprompted, unpolished, just yours</div><div class="gi-desc">Not a journal entry. Not a task. A thought that struck you, a connection you noticed, a question you couldn't answer. Written down. This is how independent thinking develops — not by consuming more but by articulating what you already think.</div><div class="gi-meta"><span class="gi-tag weekly">Weekly</span></div></div></div>
+      <div class="goal-item" onclick="togGoal(this)"><div class="gi-check"></div><div class="gi-content"><div class="gi-title">Learn about one domain completely outside your world this quarter</div><div class="gi-desc">Not for work. Not for trading. Pure curiosity. Options: the history of architecture, how music theory works, the philosophy of economics, the science of sleep, how cities are designed. One domain. Enough to have an informed opinion on it by June 30.</div><div class="gi-meta"><span class="gi-tag q2">Q2</span></div></div></div>
+      <div class="goal-item" onclick="togGoal(this)"><div class="gi-check"></div><div class="gi-content"><div class="gi-title">Complete the prompt engineering learning — docs.claude.com + learnprompting.org</div><div class="gi-desc">This is a direct skill investment. A few weeks of intentional study will permanently change how you build tools and interact with AI. The time compounds across every tool you build for dAnTE Inc.</div><div class="gi-meta"><span class="gi-tag april">April–May</span></div></div></div>
+    </div>
+  </div>
+</div>
+
+<!-- SOCIAL -->
+<div class="page" id="page-social">
+  <div class="s-title">Social & <em>Relationships</em></div>
+  <div class="s-sub">Network · Community · Connection · People worth knowing</div>
+
+  <div class="note-box">You mentioned wanting to meet people, build a network, be part of a community — but finding it unappealing to go alone, and not currently having someone to go with. The solution is organised around interest rather than socialising itself: find communities built around things you already care about. The people follow naturally.</div>
+
+  <div class="cat-card open">
+    <div class="cat-head" onclick="togCard(this)">
+      <div class="cat-icon">🌐</div>
+      <div class="cat-name" style="font-family:var(--fd)">Community — Find Your Tribe</div>
+      <div class="cat-arrow">▶</div>
+    </div>
+    <div class="cat-body">
+      <div class="goal-section">
+        <div class="goal-section-title">April — Plant the Seeds</div>
+        <div class="goal-item" onclick="togGoal(this)"><div class="gi-check"></div><div class="gi-content"><div class="gi-title">Join one active trading community — SMC / ICT focused, Telegram or Discord</div><div class="gi-desc">Not to broadcast. To observe, learn and occasionally contribute. A community of traders who take the craft seriously is the fastest way to sharpen your own thinking and find accountability. Look for communities with active chart analysis discussions, not just signal groups.</div><div class="gi-meta"><span class="gi-tag april">April</span></div></div></div>
+        <div class="goal-item" onclick="togGoal(this)"><div class="gi-check"></div><div class="gi-content"><div class="gi-title">Find one professional or creative community relevant to your interests</div><div class="gi-desc">Young engineers, entrepreneurs, creatives, or faith-based young professionals in your area or online. The point is consistent presence in a shared space with people who care about building something.</div><div class="gi-meta"><span class="gi-tag april">April</span></div></div></div>
+      </div>
+      <div class="goal-section">
+        <div class="goal-section-title">Q2 — Build the Habit</div>
+        <div class="goal-item" onclick="togGoal(this)"><div class="gi-check"></div><div class="gi-content"><div class="gi-title">One genuine unhurried conversation per week with someone outside your immediate circle</div><div class="gi-desc">Not networking. Not a pitch. A real conversation. A colleague, someone in a community you've joined, a new acquaintance. 13 real conversations by the end of the quarter is a meaningful expansion of your world.</div><div class="gi-meta"><span class="gi-tag weekly">Weekly</span></div></div></div>
+        <div class="goal-item" onclick="togGoal(this)"><div class="gi-check"></div><div class="gi-content"><div class="gi-title">Tell one person about dAnTE Inc — not a pitch, a conversation</div><div class="gi-desc">Articulating your vision to another person clarifies it. Their questions will surface what you haven't thought through yet. Do this once this quarter — someone who will engage seriously.</div><div class="gi-meta"><span class="gi-tag may">May</span></div></div></div>
+        <div class="goal-item" onclick="togGoal(this)"><div class="gi-check"></div><div class="gi-content"><div class="gi-title">Attend one in-person gathering or event by June 30</div><div class="gi-desc">Professional, creative, faith-based, sporting — anything that gets you in a room with people who share an interest. Going alone for a purpose you care about is different from going alone for socialising's sake. The purpose carries you in.</div><div class="gi-meta"><span class="gi-tag june">June</span></div></div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ENVIRONMENT -->
+<div class="page" id="page-environment">
+  <div class="s-title"><em>Environment</em></div>
+  <div class="s-sub">Your physical space · Moving house · The conditions that support everything else</div>
+
+  <div class="note-box">Your environment is not separate from your productivity — it is part of it. The right space reduces friction, supports focus and communicates your values to yourself every day. Moving house this quarter is a significant opportunity to design a space that works for who you are becoming, not just who you have been.</div>
+
+  <div class="cat-card open">
+    <div class="cat-head" onclick="togCard(this)">
+      <div class="cat-icon">🏠</div>
+      <div class="cat-name" style="font-family:var(--fd)">The Move — Milestones</div>
+      <div class="cat-arrow">▶</div>
+    </div>
+    <div class="cat-body">
+      <div class="goal-section">
+        <div class="goal-section-title">In Order</div>
+        <div class="goal-item" onclick="togGoal(this)"><div class="gi-check"></div><div class="gi-content"><div class="gi-title">Moving budget confirmed — figures entered in Finances tracker</div><div class="gi-desc">Rent, deposit, agency fee, bedroom furniture, workspace contribution, moving costs, utilities, contingency. Know the total before you commit.</div><div class="gi-meta"><span class="gi-tag april">April</span><span class="gi-tag urgent">First</span></div></div></div>
+        <div class="goal-item" onclick="togGoal(this)"><div class="gi-check"></div><div class="gi-content"><div class="gi-title">Apartment shortlisted and viewed</div><div class="gi-meta"><span class="gi-tag april">April</span></div></div></div>
+        <div class="goal-item" onclick="togGoal(this)"><div class="gi-check"></div><div class="gi-content"><div class="gi-title">Rent negotiated and terms agreed</div><div class="gi-meta"><span class="gi-tag april">April–May</span></div></div></div>
+        <div class="goal-item" onclick="togGoal(this)"><div class="gi-check"></div><div class="gi-content"><div class="gi-title">Rent paid and documents signed</div><div class="gi-meta"><span class="gi-tag may">May</span></div></div></div>
+        <div class="goal-item" onclick="togGoal(this)"><div class="gi-check"></div><div class="gi-content"><div class="gi-title">Bedroom designed — layout and furniture list finalised</div><div class="gi-desc">Your bedroom is your sanctuary. It should be calm, functional and reflect your taste. Know what you want before you buy anything. Bed, storage, desk, lighting — in that order of priority.</div><div class="gi-meta"><span class="gi-tag may">May</span></div></div></div>
+        <div class="goal-item" onclick="togGoal(this)"><div class="gi-check"></div><div class="gi-content"><div class="gi-title">Shared workspace designed with brother — layout and responsibilities agreed</div><div class="gi-desc">Two people sharing a workspace requires clear design: whose desk is where, what the space is for, how it stays functional. Agree the design before moving in, not after.</div><div class="gi-meta"><span class="gi-tag may">May</span></div></div></div>
+        <div class="goal-item" onclick="togGoal(this)"><div class="gi-check"></div><div class="gi-content"><div class="gi-title">Move completed</div><div class="gi-meta"><span class="gi-tag may">May–June</span></div></div></div>
+        <div class="goal-item" onclick="togGoal(this)"><div class="gi-check"></div><div class="gi-content"><div class="gi-title">Space fully set up and operational — bedroom, workspace, utilities all working</div><div class="gi-desc">Not just moved in. Set up. Everything in its place, systems running, space functioning. A week after the move to get it right.</div><div class="gi-meta"><span class="gi-tag june">June</span></div></div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="cat-card">
+    <div class="cat-head" onclick="togCard(this)">
+      <div class="cat-icon">🕯</div>
+      <div class="cat-name" style="font-family:var(--fd)">Space as an Intentional Choice</div>
+      <div class="cat-arrow">▶</div>
+    </div>
+    <div class="cat-body">
+      <div class="goal-item" onclick="togGoal(this)"><div class="gi-check"></div><div class="gi-content"><div class="gi-title">Design the workspace for deep work — not just a desk, but a system</div><div class="gi-desc">What does a space that supports trading, studying, building and creating look like? Good lighting, minimal visual noise, everything within reach. Design it deliberately, not accidentally.</div><div class="gi-meta"><span class="gi-tag may">May</span></div></div></div>
+      <div class="goal-item" onclick="togGoal(this)"><div class="gi-check"></div><div class="gi-content"><div class="gi-title">Put one piece of art or beauty in your personal space — something that means something</div><div class="gi-desc">A print, a found object, something made. Your space should reflect who you are. One considered choice beats ten random decorations.</div><div class="gi-meta"><span class="gi-tag june">June</span></div></div></div>
+    </div>
+  </div>
+</div>
+
+<!-- REST & RECREATION -->
+<div class="page" id="page-rest">
+  <div class="s-title">Rest & <em>Recreation</em></div>
+  <div class="s-sub">Intentional leisure · Recovery · The parts of life that refuel everything else</div>
+
+  <div class="note-box">Rest is not the absence of work. It is a deliberate practice that makes better work possible. You mentioned enjoying UFC, football, movies, and YouTube shorts — and recognising that binging is escapism rather than genuine rest. This quarter, the goal is intentional recreation: leisure that actually restores you, not just numbs the day.</div>
+
+  <div class="cat-card open">
+    <div class="cat-head" onclick="togCard(this)">
+      <div class="cat-icon">🌿</div>
+      <div class="cat-name" style="font-family:var(--fd)">Building the Rest Practice</div>
+      <div class="cat-arrow">▶</div>
+    </div>
+    <div class="cat-body">
+      <div class="goal-section">
+        <div class="goal-section-title">Daily</div>
+        <div class="goal-item" onclick="togGoal(this)"><div class="gi-check"></div><div class="gi-content"><div class="gi-title">Define a clear wind-down window — 30–45 minutes before sleep that belongs to rest</div><div class="gi-desc">Not scrolling. Not productivity. A deliberately chosen activity: a film, an episode, a fight, music, reading for pleasure. The key is that it is chosen, not defaulted into. Chosen leisure restores. Defaulted scrolling depletes.</div><div class="gi-meta"><span class="gi-tag daily">Evening</span></div></div></div>
+        <div class="goal-item" onclick="togGoal(this)"><div class="gi-check"></div><div class="gi-content"><div class="gi-title">Screen off by 22:00 — protect the sleep window</div><div class="gi-desc">The 4am start only works if 10pm is protected. This is the most high-leverage health and performance habit available. It costs nothing.</div><div class="gi-meta"><span class="gi-tag daily">Non-negotiable</span></div></div></div>
+      </div>
+      <div class="goal-section">
+        <div class="goal-section-title">Weekly</div>
+        <div class="goal-item" onclick="togGoal(this)"><div class="gi-check"></div><div class="gi-content"><div class="gi-title">Watch one UFC event or full football match per week — guilt-free, fully present</div><div class="gi-desc">Not as background noise. Actually watching. This is a legitimate interest and a legitimate form of rest. The guilt is the problem, not the watching.</div><div class="gi-meta"><span class="gi-tag weekly">Weekly</span></div></div></div>
+        <div class="goal-item" onclick="togGoal(this)"><div class="gi-check"></div><div class="gi-content"><div class="gi-title">One Saturday afternoon per month with no agenda — follow whatever pulls you</div><div class="gi-desc">No timetable. No tracker. No output expected. A full afternoon of self-directed time. This is not laziness — it is the raw material of knowing yourself.</div><div class="gi-meta"><span class="gi-tag monthly">Monthly</span></div></div></div>
+      </div>
+      <div class="goal-section">
+        <div class="goal-section-title">Quarter</div>
+        <div class="goal-item" onclick="togGoal(this)"><div class="gi-check"></div><div class="gi-content"><div class="gi-title">Plan one staycation or day trip for the quarter-end celebration</div><div class="gi-desc">If June 30 arrives and you have cleared the debt, hit the $5k target and completed 91 days — you deserve a day that feels genuinely different. Plan it in advance so it is something to look forward to across the whole quarter.</div><div class="gi-meta"><span class="gi-tag june">June 30</span></div></div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- LEGACY & PURPOSE -->
+<div class="page" id="page-legacy">
+  <div class="s-title">Legacy & <em>Purpose</em></div>
+  <div class="s-sub">dAnTE Inc · The long arc · Values · Why you do what you do</div>
+
+  <div class="note-box">This category is not about this quarter's results. It is about the direction those results are pointing toward. A 20+ year vision requires clarity on values, principles and purpose — not just goals. The work done here this quarter will shape decisions for decades.</div>
+
+  <div class="cat-card open">
+    <div class="cat-head" onclick="togCard(this)">
+      <div class="cat-icon">🏛</div>
+      <div class="cat-name" style="font-family:var(--fd)">Values & Principles — The Defining Session</div>
+      <div class="cat-arrow">▶</div>
+    </div>
+    <div class="cat-body">
+      <div class="note-box" style="margin-bottom:12px">You identified this as something you genuinely look forward to — understanding clearly why you engage the way you do, and how far you intend to go. This is foundational work. Everything built on unclear values eventually collapses or drifts.</div>
+      <div class="goal-item" onclick="togGoal(this)"><div class="gi-check"></div><div class="gi-content"><div class="gi-title">Complete a dedicated values & principles session — with Claude, in writing</div><div class="gi-desc">Not a list of adjectives. A genuine excavation: what do you believe about people, about work, about God, about money, about impact? What lines will you not cross? What will you always do? What kind of man do you intend to be? Written answers to hard questions.</div><div class="gi-meta"><span class="gi-tag april">April</span></div></div></div>
+      <div class="goal-item" onclick="togGoal(this)"><div class="gi-check"></div><div class="gi-content"><div class="gi-title">Revisit your Vision, Mission and Purpose statements — do they still ring true?</div><div class="gi-desc">You built these carefully. Read them now with fresh eyes. Do they still feel like yours? Is the language still right? Small refinements are healthy. Major revisions are also fine — you are still in formation.</div><div class="gi-meta"><span class="gi-tag april">April</span></div></div></div>
+    </div>
+  </div>
+
+  <div class="cat-card">
+    <div class="cat-head" onclick="togCard(this)">
+      <div class="cat-icon">🌍</div>
+      <div class="cat-name" style="font-family:var(--fd)">dAnTE Inc — The Long View</div>
+      <div class="cat-arrow">▶</div>
+    </div>
+    <div class="cat-body">
+      <div class="goal-item" onclick="togGoal(this)"><div class="gi-check"></div><div class="gi-content"><div class="gi-title">Write the dAnTE Inc founding document — what it is, what it will become, what it stands for</div><div class="gi-desc">Not a business plan. A founding document. The vision for the conglomerate: Dante Craft, energy, waste management, hospitality. The educational institution. The values. The kind of company it intends to be in 20 years. This document guides every decision from here forward.</div><div class="gi-meta"><span class="gi-tag april">April–May</span></div></div></div>
+      <div class="goal-item" onclick="togGoal(this)"><div class="gi-check"></div><div class="gi-content"><div class="gi-title">Draw the conglomerate map — one page showing the full dAnTE Inc architecture</div><div class="gi-desc">All five arms: Dante Craft (operations / engineering), energy production, waste management, hospitality group, educational institution. How they connect, what order they come in, what role each plays. Physical or digital — but drawn. A map you can look at and say: this is what I am building.</div><div class="gi-meta"><span class="gi-tag june">June</span></div></div></div>
+      <div class="goal-item" onclick="togGoal(this)"><div class="gi-check"></div><div class="gi-content"><div class="gi-title">Identify one person in your network or world who is 10 years further along the path you want — and study them</div><div class="gi-desc">Not a celebrity. Someone real, accessible, whose trajectory resonates. How did they build? What decisions did they make? What would you ask them if you could? This is mentorship even without access — careful observation of a life that points the way.</div><div class="gi-meta"><span class="gi-tag q2">Q2</span></div></div></div>
+      <div class="goal-item" onclick="togGoal(this)"><div class="gi-check"></div><div class="gi-content"><div class="gi-title">Define what you want your giving to look like — even at this scale</div><div class="gi-desc">You identified giving as a core bucket in your financial flow. What does it mean to you right now, at this stage? Who or what would you give to if you could? Clarity on this now shapes generosity as a habit rather than an afterthought when there is more money.</div><div class="gi-meta"><span class="gi-tag may">May</span></div></div></div>
+    </div>
+  </div>
+</div>
+
+<!-- HABITS / WEEKLY SCHEDULE -->
+<div class="page" id="page-habits">
+  <div class="s-title">Weekly <em>Schedule</em></div>
+  <div class="s-sub">The rhythm that makes everything possible</div>
+
+  <div class="note-box">This schedule reflects Tier 2 as a standard week — achievable most days without being crushing. Tier 1 is the fallback on hard days. Tier 3 is the ceiling on exceptional days. The habit architecture below shows what each day's primary focus is, layered on top of the daily Tier 1 non-negotiables.</div>
+
+  <table class="habit-table">
+    <thead><tr><th>Habit</th><th>Frequency</th><th>How Measured</th><th>Why It Matters</th></tr></thead>
+    <tbody>
+      <tr><td class="ht-name">Morning prayer — 30 min minimum</td><td class="ht-freq">Daily</td><td class="ht-measure">Duration selected in dashboard</td><td class="ht-why">Foundation. Non-negotiable.</td></tr>
+      <tr><td class="ht-name">Bible reading — BibleInAYear plan</td><td class="ht-freq">Daily</td><td class="ht-measure">Marked in Bible tracker</td><td class="ht-why">Spiritual depth over time</td></tr>
+      <tr><td class="ht-name">Morning Pages — all sources filled</td><td class="ht-freq">Daily</td><td class="ht-measure">Saved in dashboard</td><td class="ht-why">Frames the day intentionally</td></tr>
+      <tr><td class="ht-name">Chart study — minimum 1 session</td><td class="ht-freq">Daily</td><td class="ht-measure">Session logged in Trading Journal</td><td class="ht-why">Strategy refinement compounds</td></tr>
+      <tr><td class="ht-name">Workout / movement — 20 min+</td><td class="ht-freq">Daily</td><td class="ht-measure">Logged in Momentum dashboard</td><td class="ht-why">Body funds the mind</td></tr>
+      <tr><td class="ht-name">Meditation — 15 min</td><td class="ht-freq">Daily (Tier 2)</td><td class="ht-measure">Checked in dashboard</td><td class="ht-why">Mental clarity for trading</td></tr>
+      <tr><td class="ht-name">Book reading — 6+ pages</td><td class="ht-freq">Daily</td><td class="ht-measure">Pages logged in dashboard</td><td class="ht-why">Compounds over 91 days</td></tr>
+      <tr><td class="ht-name">Set the stage — 5 min</td><td class="ht-freq">Every evening</td><td class="ht-measure">Checked in dashboard</td><td class="ht-why">Powers tomorrow's morning</td></tr>
+      <tr><td class="ht-name">Engineering / AutoCAD practice</td><td class="ht-freq">3× weekly</td><td class="ht-measure">Skill logged in dashboard</td><td class="ht-why">Career development</td></tr>
+      <tr><td class="ht-name">Trading journal entry</td><td class="ht-freq">Every trade day</td><td class="ht-measure">Entry saved in journal</td><td class="ht-why">Strategy refinement</td></tr>
+      <tr><td class="ht-name">Sermon — 45 min</td><td class="ht-freq">Daily (Tier 2)</td><td class="ht-measure">Logged in dashboard</td><td class="ht-why">Cumulative spiritual input</td></tr>
+      <tr><td class="ht-name">Edge Analyser review</td><td class="ht-freq">Weekly — Sunday</td><td class="ht-measure">Reviewed and one rule extracted</td><td class="ht-why">Strategy sharpening</td></tr>
+      <tr><td class="ht-name">Weekly reflection — journal</td><td class="ht-freq">Weekly — Sunday</td><td class="ht-measure">Written</td><td class="ht-why">Course correction before drift</td></tr>
+      <tr><td class="ht-name">One creative / making activity</td><td class="ht-freq">Weekly</td><td class="ht-measure">Something produced</td><td class="ht-why">Joy. Intentional rest.</td></tr>
+      <tr><td class="ht-name">Dante Craft — one action</td><td class="ht-freq">Weekly</td><td class="ht-measure">Action completed and noted</td><td class="ht-why">Company doesn't build itself</td></tr>
+    </tbody>
+  </table>
+
+  <div class="week-grid">
+    <div class="wg-day"><div class="wg-name">Mon</div><div class="wg-items"><div class="wg-item">Charts + Trade</div><div class="wg-item">AutoCAD</div><div class="wg-item">Reading</div></div></div>
+    <div class="wg-day"><div class="wg-name">Tue</div><div class="wg-items"><div class="wg-item">Charts + Study</div><div class="wg-item">Dante Craft</div><div class="wg-item">Reading</div></div></div>
+    <div class="wg-day"><div class="wg-name">Wed</div><div class="wg-items"><div class="wg-item">Charts + Trade</div><div class="wg-item">AutoCAD</div><div class="wg-item">Sermon</div></div></div>
+    <div class="wg-day"><div class="wg-name">Thu</div><div class="wg-items"><div class="wg-item">Charts + Study</div><div class="wg-item">Engineering</div><div class="wg-item">Reading</div></div></div>
+    <div class="wg-day"><div class="wg-name">Fri</div><div class="wg-items"><div class="wg-item">Charts + Trade</div><div class="wg-item">AutoCAD</div><div class="wg-item">Sermon</div></div></div>
+    <div class="wg-day"><div class="wg-name">Sat</div><div class="wg-items"><div class="wg-item">Deep study</div><div class="wg-item">Creative</div><div class="wg-item">Rest</div></div></div>
+    <div class="wg-day"><div class="wg-name">Sun</div><div class="wg-items"><div class="wg-item">Extended prayer</div><div class="wg-item">Edge review</div><div class="wg-item">Week plan</div></div></div>
+  </div>
+</div>
+
+</div><!-- end content -->
+<div class="toast" id="toast"></div>
+
+<script>
+// Quarter dates
+const Q2_START = new Date('2026-04-01');
+const Q2_END = new Date('2026-06-30');
+
+function updateQuarterProgress() {
+  const now = new Date();
+  const elapsed = Math.max(0, Math.floor((now - Q2_START) / (1000*60*60*24)));
+  const total = 91;
+  const remaining = Math.max(0, total - elapsed);
+  const pct = Math.min(100, Math.round((elapsed/total)*100));
+  document.getElementById('daysElapsed').textContent = elapsed;
+  document.getElementById('daysRemaining').textContent = remaining;
+  document.getElementById('quarterBar').style.width = pct + '%';
+}
+
+// Toggles
+function togCard(el) { el.closest('.cat-card').classList.toggle('open'); }
+function toggleTheme() {
+  document.body.classList.toggle('light');
+  try { localStorage.setItem('q2_theme', document.body.classList.contains('light') ? 'light' : 'dark'); } catch(e) {}
+}
+function togGoal(el) {
+  el.classList.toggle('done');
+  el.querySelector('.gi-check').textContent = el.classList.contains('done') ? '✓' : '';
+  saveState();
+}
+function togMilestone(el) {
+  el.classList.toggle('reached');
+  el.querySelector('.mi-check').textContent = el.classList.contains('reached') ? '✓' : '';
+  saveState();
+  if(el.classList.contains('reached')) toast('Milestone reached. ✦');
+}
+
+// Pages
+function showPage(id, el) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nt').forEach(t => t.classList.remove('active'));
+  document.getElementById('page-'+id).classList.add('active');
+  el.classList.add('active');
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+// Persistence
+function saveState() {
+  const goals = {};
+  document.querySelectorAll('.goal-item').forEach((el,i) => { goals[i] = el.classList.contains('done'); });
+  const milestones = {};
+  document.querySelectorAll('.milestone-item').forEach((el,i) => { milestones[i] = el.classList.contains('reached'); });
+  try { localStorage.setItem('q2plan_state', JSON.stringify({goals,milestones})); } catch(e) {}
+}
+
+function loadState() {
+  try {
+    const s = localStorage.getItem('q2plan_state');
+    if(!s) return;
+    const data = JSON.parse(s);
+    if(data.goals) document.querySelectorAll('.goal-item').forEach((el,i) => {
+      if(data.goals[i]) { el.classList.add('done'); el.querySelector('.gi-check').textContent='✓'; }
+    });
+    if(data.milestones) document.querySelectorAll('.milestone-item').forEach((el,i) => {
+      if(data.milestones[i]) { el.classList.add('reached'); el.querySelector('.mi-check').textContent='✓'; }
+    });
+  } catch(e) {}
+}
+
+function toast(msg) { const t=document.getElementById('toast'); t.textContent=msg; t.classList.add('show'); setTimeout(()=>t.classList.remove('show'),2400); }
+
+updateQuarterProgress();
+loadState();
+try { if(localStorage.getItem('q2_theme')==='light') document.body.classList.add('light'); } catch(e) {}
+</script>
+</body>
+</html>

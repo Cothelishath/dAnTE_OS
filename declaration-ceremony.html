@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Declaration — Morning Ceremony</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400;1,600&family=Jost:wght@200;300;400&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
+html{height:100%;}
+:root{
+  --bg:#06080a;--gold:#c9a84c;--gold-d:rgba(201,168,76,0.15);
+  --tx:#f0ece4;--mid:rgba(240,236,228,0.55);--dim:rgba(240,236,228,0.2);
+  --fd:'Cormorant Garamond',serif;--fm:'Jost',sans-serif;
+}
+
+body{background:var(--bg);color:var(--tx);font-family:var(--fd);min-height:100vh;overflow:hidden;display:flex;flex-direction:column;align-items:center;justify-content:center;}
+
+/* GRAIN */
+body::before{content:'';position:fixed;inset:0;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");pointer-events:none;z-index:100;}
+
+/* OPENING SCREEN */
+#opening{position:fixed;inset:0;background:var(--bg);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:50;transition:opacity 1.2s ease;}
+#opening.fade-out{opacity:0;pointer-events:none;}
+.opening-cross{font-size:2rem;color:var(--gold);opacity:0.6;margin-bottom:2rem;animation:pulse 3s ease-in-out infinite;}
+.opening-title{font-family:var(--fd);font-size:clamp(1.8rem,5vw,3.5rem);font-weight:300;font-style:italic;color:var(--tx);text-align:center;margin-bottom:0.5rem;}
+.opening-sub{font-family:var(--fm);font-size:0.65rem;letter-spacing:0.3em;text-transform:uppercase;color:var(--dim);text-align:center;margin-bottom:3rem;}
+.begin-btn{background:none;border:1px solid rgba(201,168,76,0.4);color:var(--gold);font-family:var(--fm);font-size:0.65rem;letter-spacing:0.25em;text-transform:uppercase;padding:12px 32px;cursor:pointer;transition:all .3s;}
+.begin-btn:hover{background:rgba(201,168,76,0.08);border-color:var(--gold);}
+
+/* CEREMONY SCREEN */
+#ceremony{position:fixed;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:2rem;opacity:0;transition:opacity 0.8s ease;}
+#ceremony.active{opacity:1;}
+
+.progress-bar{position:fixed;top:0;left:0;height:2px;background:linear-gradient(90deg,var(--gold),rgba(201,168,76,0.4));transition:width 0.5s ease;}
+
+.theme-label{font-family:var(--fm);font-size:0.58rem;letter-spacing:0.3em;text-transform:uppercase;color:var(--gold);opacity:0.7;margin-bottom:2rem;text-align:center;min-height:1rem;}
+
+.declaration-text{font-family:var(--fd);font-size:clamp(1.15rem,3vw,1.9rem);font-weight:300;line-height:1.8;color:var(--tx);text-align:center;max-width:780px;opacity:0;transform:translateY(16px);transition:opacity 0.9s ease,transform 0.9s ease;}
+.declaration-text.visible{opacity:1;transform:translateY(0);}
+.declaration-text.amen{font-size:clamp(2rem,6vw,4rem);font-style:italic;color:var(--gold);}
+
+.nav-row{position:fixed;bottom:2.5rem;left:0;right:0;display:flex;justify-content:center;align-items:center;gap:2rem;}
+.nav-btn{background:none;border:none;color:var(--dim);font-family:var(--fm);font-size:0.6rem;letter-spacing:0.2em;text-transform:uppercase;cursor:pointer;padding:8px 16px;transition:color .2s;}
+.nav-btn:hover{color:var(--gold);}
+.nav-btn.primary{color:var(--tx);}
+.nav-btn:disabled{opacity:0.2;cursor:default;}
+
+.counter{font-family:var(--fm);font-size:0.55rem;letter-spacing:0.15em;color:var(--dim);}
+
+/* COMPLETION */
+#completion{position:fixed;inset:0;background:var(--bg);display:flex;flex-direction:column;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity 1s ease;text-align:center;padding:2rem;}
+#completion.active{opacity:1;pointer-events:all;}
+.comp-gold{font-size:2rem;color:var(--gold);margin-bottom:1.5rem;}
+.comp-title{font-family:var(--fd);font-size:clamp(1.5rem,4vw,2.5rem);font-weight:300;font-style:italic;color:var(--tx);margin-bottom:0.75rem;}
+.comp-date{font-family:var(--fm);font-size:0.6rem;letter-spacing:0.2em;text-transform:uppercase;color:var(--dim);margin-bottom:2.5rem;}
+.comp-streak{font-family:var(--fd);font-size:1.1rem;color:var(--mid);margin-bottom:2.5rem;}
+.comp-streak em{color:var(--gold);font-style:normal;}
+.restart-btn{background:none;border:1px solid rgba(201,168,76,0.3);color:var(--gold);font-family:var(--fm);font-size:0.6rem;letter-spacing:0.2em;text-transform:uppercase;padding:10px 24px;cursor:pointer;transition:all .3s;}
+.restart-btn:hover{background:rgba(201,168,76,0.08);}
+
+@keyframes pulse{0%,100%{opacity:0.4;}50%{opacity:0.8;}}
+@media(max-width:480px){.declaration-text{font-size:clamp(1rem,4vw,1.4rem);line-height:1.9;}}
+</style>
+</head>
+<body>
+
+<div id="opening">
+  <div class="opening-cross">✝</div>
+  <div class="opening-title">The Declaration</div>
+  <div class="opening-sub">Morning Ceremony &middot; Paul Akpan Bassey</div>
+  <button class="begin-btn" onclick="beginCeremony()">Begin</button>
+</div>
+
+<div id="ceremony">
+  <div class="progress-bar" id="progressBar" style="width:0%"></div>
+  <div class="theme-label" id="themeLabel"></div>
+  <div class="declaration-text" id="declText"></div>
+  <div class="nav-row">
+    <button class="nav-btn" id="prevBtn" onclick="prevLine()" disabled>← Prev</button>
+    <div class="counter" id="counter"></div>
+    <button class="nav-btn primary" id="nextBtn" onclick="nextLine()">Next →</button>
+  </div>
+</div>
+
+<div id="completion">
+  <div class="comp-gold">✝</div>
+  <div class="comp-title">It is declared.</div>
+  <div class="comp-date" id="compDate"></div>
+  <div class="comp-streak" id="compStreak"></div>
+  <button class="restart-btn" onclick="restart()">Declare Again</button>
+</div>
+
+<script>
+const LINES = [
+  {text:"By the Grace, Mercy, Favour and Faithfulness of God, and by the Blood of Jesus Christ which has redeemed us, Exceeding Great Fortune is our portion, We flourish on every side.",theme:"Foundation"},
+  {text:"We can not, We will not fail; We can not, We will not fall, because God is for us, God is with us, God is in us.",theme:"Standing"},
+  {text:"The lines fall for us in pleasant places, ours is a delightful, goodly inheritance.",theme:"Inheritance"},
+  {text:"For us, harvesting season meets and overtakes planting season: our lives yield sweet wine and fruit.",theme:"Harvest"},
+  {text:"Our Father is doing a new thing for us, in us and through us: see it spring forth! He makes for us roads in the wilderness and streams in the wasteland.",theme:"New Things"},
+  {text:"Great and effectual doors are open to us and in Jesus' Name every adversary is conquered — for He has given us a mouth and wisdom which no adversary can gainsay or resist.",theme:"Open Doors"},
+  {text:"Therefore in times of famine We are satisfied and overflowing in abundance, and our Father gives us beauty for ashes, the wealth and riches of the heathen for our inheritance, and this day He gives us our daily bread.",theme:"Abundance"},
+  {text:"All things work together for our good according to the Will of God for us, the Lord is our Shepherd, We lack nothing and we fear no evil for by His Spirit and divine power He has blessed us with all things that pertain to life and godliness — and through Christ who strengthens us we can do all things, and we prosper in all we do because God is with us.",theme:"The Shepherd"},
+  {text:"As trees planted by God and in God, we bring forth and bear fruit in season and out of season.",theme:"Fruit"},
+  {text:"We manifest Greatness and Life abundant, We manifest the Nature and Wisdom of God, and we do greater works. We transcend limitations, boundaries and possibilities.",theme:"Manifestation"},
+  {text:"We are blessed of God, we are marvellously helped, we are co-labourers with God, we are His investment, we are vessels for His purpose.",theme:"Identity"},
+  {text:"We are testimonies, we are signs and wonders in the earth, we are carriers of God's glory, we embody God's Life and Faith, we are stewards, beneficiaries and expressions of God's manifold Grace, we are conduit of His power.",theme:"Witness"},
+  {text:"We are partners with His Holy Spirit and we are Witness. Everyday, everywhere, we walk in prepared places and prepared blessings.",theme:"Partnership"},
+  {text:"Thanks be to God who causes us to triumph in all things through Christ Jesus. Thanks be to God who teaches us to make wealth, teaches our hand to make war and our fingers to fight.",theme:"Triumph"},
+  {text:"Thanks be to God through whom we run through troops, leap over walls, and perform valiantly. In this era, great things continue to happen in our lives of their own accord, and supernatural doors are open to us as we hold fast to God and His promises to us.",theme:"Valiant"},
+  {text:"Amen.",theme:""}
+];
+
+let current = 0;
+const LS = 'declaration_streak';
+
+function beginCeremony(){
+  document.getElementById('opening').classList.add('fade-out');
+  setTimeout(()=>{
+    document.getElementById('ceremony').classList.add('active');
+    showLine(0);
+  },1200);
+}
+
+function showLine(idx){
+  current = idx;
+  const line = LINES[idx];
+  const el = document.getElementById('declText');
+  el.classList.remove('visible','amen');
+  el.textContent = line.text;
+  if(line.text === 'Amen.') el.classList.add('amen');
+  document.getElementById('themeLabel').textContent = line.theme;
+  document.getElementById('counter').textContent = (idx+1) + ' / ' + LINES.length;
+  document.getElementById('progressBar').style.width = ((idx+1)/LINES.length*100)+'%';
+  document.getElementById('prevBtn').disabled = idx === 0;
+  document.getElementById('nextBtn').textContent = idx === LINES.length-1 ? 'Complete ✝' : 'Next →';
+  setTimeout(()=>el.classList.add('visible'),80);
+}
+
+function nextLine(){
+  if(current < LINES.length-1){
+    showLine(current+1);
+  } else {
+    complete();
+  }
+}
+
+function prevLine(){
+  if(current > 0) showLine(current-1);
+}
+
+function complete(){
+  document.getElementById('ceremony').classList.remove('active');
+  document.getElementById('completion').classList.add('active');
+  const now = new Date();
+  const days = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+  const months = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+  document.getElementById('compDate').textContent = days[now.getDay()] + ', ' + now.getDate() + ' ' + months[now.getMonth()] + ' ' + now.getFullYear();
+  
+  // Streak
+  const today = now.toISOString().slice(0,10);
+  let data = {};
+  try{data = JSON.parse(localStorage.getItem(LS)||'{}');}catch(e){}
+  const yesterday = new Date(now); yesterday.setDate(yesterday.getDate()-1);
+  const yKey = yesterday.toISOString().slice(0,10);
+  let streak = data.streak||0;
+  if(data.last === yKey || data.last === today){ streak = data.last===today?streak:streak+1; }
+  else { streak = 1; }
+  data.streak = streak; data.last = today;
+  try{localStorage.setItem(LS, JSON.stringify(data));}catch(e){}
+  document.getElementById('compStreak').innerHTML = 'Declared <em>' + streak + '</em> ' + (streak===1?'day':'days') + ' running.';
+}
+
+function restart(){
+  document.getElementById('completion').classList.remove('active');
+  document.getElementById('ceremony').classList.add('active');
+  showLine(0);
+}
+
+// Keyboard navigation
+document.addEventListener('keydown',e=>{
+  if(e.key==='ArrowRight'||e.key===' ') nextLine();
+  if(e.key==='ArrowLeft') prevLine();
+});
+</script>
+</body>
+</html>

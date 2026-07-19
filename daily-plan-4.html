@@ -1,0 +1,817 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@300;400&display=swap" rel="stylesheet">
+<title>The Day — dAnTE</title>
+<style>
+:root{
+  --bg:#0a0a0a;--bg2:#111;--bg3:#181818;--bg4:#1e1e1e;
+  --border:#1e1e1e;--border2:#2a2a2a;--border3:#363636;
+  --gold:#c9a84c;--gold-dim:#7a5f28;--gold-glow:rgba(201,168,76,0.08);
+  --text:#ddd8ce;--text-dim:#777;--text-muted:#404040;
+  --red:#c0392b;--green:#4caf7d;--radius:5px;
+}
+.light{
+  --bg:#f2ede6;--bg2:#eae4dc;--bg3:#e0d9d0;--bg4:#d6cfc5;
+  --border:#d8d1c8;--border2:#c8c1b7;--border3:#b8b0a5;
+  --gold:#8a6020;--gold-dim:#b8902a;--gold-glow:rgba(138,96,32,0.07);
+  --text:#1a1714;--text-dim:#666;--text-muted:#aaa;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;-webkit-tap-highlight-color:transparent}
+body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;font-size:13px;line-height:1.5;display:flex;flex-direction:column;min-height:100vh}
+::-webkit-scrollbar{width:3px}::-webkit-scrollbar-thumb{background:var(--border3);border-radius:2px}
+
+/* HEADER */
+header{flex-shrink:0;background:var(--bg);border-bottom:1px solid var(--border);padding:11px 16px;display:flex;align-items:center;gap:8px;position:sticky;top:0;z-index:50}
+.logo{display:flex;flex-direction:column;gap:0;margin-right:auto}
+.logo-brand{font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:.22em;color:var(--gold);text-transform:uppercase}
+.logo-title{font-family:'Cormorant Garamond',serif;font-size:19px;font-weight:300;color:var(--text);letter-spacing:.04em;line-height:1.1}
+.logo-title em{color:var(--gold);font-style:italic}
+.hbtn{background:none;border:1px solid var(--border2);border-radius:var(--radius);color:var(--text-dim);font-family:'Inter',sans-serif;font-size:11px;padding:5px 10px;cursor:pointer;transition:all .18s;white-space:nowrap}
+.hbtn:hover{border-color:var(--gold);color:var(--gold)}
+.hbtn-gold{border-color:var(--gold);color:var(--gold)}
+.hbtn-gold:hover{background:var(--gold-glow)}
+.hbtn-green{border-color:var(--green);color:var(--green)}
+.hbtn-green:hover{background:rgba(76,175,125,0.08)}
+
+/* MODE BANNER */
+.mode-banner{flex-shrink:0;padding:10px 16px 12px;border-bottom:1px solid var(--border)}
+.mode-banner.mode-plan{background:#0d0e0a}
+.mode-banner.mode-execute{background:#0a0d0a}
+.light .mode-banner.mode-plan{background:#f0ede4}
+.light .mode-banner.mode-execute{background:#eaf0ea}
+.mode-label{font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:.18em;text-transform:uppercase;margin-bottom:3px}
+.mode-plan .mode-label{color:var(--gold)}
+.mode-execute .mode-label{color:var(--green)}
+.mode-date{font-family:'Cormorant Garamond',serif;font-size:24px;font-weight:300;color:var(--text);letter-spacing:.03em;line-height:1.1}
+.mode-sub{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--text-muted);margin-top:2px}
+.mode-action{margin-top:10px}
+.start-day-btn{background:var(--green);border:none;border-radius:var(--radius);color:#fff;font-family:'Cormorant Garamond',serif;font-size:15px;font-weight:600;padding:9px 20px;cursor:pointer;letter-spacing:.04em;transition:all .18s;width:100%}
+.start-day-btn:hover{opacity:.9}
+.plan-next-btn{background:var(--gold-glow);border:1px solid var(--gold-dim);border-radius:var(--radius);color:var(--gold);font-family:'JetBrains Mono',monospace;font-size:10px;padding:7px 14px;cursor:pointer;letter-spacing:.06em;transition:all .18s}
+.plan-next-btn:hover{background:var(--gold);color:#000}
+
+/* TABS */
+.tab-bar{flex-shrink:0;display:flex;background:var(--bg2);border-bottom:1px solid var(--border);padding:0 16px;gap:0;overflow-x:auto}
+.tab{padding:9px 14px;font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--text-muted);cursor:pointer;border-bottom:2px solid transparent;transition:all .18s;white-space:nowrap;flex-shrink:0}
+.tab:hover{color:var(--text-dim)}
+.tab.active{color:var(--gold);border-bottom-color:var(--gold)}
+
+main{flex:1;padding:14px 16px 60px;max-width:680px;width:100%;margin:0 auto}
+.page{display:none}
+.page.active{display:block}
+
+/* LABELS */
+.section-label{font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--text-muted);letter-spacing:.14em;text-transform:uppercase;margin-bottom:6px;display:block}
+
+/* INTENTION */
+.intention-inp{width:100%;background:var(--bg3);border:1px solid var(--border2);border-radius:var(--radius);color:var(--text);font-family:'Cormorant Garamond',serif;font-size:15px;font-style:italic;padding:10px 13px;outline:none;resize:none;min-height:50px;line-height:1.6;transition:border-color .18s;margin-bottom:18px}
+.intention-inp:focus{border-color:var(--gold-dim)}
+.intention-inp::placeholder{color:var(--text-muted);font-style:italic}
+
+/* ROUTINE BLOCKS */
+.routine-block{background:var(--bg2);border:1px solid var(--border);border-radius:8px;margin-bottom:7px;overflow:hidden;transition:border-color .18s}
+.routine-block.done{opacity:.48}
+.routine-block.done .rb-title{text-decoration:line-through;color:var(--text-muted)}
+.routine-block.expanded{border-color:var(--border2)}
+.rb-header{display:flex;align-items:center;gap:9px;padding:9px 12px;cursor:pointer;user-select:none}
+.rb-header:hover{background:var(--gold-glow)}
+.rb-check{width:18px;height:18px;border:1px solid var(--border3);border-radius:4px;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:10px;color:transparent;transition:all .15s;cursor:pointer}
+.routine-block.done .rb-check{background:var(--gold-dim);border-color:var(--gold-dim);color:var(--gold)}
+.routine-block.done .rb-check::after{content:'✓'}
+.rb-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0}
+.rb-time{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--text-muted);flex-shrink:0;min-width:82px}
+.rb-title{font-size:13px;color:var(--text);font-weight:500;flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.rb-edited-tag{font-family:'JetBrains Mono',monospace;font-size:8px;color:var(--gold-dim);border:1px solid var(--gold-dim);border-radius:2px;padding:1px 4px;flex-shrink:0}
+.rb-bg{font-size:10px;color:var(--text-muted);font-style:italic;flex-shrink:0;white-space:nowrap;overflow:hidden;max-width:100px;text-overflow:ellipsis}
+.rb-chevron{font-size:9px;color:var(--text-muted);flex-shrink:0;transition:transform .2s}
+.routine-block.expanded .rb-chevron{transform:rotate(180deg);color:var(--gold)}
+
+.rb-body{display:none;padding:10px 12px 12px;border-top:1px solid var(--border)}
+.routine-block.expanded .rb-body{display:block}
+.rb-field-label{font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--text-muted);letter-spacing:.1em;text-transform:uppercase;margin-bottom:4px;margin-top:10px;display:block}
+.rb-field-label:first-child{margin-top:0}
+.rb-inp{width:100%;background:var(--bg3);border:1px solid var(--border2);border-radius:var(--radius);color:var(--text);font-family:'Inter',sans-serif;font-size:12px;padding:7px 10px;outline:none;transition:border-color .18s}
+.rb-inp:focus{border-color:var(--gold-dim)}
+.rb-inp::placeholder{color:var(--text-muted)}
+textarea.rb-inp{resize:vertical;min-height:60px;line-height:1.5}
+.rb-note-display{font-size:12px;color:var(--text-dim);font-style:italic;line-height:1.6;padding:4px 0}
+.rb-reset{font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--text-muted);background:none;border:none;cursor:pointer;letter-spacing:.06em;text-decoration:underline;margin-top:8px;padding:0;display:block}
+.rb-reset:hover{color:var(--red)}
+
+/* TASKS */
+.task-list{display:flex;flex-direction:column;gap:5px;margin-bottom:8px}
+.task-item{display:flex;align-items:center;gap:9px;padding:9px 10px;border-radius:var(--radius);border:1px solid transparent;background:var(--bg2);transition:all .15s}
+.task-item:hover{border-color:var(--border)}
+.task-item.done{opacity:.48}
+.task-item.done .task-text{text-decoration:line-through;color:var(--text-muted)}
+.task-check{width:18px;height:18px;border:1px solid var(--border3);border-radius:4px;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:10px;color:transparent;transition:all .15s;cursor:pointer}
+.task-item.done .task-check{background:var(--gold-dim);border-color:var(--gold-dim);color:var(--gold)}
+.task-item.done .task-check::after{content:'✓'}
+.task-tag{font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--gold-dim);border:1px solid var(--gold-dim);border-radius:3px;padding:1px 5px;flex-shrink:0;white-space:nowrap}
+.task-text{flex:1;font-size:13px;color:var(--text);outline:none;min-width:0}
+.task-text:focus{background:var(--bg3);border-radius:3px;padding:2px 4px;margin:-2px -4px}
+.task-del{background:none;border:none;color:transparent;cursor:pointer;font-size:11px;padding:3px 5px;transition:all .15s;flex-shrink:0}
+.task-item:hover .task-del{color:var(--text-muted)}
+.task-del:hover{color:var(--red)!important}
+
+/* P3 */
+.p3-item{display:flex;align-items:center;gap:9px;padding:9px 10px;border-radius:var(--radius);border:1px solid var(--border);background:var(--bg2);margin-bottom:5px;transition:all .15s}
+.p3-item.done{opacity:.48}
+.p3-item.done .task-text{text-decoration:line-through;color:var(--text-muted)}
+.p3-num{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--gold);border:1px solid var(--gold-dim);border-radius:3px;padding:1px 6px;flex-shrink:0}
+
+/* ADD ROWS */
+.add-row{display:flex;gap:6px;margin-top:6px}
+.add-tag{width:76px;background:var(--bg3);border:1px solid var(--border2);border-radius:var(--radius);color:var(--text-dim);font-family:'JetBrains Mono',monospace;font-size:11px;padding:7px 7px;outline:none;text-align:center;flex-shrink:0;transition:border-color .18s}
+.add-tag:focus{border-color:var(--gold)}
+.add-tag::placeholder{color:var(--text-muted);font-size:10px}
+.add-inp{flex:1;background:var(--bg3);border:1px solid var(--border2);border-radius:var(--radius);color:var(--text);font-family:'Inter',sans-serif;font-size:12px;padding:7px 11px;outline:none;transition:border-color .18s}
+.add-inp:focus{border-color:var(--gold)}
+.add-inp::placeholder{color:var(--text-muted)}
+.add-btn{background:var(--gold-glow);border:1px solid var(--gold-dim);border-radius:var(--radius);color:var(--gold);font-size:16px;padding:0 12px;cursor:pointer;transition:all .15s;flex-shrink:0}
+.add-btn:hover{background:var(--gold);color:#000}
+
+.empty-note{font-size:11px;color:var(--text-muted);font-style:italic;padding:6px 2px}
+.section-divider{height:1px;background:var(--border);margin:16px 0}
+.action-row{display:flex;gap:12px;margin-top:10px;flex-wrap:wrap}
+.action-btn{font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--text-muted);background:none;border:none;cursor:pointer;letter-spacing:.08em;text-transform:uppercase;padding:2px 0}
+.action-btn:hover{color:var(--gold)}
+.action-btn.red:hover{color:var(--red)}
+
+/* WEEK VIEW */
+.week-block{background:var(--bg2);border:1px solid var(--border);border-radius:8px;margin-bottom:10px;overflow:hidden}
+.week-block-hdr{padding:9px 13px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center}
+.week-block-day{font-family:'Cormorant Garamond',serif;font-size:15px;color:var(--text);letter-spacing:.03em}
+.week-block-day.is-active{color:var(--gold)}
+.week-block-meta{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--text-muted)}
+.week-block-body{padding:8px 12px 10px}
+
+/* ENGAGEMENTS */
+.eng-item{display:flex;align-items:center;gap:9px;padding:9px 10px;border-radius:var(--radius);border:1px solid transparent;background:var(--bg2);margin-bottom:5px;transition:all .15s}
+.eng-item:hover{border-color:var(--border)}
+.eng-item.done{opacity:.48}
+.eng-item.done .task-text{text-decoration:line-through;color:var(--text-muted)}
+
+/* TOAST */
+.toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%) translateY(6px);background:var(--bg3);border:1px solid var(--gold-dim);color:var(--gold);font-family:'JetBrains Mono',monospace;font-size:11px;padding:9px 18px;border-radius:20px;z-index:400;opacity:0;transition:all .25s;pointer-events:none;white-space:nowrap}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">
+    <div class="logo-brand">dAnTE</div>
+    <div class="logo-title">The <em>Day</em></div>
+  </div>
+  <button class="hbtn" onclick="document.getElementById('weekJsonFile').click()" title="Load ideal week">⬆ Week</button>
+  <button class="hbtn" onclick="exportData()">⬇</button>
+  <button class="hbtn" onclick="document.getElementById('importFile').click()">⬆</button>
+  <button class="hbtn hbtn-gold" onclick="saveData()">Save</button>
+</header>
+
+<!-- MODE BANNER -->
+<div class="mode-banner" id="modeBanner">
+  <div class="mode-label" id="modeLabel"></div>
+  <div class="mode-date" id="modeDate"></div>
+  <div class="mode-sub" id="modeSub"></div>
+  <div class="mode-action" id="modeAction"></div>
+</div>
+
+<!-- TABS -->
+<div class="tab-bar">
+  <div class="tab active" onclick="switchTab('day')">Day</div>
+  <div class="tab" onclick="switchTab('week')">Week</div>
+  <div class="tab" onclick="switchTab('engagements')">Engagements</div>
+</div>
+
+<main>
+  <!-- DAY PAGE -->
+  <div class="page active" id="page-day">
+    <span class="section-label">Intention — the day succeeds if</span>
+    <textarea class="intention-inp" id="intentionText" placeholder="One sentence..." rows="2" oninput="autosave()"></textarea>
+
+    <span class="section-label" style="margin-bottom:6px">The three that matter most</span>
+    <div class="task-list" id="p3List"></div>
+    <div class="add-row" id="p3AddRow">
+      <input class="add-inp" id="p3Input" placeholder="Add priority (max 3)..." onkeydown="if(event.key==='Enter')addP3()">
+      <button class="add-btn" onclick="addP3()">+</button>
+    </div>
+
+    <div class="section-divider"></div>
+
+    <span class="section-label" style="margin-bottom:8px">Routine blocks</span>
+    <div id="routineList"></div>
+
+    <div class="section-divider"></div>
+
+    <span class="section-label" style="margin-bottom:8px">Tasks</span>
+    <div class="task-list" id="taskList"></div>
+    <div class="add-row" id="taskAddRow">
+      <input class="add-tag" id="taskTag" placeholder="area">
+      <input class="add-inp" id="taskInput" placeholder="Add a task..." onkeydown="if(event.key==='Enter')addTask()">
+      <button class="add-btn" onclick="addTask()">+</button>
+    </div>
+
+    <div class="action-row">
+      <button class="action-btn red" onclick="clearDone()">Clear done</button>
+      <button class="action-btn" onclick="resetRoutineEdits()">Reset routine edits</button>
+    </div>
+  </div>
+
+  <!-- WEEK PAGE -->
+  <div class="page" id="page-week"></div>
+
+  <!-- ENGAGEMENTS PAGE -->
+  <div class="page" id="page-engagements">
+    <span class="section-label" style="margin-bottom:4px">Planned Engagements</span>
+    <div style="font-size:11px;color:var(--text-muted);font-style:italic;margin-bottom:12px">Meetings, calls, site visits — anything with a fixed point. Date or time label to the left.</div>
+    <div id="engList"></div>
+    <div class="add-row">
+      <input class="add-tag" id="engTag" placeholder="date/time">
+      <input class="add-inp" id="engInput" placeholder="Add engagement..." onkeydown="if(event.key==='Enter')addEngagement()">
+      <button class="add-btn" onclick="addEngagement()">+</button>
+    </div>
+    <div class="action-row">
+      <button class="action-btn red" onclick="clearDoneEng()">Clear done</button>
+    </div>
+  </div>
+</main>
+
+<div class="toast" id="toast"></div>
+<input type="file" id="weekJsonFile" accept=".json" style="display:none" onchange="loadWeekJson(event)">
+<input type="file" id="importFile" accept=".json" style="display:none" onchange="handleImport(event)">
+
+<script>
+// ── HELPERS ───────────────────────────────────────────────
+function uid(){return Math.random().toString(36).slice(2,9)}
+function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}
+function dateKey(d){return d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate())}
+function pad(n){return String(n).padStart(2,'0')}
+function todayKey(){return dateKey(new Date())}
+function tomorrowKey(){const d=new Date();d.setDate(d.getDate()+1);return dateKey(d)}
+
+const DAY_NAMES=['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+const DAY_SHORT=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+const MONTHS=['January','February','March','April','May','June','July','August','September','October','November','December'];
+
+function formatFull(d){return DAY_NAMES[d.getDay()]+', '+MONTHS[d.getMonth()]+' '+d.getDate()+' '+d.getFullYear()}
+function formatShort(d){return DAY_SHORT[d.getDay()]+' '+d.getDate()+' '+MONTHS[d.getMonth()].slice(0,3)}
+
+// Ideal week: index 0=Mon ... 6=Sun. JS: 0=Sun,1=Mon...
+function weekIdxFromDate(d){const j=d.getDay();return j===0?6:j-1}
+
+// ── WEEK DATA ─────────────────────────────────────────────
+let weekData=null;
+
+function slotTime(wake,idx){
+  const m=wake*60+idx*30;
+  return pad(Math.floor(m/60)%24)+':'+pad(m%60);
+}
+function slotRange(wake,idx,span){
+  return slotTime(wake,idx)+'–'+slotTime(wake,idx+span);
+}
+
+function extractBlocks(dayIdx){
+  if(!weekData?.cells?.[dayIdx]) return [];
+  const cells=weekData.cells[dayIdx];
+  const wake=weekData.wakeHour||4;
+  const skips=new Set();
+  const blocks=[];
+  cells.forEach((cell,si)=>{
+    if(skips.has(si)||!cell.primary||cell.area==='none') return;
+    const span=cell.colSpan||1;
+    for(let k=si+1;k<si+span&&k<cells.length;k++) skips.add(k);
+    const area=(weekData.areas||[]).find(a=>a.id===cell.area)||{label:cell.area||'',color:'#666'};
+    blocks.push({si,time:slotRange(wake,si,span),title:cell.primary,bg:cell.bg||[],areaLabel:area.label,areaColor:area.color});
+  });
+  return blocks;
+}
+
+// ── STATE ─────────────────────────────────────────────────
+// mode: 'plan' = filling in for a target date; 'execute' = working through active day
+// planTarget: the date key being planned (always tomorrow when in plan mode)
+// activeDate: the date key whose plan is being executed (set when "Start the day" is tapped)
+let appMode='plan';          // 'plan' | 'execute'
+let activeDateKey=null;      // the date being executed
+let expandedBlocks={};
+
+let state={
+  plans:{},        // dateKey -> {intention, priorities, tasks, routineEdits, routineDone}
+  week:{},         // dateKey -> [{id,text,done}]
+  engagements:[],
+};
+
+// planKey defined below with viewingKey support
+
+function ensurePlan(key){
+  if(!state.plans[key]) state.plans[key]={intention:'',priorities:[],tasks:[],routineEdits:{},routineDone:{}};
+  const p=state.plans[key];
+  if(!p.priorities) p.priorities=[];
+  if(!p.routineEdits) p.routineEdits={};
+  if(!p.routineDone) p.routineDone={};
+  return p;
+}
+function ensureWeekDay(k){if(!state.week[k])state.week[k]=[];return state.week[k]}
+
+// ── MODE BANNER ───────────────────────────────────────────
+function renderBanner(){
+  const banner=document.getElementById('modeBanner');
+  const label=document.getElementById('modeLabel');
+  const dateEl=document.getElementById('modeDate');
+  const sub=document.getElementById('modeSub');
+  const action=document.getElementById('modeAction');
+
+  const navRow=`<div style="display:flex;gap:8px;align-items:center;margin-top:8px">
+    <button class="plan-next-btn" onclick="browseHistory(-1)" style="padding:5px 10px;font-size:10px">← Previous</button>
+    ${viewingKey?`<button class="plan-next-btn" onclick="browseHistory(0)" style="padding:5px 10px;font-size:10px;background:var(--gold);color:#000">Back to current</button>`:''}
+    <button class="plan-next-btn" onclick="browseHistory(1)" style="padding:5px 10px;font-size:10px">Next →</button>
+  </div>`;
+
+  if(viewingKey){
+    // Browsing history
+    const d=new Date(viewingKey+'T12:00:00');
+    const isToday=viewingKey===todayKey();
+    const isTomorrow=viewingKey===tomorrowKey();
+    banner.className='mode-banner mode-plan';
+    label.textContent=isToday?'Today (viewing)':isTomorrow?'Tomorrow (viewing)':'Past plan (viewing)';
+    dateEl.textContent=formatFull(d);
+    sub.textContent='Browse only — return to current to make changes';
+    action.innerHTML=`<button class="plan-next-btn" onclick="browseHistory(0)" style="background:var(--gold);color:#000;border:none">← Back to current</button>`+navRow;
+  } else if(appMode==='plan'){
+    const tom=new Date();tom.setDate(tom.getDate()+1);
+    banner.className='mode-banner mode-plan';
+    label.textContent='Planning for';
+    dateEl.textContent=formatFull(tom);
+    sub.textContent='Fill in tonight · tap Start the Day tomorrow morning';
+    action.innerHTML=`<button class="start-day-btn" onclick="startDay()">Start the Day →</button>`+navRow;
+  } else {
+    const d=new Date(activeDateKey+'T12:00:00');
+    banner.className='mode-banner mode-execute';
+    label.textContent='Today';
+    dateEl.textContent=formatFull(d);
+    sub.textContent='Working through the plan · plan tomorrow when ready';
+    action.innerHTML=`<button class="plan-next-btn" onclick="switchToPlan()">Plan tomorrow →</button>`+navRow;
+  }
+}
+
+// viewingKey: when browsing history, overrides which plan is shown
+let viewingKey=null;
+
+function planKey(){
+  if(viewingKey) return viewingKey;
+  return appMode==='execute'?activeDateKey:tomorrowKey();
+}
+
+function startDay(){
+  // Lock TODAY — the day you are in right now
+  activeDateKey=todayKey();
+  appMode='execute';
+  viewingKey=null;
+  localStorage.setItem('theDayMode',JSON.stringify({appMode,activeDateKey}));
+  renderBanner();
+  renderDay();
+  showToast('Day started — go build something');
+}
+
+function switchToPlan(){
+  appMode='plan';
+  activeDateKey=null;
+  viewingKey=null;
+  localStorage.setItem('theDayMode',JSON.stringify({appMode,activeDateKey}));
+  renderBanner();
+  renderDay();
+  showToast('Planning for tomorrow');
+}
+
+function browseHistory(offset){
+  if(offset===0){viewingKey=null;renderBanner();renderDay();return}
+  const base=viewingKey||(appMode==='execute'?activeDateKey:todayKey());
+  const d=new Date(base+'T12:00:00');
+  d.setDate(d.getDate()+offset);
+  const nk=dateKey(d);
+  if(nk>tomorrowKey()) return;
+  viewingKey=nk;
+  renderBanner();
+  renderDay();
+}
+
+// ── DAY PAGE ──────────────────────────────────────────────
+function renderDay(){
+  const key=planKey();
+  const plan=ensurePlan(key);
+  const isExecute=appMode==='execute';
+
+  // Intention
+  const intentionEl=document.getElementById('intentionText');
+  intentionEl.value=plan.intention||'';
+  intentionEl.readOnly=false; // always editable even in execute mode
+
+  // Add rows — hide in execute mode (no new additions while executing? actually keep them)
+  // Keep all add rows always — you might remember something on the day
+
+  renderP3(key);
+  renderRoutine(key);
+  renderTasks(key);
+}
+
+// ── ROUTINE ───────────────────────────────────────────────
+function renderRoutine(key){
+  const container=document.getElementById('routineList');
+  if(!weekData){
+    container.innerHTML='<div class="empty-note">Load your Ideal Week export (⬆ Week in header) to populate routine blocks.</div>';
+    return;
+  }
+  const d=appMode==='execute'?new Date(activeDateKey+'T12:00:00'):new Date(new Date().getTime()+86400000);
+  const blocks=extractBlocks(weekIdxFromDate(d));
+  if(!blocks.length){
+    container.innerHTML='<div class="empty-note">No routine blocks for '+DAY_NAMES[d.getDay()]+'.</div>';
+    return;
+  }
+  const plan=ensurePlan(key);
+  container.innerHTML='';
+  blocks.forEach(b=>{
+    const si=b.si;
+    const done=!!plan.routineDone[si];
+    const edit=plan.routineEdits[si]||{};
+    const isExp=!!expandedBlocks[si];
+    const displayTitle=edit.titleOverride||b.title;
+    const hasEdit=edit.titleOverride||edit.note;
+
+    const div=document.createElement('div');
+    div.className='routine-block'+(done?' done':'')+(isExp?' expanded':'');
+    div.id='rb-'+si;
+
+    div.innerHTML=`
+      <div class="rb-header" onclick="toggleRb(${si})">
+        <div class="rb-check" onclick="event.stopPropagation();toggleRoutineDone(${si})"></div>
+        <div class="rb-dot" style="background:${b.areaColor}"></div>
+        <div class="rb-time">${b.time}</div>
+        <div class="rb-title">${esc(displayTitle)}</div>
+        ${hasEdit?'<div class="rb-edited-tag">edited</div>':''}
+        ${b.bg.length?`<div class="rb-bg">↳ ${esc(b.bg[0])}${b.bg.length>1?'…':''}</div>`:''}
+        <div class="rb-chevron">▾</div>
+      </div>
+      <div class="rb-body">
+        <span class="rb-field-label">Modify title for today</span>
+        <input class="rb-inp" value="${esc(edit.titleOverride||b.title)}" placeholder="${esc(b.title)}" oninput="updateRbTitle(${si},this.value)">
+        <span class="rb-field-label">Notes / instructions for today</span>
+        <textarea class="rb-inp" placeholder="Specific focus, variation, or instruction for this block..." oninput="updateRbNote(${si},this.value)">${esc(edit.note||'')}</textarea>
+        <button class="rb-reset" onclick="resetRb(${si})">Reset to default</button>
+      </div>`;
+    container.appendChild(div);
+  });
+}
+
+function toggleRb(si){
+  expandedBlocks[si]=!expandedBlocks[si];
+  const block=document.getElementById('rb-'+si);
+  if(block){block.classList.toggle('expanded',!!expandedBlocks[si]);block.querySelector('.rb-chevron').style.transform=expandedBlocks[si]?'rotate(180deg)':''}
+}
+function toggleRoutineDone(si){
+  const plan=ensurePlan(planKey());
+  plan.routineDone[si]=!plan.routineDone[si];
+  const block=document.getElementById('rb-'+si);
+  if(block){block.classList.toggle('done',plan.routineDone[si])}
+  autosave();
+}
+function updateRbTitle(si,val){
+  const plan=ensurePlan(planKey());
+  if(!plan.routineEdits[si]) plan.routineEdits[si]={};
+  plan.routineEdits[si].titleOverride=val;
+  autosave();
+}
+function updateRbNote(si,val){
+  const plan=ensurePlan(planKey());
+  if(!plan.routineEdits[si]) plan.routineEdits[si]={};
+  plan.routineEdits[si].note=val;
+  autosave();
+}
+function resetRb(si){
+  const plan=ensurePlan(planKey());
+  delete plan.routineEdits[si];
+  delete plan.routineDone[si];
+  renderRoutine(planKey()); autosave();
+}
+function resetRoutineEdits(){
+  if(!confirm('Reset all routine edits for this plan?')) return;
+  const plan=ensurePlan(planKey());
+  plan.routineEdits={}; plan.routineDone={};
+  renderRoutine(planKey()); autosave(); showToast('Reset');
+}
+
+// ── TOP 3 ─────────────────────────────────────────────────
+function renderP3(key){
+  const plan=ensurePlan(key);
+  const list=document.getElementById('p3List');
+  list.innerHTML='';
+  if(!(plan.priorities||[]).length){
+    list.innerHTML='<div class="empty-note">Name the three. If nothing else moves, these do.</div>';
+    return;
+  }
+  plan.priorities.forEach((t,i)=>{
+    const item=document.createElement('div');
+    item.className='p3-item'+(t.done?' done':'');
+    item.innerHTML=`
+      <div class="task-check" onclick="toggleP3('${t.id}')"></div>
+      <div class="p3-num">${i+1}</div>
+      <div class="task-text" contenteditable="true" onblur="updateP3('${t.id}',this.innerText)">${esc(t.text)}</div>
+      <button class="task-del" onclick="deleteP3('${t.id}')">✕</button>`;
+    list.appendChild(item);
+  });
+}
+function addP3(){
+  const plan=ensurePlan(planKey());
+  if((plan.priorities||[]).length>=3){showToast('Three is the limit — choose carefully');return}
+  const text=document.getElementById('p3Input').value.trim();
+  if(!text) return;
+  if(!plan.priorities) plan.priorities=[];
+  plan.priorities.push({id:uid(),text,done:false});
+  document.getElementById('p3Input').value='';
+  renderP3(planKey()); autosave();
+}
+function toggleP3(id){
+  const plan=ensurePlan(planKey());
+  const t=(plan.priorities||[]).find(x=>x.id===id);
+  if(t){t.done=!t.done;renderP3(planKey());autosave()}
+}
+function updateP3(id,text){
+  const plan=ensurePlan(planKey());
+  const t=(plan.priorities||[]).find(x=>x.id===id);
+  if(t){t.text=text.trim();autosave()}
+}
+function deleteP3(id){
+  const plan=ensurePlan(planKey());
+  plan.priorities=(plan.priorities||[]).filter(x=>x.id!==id);
+  renderP3(planKey()); autosave();
+}
+
+// ── TASKS ─────────────────────────────────────────────────
+function renderTasks(key){
+  const plan=ensurePlan(key);
+  const list=document.getElementById('taskList');
+  list.innerHTML='';
+  if(!(plan.tasks||[]).length){
+    list.innerHTML='<div class="empty-note">Tasks specific to this day — not on the routine.</div>';
+    return;
+  }
+  plan.tasks.forEach(t=>{
+    const item=document.createElement('div');
+    item.className='task-item'+(t.done?' done':'');
+    item.innerHTML=`
+      <div class="task-check" onclick="toggleTask('${t.id}')"></div>
+      ${t.tag?`<div class="task-tag">${esc(t.tag)}</div>`:''}
+      <div class="task-text" contenteditable="true" onblur="updateTask('${t.id}',this.innerText)">${esc(t.text)}</div>
+      <button class="task-del" onclick="deleteTask('${t.id}')">✕</button>`;
+    list.appendChild(item);
+  });
+}
+function addTask(){
+  const text=document.getElementById('taskInput').value.trim();
+  if(!text) return;
+  const tag=document.getElementById('taskTag').value.trim();
+  const plan=ensurePlan(planKey());
+  if(!plan.tasks) plan.tasks=[];
+  plan.tasks.push({id:uid(),text,tag,done:false});
+  document.getElementById('taskInput').value='';
+  document.getElementById('taskTag').value='';
+  renderTasks(planKey()); autosave();
+}
+function toggleTask(id){
+  const plan=ensurePlan(planKey());
+  const t=(plan.tasks||[]).find(x=>x.id===id);
+  if(t){t.done=!t.done;renderTasks(planKey());autosave()}
+}
+function updateTask(id,text){
+  const plan=ensurePlan(planKey());
+  const t=(plan.tasks||[]).find(x=>x.id===id);
+  if(t){t.text=text.trim();autosave()}
+}
+function deleteTask(id){
+  const plan=ensurePlan(planKey());
+  plan.tasks=(plan.tasks||[]).filter(x=>x.id!==id);
+  renderTasks(planKey()); autosave();
+}
+function clearDone(){
+  const plan=ensurePlan(planKey());
+  plan.tasks=(plan.tasks||[]).filter(t=>!t.done);
+  plan.priorities=(plan.priorities||[]).filter(t=>!t.done);
+  renderTasks(planKey()); renderP3(planKey()); autosave(); showToast('Cleared');
+}
+
+// ── ENGAGEMENTS ───────────────────────────────────────────
+function renderEngagements(){
+  const list=document.getElementById('engList');
+  list.innerHTML='';
+  const sorted=[...state.engagements].sort((a,b)=>(a.tag||'').localeCompare(b.tag||''));
+  if(!sorted.length){list.innerHTML='<div class="empty-note">No engagements yet.</div>';return}
+  sorted.forEach(t=>{
+    const item=document.createElement('div');
+    item.className='eng-item'+(t.done?' done':'');
+    item.innerHTML=`
+      <div class="task-check" onclick="toggleEng('${t.id}')"></div>
+      ${t.tag?`<div class="task-tag">${esc(t.tag)}</div>`:''}
+      <div class="task-text" contenteditable="true" onblur="updateEng('${t.id}',this.innerText)">${esc(t.text)}</div>
+      <button class="task-del" onclick="deleteEng('${t.id}')">✕</button>`;
+    list.appendChild(item);
+  });
+}
+function addEngagement(){
+  const text=document.getElementById('engInput').value.trim();
+  if(!text) return;
+  const tag=document.getElementById('engTag').value.trim();
+  state.engagements.push({id:uid(),text,tag,done:false});
+  document.getElementById('engInput').value='';
+  document.getElementById('engTag').value='';
+  renderEngagements(); autosave();
+}
+function toggleEng(id){
+  const t=state.engagements.find(x=>x.id===id);
+  if(t){t.done=!t.done;renderEngagements();autosave()}
+}
+function updateEng(id,text){
+  const t=state.engagements.find(x=>x.id===id);
+  if(t){t.text=text.trim();autosave()}
+}
+function deleteEng(id){
+  state.engagements=state.engagements.filter(x=>x.id!==id);
+  renderEngagements(); autosave();
+}
+function clearDoneEng(){
+  state.engagements=state.engagements.filter(t=>!t.done);
+  renderEngagements(); autosave(); showToast('Cleared');
+}
+
+// ── WEEK VIEW ─────────────────────────────────────────────
+function renderWeekView(){
+  const container=document.getElementById('page-week');
+  container.innerHTML='';
+  const now=new Date();
+  const monOffset=(now.getDay()+6)%7;
+  const monday=new Date(now);
+  monday.setDate(now.getDate()-monOffset);
+  const activeKey=appMode==='execute'?activeDateKey:tomorrowKey();
+
+  for(let i=0;i<7;i++){
+    const d=new Date(monday);d.setDate(monday.getDate()+i);
+    const key=dateKey(d);
+    const isActive=key===activeKey;
+    const tasks=ensureWeekDay(key);
+    const done=tasks.filter(t=>t.done).length;
+
+    const block=document.createElement('div');
+    block.className='week-block';
+    block.innerHTML=`
+      <div class="week-block-hdr">
+        <div class="week-block-day${isActive?' is-active':''}">${DAY_NAMES[d.getDay()]}${isActive?' ✦':''}</div>
+        <div class="week-block-meta">${formatShort(d)}${tasks.length?' · '+done+'/'+tasks.length:''}</div>
+      </div>
+      <div class="week-block-body">
+        <div id="wk-${key}"></div>
+        <div class="add-row" style="margin-top:6px">
+          <input class="add-inp" id="wk-inp-${key}" placeholder="Add to ${DAY_NAMES[d.getDay()]}..." onkeydown="if(event.key==='Enter')addWeekTask('${key}')">
+          <button class="add-btn" onclick="addWeekTask('${key}')">+</button>
+        </div>
+      </div>`;
+    container.appendChild(block);
+    renderWeekDay(key);
+  }
+}
+function renderWeekDay(key){
+  const list=document.getElementById('wk-'+key);if(!list)return;
+  const tasks=ensureWeekDay(key);
+  list.innerHTML='';
+  tasks.forEach(t=>{
+    const item=document.createElement('div');
+    item.className='task-item'+(t.done?' done':'');
+    item.innerHTML=`
+      <div class="task-check" onclick="toggleWeekTask('${key}','${t.id}')"></div>
+      <div class="task-text" contenteditable="true" onblur="updateWeekTask('${key}','${t.id}',this.innerText)">${esc(t.text)}</div>
+      <button class="task-del" onclick="deleteWeekTask('${key}','${t.id}')">✕</button>`;
+    list.appendChild(item);
+  });
+}
+function addWeekTask(key){
+  const inp=document.getElementById('wk-inp-'+key);
+  const text=inp.value.trim();if(!text)return;
+  ensureWeekDay(key).push({id:uid(),text,done:false});
+  inp.value='';renderWeekDay(key);autosave();
+}
+function toggleWeekTask(key,id){
+  const t=ensureWeekDay(key).find(x=>x.id===id);
+  if(t){t.done=!t.done;renderWeekDay(key);autosave()}
+}
+function updateWeekTask(key,id,text){
+  const t=ensureWeekDay(key).find(x=>x.id===id);
+  if(t){t.text=text.trim();autosave()}
+}
+function deleteWeekTask(key,id){
+  state.week[key]=(state.week[key]||[]).filter(x=>x.id!==id);
+  renderWeekDay(key);autosave();
+}
+
+// ── TAB SWITCH ────────────────────────────────────────────
+function switchTab(tab){
+  document.querySelectorAll('.tab').forEach((t,i)=>t.classList.toggle('active',['day','week','engagements'][i]===tab));
+  document.querySelectorAll('.page').forEach((p,i)=>p.classList.toggle('active',['day','week','engagements'][i]===tab));
+  if(tab==='week') renderWeekView();
+  if(tab==='engagements') renderEngagements();
+}
+
+// ── WEEK JSON ─────────────────────────────────────────────
+function loadWeekJson(e){
+  const file=e.target.files[0];if(!file)return;
+  const r=new FileReader();
+  r.onload=ev=>{try{weekData=JSON.parse(ev.target.result);localStorage.setItem('theDayWeekData',JSON.stringify(weekData));renderRoutine(planKey());showToast('Ideal week loaded');}catch(err){showToast('Could not read file')}};
+  r.readAsText(file);e.target.value='';
+}
+
+// ── PERSISTENCE ───────────────────────────────────────────
+let asTimer=null;
+function autosave(){
+  const intentionEl=document.getElementById('intentionText');
+  if(intentionEl) ensurePlan(planKey()).intention=intentionEl.value;
+  clearTimeout(asTimer);
+  asTimer=setTimeout(()=>saveData(true),700);
+}
+function saveData(silent=false){
+  const intentionEl=document.getElementById('intentionText');
+  if(intentionEl) ensurePlan(planKey()).intention=intentionEl.value;
+  localStorage.setItem('theDayState',JSON.stringify(state));
+  if(!silent) showToast('Saved');
+}
+function loadData(){
+  const s=localStorage.getItem('theDayState');
+  if(s){try{const d=JSON.parse(s);if(d.plans)state.plans=d.plans;if(d.week)state.week=d.week;if(d.engagements)state.engagements=d.engagements;}catch(e){}}
+  const wd=localStorage.getItem('theDayWeekData');
+  if(wd){try{weekData=JSON.parse(wd);}catch(e){}}
+  const md=localStorage.getItem('theDayMode');
+  if(md){try{const m=JSON.parse(md);appMode=m.appMode||'plan';activeDateKey=m.activeDateKey||null;}catch(e){}}
+}
+function exportData(){
+  const blob=new Blob([JSON.stringify({state,weekData,appMode,activeDateKey},null,2)],{type:'application/json'});
+  const a=document.createElement('a');a.href=URL.createObjectURL(blob);
+  a.download='the-day.json';a.click();showToast('Exported');
+}
+function handleImport(e){
+  const file=e.target.files[0];if(!file)return;
+  const r=new FileReader();
+  r.onload=ev=>{try{
+    const d=JSON.parse(ev.target.result);
+    if(d.state){if(d.state.plans)state.plans=d.state.plans;if(d.state.week)state.week=d.state.week;if(d.state.engagements)state.engagements=d.state.engagements;}
+    if(d.weekData){weekData=d.weekData;localStorage.setItem('theDayWeekData',JSON.stringify(weekData));}
+    if(d.appMode)appMode=d.appMode;
+    if(d.activeDateKey)activeDateKey=d.activeDateKey;
+    renderAll();showToast('Imported');
+  }catch(err){showToast('Import failed')}};
+  r.readAsText(file);e.target.value='';
+}
+function toggleTheme(){
+  isDark=!isDark;document.body.classList.toggle('light',!isDark);
+  localStorage.setItem('theDayTheme',isDark?'dark':'light');
+}
+function showToast(msg){
+  const t=document.getElementById('toast');t.textContent=msg;
+  t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2000);
+}
+
+function renderAll(){
+  renderBanner();
+  renderDay();
+}
+
+// ── INIT ─────────────────────────────────────────────────
+const th=localStorage.getItem('theDayTheme');
+if(th==='light'){isDark=false;document.body.classList.add('light')}
+loadData();
+
+// If in execute mode but active date is today or earlier, auto-switch to plan
+if(appMode==='execute'&&activeDateKey){
+  const d=new Date(activeDateKey+'T12:00:00');
+  const dKey=dateKey(d);
+  if(dKey<todayKey()){
+    // Stale — move back to plan mode
+    appMode='plan';activeDateKey=null;
+    localStorage.setItem('theDayMode',JSON.stringify({appMode,activeDateKey}));
+  }
+}
+
+renderAll();
+
+// Restore intention
+const intentionEl=document.getElementById('intentionText');
+if(intentionEl){
+  const plan=ensurePlan(planKey());
+  intentionEl.value=plan.intention||'';
+}
+
+// banner renders start button inline
+</script>
+</body>
+</html>

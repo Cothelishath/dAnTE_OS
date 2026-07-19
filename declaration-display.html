@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Declaration</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400;1,600&family=Jost:wght@200;300&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#06080a;--gold:#c9a84c;--gold-l:#e8c870;--tx:#f0ece4;--mid:rgba(240,236,228,0.6);--fd:'Cormorant Garamond',serif;--fm:'Jost',sans-serif;}
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{background:var(--bg);color:var(--tx);font-family:var(--fd);}
+
+body::before{content:'';position:fixed;inset:0;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");pointer-events:none;z-index:100;}
+
+/* COVER */
+.cover{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:4rem 3rem;text-align:center;position:relative;background:radial-gradient(ellipse at 50% 40%,rgba(201,168,76,0.06) 0%,transparent 65%);}
+.cover::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--gold),transparent);}
+.cover::after{content:'';position:absolute;bottom:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(201,168,76,0.3),transparent);}
+.cover-cross{font-size:2.5rem;color:var(--gold);opacity:0.4;margin-bottom:2.5rem;letter-spacing:0.1em;}
+.cover-title{font-family:var(--fd);font-size:clamp(3rem,9vw,8rem);font-weight:300;line-height:0.95;letter-spacing:-0.01em;color:var(--tx);}
+.cover-title em{font-style:italic;color:var(--gold);}
+.cover-sub{font-family:var(--fm);font-size:0.6rem;letter-spacing:0.3em;text-transform:uppercase;color:rgba(240,236,228,0.3);margin-top:1.5rem;}
+.cover-scroll{position:absolute;bottom:2.5rem;display:flex;flex-direction:column;align-items:center;gap:6px;}
+.cover-scroll span{font-family:var(--fm);font-size:0.5rem;letter-spacing:0.2em;text-transform:uppercase;color:rgba(240,236,228,0.2);}
+.scroll-line{width:1px;height:36px;background:linear-gradient(to bottom,var(--gold),transparent);animation:pulse 2s ease-in-out infinite;}
+@keyframes pulse{0%,100%{opacity:0.3;}50%{opacity:0.8;}}
+
+/* BODY */
+.body-wrap{max-width:760px;margin:0 auto;padding:6rem 3rem 8rem;}
+
+.seg{padding:3rem 0;border-bottom:1px solid rgba(201,168,76,0.08);position:relative;}
+.seg:last-child{border-bottom:none;}
+
+.seg-num{position:absolute;left:-3rem;top:3rem;font-family:var(--fm);font-size:0.5rem;letter-spacing:0.15em;color:rgba(201,168,76,0.25);}
+.seg-theme{font-family:var(--fm);font-size:0.52rem;letter-spacing:0.28em;text-transform:uppercase;color:var(--gold);opacity:0.6;margin-bottom:1.25rem;}
+.seg-text{font-family:var(--fd);font-size:clamp(1.1rem,2.8vw,1.55rem);font-weight:300;line-height:1.85;color:var(--tx);}
+.seg-text .hl{color:var(--gold);}
+
+/* Amen */
+.amen-wrap{padding:6rem 0;text-align:center;}
+.amen-line{width:60px;height:1px;background:linear-gradient(90deg,transparent,var(--gold),transparent);margin:0 auto 2rem;}
+.amen-text{font-family:var(--fd);font-size:clamp(3rem,8vw,6rem);font-style:italic;color:var(--gold);font-weight:300;line-height:1;}
+.amen-sub{font-family:var(--fm);font-size:0.55rem;letter-spacing:0.25em;text-transform:uppercase;color:rgba(201,168,76,0.35);margin-top:1.5rem;}
+
+@media(max-width:600px){
+  .body-wrap{padding:4rem 1.5rem 6rem;}
+  .seg-num{display:none;}
+  .cover{padding:3rem 2rem;}
+}
+
+@media print{
+  .cover-scroll{display:none;}
+  .cover{min-height:auto;padding:6rem 3rem;}
+  body::before{display:none;}
+}
+</style>
+</head>
+<body>
+
+<div class="cover">
+  <div class="cover-cross">✝</div>
+  <div class="cover-title">The<br><em>Declaration</em></div>
+  <div class="cover-sub">Paul Akpan Bassey &middot; 2026</div>
+  <div class="cover-scroll">
+    <div class="scroll-line"></div>
+    <span>Read</span>
+  </div>
+</div>
+
+<div class="body-wrap">
+
+  <div class="seg">
+    <div class="seg-num">01</div>
+    <div class="seg-theme">Foundation</div>
+    <div class="seg-text">By the <span class="hl">Grace, Mercy, Favour and Faithfulness of God</span>, and by the Blood of Jesus Christ which has redeemed us, <span class="hl">Exceeding Great Fortune is our portion</span>, We flourish on every side.</div>
+  </div>
+
+  <div class="seg">
+    <div class="seg-num">02</div>
+    <div class="seg-theme">Standing</div>
+    <div class="seg-text">We can not, We will not fail; We can not, We will not fall, because <span class="hl">God is for us, God is with us, God is in us.</span></div>
+  </div>
+
+  <div class="seg">
+    <div class="seg-num">03</div>
+    <div class="seg-theme">Inheritance</div>
+    <div class="seg-text">The lines fall for us in pleasant places, <span class="hl">ours is a delightful, goodly inheritance.</span></div>
+  </div>
+
+  <div class="seg">
+    <div class="seg-num">04</div>
+    <div class="seg-theme">Harvest</div>
+    <div class="seg-text">For us, <span class="hl">harvesting season meets and overtakes planting season</span>: our lives yield sweet wine and fruit.</div>
+  </div>
+
+  <div class="seg">
+    <div class="seg-num">05</div>
+    <div class="seg-theme">New Things</div>
+    <div class="seg-text">Our Father is doing a <span class="hl">new thing</span> for us, in us and through us: see it spring forth! He makes for us <span class="hl">roads in the wilderness and streams in the wasteland.</span></div>
+  </div>
+
+  <div class="seg">
+    <div class="seg-num">06</div>
+    <div class="seg-theme">Open Doors</div>
+    <div class="seg-text"><span class="hl">Great and effectual doors are open to us</span> and in Jesus' Name every adversary is conquered — for He has given us <span class="hl">a mouth and wisdom which no adversary can gainsay or resist.</span></div>
+  </div>
+
+  <div class="seg">
+    <div class="seg-num">07</div>
+    <div class="seg-theme">Abundance</div>
+    <div class="seg-text">Therefore in times of famine We are satisfied and <span class="hl">overflowing in abundance</span>, and our Father gives us <span class="hl">beauty for ashes</span>, the wealth and riches of the heathen for our inheritance, and this day He gives us our daily bread.</div>
+  </div>
+
+  <div class="seg">
+    <div class="seg-num">08</div>
+    <div class="seg-theme">The Shepherd</div>
+    <div class="seg-text">All things work together for our good according to the Will of God for us, <span class="hl">the Lord is our Shepherd, We lack nothing and we fear no evil</span> for by His Spirit and divine power He has blessed us with all things that pertain to life and godliness — and through Christ who strengthens us <span class="hl">we can do all things</span>, and we prosper in all we do because God is with us.</div>
+  </div>
+
+  <div class="seg">
+    <div class="seg-num">09</div>
+    <div class="seg-theme">Fruit</div>
+    <div class="seg-text">As trees planted by God and in God, <span class="hl">we bring forth and bear fruit in season and out of season.</span></div>
+  </div>
+
+  <div class="seg">
+    <div class="seg-num">10</div>
+    <div class="seg-theme">Manifestation</div>
+    <div class="seg-text">We manifest <span class="hl">Greatness and Life abundant</span>, We manifest the Nature and Wisdom of God, and we do <span class="hl">greater works</span>. We transcend limitations, boundaries and possibilities.</div>
+  </div>
+
+  <div class="seg">
+    <div class="seg-num">11</div>
+    <div class="seg-theme">Identity</div>
+    <div class="seg-text">We are blessed of God, we are marvellously helped, we are <span class="hl">co-labourers with God</span>, we are His investment, we are <span class="hl">vessels for His purpose.</span></div>
+  </div>
+
+  <div class="seg">
+    <div class="seg-num">12</div>
+    <div class="seg-theme">Witness</div>
+    <div class="seg-text">We are testimonies, we are <span class="hl">signs and wonders in the earth</span>, we are carriers of God's glory, we embody God's Life and Faith, we are stewards, beneficiaries and expressions of <span class="hl">God's manifold Grace</span>, we are conduit of His power.</div>
+  </div>
+
+  <div class="seg">
+    <div class="seg-num">13</div>
+    <div class="seg-theme">Partnership</div>
+    <div class="seg-text">We are <span class="hl">partners with His Holy Spirit</span> and we are Witness. Everyday, everywhere, we walk in <span class="hl">prepared places and prepared blessings.</span></div>
+  </div>
+
+  <div class="seg">
+    <div class="seg-num">14</div>
+    <div class="seg-theme">Triumph</div>
+    <div class="seg-text">Thanks be to God who causes us to <span class="hl">triumph in all things through Christ Jesus</span>. Thanks be to God who <span class="hl">teaches us to make wealth</span>, teaches our hand to make war and our fingers to fight.</div>
+  </div>
+
+  <div class="seg">
+    <div class="seg-num">15</div>
+    <div class="seg-theme">Valiant</div>
+    <div class="seg-text">Thanks be to God through whom we <span class="hl">run through troops, leap over walls, and perform valiantly</span>. In this era, great things continue to happen in our lives of their own accord, and <span class="hl">supernatural doors are open to us</span> as we hold fast to God and His promises to us.</div>
+  </div>
+
+  <div class="amen-wrap">
+    <div class="amen-line"></div>
+    <div class="amen-text">Amen.</div>
+    <div class="amen-sub">It is declared &middot; It is so</div>
+  </div>
+
+</div>
+</body>
+</html>

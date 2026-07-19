@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>No Excuses! Action Dashboard</title>
+    <style>
+        :root {
+            --primary: #2c3e50;
+            --accent: #e67e22;
+            --bg: #f4f7f6;
+            --card: #ffffff;
+            --text: #333;
+            --success: #27ae60;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            margin: 0;
+            padding: 0;
+        }
+
+        header {
+            background: var(--primary);
+            color: white;
+            padding: 20px;
+            text-align: center;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 20px auto;
+            padding: 0 15px;
+        }
+
+        .nav-tabs {
+            display: flex;
+            overflow-x: auto;
+            gap: 10px;
+            margin-bottom: 20px;
+            padding-bottom: 5px;
+        }
+
+        .tab-btn {
+            background: #ddd;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 20px;
+            cursor: pointer;
+            white-space: nowrap;
+            font-weight: 600;
+        }
+
+        .tab-btn.active {
+            background: var(--accent);
+            color: white;
+        }
+
+        .card {
+            background: var(--card);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+        }
+
+        h2 { color: var(--primary); border-bottom: 2px solid var(--accent); padding-bottom: 5px; }
+        h3 { color: var(--accent); margin-top: 25px; }
+
+        .exercise-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            margin-bottom: 15px;
+            padding: 10px;
+            border-left: 4px solid #eee;
+        }
+
+        .exercise-item input[type="checkbox"] {
+            width: 20px;
+            height: 20px;
+            margin-top: 3px;
+        }
+
+        .system-box {
+            background: #edf2f7;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 10px 0;
+        }
+
+        .step-list {
+            list-style: none;
+            padding: 0;
+        }
+
+        .step-list li {
+            margin-bottom: 10px;
+            padding-left: 25px;
+            position: relative;
+        }
+
+        .step-list li::before {
+            content: "→";
+            position: absolute;
+            left: 0;
+            color: var(--accent);
+            font-weight: bold;
+        }
+
+        .hidden { display: none; }
+
+        footer { text-align: center; padding: 20px; font-size: 0.9em; color: #777; }
+    </style>
+</head>
+<body>
+
+<header>
+    <h1>No Excuses!</h1>
+    <p>The Power of Self-Discipline</p>
+</header>
+
+<div class="container">
+    <div class="nav-tabs">
+        <button class="tab-btn active" onclick="showTab('systems')">Systems</button>
+        <button class="tab-btn" onclick="showTab('part1')">Self-Discipline</button>
+        <button class="tab-btn" onclick="showTab('part2')">Business/Sales</button>
+        <button class="tab-btn" onclick="showTab('part3')">The Good Life</button>
+    </div>
+
+    <div id="systems" class="tab-content">
+        <div class="card">
+            <h2>The Master System for Achievement</h2>
+            <div class="system-box">
+                <strong>The 7-Step Goal Setting Process:</strong>
+                <ol class="step-list" style="margin-top:10px;">
+                    <li>Decide exactly what you want.</li>
+                    <li>Write it down (Think on paper).</li>
+                    <li>Set a deadline for your goal.</li>
+                    <li>Make a list of everything you need to do to achieve it.</li>
+                    <li>Organize the list into a plan (Priority and Sequence).</li>
+                    <li>Take action on your plan immediately.</li>
+                    <li>Do something every single day that moves you toward your major goal.</li>
+                </ol>
+            </div>
+            
+            <h3>The 10-Goal Exercise</h3>
+            <p>Write down 10 goals you want to achieve in the next 12 months. Ask: "Which one goal, if achieved, would have the greatest positive impact on my life?" Circle that goal and make it your <strong>Primary Purpose</strong>.</p>
+        </div>
+    </div>
+
+    <div id="part1" class="tab-content hidden">
+        <div class="card">
+            <h2>Part I: Self-Discipline and Personal Success</h2>
+            
+            <h3>Ch 1: Self-Discipline and Success</h3>
+            <div class="exercise-item">
+                <input type="checkbox" id="c1e1">
+                <label for="c1e1">Identify one area of your life where a lack of discipline is holding you back. Commit today to disciplining yourself in that area.</label>
+            </div>
+            
+            <h3>Ch 3: Self-Discipline and Responsibility</h3>
+            <div class="exercise-item">
+                <input type="checkbox" id="c3e1">
+                <label for="c3e1">Identify your favorite excuse for not being as successful as you should be. Eliminate it today.</label>
+            </div>
+
+            <h3>Ch 4: Self-Discipline and Goals</h3>
+            <div class="exercise-item">
+                <input type="checkbox" id="c4e1">
+                <label for="c4e1">Write down your top 3 goals in life right now. Are they written in the present tense, positive, and personal?</label>
+            </div>
+        </div>
+    </div>
+
+    <div id="part2" class="tab-content hidden">
+        <div class="card">
+            <h2>Part II: Self-Discipline in Business and Sales</h2>
+            
+            <h3>Ch 8: Self-Discipline and Work</h3>
+            <div class="system-box">
+                <strong>The ABCDE Method for Priorities:</strong>
+                <ul>
+                    <li>A: Must do - Serious consequences.</li>
+                    <li>B: Should do - Mild consequences.</li>
+                    <li>C: Nice to do - No consequences.</li>
+                    <li>D: Delegate.</li>
+                    <li>E: Eliminate.</li>
+                </ul>
+            </div>
+            <div class="exercise-item">
+                <input type="checkbox" id="c8e1">
+                <label for="c8e1">Make a list of everything you have to do tomorrow. Apply the ABCDE method before starting work.</label>
+            </div>
+        </div>
+    </div>
+
+    <div id="part3" class="tab-content hidden">
+        <div class="card">
+            <h2>Part III: Self-Discipline and the Good Life</h2>
+            
+            <h3>Ch 17: Self-Discipline and Health</h3>
+            <div class="exercise-item">
+                <input type="checkbox" id="c17e1">
+                <label for="c17e1">Decide today to achieve your ideal weight. What one habit must you change to begin?</label>
+            </div>
+
+            <h3>Ch 21: Self-Discipline and Peace of Mind</h3>
+            <div class="exercise-item">
+                <input type="checkbox" id="c21e1">
+                <label for="c21e1">Practice "Forgiveness Therapy." Who do you need to forgive to achieve peace of mind?</label>
+            </div>
+        </div>
+    </div>
+</div>
+
+<footer>
+    <p>"Self-discipline is the ability to do what you should do, when you should do it, whether you feel like it or not." — Elbert Hubbard</p>
+</footer>
+
+<script>
+    function showTab(tabId) {
+        // Hide all content
+        document.querySelectorAll('.tab-content').forEach(content => {
+            content.classList.add('hidden');
+        });
+        
+        // Remove active class from buttons
+        document.querySelectorAll('.tab-btn').forEach(btn => {
+            btn.classList.remove('active');
+        });
+
+        // Show selected content
+        document.getElementById(tabId).classList.remove('hidden');
+        
+        // Add active class to clicked button
+        event.currentTarget.classList.add('active');
+    }
+
+    // Simple persistence logic
+    const checkboxes = document.querySelectorAll('input[type="checkbox"]');
+    checkboxes.forEach(cb => {
+        const saved = localStorage.getItem(cb.id);
+        if (saved === 'true') cb.checked = true;
+
+        cb.addEventListener('change', () => {
+            localStorage.setItem(cb.id, cb.checked);
+        });
+    });
+</script>
+
+</body>
+</html>

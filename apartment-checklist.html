@@ -1,0 +1,830 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Apartment Checklist</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=IBM+Plex+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#09090b;--s1:#111114;--s2:#18181c;--s3:#202024;
+  --border:rgba(255,255,255,0.07);--border-g:rgba(255,255,255,0.14);
+  --tx:#e8e8ec;--dim:#454548;--mid:#888890;
+  --acc:#c8a84a;--acc-b:#e8c870;--acc-d:#7a6428;
+  --green:#4aaa78;--red:#c46858;--blue:#6a9ab8;
+  --fd:'Playfair Display',serif;--fm:'IBM Plex Mono',monospace;
+}
+body.light{
+  --bg:#f5f5f0;--s1:#ebebE4;--s2:#deded6;--s3:#d0d0c8;
+  --border:rgba(0,0,0,0.08);--border-g:rgba(0,0,0,0.16);
+  --tx:#141412;--dim:#9a9a90;--mid:#505048;
+  --acc:#8a6820;--acc-b:#c09040;--acc-d:#5a4410;
+  --green:#1a7848;--red:#8a3828;--blue:#2a5878;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{background:var(--bg);color:var(--tx);font-family:var(--fm);font-size:12px;line-height:1.6;min-height:100vh;transition:background .25s,color .25s;}
+
+/* HEADER */
+.hdr{padding:24px 20px 18px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:10px;}
+.hdr-l .brand{font-size:8px;letter-spacing:0.25em;text-transform:uppercase;color:var(--acc-d);margin-bottom:4px;}
+.hdr-l .title{font-family:var(--fd);font-size:clamp(20px,4.5vw,30px);font-weight:400;line-height:1.1;}
+.hdr-l .title em{font-style:italic;color:var(--acc);}
+.hdr-r{display:flex;gap:7px;align-items:center;flex-wrap:wrap;}
+.hdr-btn{background:none;border:1px solid var(--border-g);border-radius:2px;color:var(--mid);font-family:var(--fm);font-size:8px;letter-spacing:0.1em;padding:5px 11px;cursor:pointer;transition:all .2s;white-space:nowrap;}
+.hdr-btn:hover,.hdr-btn.on{color:var(--acc);border-color:var(--acc);background:rgba(200,168,74,0.06);}
+
+/* SUMMARY */
+.summary{display:grid;grid-template-columns:repeat(5,1fr);gap:7px;padding:14px 20px;border-bottom:1px solid var(--border);}
+.sm-box{background:var(--s1);border:1px solid var(--border);border-radius:3px;padding:9px 11px;}
+.sm-val{font-family:var(--fd);font-size:18px;line-height:1;}
+.sm-val.green{color:var(--green);}
+.sm-val.gold{color:var(--acc);}
+.sm-val.red{color:var(--red);}
+.sm-lbl{font-size:7px;letter-spacing:0.1em;text-transform:uppercase;color:var(--dim);margin-top:2px;}
+
+/* NAV */
+.nav{display:flex;padding:0 20px;border-bottom:1px solid var(--border);overflow-x:auto;position:sticky;top:0;z-index:50;background:rgba(9,9,11,.97);backdrop-filter:blur(10px);}
+body.light .nav{background:rgba(245,245,240,.97);}
+.nt{font-size:8px;letter-spacing:0.12em;text-transform:uppercase;color:var(--dim);padding:11px 11px;cursor:pointer;border:none;border-bottom:2px solid transparent;background:none;font-family:var(--fm);white-space:nowrap;flex-shrink:0;transition:all .2s;}
+.nt:hover{color:var(--mid);}
+.nt.active{color:var(--acc);border-bottom-color:var(--acc);}
+
+/* CONTENT */
+.content{max-width:920px;margin:0 auto;padding:18px 16px 80px;}
+.page{display:none;}
+.page.active{display:block;}
+
+/* SEARCH */
+.search-bar{display:flex;gap:8px;margin-bottom:16px;align-items:center;}
+.search-inp{background:var(--s1);border:1px solid var(--border);border-radius:2px;color:var(--tx);font-family:var(--fm);font-size:11px;padding:7px 12px;outline:none;flex:1;transition:border-color .2s;}
+.search-inp:focus{border-color:var(--border-g);}
+.search-inp::placeholder{color:var(--dim);}
+.filter-btn{background:none;border:1px solid var(--border);border-radius:2px;color:var(--dim);font-family:var(--fm);font-size:8px;letter-spacing:0.08em;padding:5px 10px;cursor:pointer;transition:all .2s;white-space:nowrap;}
+.filter-btn:hover,.filter-btn.on{color:var(--acc);border-color:var(--acc);}
+
+/* CATEGORY */
+.cat{margin-bottom:22px;}
+.cat-hdr{display:flex;align-items:center;gap:10px;margin-bottom:9px;padding-bottom:7px;border-bottom:1px solid var(--border-g);cursor:pointer;user-select:none;}
+.cat-icon{font-size:16px;flex-shrink:0;}
+.cat-name{font-family:var(--fd);font-size:16px;font-style:italic;flex:1;}
+.cat-count{font-size:8px;color:var(--dim);letter-spacing:0.1em;}
+.cat-progress{font-size:8px;color:var(--green);}
+.cat-arrow{font-size:9px;color:var(--dim);transition:transform .2s;}
+.cat.collapsed .cat-arrow{transform:rotate(-90deg);}
+.cat-body{overflow:hidden;}
+.cat.collapsed .cat-body{display:none;}
+
+/* ITEM */
+.item{display:grid;grid-template-columns:20px 1fr 80px 110px 22px;gap:7px;align-items:start;padding:8px 10px;border-radius:2px;border:1px solid transparent;transition:all .15s;margin-bottom:3px;}
+.item:hover{background:var(--s1);border-color:var(--border);}
+.item.done{opacity:0.45;}
+.item.done .item-name{text-decoration:line-through;color:var(--dim);}
+.item-chk{width:14px;height:14px;border:1px solid var(--border-g);border-radius:2px;display:flex;align-items:center;justify-content:center;font-size:7px;flex-shrink:0;cursor:pointer;transition:all .15s;margin-top:1px;}
+.item.done .item-chk{background:var(--green);border-color:var(--green);color:var(--bg);}
+.item-name{font-size:11px;color:var(--tx);line-height:1.45;cursor:pointer;}
+.item-note{font-size:9px;color:var(--dim);margin-top:1px;font-style:italic;}
+.item-pri{font-size:7px;padding:2px 6px;border-radius:2px;letter-spacing:0.07em;margin-top:3px;display:inline-block;}
+.item-pri.p1{background:rgba(196,104,88,0.12);color:var(--red);border:1px solid rgba(196,104,88,0.25);}
+.item-pri.p2{background:rgba(200,168,72,0.1);color:var(--acc);border:1px solid rgba(200,168,72,0.2);}
+.item-pri.p3{background:rgba(74,170,120,0.08);color:var(--green);border:1px solid rgba(74,170,120,0.18);}
+.item-pri.p4{background:rgba(106,154,184,0.08);color:var(--blue);border:1px solid rgba(106,154,184,0.15);}
+.item-est{font-family:var(--fd);font-size:12px;color:var(--dim);text-align:right;padding-top:1px;}
+.item-price{background:var(--s2);border:1px solid var(--border);border-radius:2px;color:var(--tx);font-family:var(--fd);font-size:12px;width:100%;outline:none;padding:3px 6px;text-align:right;transition:border-color .15s;}
+.item-price:focus{border-color:var(--border-g);}
+.item-price::placeholder{color:var(--dim);}
+.item-del{background:none;border:none;color:var(--dim);cursor:pointer;font-size:11px;opacity:0;transition:all .15s;padding:1px 3px;}
+.item:hover .item-del{opacity:1;}
+.item-del:hover{color:var(--red);}
+
+/* CAT TOTAL */
+.cat-total{display:flex;justify-content:flex-end;align-items:center;gap:12px;padding:6px 10px;margin-top:4px;}
+.ct-lbl{font-size:8px;color:var(--dim);letter-spacing:0.1em;}
+.ct-val{font-family:var(--fd);font-size:14px;color:var(--acc);}
+
+/* ADD ITEM */
+.add-item-row{display:flex;gap:7px;margin-top:6px;flex-wrap:wrap;}
+.add-inp{background:var(--s2);border:1px solid var(--border);border-radius:2px;color:var(--tx);font-family:var(--fm);font-size:10px;padding:5px 9px;outline:none;flex:1;min-width:120px;}
+.add-inp::placeholder{color:var(--dim);}
+.add-btn{background:none;border:1px dashed var(--border-g);border-radius:2px;color:var(--dim);font-family:var(--fm);font-size:8px;letter-spacing:0.1em;padding:5px 12px;cursor:pointer;transition:all .2s;white-space:nowrap;}
+.add-btn:hover{color:var(--acc);border-color:var(--acc);}
+
+.grand-total{background:var(--s1);border:1px solid var(--border-g);border-radius:3px;padding:14px 16px;margin-top:18px;}
+.gt-row{display:flex;justify-content:space-between;align-items:center;padding:5px 0;border-bottom:1px solid var(--border);}
+.gt-row:last-child{border-bottom:none;padding-top:8px;}
+.gt-lbl{font-size:9px;color:var(--dim);letter-spacing:0.08em;}
+.gt-val{font-family:var(--fd);font-size:14px;color:var(--tx);}
+.gt-val.big{font-size:22px;color:var(--acc);}
+
+.toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%) translateY(44px);background:var(--s2);border:1px solid var(--border-g);color:var(--acc);font-size:8px;letter-spacing:0.1em;padding:8px 16px;border-radius:2px;transition:transform .38s cubic-bezier(.34,1.56,.64,1);z-index:999;white-space:nowrap;}
+.toast.show{transform:translateX(-50%) translateY(0);}
+.empty-search{text-align:center;padding:28px;font-family:var(--fd);font-style:italic;color:var(--dim);font-size:14px;}
+
+@media(max-width:560px){
+  .summary{grid-template-columns:1fr 1fr;}
+  .item{grid-template-columns:18px 1fr 90px 18px;}
+  .item-est{display:none;}
+  .content{padding:14px 10px 60px;}
+}
+</style>
+</head>
+<body>
+
+<div class="hdr">
+  <div class="hdr-l">
+    <div class="brand">Paul · Port Harcourt · One Bedroom</div>
+    <div class="title">Apartment <em>Checklist</em></div>
+  </div>
+  <div class="hdr-r">
+    <button class="hdr-btn" onclick="toggleTheme()">☀ / ☾</button>
+    <button class="hdr-btn" onclick="filterPending()" id="pendingBtn">Pending Only</button>
+    <button class="hdr-btn" onclick="exportSummary()">Export Summary</button>
+    <button class="hdr-btn on" onclick="saveAll()">Save</button>
+  </div>
+</div>
+
+<div class="summary">
+  <div class="sm-box"><div class="sm-val gold" id="smTotal">0</div><div class="sm-lbl">Total Items</div></div>
+  <div class="sm-box"><div class="sm-val green" id="smDone">0</div><div class="sm-lbl">Acquired</div></div>
+  <div class="sm-box"><div class="sm-val" id="smPending">0</div><div class="sm-lbl">Pending</div></div>
+  <div class="sm-box"><div class="sm-val gold" id="smSpent">₦0</div><div class="sm-lbl">Total Spent</div></div>
+  <div class="sm-box"><div class="sm-val" id="smPct">0%</div><div class="sm-lbl">Complete</div></div>
+</div>
+
+<nav class="nav" id="navBar"></nav>
+
+<div class="content">
+  <div class="search-bar">
+    <input class="search-inp" id="searchInp" placeholder="Search any item..." oninput="handleSearch()">
+    <button class="filter-btn" id="p1Btn" onclick="filterPriority(1,this)">Day One</button>
+    <button class="filter-btn" id="p2Btn" onclick="filterPriority(2,this)">Week One</button>
+    <button class="filter-btn" id="p3Btn" onclick="filterPriority(3,this)">Month One</button>
+    <button class="filter-btn" id="p4Btn" onclick="filterPriority(4,this)">Later</button>
+  </div>
+  <div id="pagesContainer"></div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ── DATA ──
+// Priority: 1=Day One, 2=Week One, 3=Month One, 4=Later/Nice-to-have
+// p = price hint (rough range), note = optional tip
+
+const CATEGORIES = [
+  {
+    id:'bedroom', icon:'🛏', name:'Bedroom',
+    items:[
+      {n:'Bed frame — double recommended',p:'',pri:1,note:'Solid wood or metal. Avoid chipboard in PH humidity.'},
+      {n:'Mattress — high density or orthopedic',p:'',pri:1,note:'The one item worth spending up on. Mouka or Vitafoam.'},
+      {n:'Bed slats or base board',p:'',pri:1},
+      {n:'Pillows (x2)',p:'',pri:1},
+      {n:'Pillow cases (x4)',p:'',pri:1},
+      {n:'Bedsheets — fitted (x2 sets)',p:'',pri:1,note:'Two sets so one is always clean.'},
+      {n:'Flat sheet or top sheet (x2)',p:'',pri:1},
+      {n:'Duvet or light blanket',p:'',pri:1,note:'PH is warm — light cotton duvet is enough.'},
+      {n:'Duvet cover (x2)',p:'',pri:1},
+      {n:'Mattress protector',p:'',pri:2},
+      {n:'Bedside table or surface',p:'',pri:2},
+      {n:'Bedside lamp — warm light',p:'',pri:1,note:'Critical for ambience. Warm white bulb only.'},
+      {n:'Wardrobe — full length',p:'',pri:2},
+      {n:'Wardrobe hangers (x20 minimum)',p:'',pri:2},
+      {n:'Chest of drawers',p:'',pri:3},
+      {n:'Full-length mirror',p:'',pri:2,note:'Makes room feel larger. High impact, low cost.'},
+      {n:'Curtains — blackout for bedroom',p:'',pri:1,note:'Blackout curtains transform sleep quality.'},
+      {n:'Curtain rods and fittings',p:'',pri:1},
+      {n:'Curtain hooks or rings',p:'',pri:1},
+      {n:'Rug — bedroom',p:'',pri:2,note:'Anchors the space. Adds warmth and texture.'},
+      {n:'Laundry basket',p:'',pri:2},
+      {n:'Under-bed storage boxes',p:'',pri:3},
+      {n:'Door hook or back-of-door rack',p:'',pri:3},
+      {n:'Alarm clock or bedside phone stand',p:'',pri:2},
+      {n:'Small fan or standing fan',p:'',pri:1,note:'PH heat is real.'},
+      {n:'Air conditioner (if budget allows)',p:'',pri:4},
+      {n:'Insect repellent / mosquito net',p:'',pri:1},
+      {n:'Torch / flashlight',p:'',pri:1,note:'For power cuts.'},
+    ]
+  },
+  {
+    id:'bathroom', icon:'🚿', name:'Bathroom',
+    items:[
+      {n:'Bath towels (x2)',p:'',pri:1},
+      {n:'Hand towels (x2)',p:'',pri:1},
+      {n:'Face towels (x2)',p:'',pri:1},
+      {n:'Towel rack or hooks',p:'',pri:1},
+      {n:'Bath mat — non-slip',p:'',pri:1},
+      {n:'Shower curtain + rail (if needed)',p:'',pri:1},
+      {n:'Shower curtain rings',p:'',pri:1},
+      {n:'Toilet brush + holder',p:'',pri:1},
+      {n:'Toilet roll holder',p:'',pri:1},
+      {n:'Toilet rolls (stock up)',p:'',pri:1},
+      {n:'Soap dish',p:'',pri:1},
+      {n:'Toothbrush holder',p:'',pri:1},
+      {n:'Toothbrush (x2 spare)',p:'',pri:1},
+      {n:'Toothpaste',p:'',pri:1},
+      {n:'Toothpicks',p:'',pri:2},
+      {n:'Floss',p:'',pri:2},
+      {n:'Mouthwash',p:'',pri:2},
+      {n:'Shampoo',p:'',pri:1},
+      {n:'Conditioner',p:'',pri:2},
+      {n:'Body wash / soap',p:'',pri:1},
+      {n:'Shaving kit / razor',p:'',pri:1},
+      {n:'Shaving cream or gel',p:'',pri:1},
+      {n:'Deodorant',p:'',pri:1},
+      {n:'Body lotion / moisturiser',p:'',pri:1},
+      {n:'Face wash',p:'',pri:1},
+      {n:'Bathroom bin + liner',p:'',pri:1},
+      {n:'Bathroom shelf or cabinet',p:'',pri:2},
+      {n:'Mirror — bathroom',p:'',pri:2},
+      {n:'Bucket (large) for water',p:'',pri:1},
+      {n:'Bucket (small) for washing',p:'',pri:1},
+      {n:'Shower cap',p:'',pri:3},
+      {n:'Nail clipper',p:'',pri:2},
+      {n:'Cotton buds',p:'',pri:2},
+      {n:'First aid kit — basic',p:'',pri:2,note:'Plasters, antiseptic, painkillers, thermometer.'},
+      {n:'Paracetamol / pain relief',p:'',pri:1},
+      {n:'Antiseptic cream',p:'',pri:2},
+      {n:'Plasters / bandages',p:'',pri:2},
+      {n:'Scale — bathroom',p:'',pri:4},
+    ]
+  },
+  {
+    id:'kitchen', icon:'🍳', name:'Kitchen',
+    items:[
+      {n:'Gas cooker — 1 or 2 burner',p:'',pri:1},
+      {n:'Gas cylinder',p:'',pri:1},
+      {n:'Gas hose and regulator',p:'',pri:1},
+      {n:'Gas lighter / matches',p:'',pri:1},
+      {n:'Cooking pot — medium (x1)',p:'',pri:1},
+      {n:'Cooking pot — large (x1)',p:'',pri:2},
+      {n:'Frying pan',p:'',pri:1},
+      {n:'Pot lids (if not included)',p:'',pri:1},
+      {n:'Wooden spoon / cooking spoon',p:'',pri:1},
+      {n:'Ladle',p:'',pri:1},
+      {n:'Spatula / turner',p:'',pri:1},
+      {n:'Serving spoon',p:'',pri:1},
+      {n:'Colander / strainer',p:'',pri:2},
+      {n:'Chopping board',p:'',pri:1},
+      {n:'Chef\'s knife',p:'',pri:1},
+      {n:'Paring knife',p:'',pri:2},
+      {n:'Knife block or magnetic strip',p:'',pri:3},
+      {n:'Can opener',p:'',pri:2},
+      {n:'Bottle opener / corkscrew',p:'',pri:2},
+      {n:'Grater',p:'',pri:2},
+      {n:'Peeler',p:'',pri:2},
+      {n:'Measuring cups and spoons',p:'',pri:2},
+      {n:'Mixing bowl (x2)',p:'',pri:2},
+      {n:'Plates — dinner (x4)',p:'',pri:1},
+      {n:'Plates — side / breakfast (x4)',p:'',pri:2},
+      {n:'Bowls (x4)',p:'',pri:1},
+      {n:'Cups / mugs (x4)',p:'',pri:1},
+      {n:'Glasses — drinking (x4)',p:'',pri:1},
+      {n:'Cutlery set — fork, knife, spoon (x4)',p:'',pri:1},
+      {n:'Teaspoons (x4)',p:'',pri:1},
+      {n:'Serving dish or tray',p:'',pri:2},
+      {n:'Kettle — electric or stovetop',p:'',pri:1,note:'Essential for hot water quickly.'},
+      {n:'Refrigerator — small to medium',p:'',pri:2},
+      {n:'Blender',p:'',pri:3},
+      {n:'Microwave (if fridge not enough)',p:'',pri:4},
+      {n:'Electric kettle (if stovetop not preferred)',p:'',pri:2},
+      {n:'Dish rack / drainer',p:'',pri:1},
+      {n:'Dish washing liquid',p:'',pri:1},
+      {n:'Dish sponge / scrubber (x3)',p:'',pri:1},
+      {n:'Dish cloth / kitchen towels',p:'',pri:1},
+      {n:'Rubber gloves — kitchen',p:'',pri:2},
+      {n:'Kitchen roll / paper towels',p:'',pri:2},
+      {n:'Aluminium foil',p:'',pri:3},
+      {n:'Cling film / food wrap',p:'',pri:3},
+      {n:'Zip-lock bags / food bags',p:'',pri:3},
+      {n:'Food storage containers (x4)',p:'',pri:2},
+      {n:'Tray or surface mat for cooker',p:'',pri:2},
+      {n:'Kitchen bin + liner bags',p:'',pri:1},
+      {n:'Kitchen shelf or rack',p:'',pri:2},
+      {n:'Apron',p:'',pri:3},
+      {n:'Oven mitts / pot holders',p:'',pri:2},
+      {n:'Bottle of cooking oil',p:'',pri:1},
+      {n:'Salt, pepper, seasoning cubes',p:'',pri:1},
+      {n:'Sugar',p:'',pri:1},
+      {n:'Tin of milk or creamer',p:'',pri:2},
+      {n:'Tea / coffee',p:'',pri:2},
+      {n:'Rice, pasta or staple (starter stock)',p:'',pri:1},
+      {n:'Toothpicks — kitchen',p:'',pri:2},
+      {n:'Water dispenser or filter',p:'',pri:3},
+      {n:'Electric hot plate (backup)',p:'',pri:4},
+    ]
+  },
+  {
+    id:'living', icon:'🛋', name:'Living / Sitting Area',
+    items:[
+      {n:'Comfortable chair or small sofa',p:'',pri:2,note:'Somewhere to sit that is not the bed or desk.'},
+      {n:'Side table or coffee table',p:'',pri:2},
+      {n:'Floor lamp or standing lamp',p:'',pri:1,note:'Warm light. Transforms the space.'},
+      {n:'LED strip lights — warm white',p:'',pri:2,note:'Behind furniture or along walls for ambient glow.'},
+      {n:'Rug — living area',p:'',pri:2},
+      {n:'Curtains — living area',p:'',pri:1},
+      {n:'Throw cushions (x2)',p:'',pri:3},
+      {n:'Throw blanket',p:'',pri:3},
+      {n:'Television',p:'',pri:4},
+      {n:'TV stand or mount',p:'',pri:4},
+      {n:'HDMI cable',p:'',pri:4},
+      {n:'Remote control shelf or holder',p:'',pri:4},
+      {n:'Bluetooth speaker',p:'',pri:3,note:'Sound shapes the space as much as sight.'},
+      {n:'Bookshelf or display shelves',p:'',pri:3},
+      {n:'Wall art — 1 or 2 considered pieces',p:'',pri:3,note:'One meaningful piece. Not decoration for decoration\'s sake.'},
+      {n:'Picture hooks and nails',p:'',pri:3},
+      {n:'Plant — indoor, low maintenance',p:'',pri:3,note:'Snake plant or pothos. Nearly indestructible.'},
+      {n:'Plant pot',p:'',pri:3},
+      {n:'Scent diffuser',p:'',pri:3,note:'Signature scent for the space. High ambience impact.'},
+      {n:'Diffuser oils or candles',p:'',pri:3},
+      {n:'Magazine rack or book display',p:'',pri:4},
+    ]
+  },
+  {
+    id:'workspace', icon:'💻', name:'Workspace / Desk',
+    items:[
+      {n:'Desk — solid, correct height, enough surface',p:'',pri:1,note:'Measure the room before buying. No compromise here.'},
+      {n:'Ergonomic desk chair — lumbar support',p:'',pri:1,note:'You\'ll sit here for hours. Back pain is expensive.'},
+      {n:'Desk lamp — warm, adjustable',p:'',pri:2},
+      {n:'Monitor or second screen (optional)',p:'',pri:4,note:'Second screen is useful for trading — chart + journal.'},
+      {n:'Monitor stand or arm',p:'',pri:4},
+      {n:'Laptop stand',p:'',pri:3},
+      {n:'External keyboard',p:'',pri:3},
+      {n:'Mouse + mouse pad',p:'',pri:3},
+      {n:'USB hub',p:'',pri:3},
+      {n:'Desk organiser / pen holder',p:'',pri:2},
+      {n:'Pen holder — multiple pens',p:'',pri:1,note:'Given your love of stationery — stock this well.'},
+      {n:'Pens — ballpoint, gel, fine liner',p:'',pri:1},
+      {n:'Pencils',p:'',pri:2},
+      {n:'Highlighters',p:'',pri:2},
+      {n:'Notebooks — multiple',p:'',pri:1,note:'One for trading, one for ideas, one for journaling.'},
+      {n:'Journals — ruled and blank',p:'',pri:1},
+      {n:'Sticky notes / Post-its',p:'',pri:2},
+      {n:'Ruler',p:'',pri:2},
+      {n:'Scissors',p:'',pri:2},
+      {n:'Stapler + staples',p:'',pri:3},
+      {n:'Paper clips and binder clips',p:'',pri:3},
+      {n:'Correction fluid or tape',p:'',pri:3},
+      {n:'Files and folders — A4',p:'',pri:2},
+      {n:'Document tray or inbox',p:'',pri:2},
+      {n:'Printer (if needed)',p:'',pri:4},
+      {n:'Printer paper — A4 ream',p:'',pri:3},
+      {n:'Whiteboard or cork board',p:'',pri:3},
+      {n:'Whiteboard markers and eraser',p:'',pri:3},
+      {n:'Drawing pins / thumbtacks',p:'',pri:3},
+      {n:'Calculator',p:'',pri:3},
+      {n:'Bookends',p:'',pri:3},
+      {n:'Tape — sellotape and masking',p:'',pri:2},
+      {n:'Glue stick and superglue',p:'',pri:2},
+      {n:'Paper — plain A4 (for notes)',p:'',pri:2},
+      {n:'Envelope collection',p:'',pri:3},
+    ]
+  },
+  {
+    id:'laundry', icon:'👕', name:'Laundry & Cleaning',
+    items:[
+      {n:'Washing basin — large',p:'',pri:1},
+      {n:'Washing board',p:'',pri:1},
+      {n:'Laundry detergent — powder or liquid',p:'',pri:1},
+      {n:'Fabric softener',p:'',pri:2},
+      {n:'Stain remover',p:'',pri:2},
+      {n:'Clothesline or drying rack',p:'',pri:1},
+      {n:'Clothespins / clothes pegs',p:'',pri:1},
+      {n:'Iron',p:'',pri:2,note:'For clothes and presentation.'},
+      {n:'Ironing board or mat',p:'',pri:2},
+      {n:'Broom',p:'',pri:1},
+      {n:'Dustpan and brush',p:'',pri:1},
+      {n:'Mop and bucket',p:'',pri:1},
+      {n:'Floor cleaner / disinfectant',p:'',pri:1},
+      {n:'All-purpose surface cleaner spray',p:'',pri:1},
+      {n:'Sponge scourers (x5)',p:'',pri:1},
+      {n:'Cleaning cloths / rags (x5)',p:'',pri:1},
+      {n:'Rubber gloves — cleaning',p:'',pri:1},
+      {n:'Toilet cleaner',p:'',pri:1},
+      {n:'Bleach',p:'',pri:1},
+      {n:'Air freshener — spray',p:'',pri:2},
+      {n:'Bin bags / refuse bags — large',p:'',pri:1},
+      {n:'Bin bags — small (for bathroom bins)',p:'',pri:1},
+      {n:'Washing machine (if budget allows)',p:'',pri:4},
+      {n:'Vacuum cleaner or dustbuster',p:'',pri:4},
+      {n:'Cobweb brush / long handle duster',p:'',pri:2},
+      {n:'Insecticide spray',p:'',pri:1,note:'PH insects are determined.'},
+      {n:'Cockroach chalk or bait',p:'',pri:1},
+      {n:'Rat poison or traps (precaution)',p:'',pri:2},
+    ]
+  },
+  {
+    id:'power', icon:'⚡', name:'Power & Tech',
+    items:[
+      {n:'Inverter — small (Luminous or Felicity)',p:'',pri:1,note:'Essential for trading continuity. 4–6hrs backup.'},
+      {n:'Inverter battery',p:'',pri:1},
+      {n:'Generator — small petrol (alternative)',p:'',pri:3},
+      {n:'Fuel can',p:'',pri:3},
+      {n:'Extension cord — 4 to 6 socket',p:'',pri:1},
+      {n:'Surge protector — for electronics',p:'',pri:1,note:'Nigerian voltage fluctuations are real.'},
+      {n:'Extension cord — long (10m)',p:'',pri:2},
+      {n:'Phone charger — fast charge',p:'',pri:1},
+      {n:'Spare phone charger',p:'',pri:2},
+      {n:'Laptop charger + spare',p:'',pri:1},
+      {n:'Power bank — high capacity',p:'',pri:2},
+      {n:'USB-C / multi cable set',p:'',pri:2},
+      {n:'Internet router — MTN 5G or similar',p:'',pri:1,note:'Starlink is best in PH if budget allows.'},
+      {n:'Starlink device + subscription',p:'',pri:3,note:'Best connection quality for trading sessions.'},
+      {n:'Ethernet cable',p:'',pri:3},
+      {n:'Lightbulbs — warm white E27 (x10)',p:'',pri:1,note:'Warm white only. 2700K–3000K.'},
+      {n:'Torch — rechargeable',p:'',pri:1},
+      {n:'Candles + matches (emergency)',p:'',pri:2},
+      {n:'Battery set — AA and AAA',p:'',pri:2},
+      {n:'Smoke detector',p:'',pri:3},
+      {n:'Fire extinguisher — small',p:'',pri:3},
+    ]
+  },
+  {
+    id:'water', icon:'💧', name:'Water & Storage',
+    items:[
+      {n:'Jerry cans — large (x3 minimum)',p:'',pri:1,note:'PH water supply is unreliable.'},
+      {n:'Buckets — large (x3)',p:'',pri:1},
+      {n:'Overhead tank (if landlord permits)',p:'',pri:3},
+      {n:'Water filter or dispenser',p:'',pri:3},
+      {n:'Drinking water — initial stock',p:'',pri:1},
+      {n:'Water storage drum',p:'',pri:2},
+    ]
+  },
+  {
+    id:'general', icon:'📦', name:'General & Around the House',
+    items:[
+      {n:'Toolbox — basic',p:'',pri:2,note:'Hammer, screwdrivers, pliers, measuring tape.'},
+      {n:'Hammer',p:'',pri:2},
+      {n:'Screwdriver set',p:'',pri:2},
+      {n:'Pliers',p:'',pri:2},
+      {n:'Measuring tape',p:'',pri:2},
+      {n:'Picture hanging kit — nails and hooks',p:'',pri:2},
+      {n:'WD-40 or lubricant',p:'',pri:3},
+      {n:'Superglue + general adhesive',p:'',pri:2},
+      {n:'Duct tape',p:'',pri:2},
+      {n:'Padlock — for gate or door',p:'',pri:1,note:'Security from day one.'},
+      {n:'Spare keys cut (x2)',p:'',pri:1},
+      {n:'Door mat — entrance',p:'',pri:2},
+      {n:'Shoe rack',p:'',pri:2},
+      {n:'Umbrella',p:'',pri:2},
+      {n:'Hangers — coat / heavy duty (x5)',p:'',pri:2},
+      {n:'Sewing kit — basic',p:'',pri:3},
+      {n:'Scissors — general purpose',p:'',pri:2},
+      {n:'Packing tape',p:'',pri:2},
+      {n:'Notepad by the door (messages)',p:'',pri:3},
+      {n:'Calendar — wall or desk',p:'',pri:2},
+      {n:'Clock — wall',p:'',pri:3},
+      {n:'Rubber bands and twine',p:'',pri:3},
+      {n:'Safety pins',p:'',pri:3},
+      {n:'Batteries — various sizes',p:'',pri:2},
+      {n:'Matches or lighters (x3)',p:'',pri:1},
+      {n:'Newspaper or old paper for packing',p:'',pri:2},
+      {n:'Plastic bags — assorted',p:'',pri:2},
+      {n:'Rope / cord — general purpose',p:'',pri:3},
+    ]
+  },
+  {
+    id:'personal', icon:'🧴', name:'Personal Care & Wardrobe',
+    items:[
+      {n:'Mirror — handheld or small',p:'',pri:2},
+      {n:'Perfume / cologne',p:'',pri:1,note:'You know this matters.'},
+      {n:'Skincare routine items',p:'',pri:1},
+      {n:'Hair products',p:'',pri:1},
+      {n:'Comb and hairbrush',p:'',pri:1},
+      {n:'Electric clipper or razor',p:'',pri:2},
+      {n:'Cotton pads',p:'',pri:2},
+      {n:'Medicine cabinet basics',p:'',pri:2,note:'Paracetamol, antacid, antihistamine, vitamin C.'},
+      {n:'Vitamin supplements',p:'',pri:3},
+      {n:'Laundry bag for delicates',p:'',pri:3},
+      {n:'Lint roller',p:'',pri:3},
+      {n:'Shoe care kit — polish, brush',p:'',pri:3},
+      {n:'Shoe horn',p:'',pri:3},
+      {n:'Clothes steamer (instead of iron)',p:'',pri:4},
+    ]
+  },
+  {
+    id:'documents', icon:'📋', name:'Documents & Admin',
+    items:[
+      {n:'Document folder / expanding file',p:'',pri:1,note:'Rent agreement, ID, receipts — keep them organised.'},
+      {n:'Plastic sleeves for documents',p:'',pri:2},
+      {n:'Label maker or labels',p:'',pri:3},
+      {n:'Stamps (for correspondence)',p:'',pri:3},
+      {n:'Safe or lockbox for important items',p:'',pri:3},
+      {n:'Business card holder',p:'',pri:3},
+      {n:'Receipt book',p:'',pri:2},
+    ]
+  },
+];
+
+// ── STATE ──
+const LS = 'apt_checklist_v1';
+let state = { done:{}, prices:{}, custom:{} };
+let activeFilter = null;
+let showPendingOnly = false;
+
+function load() {
+  try { const s=localStorage.getItem(LS); if(s) state=JSON.parse(s); } catch(e) {}
+}
+function saveAll() {
+  try { localStorage.setItem(LS, JSON.stringify(state)); } catch(e) {}
+  toast('Saved.');
+  updateSummary();
+}
+
+// ── RENDER ──
+function render() {
+  const navBar = document.getElementById('navBar');
+  const container = document.getElementById('pagesContainer');
+
+  // Build nav
+  navBar.innerHTML = CATEGORIES.map((cat,ci) => 
+    `<button class="nt ${ci===0?'active':''}" onclick="showCat(${ci},this)" id="nav_${cat.id}">${cat.icon} ${cat.name}</button>`
+  ).join('');
+
+  // Build pages
+  container.innerHTML = CATEGORIES.map((cat,ci) => `
+    <div class="page ${ci===0?'active':''}" id="page_${cat.id}">
+      ${renderCat(cat)}
+    </div>`).join('');
+
+  updateSummary();
+}
+
+function renderCat(cat) {
+  const items = cat.items;
+  const doneCount = items.filter((_,ii) => state.done[`${cat.id}_${ii}`]).length;
+
+  return `<div class="cat" id="cat_${cat.id}">
+    <div class="cat-hdr" onclick="togCat('${cat.id}')">
+      <div class="cat-icon">${cat.icon}</div>
+      <div class="cat-name">${cat.name}</div>
+      <div class="cat-count">${items.length} items</div>
+      <div class="cat-progress">${doneCount}/${items.length} done</div>
+      <div class="cat-arrow">▾</div>
+    </div>
+    <div class="cat-body">
+      ${items.map((item,ii) => renderItem(cat.id, ii, item)).join('')}
+      ${renderCustomItems(cat.id)}
+      <div class="add-item-row">
+        <input class="add-inp" id="addInp_${cat.id}" placeholder="Add custom item...">
+        <input class="add-inp" id="addNote_${cat.id}" placeholder="Note (optional)" style="max-width:200px">
+        <button class="add-btn" onclick="addCustomItem('${cat.id}')">+ Add</button>
+      </div>
+      <div class="cat-total">
+        <div class="ct-lbl">Category spent:</div>
+        <div class="ct-val" id="catTotal_${cat.id}">₦0</div>
+      </div>
+    </div>
+  </div>`;
+}
+
+function renderItem(catId, ii, item) {
+  const key = `${catId}_${ii}`;
+  const done = state.done[key];
+  const price = state.prices[key] || '';
+  const priClass = ['','p1','p2','p3','p4'][item.pri||3];
+  const priLabel = ['','Day One','Week One','Month One','Later'][item.pri||3];
+  return `<div class="item ${done?'done':''}" id="item_${key}">
+    <div class="item-chk" onclick="togItem('${key}',this)">${done?'✓':''}</div>
+    <div onclick="togItem('${key}',document.querySelector('#item_${key} .item-chk'))">
+      <div class="item-name">${item.n}</div>
+      ${item.note?`<div class="item-note">${item.note}</div>`:''}
+      <span class="item-pri ${priClass}">${priLabel}</span>
+    </div>
+    <div class="item-est">${item.p||'—'}</div>
+    <input class="item-price" placeholder="₦ price" value="${price}" oninput="setPrice('${key}',this.value)" onclick="event.stopPropagation()">
+    <button class="item-del" onclick="event.stopPropagation()" title="Remove">✕</button>
+  </div>`;
+}
+
+function renderCustomItems(catId) {
+  const customs = state.custom[catId] || [];
+  return customs.map((item,ci) => {
+    const key = `${catId}_custom_${ci}`;
+    const done = state.done[key];
+    const price = state.prices[key] || '';
+    return `<div class="item ${done?'done':''}" id="item_${key}" style="border-color:rgba(200,168,74,0.15)">
+      <div class="item-chk" onclick="togItem('${key}',this)">${done?'✓':''}</div>
+      <div onclick="togItem('${key}',document.querySelector('#item_${key} .item-chk'))">
+        <div class="item-name">${item.n}</div>
+        ${item.note?`<div class="item-note">${item.note}</div>`:''}
+        <span class="item-pri p3">Custom</span>
+      </div>
+      <div class="item-est">—</div>
+      <input class="item-price" placeholder="₦ price" value="${price}" oninput="setPrice('${key}',this.value)" onclick="event.stopPropagation()">
+      <button class="item-del" onclick="removeCustom('${catId}',${ci})">✕</button>
+    </div>`;
+  }).join('');
+}
+
+// ── ACTIONS ──
+function togItem(key, chkEl) {
+  state.done[key] = !state.done[key];
+  const row = document.getElementById('item_'+key);
+  if(row) {
+    row.classList.toggle('done', state.done[key]);
+    chkEl.textContent = state.done[key] ? '✓' : '';
+  }
+  updateCatTotal(key.split('_')[0]);
+  updateSummary();
+}
+
+function setPrice(key, val) {
+  state.prices[key] = val;
+  updateCatTotal(key.split('_')[0]);
+  updateSummary();
+}
+
+function togCat(id) {
+  document.getElementById('cat_'+id)?.classList.toggle('collapsed');
+}
+
+function showCat(ci, btn) {
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.nt').forEach(t=>t.classList.remove('active'));
+  const cat = CATEGORIES[ci];
+  document.getElementById('page_'+cat.id).classList.add('active');
+  btn.classList.add('active');
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+function addCustomItem(catId) {
+  const nameInp = document.getElementById('addInp_'+catId);
+  const noteInp = document.getElementById('addNote_'+catId);
+  const name = nameInp.value.trim();
+  if(!name) return;
+  if(!state.custom[catId]) state.custom[catId] = [];
+  state.custom[catId].push({n:name, note:noteInp.value.trim()});
+  nameInp.value = ''; noteInp.value = '';
+  saveAll();
+  // Re-render this category page
+  const cat = CATEGORIES.find(c=>c.id===catId);
+  document.getElementById('page_'+catId).innerHTML = renderCat(cat);
+  updateCatTotal(catId);
+}
+
+function removeCustom(catId, ci) {
+  if(!state.custom[catId]) return;
+  state.custom[catId].splice(ci,1);
+  saveAll();
+  const cat = CATEGORIES.find(c=>c.id===catId);
+  document.getElementById('page_'+catId).innerHTML = renderCat(cat);
+  updateCatTotal(catId);
+}
+
+function updateCatTotal(catId) {
+  let total = 0;
+  Object.keys(state.prices).forEach(key => {
+    if(key.startsWith(catId+'_')) {
+      total += parseNum(state.prices[key]);
+    }
+  });
+  const el = document.getElementById('catTotal_'+catId);
+  if(el) el.textContent = total ? '₦'+fmtNum(total) : '₦0';
+}
+
+function updateSummary() {
+  let total=0, done=0, spent=0;
+  CATEGORIES.forEach(cat => {
+    cat.items.forEach((_,ii) => {
+      total++;
+      const key=`${cat.id}_${ii}`;
+      if(state.done[key]) done++;
+      spent += parseNum(state.prices[key]||'0');
+    });
+    (state.custom[cat.id]||[]).forEach((_,ci) => {
+      total++;
+      const key=`${cat.id}_custom_${ci}`;
+      if(state.done[key]) done++;
+      spent += parseNum(state.prices[key]||'0');
+    });
+  });
+  const pending = total-done;
+  const pct = total ? Math.round((done/total)*100) : 0;
+  setText('smTotal',total);
+  setText('smDone',done);
+  setText('smPending',pending);
+  setText('smSpent','₦'+fmtNum(spent));
+  setText('smPct',pct+'%');
+  CATEGORIES.forEach(cat => updateCatTotal(cat.id));
+}
+
+// ── SEARCH ──
+let activeFilterPri = null;
+let pendingFilter = false;
+
+function handleSearch() {
+  const q = document.getElementById('searchInp').value.toLowerCase().trim();
+  if(!q) { renderAll(); return; }
+
+  const container = document.getElementById('pagesContainer');
+  let html = '<div class="cat"><div class="cat-hdr" style="cursor:default"><div class="cat-name">Search Results</div></div><div class="cat-body">';
+  let count = 0;
+  CATEGORIES.forEach(cat => {
+    cat.items.forEach((item,ii) => {
+      if(item.n.toLowerCase().includes(q)||(item.note||'').toLowerCase().includes(q)) {
+        html += renderItem(cat.id,ii,item);
+        count++;
+      }
+    });
+  });
+  if(!count) html += '<div class="empty-search">No items found matching "'+q+'"</div>';
+  html += '</div></div>';
+  container.innerHTML = html;
+  document.querySelectorAll('.nt').forEach(t=>t.classList.remove('active'));
+}
+
+function filterPriority(pri, btn) {
+  document.getElementById('searchInp').value='';
+  if(activeFilterPri===pri) {
+    activeFilterPri=null;
+    btn.classList.remove('on');
+    renderAll(); return;
+  }
+  activeFilterPri=pri;
+  document.querySelectorAll('.filter-btn').forEach(b=>b.classList.remove('on'));
+  btn.classList.add('on');
+  const labels=['','Day One','Week One','Month One','Later'];
+  const container=document.getElementById('pagesContainer');
+  let html=`<div class="cat"><div class="cat-hdr" style="cursor:default"><div class="cat-name">${labels[pri]} Items</div></div><div class="cat-body">`;
+  let count=0;
+  CATEGORIES.forEach(cat=>{
+    cat.items.forEach((item,ii)=>{
+      if(item.pri===pri){html+=renderItem(cat.id,ii,item);count++;}
+    });
+  });
+  if(!count) html+='<div class="empty-search">No items in this priority.</div>';
+  html+='</div></div>';
+  container.innerHTML=html;
+  document.querySelectorAll('.nt').forEach(t=>t.classList.remove('active'));
+}
+
+function filterPending() {
+  document.getElementById('searchInp').value='';
+  pendingFilter=!pendingFilter;
+  document.getElementById('pendingBtn').classList.toggle('on',pendingFilter);
+  if(!pendingFilter){renderAll();return;}
+  const container=document.getElementById('pagesContainer');
+  let html='<div class="cat"><div class="cat-hdr" style="cursor:default"><div class="cat-name">Pending Items</div></div><div class="cat-body">';
+  let count=0;
+  CATEGORIES.forEach(cat=>{
+    cat.items.forEach((item,ii)=>{
+      const key=`${cat.id}_${ii}`;
+      if(!state.done[key]){html+=renderItem(cat.id,ii,item);count++;}
+    });
+  });
+  if(!count) html+='<div class="empty-search">Everything is acquired. 🎉</div>';
+  html+='</div></div>';
+  container.innerHTML=html;
+  document.querySelectorAll('.nt').forEach(t=>t.classList.remove('active'));
+}
+
+function renderAll() {
+  document.getElementById('pagesContainer').innerHTML=CATEGORIES.map((cat,ci)=>
+    `<div class="page ${ci===0?'active':''}" id="page_${cat.id}">${renderCat(cat)}</div>`
+  ).join('');
+  document.querySelectorAll('.nt').forEach((t,i)=>t.classList.toggle('active',i===0));
+  updateSummary();
+}
+
+function exportSummary() {
+  let txt='APARTMENT CHECKLIST SUMMARY\n'+'='.repeat(40)+'\n\n';
+  let totalSpent=0;
+  CATEGORIES.forEach(cat=>{
+    let catSpent=0, catDone=0;
+    txt+=`\n${cat.icon} ${cat.name.toUpperCase()}\n${'-'.repeat(30)}\n`;
+    cat.items.forEach((item,ii)=>{
+      const key=`${cat.id}_${ii}`;
+      const done=state.done[key];
+      const price=parseNum(state.prices[key]||'0');
+      catSpent+=price; if(done) catDone++;
+      txt+=`${done?'[x]':'[ ]'} ${item.n}${price?' — ₦'+fmtNum(price):''}\n`;
+    });
+    txt+=`\nCategory total: ₦${fmtNum(catSpent)} | ${catDone}/${cat.items.length} done\n`;
+    totalSpent+=catSpent;
+  });
+  txt+='\n'+'='.repeat(40)+'\nTOTAL SPENT: ₦'+fmtNum(totalSpent);
+  const blob=new Blob([txt],{type:'text/plain'});
+  const a=document.createElement('a'); a.href=URL.createObjectURL(blob);
+  a.download='apartment-checklist.txt'; a.click();
+  toast('Summary exported.');
+}
+
+// ── UTILS ──
+function parseNum(s){return parseFloat(String(s).replace(/[₦,\s]/g,''))||0;}
+function fmtNum(n){return Math.round(n).toLocaleString();}
+function setText(id,v){const el=document.getElementById(id);if(el)el.textContent=v;}
+function toggleTheme(){
+  document.body.classList.toggle('light');
+  try{localStorage.setItem('apt_theme',document.body.classList.contains('light')?'light':'dark');}catch(e){}
+}
+function toast(msg){
+  const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'),2200);
+}
+
+// ── INIT ──
+load();
+try{if(localStorage.getItem('apt_theme')==='light')document.body.classList.add('light');}catch(e){}
+render();
+</script>
+</body>
+</html>

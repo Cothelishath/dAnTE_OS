@@ -1,0 +1,476 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MSc Engineering Management — Comparison</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0e0e0f;--surface:#161618;--surface2:#1e1e21;
+  --border:#2a2a2e;--border-gold:rgba(201,169,110,0.28);
+  --gold:#c9a96e;--gold-dim:#7a6040;
+  --text:#e8e6e0;--text-mid:#8a8880;--text-dim:#4a4845;
+  --green:#7eb8a4;--red:#e07e7e;--blue:#7ea8c9;--purple:#a07ec9;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{background:var(--bg);color:var(--text);font-family:'DM Mono',monospace;font-size:13px;line-height:1.6;}
+body.light{--bg:#f5f2ec;--surface:#edeae2;--surface2:#e4e0d6;--border:#d0ccc0;--text:#1a1916;--text-mid:#6b6860;--text-dim:#b0aca4;}
+
+.header{padding:48px 44px 36px;border-bottom:1px solid var(--border);position:relative;overflow:hidden;}
+.header::before{content:'';position:absolute;top:-80px;right:-80px;width:400px;height:400px;border-radius:50%;background:radial-gradient(circle,rgba(201,169,110,0.05) 0%,transparent 70%);pointer-events:none;}
+.h-eye{font-size:10px;letter-spacing:0.3em;text-transform:uppercase;color:var(--gold-dim);margin-bottom:12px;}
+.h-title{font-family:'Cormorant Garamond',serif;font-size:clamp(32px,5vw,52px);font-weight:300;line-height:1.1;margin-bottom:8px;}
+.h-title em{font-style:italic;color:var(--gold);}
+.h-sub{font-size:10px;color:var(--text-mid);letter-spacing:0.15em;}
+.h-controls{position:absolute;top:48px;right:44px;}
+.ctrl{background:var(--surface2);border:1px solid var(--border);color:var(--text-mid);padding:6px 14px;cursor:pointer;font-family:'DM Mono',monospace;font-size:10px;letter-spacing:0.1em;transition:all 0.2s;}
+.ctrl:hover{border-color:var(--border-gold);color:var(--gold);}
+
+.body{max-width:1100px;margin:0 auto;padding:44px 44px 80px;}
+
+/* BENCHMARK */
+.benchmark{background:var(--surface);border:1px solid var(--border-gold);border-radius:3px;padding:20px 24px;margin-bottom:36px;}
+.bm-label{font-size:9px;letter-spacing:0.28em;text-transform:uppercase;color:var(--gold-dim);margin-bottom:10px;}
+.bm-text{font-size:11px;color:var(--text-mid);line-height:1.75;}
+.bm-text strong{color:var(--text);}
+.bm-subjects{display:flex;flex-wrap:wrap;gap:6px;margin-top:12px;}
+.bm-tag{font-size:9px;padding:3px 10px;border:1px solid var(--border);color:var(--text-dim);letter-spacing:0.08em;}
+.bm-tag.core{border-color:rgba(201,169,110,0.3);color:var(--gold);}
+
+/* SECTION */
+.section{margin-bottom:44px;}
+.sec-head{display:flex;align-items:center;gap:14px;margin-bottom:20px;padding-bottom:10px;border-bottom:1px solid var(--border);}
+.sec-line{width:28px;height:1px;background:var(--gold);}
+.sec-title{font-size:9px;letter-spacing:0.3em;text-transform:uppercase;color:var(--gold-dim);}
+
+/* INSTITUTION CARDS */
+.inst-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:24px;}
+.inst-card{background:var(--surface);border:1px solid var(--border);border-radius:3px;overflow:hidden;transition:border-color 0.2s;}
+.inst-card:hover{border-color:var(--border-gold);}
+.inst-card.recommended{border-color:rgba(201,169,110,0.4);}
+.inst-card.recommended::after{content:'RECOMMENDED';position:absolute;top:14px;right:14px;font-size:7px;letter-spacing:0.22em;color:var(--gold);border:1px solid var(--border-gold);padding:2px 7px;}
+.inst-card{position:relative;}
+.ic-head{padding:16px 18px 12px;border-bottom:1px solid var(--border);}
+.ic-country{font-size:8px;letter-spacing:0.22em;text-transform:uppercase;color:var(--text-dim);margin-bottom:4px;}
+.ic-name{font-family:'Cormorant Garamond',serif;font-size:20px;font-weight:400;color:var(--text);margin-bottom:3px;}
+.ic-prog{font-size:10px;color:var(--text-mid);}
+.ic-body{padding:14px 18px;}
+.ic-row{display:flex;gap:10px;padding:5px 0;border-bottom:1px solid var(--border);font-size:10px;}
+.ic-row:last-child{border-bottom:none;}
+.ic-key{color:var(--text-dim);width:90px;flex-shrink:0;}
+.ic-val{color:var(--text-mid);flex:1;}
+.ic-val.highlight{color:var(--gold);}
+.ic-val.good{color:var(--green);}
+.ic-val.concern{color:var(--red);}
+
+/* COMPARISON TABLE */
+.comp-table{border:1px solid var(--border);border-radius:3px;overflow:hidden;margin-bottom:24px;}
+.ct-head{display:grid;grid-template-columns:180px repeat(5,1fr);background:var(--surface2);border-bottom:1px solid var(--border);}
+.ct-row{display:grid;grid-template-columns:180px repeat(5,1fr);border-bottom:1px solid var(--border);transition:background 0.2s;}
+.ct-row:last-child{border-bottom:none;}
+.ct-row:hover{background:rgba(255,255,255,0.015);}
+.ct-cell{padding:10px 12px;font-size:10px;border-right:1px solid var(--border);}
+.ct-cell:last-child{border-right:none;}
+.ct-head .ct-cell{font-size:8px;letter-spacing:0.18em;text-transform:uppercase;color:var(--text-dim);}
+.ct-cell.criterion{color:var(--text-mid);}
+.score-5{color:var(--green);font-weight:500;}
+.score-4{color:#a0c880;}
+.score-3{color:var(--gold);}
+.score-2{color:#c8a060;}
+.score-1{color:var(--red);}
+.inst-name-cell{font-size:9px;color:var(--gold);letter-spacing:0.08em;}
+
+/* CURRICULUM MATCH */
+.curr-section{margin-bottom:32px;}
+.curr-inst{margin-bottom:20px;}
+.curr-inst-name{font-size:10px;color:var(--gold);letter-spacing:0.15em;text-transform:uppercase;margin-bottom:8px;padding-bottom:6px;border-bottom:1px solid var(--border);}
+.curr-subjects{display:flex;flex-wrap:wrap;gap:5px;}
+.cs-tag{font-size:9px;padding:3px 10px;border-radius:2px;letter-spacing:0.06em;}
+.cs-match{background:rgba(126,184,164,0.1);border:1px solid rgba(126,184,164,0.25);color:var(--green);}
+.cs-partial{background:rgba(201,169,110,0.08);border:1px solid rgba(201,169,110,0.22);color:var(--gold);}
+.cs-miss{background:rgba(74,72,69,0.3);border:1px solid var(--border);color:var(--text-dim);}
+
+/* DECISION */
+.decision-block{background:var(--surface);border:1px solid var(--border-gold);border-radius:3px;padding:24px 28px;margin-bottom:28px;}
+.db-label{font-size:9px;letter-spacing:0.28em;text-transform:uppercase;color:var(--gold-dim);margin-bottom:14px;}
+.db-rec{font-family:'Cormorant Garamond',serif;font-size:22px;color:var(--gold);margin-bottom:12px;line-height:1.3;}
+.db-rec em{font-style:italic;}
+.db-rationale{font-size:11px;color:var(--text-mid);line-height:1.8;}
+.db-rationale strong{color:var(--text);}
+
+/* NEXT STEPS */
+.next-list{display:flex;flex-direction:column;gap:7px;}
+.next-item{display:flex;gap:14px;padding:11px 16px;background:var(--surface);border:1px solid var(--border);border-radius:2px;}
+.ni-num{font-size:9px;color:var(--gold-dim);width:20px;flex-shrink:0;padding-top:2px;}
+.ni-text{font-size:11px;color:var(--text-mid);flex:1;line-height:1.6;}
+.ni-text strong{color:var(--text);}
+.ni-when{font-size:9px;color:var(--gold);margin-top:3px;}
+
+.footnote{font-family:'Cormorant Garamond',serif;font-style:italic;font-size:15px;color:var(--text-dim);text-align:center;padding:32px 0;border-top:1px solid var(--border);margin-top:44px;}
+
+@media(max-width:700px){
+  .header{padding:32px 20px 24px;}.h-controls{display:none;}
+  .body{padding:24px 20px 60px;}
+  .inst-grid{grid-template-columns:1fr;}
+  .ct-head,.ct-row{grid-template-columns:120px repeat(3,1fr);}
+  .ct-cell:nth-child(4),.ct-cell:nth-child(5),.ct-cell:nth-child(6){display:none;}
+}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="h-eye">MSc Decision — May 2026</div>
+  <div class="h-title">Engineering <em>Management</em><br>Programme Comparison</div>
+  <div class="h-sub">Paul Bassey · Shortlist of 10 · Decision by 31 May 2026</div>
+  <div class="h-controls">
+    <button class="ctrl" onclick="document.body.classList.toggle('light')">☀ / ☾</button>
+  </div>
+</div>
+
+<div class="body">
+
+  <!-- BENCHMARK -->
+  <div class="benchmark">
+    <div class="bm-label">8-Subject Curriculum Benchmark</div>
+    <div class="bm-text">The ideal MSc Engineering Management programme covers these eight subject areas. Not all need to be exact matches — <strong>6 of 8 is the minimum acceptable score.</strong></div>
+    <div class="bm-subjects">
+      <span class="bm-tag core">Project Management</span>
+      <span class="bm-tag core">Engineering Economics / Finance</span>
+      <span class="bm-tag core">Operations Management</span>
+      <span class="bm-tag core">Strategic Management</span>
+      <span class="bm-tag core">Leadership & Organisational Behaviour</span>
+      <span class="bm-tag core">Risk & Decision Analysis</span>
+      <span class="bm-tag core">Innovation & Technology Management</span>
+      <span class="bm-tag core">Research Methods / Dissertation</span>
+    </div>
+  </div>
+
+  <!-- INSTITUTION CARDS -->
+  <div class="section">
+    <div class="sec-head"><div class="sec-line"></div><div class="sec-title">Shortlisted Institutions</div></div>
+    <div class="inst-grid">
+
+      <div class="inst-card recommended">
+        <div class="ic-head">
+          <div class="ic-country">🇬🇧 United Kingdom</div>
+          <div class="ic-name">University of Strathclyde</div>
+          <div class="ic-prog">MSc Engineering Management</div>
+        </div>
+        <div class="ic-body">
+          <div class="ic-row"><div class="ic-key">Duration</div><div class="ic-val">1 year full-time / 2 part-time</div></div>
+          <div class="ic-row"><div class="ic-key">Mode</div><div class="ic-val good">Online available</div></div>
+          <div class="ic-row"><div class="ic-key">Ranking</div><div class="ic-val highlight">Top 15 UK Engineering</div></div>
+          <div class="ic-row"><div class="ic-key">Entry</div><div class="ic-val">2:1 Engineering degree</div></div>
+          <div class="ic-row"><div class="ic-key">Tuition</div><div class="ic-val">~£10,500 (int'l online)</div></div>
+          <div class="ic-row"><div class="ic-key">Curriculum fit</div><div class="ic-val good">7/8 subjects matched</div></div>
+          <div class="ic-row"><div class="ic-key">Strong in</div><div class="ic-val">PM, Operations, Finance, Risk</div></div>
+        </div>
+      </div>
+
+      <div class="inst-card">
+        <div class="ic-head">
+          <div class="ic-country">🇬🇧 United Kingdom</div>
+          <div class="ic-name">University of Bath</div>
+          <div class="ic-prog">MSc Engineering Management</div>
+        </div>
+        <div class="ic-body">
+          <div class="ic-row"><div class="ic-key">Duration</div><div class="ic-val">1 year full-time</div></div>
+          <div class="ic-row"><div class="ic-key">Mode</div><div class="ic-val concern">On-campus only</div></div>
+          <div class="ic-row"><div class="ic-key">Ranking</div><div class="ic-val highlight">Top 10 UK overall</div></div>
+          <div class="ic-row"><div class="ic-key">Entry</div><div class="ic-val">2:1 Engineering degree</div></div>
+          <div class="ic-row"><div class="ic-key">Tuition</div><div class="ic-val">~£24,000 (int'l)</div></div>
+          <div class="ic-row"><div class="ic-key">Curriculum fit</div><div class="ic-val good">7/8 subjects matched</div></div>
+          <div class="ic-row"><div class="ic-key">Strong in</div><div class="ic-val">Innovation, Strategy, Leadership</div></div>
+        </div>
+      </div>
+
+      <div class="inst-card">
+        <div class="ic-head">
+          <div class="ic-country">🇬🇧 United Kingdom</div>
+          <div class="ic-name">University of Leeds</div>
+          <div class="ic-prog">MSc Engineering Management</div>
+        </div>
+        <div class="ic-body">
+          <div class="ic-row"><div class="ic-key">Duration</div><div class="ic-val">1 year full-time / flexible</div></div>
+          <div class="ic-row"><div class="ic-key">Mode</div><div class="ic-val">Campus + some online</div></div>
+          <div class="ic-row"><div class="ic-key">Ranking</div><div class="ic-val">Russell Group, strong eng.</div></div>
+          <div class="ic-row"><div class="ic-key">Entry</div><div class="ic-val">2:1 Engineering degree</div></div>
+          <div class="ic-row"><div class="ic-key">Tuition</div><div class="ic-val">~£27,000 (int'l)</div></div>
+          <div class="ic-row"><div class="ic-key">Curriculum fit</div><div class="ic-val">6/8 subjects matched</div></div>
+          <div class="ic-row"><div class="ic-key">Strong in</div><div class="ic-val">PM, Operations, Research</div></div>
+        </div>
+      </div>
+
+      <div class="inst-card">
+        <div class="ic-head">
+          <div class="ic-country">🇬🇧 United Kingdom</div>
+          <div class="ic-name">King's College London</div>
+          <div class="ic-prog">MSc Engineering Management</div>
+        </div>
+        <div class="ic-body">
+          <div class="ic-row"><div class="ic-key">Duration</div><div class="ic-val">1 year full-time</div></div>
+          <div class="ic-row"><div class="ic-key">Mode</div><div class="ic-val concern">On-campus London</div></div>
+          <div class="ic-row"><div class="ic-key">Ranking</div><div class="ic-val highlight">Top 40 global (QS)</div></div>
+          <div class="ic-row"><div class="ic-key">Entry</div><div class="ic-val">2:1 Engineering degree</div></div>
+          <div class="ic-row"><div class="ic-key">Tuition</div><div class="ic-val">~£29,000 (int'l)</div></div>
+          <div class="ic-row"><div class="ic-key">Curriculum fit</div><div class="ic-val">6/8 subjects matched</div></div>
+          <div class="ic-row"><div class="ic-key">Strong in</div><div class="ic-val">Strategy, Innovation, London network</div></div>
+        </div>
+      </div>
+
+      <div class="inst-card">
+        <div class="ic-head">
+          <div class="ic-country">🇬🇧 United Kingdom</div>
+          <div class="ic-name">Cranfield University</div>
+          <div class="ic-prog">MSc Engineering Management</div>
+        </div>
+        <div class="ic-body">
+          <div class="ic-row"><div class="ic-key">Duration</div><div class="ic-val">1 year full-time</div></div>
+          <div class="ic-row"><div class="ic-key">Mode</div><div class="ic-val">Campus (engineering specialist)</div></div>
+          <div class="ic-row"><div class="ic-key">Ranking</div><div class="ic-val highlight">No.1 UK postgrad engineering</div></div>
+          <div class="ic-row"><div class="ic-key">Entry</div><div class="ic-val">2:1 + 2yrs experience preferred</div></div>
+          <div class="ic-row"><div class="ic-key">Tuition</div><div class="ic-val">~£20,000 (int'l)</div></div>
+          <div class="ic-row"><div class="ic-key">Curriculum fit</div><div class="ic-val good">8/8 subjects matched</div></div>
+          <div class="ic-row"><div class="ic-key">Strong in</div><div class="ic-val">All 8 core areas. Industry-linked.</div></div>
+        </div>
+      </div>
+
+      <div class="inst-card">
+        <div class="ic-head">
+          <div class="ic-country">🇬🇧 United Kingdom</div>
+          <div class="ic-name">University of Warwick</div>
+          <div class="ic-prog">MSc Engineering Business Management</div>
+        </div>
+        <div class="ic-body">
+          <div class="ic-row"><div class="ic-key">Duration</div><div class="ic-val">1 year full-time</div></div>
+          <div class="ic-row"><div class="ic-key">Mode</div><div class="ic-val">Campus</div></div>
+          <div class="ic-row"><div class="ic-key">Ranking</div><div class="ic-val">Top 10 UK, WBS ranked highly</div></div>
+          <div class="ic-row"><div class="ic-key">Entry</div><div class="ic-val">2:1 Engineering or technical</div></div>
+          <div class="ic-row"><div class="ic-key">Tuition</div><div class="ic-val">~£26,000 (int'l)</div></div>
+          <div class="ic-row"><div class="ic-key">Curriculum fit</div><div class="ic-val good">7/8 subjects matched</div></div>
+          <div class="ic-row"><div class="ic-key">Strong in</div><div class="ic-val">Business integration, Strategy, Ops</div></div>
+        </div>
+      </div>
+
+      <div class="inst-card">
+        <div class="ic-head">
+          <div class="ic-country">🇳🇬 Nigeria</div>
+          <div class="ic-name">University of Port Harcourt</div>
+          <div class="ic-prog">MSc Engineering Management</div>
+        </div>
+        <div class="ic-body">
+          <div class="ic-row"><div class="ic-key">Duration</div><div class="ic-val">18–24 months</div></div>
+          <div class="ic-row"><div class="ic-key">Mode</div><div class="ic-val good">Local — no relocation</div></div>
+          <div class="ic-row"><div class="ic-key">Ranking</div><div class="ic-val">Strong local standing</div></div>
+          <div class="ic-row"><div class="ic-key">Entry</div><div class="ic-val">2:1 Engineering degree</div></div>
+          <div class="ic-row"><div class="ic-key">Tuition</div><div class="ic-val good">Significantly lower cost</div></div>
+          <div class="ic-row"><div class="ic-key">Curriculum fit</div><div class="ic-val">Pending verification — est. 5/8</div></div>
+          <div class="ic-row"><div class="ic-key">Advantage</div><div class="ic-val">Work continues. Zero relocation cost.</div></div>
+        </div>
+      </div>
+
+      <div class="inst-card">
+        <div class="ic-head">
+          <div class="ic-country">🇳🇬 Nigeria</div>
+          <div class="ic-name">University of Lagos / ABU</div>
+          <div class="ic-prog">MSc Engineering Management</div>
+        </div>
+        <div class="ic-body">
+          <div class="ic-row"><div class="ic-key">Duration</div><div class="ic-val">18–24 months</div></div>
+          <div class="ic-row"><div class="ic-key">Mode</div><div class="ic-val">Part-time possible</div></div>
+          <div class="ic-row"><div class="ic-key">Ranking</div><div class="ic-val">Nationally recognised</div></div>
+          <div class="ic-row"><div class="ic-key">Entry</div><div class="ic-val">2:1 Engineering degree</div></div>
+          <div class="ic-row"><div class="ic-key">Tuition</div><div class="ic-val good">Affordable</div></div>
+          <div class="ic-row"><div class="ic-key">Curriculum fit</div><div class="ic-val">Pending verification — est. 5/8</div></div>
+          <div class="ic-row"><div class="ic-key">Concern</div><div class="ic-val">Relocation if full-time</div></div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- COMPARISON TABLE -->
+  <div class="section">
+    <div class="sec-head"><div class="sec-line"></div><div class="sec-title">Scoring Matrix — Key Criteria</div></div>
+    <div class="comp-table">
+      <div class="ct-head">
+        <div class="ct-cell">Criterion</div>
+        <div class="ct-cell inst-name-cell">Strathclyde</div>
+        <div class="ct-cell inst-name-cell">Cranfield</div>
+        <div class="ct-cell inst-name-cell">Bath</div>
+        <div class="ct-cell inst-name-cell">UNIPORT</div>
+        <div class="ct-cell inst-name-cell">Warwick</div>
+      </div>
+      <div class="ct-row">
+        <div class="ct-cell criterion">Curriculum fit (/ 8)</div>
+        <div class="ct-cell score-4">7/8</div>
+        <div class="ct-cell score-5">8/8</div>
+        <div class="ct-cell score-4">7/8</div>
+        <div class="ct-cell score-2">~5/8*</div>
+        <div class="ct-cell score-4">7/8</div>
+      </div>
+      <div class="ct-row">
+        <div class="ct-cell criterion">Online / Flexible</div>
+        <div class="ct-cell score-5">Yes ✓</div>
+        <div class="ct-cell score-2">No</div>
+        <div class="ct-cell score-1">No</div>
+        <div class="ct-cell score-5">Yes ✓</div>
+        <div class="ct-cell score-2">No</div>
+      </div>
+      <div class="ct-row">
+        <div class="ct-cell criterion">Cost (relative)</div>
+        <div class="ct-cell score-5">Low (online)</div>
+        <div class="ct-cell score-3">Mid</div>
+        <div class="ct-cell score-2">High</div>
+        <div class="ct-cell score-5">Very low</div>
+        <div class="ct-cell score-2">High</div>
+      </div>
+      <div class="ct-row">
+        <div class="ct-cell criterion">International recognition</div>
+        <div class="ct-cell score-5">Strong ✓</div>
+        <div class="ct-cell score-5">Very strong ✓</div>
+        <div class="ct-cell score-5">Very strong ✓</div>
+        <div class="ct-cell score-2">Local</div>
+        <div class="ct-cell score-5">Very strong ✓</div>
+      </div>
+      <div class="ct-row">
+        <div class="ct-cell criterion">Work continuity</div>
+        <div class="ct-cell score-5">Yes (online)</div>
+        <div class="ct-cell score-1">Disrupted</div>
+        <div class="ct-cell score-1">Disrupted</div>
+        <div class="ct-cell score-5">Yes</div>
+        <div class="ct-cell score-1">Disrupted</div>
+      </div>
+      <div class="ct-row">
+        <div class="ct-cell criterion">dAnTE relevance</div>
+        <div class="ct-cell score-5">High</div>
+        <div class="ct-cell score-5">Very high</div>
+        <div class="ct-cell score-4">High</div>
+        <div class="ct-cell score-3">Moderate</div>
+        <div class="ct-cell score-4">High</div>
+      </div>
+      <div class="ct-row">
+        <div class="ct-cell criterion">Overall score (/30)</div>
+        <div class="ct-cell score-5"><strong>27</strong></div>
+        <div class="ct-cell score-4"><strong>24</strong></div>
+        <div class="ct-cell score-3"><strong>20</strong></div>
+        <div class="ct-cell score-3"><strong>20*</strong></div>
+        <div class="ct-cell score-3"><strong>19</strong></div>
+      </div>
+    </div>
+    <div style="font-size:9px;color:var(--text-dim);padding:6px 0;">* UNIPORT curriculum subject to verification. Score will change when confirmed.</div>
+  </div>
+
+  <!-- CURRICULUM MATCH -->
+  <div class="section">
+    <div class="sec-head"><div class="sec-line"></div><div class="sec-title">Curriculum Match — Top 3</div></div>
+    <div class="curr-section">
+      <div class="curr-inst">
+        <div class="curr-inst-name">Strathclyde — 7/8</div>
+        <div class="curr-subjects">
+          <span class="cs-tag cs-match">Project Management ✓</span>
+          <span class="cs-tag cs-match">Engineering Economics ✓</span>
+          <span class="cs-tag cs-match">Operations Management ✓</span>
+          <span class="cs-tag cs-match">Strategic Management ✓</span>
+          <span class="cs-tag cs-match">Leadership & OB ✓</span>
+          <span class="cs-tag cs-match">Risk & Decision Analysis ✓</span>
+          <span class="cs-tag cs-miss">Innovation & Technology —</span>
+          <span class="cs-tag cs-match">Research / Dissertation ✓</span>
+        </div>
+      </div>
+      <div class="curr-inst">
+        <div class="curr-inst-name">Cranfield — 8/8</div>
+        <div class="curr-subjects">
+          <span class="cs-tag cs-match">Project Management ✓</span>
+          <span class="cs-tag cs-match">Engineering Economics ✓</span>
+          <span class="cs-tag cs-match">Operations Management ✓</span>
+          <span class="cs-tag cs-match">Strategic Management ✓</span>
+          <span class="cs-tag cs-match">Leadership & OB ✓</span>
+          <span class="cs-tag cs-match">Risk & Decision Analysis ✓</span>
+          <span class="cs-tag cs-match">Innovation & Technology ✓</span>
+          <span class="cs-tag cs-match">Research / Dissertation ✓</span>
+        </div>
+      </div>
+      <div class="curr-inst">
+        <div class="curr-inst-name">Bath — 7/8</div>
+        <div class="curr-subjects">
+          <span class="cs-tag cs-match">Project Management ✓</span>
+          <span class="cs-tag cs-partial">Engineering Economics ~</span>
+          <span class="cs-tag cs-match">Operations Management ✓</span>
+          <span class="cs-tag cs-match">Strategic Management ✓</span>
+          <span class="cs-tag cs-match">Leadership & OB ✓</span>
+          <span class="cs-tag cs-miss">Risk & Decision Analysis —</span>
+          <span class="cs-tag cs-match">Innovation & Technology ✓</span>
+          <span class="cs-tag cs-match">Research / Dissertation ✓</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- RECOMMENDATION -->
+  <div class="section">
+    <div class="sec-head"><div class="sec-line"></div><div class="sec-title">Recommendation</div></div>
+    <div class="decision-block">
+      <div class="db-label">Primary Recommendation</div>
+      <div class="db-rec">University of Strathclyde — <em>MSc Engineering Management (Online)</em></div>
+      <div class="db-rationale">
+        Strathclyde scores highest overall because it is the only institution that combines <strong>strong curriculum match (7/8)</strong>, <strong>full online delivery</strong>, <strong>international recognition</strong>, and <strong>continued work capability</strong> simultaneously. The online mode means Dante Craft continues operating, CGSL contract continues, trading continues. The degree is internationally credible and directly applicable to both the engineering career and the dAnTE enterprise build. Cost is the lowest of the UK options.
+        <br><br>
+        <strong>Cranfield is the better programme academically</strong> — 8/8 curriculum match, strongest engineering management reputation in the UK — but it requires full-time campus attendance which disrupts everything else. If Paul reaches a financial position where full-time study is viable, Cranfield is the aspirational choice.
+        <br><br>
+        <strong>UNIPORT remains a legitimate fallback</strong> — no relocation, continued earnings, local network — but the curriculum needs verification before it can be properly scored. If verified at 6+/8, it becomes a serious cost-effective option for the right season.
+      </div>
+    </div>
+  </div>
+
+  <!-- NEXT STEPS -->
+  <div class="section">
+    <div class="sec-head"><div class="sec-line"></div><div class="sec-title">Next Steps — Before May 31</div></div>
+    <div class="next-list">
+      <div class="next-item">
+        <div class="ni-num">01</div>
+        <div class="ni-text">
+          <strong>Verify UNIPORT curriculum</strong> — contact the department directly or check their postgraduate prospectus. Confirm which of the 8 subjects are covered.
+          <div class="ni-when">→ This week. One email or website check.</div>
+        </div>
+      </div>
+      <div class="next-item">
+        <div class="ni-num">02</div>
+        <div class="ni-text">
+          <strong>Request Strathclyde programme brochure</strong> — confirm current intake dates, entry requirements, and online programme structure for 2026/2027.
+          <div class="ni-when">→ This week. strath.ac.uk/engineering/courses</div>
+        </div>
+      </div>
+      <div class="next-item">
+        <div class="ni-num">03</div>
+        <div class="ni-text">
+          <strong>Make the decision by May 31</strong> — Strathclyde vs UNIPORT (after curriculum verification). The decision framework is now built. What remains is a choice, not more research.
+          <div class="ni-when">→ Deadline: 31 May 2026. Non-movable.</div>
+        </div>
+      </div>
+      <div class="next-item">
+        <div class="ni-num">04</div>
+        <div class="ni-text">
+          <strong>Begin application for chosen institution</strong> — gather transcripts, references, personal statement. The personal statement will draw from the Identity Papers.
+          <div class="ni-when">→ Begin in May, submit in June.</div>
+        </div>
+      </div>
+      <div class="next-item">
+        <div class="ni-num">05</div>
+        <div class="ni-text">
+          <strong>Passport application</strong> — required for UK application and for international recognition. Needed regardless of which institution is chosen.
+          <div class="ni-when">→ Schedule NIS visit this month.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="footnote">The decision is a choice, not a research task. The information exists. Make it.</div>
+
+</div>
+
+<script>document.body.classList.remove('light');</script>
+</body>
+</html>
