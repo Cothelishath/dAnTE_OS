@@ -179,6 +179,16 @@ body.light .ci-bar { background:rgba(0,0,0,0.07); }
 .pending-banner-text { font-size:11px; color:var(--text); }
 .pending-banner-cta { font-size:9px; color:var(--gold); text-transform:uppercase; letter-spacing:.06em; white-space:nowrap; }
 .nav-badge { display:inline-block; width:6px; height:6px; border-radius:50%; background:var(--gold); margin-left:4px; vertical-align:middle; }
+.wb-grid { display:flex; flex-direction:column; gap:16px; }
+.wb-row { display:flex; flex-direction:column; gap:5px; }
+.wb-name-line { font-size:11px; color:var(--text); font-weight:500; display:flex; justify-content:space-between; align-items:baseline; }
+.wb-slide-line { display:flex; align-items:center; gap:8px; }
+.wb-pole { font-family:var(--mono); font-size:8.5px; color:var(--text-muted); white-space:nowrap; width:52px; flex-shrink:0; }
+.wb-slide-line .wb-pole:last-child { text-align:right; }
+.wb-slider { flex:1; accent-color:var(--gold); height:4px; cursor:pointer; }
+.wb-val { font-family:var(--mono); font-size:11px; color:var(--gold); }
+.wb-hint { font-size:9px; color:var(--text-muted); font-style:italic; margin-top:10px; }
+#stateBtn.active-state { border-color:var(--gold); color:var(--gold); background:var(--gold-glow); }
 .counter-chip { display:flex; align-items:center; justify-content:space-between; gap:8px; font-size:9px; padding:8px 10px; border:1px solid var(--border); border-radius:4px; color:var(--text-dim); margin-bottom:6px; background:var(--surface); transition:all .15s; }
 .counter-chip.active { border-color:var(--acc); color:var(--acc); background:rgba(100,200,160,0.06); }
 .counter-btn { width:18px; height:18px; line-height:16px; text-align:center; border:1px solid var(--border); border-radius:50%; cursor:pointer; font-size:11px; user-select:none; flex-shrink:0; }
@@ -631,6 +641,56 @@ body.light .aic-bar-track { background:rgba(0,0,0,0.07); }
   <div class="daytype-row">
     <button class="daytype-btn" id="siteBtn" onclick="togDayType('site')">🏗 Site Day</button>
     <button class="daytype-btn" id="officeBtn" onclick="togDayType('office')">🏢 Office Day</button>
+    <button class="daytype-btn" id="stateSoberBtn" onclick="setStateTag('sober')" title="Tap again to clear">🌿 Sober</button>
+    <button class="daytype-btn" id="stateUsedBtn" onclick="setStateTag('used')" title="Tap again to clear">🌙 Used</button>
+  </div>
+
+  <!-- WELLBEING -->
+  <div class="sec">
+    <div class="sec-head">Wellbeing <span style="font-weight:400;color:var(--text-dim);font-size:9px;">— private, never scored, never affects AP or rank</span></div>
+    <div class="wb-grid" id="wbGrid">
+      <div class="wb-row">
+        <div class="wb-name-line">Energy <span class="wb-val" id="wb-energy-val">5</span></div>
+        <div class="wb-slide-line">
+          <span class="wb-pole">Depleted</span>
+          <input type="range" min="0" max="10" value="5" class="wb-slider" id="wb-energy" oninput="onWbInput('energy')">
+          <span class="wb-pole">Full</span>
+        </div>
+      </div>
+      <div class="wb-row">
+        <div class="wb-name-line">Heaviness <span class="wb-val" id="wb-heaviness-val">5</span></div>
+        <div class="wb-slide-line">
+          <span class="wb-pole">Heavy</span>
+          <input type="range" min="0" max="10" value="5" class="wb-slider" id="wb-heaviness" oninput="onWbInput('heaviness')">
+          <span class="wb-pole">Light</span>
+        </div>
+      </div>
+      <div class="wb-row">
+        <div class="wb-name-line">Clarity <span class="wb-val" id="wb-clarity-val">5</span></div>
+        <div class="wb-slide-line">
+          <span class="wb-pole">Foggy</span>
+          <input type="range" min="0" max="10" value="5" class="wb-slider" id="wb-clarity" oninput="onWbInput('clarity')">
+          <span class="wb-pole">Clear</span>
+        </div>
+      </div>
+      <div class="wb-row">
+        <div class="wb-name-line">Settledness <span class="wb-val" id="wb-restlessness-val">5</span></div>
+        <div class="wb-slide-line">
+          <span class="wb-pole">Restless</span>
+          <input type="range" min="0" max="10" value="5" class="wb-slider" id="wb-restlessness" oninput="onWbInput('restlessness')">
+          <span class="wb-pole">Settled</span>
+        </div>
+      </div>
+      <div class="wb-row">
+        <div class="wb-name-line">Urge (today, overall) <span class="wb-val" id="wb-urge-val">0</span></div>
+        <div class="wb-slide-line">
+          <span class="wb-pole">None</span>
+          <input type="range" min="0" max="10" value="0" class="wb-slider" id="wb-urge" oninput="onWbInput('urge')">
+          <span class="wb-pole">Constant</span>
+        </div>
+      </div>
+    </div>
+    <div class="wb-hint" id="wbHint">Not logged today — sliders only count once touched, so an untouched day doesn't quietly show up as "neutral" in the trend below.</div>
   </div>
 
   <!-- TIER -->
@@ -1031,6 +1091,26 @@ body.light .aic-bar-track { background:rgba(0,0,0,0.07); }
     </div>
   </div>
 
+  <!-- WELLBEING TREND -->
+  <div class="chart-card">
+    <div class="chart-card-head">
+      <div class="chart-title">Wellbeing — Last 14 Logged Days</div>
+      <div class="chart-legend" style="flex-wrap:wrap;">
+        <span class="leg-dot" style="background:#64c8a0"></span><span class="leg-label">Energy</span>
+        <span class="leg-dot" style="background:#c9a45c;margin-left:8px"></span><span class="leg-label">Heaviness→Light</span>
+        <span class="leg-dot" style="background:#6ab0e8;margin-left:8px"></span><span class="leg-label">Clarity</span>
+        <span class="leg-dot" style="background:#e89a6a;margin-left:8px"></span><span class="leg-label">Settledness</span>
+        <span class="leg-dot" style="background:#d9534f;margin-left:8px"></span><span class="leg-label">Urge</span>
+      </div>
+    </div>
+    <svg id="wbCurve" width="100%" height="120" viewBox="0 0 700 120" preserveAspectRatio="none">
+      <line x1="0" y1="10" x2="700" y2="10" stroke="rgba(255,255,255,0.04)" stroke-width="1"/>
+      <line x1="0" y1="110" x2="700" y2="110" stroke="rgba(255,255,255,0.04)" stroke-width="1"/>
+      <g id="wbLines"></g>
+    </svg>
+    <div class="wb-hint" id="wbChartHint" style="margin-top:8px;">Only shows days the sliders were actually touched — untouched days aren't plotted as false neutrals.</div>
+  </div>
+
   <!-- RADAR + CONVERGENCE ROW -->
   <div class="radar-row">
     <!-- SPIDER / RADAR CHART -->
@@ -1206,6 +1286,7 @@ body.light .aic-bar-track { background:rgba(0,0,0,0.07); }
   <div class="sec">
     <div class="sec-head">Manage</div>
     <button class="data-btn" onclick="exportData()"><span class="data-btn-icon">↓</span><div><div>Export Data</div><span class="data-btn-sub">Download your complete record as JSON</span></div></button>
+    <button class="data-btn" onclick="resetToDefaults()" style="border-color:#c46858;color:#c46858;"><span class="data-btn-icon">⟲</span><div><div>Reset to Defaults</div><span class="data-btn-sub">Erases everything saved in this browser — export first</span></div></button>
     <button class="data-btn" onclick="copyData()"><span class="data-btn-icon">⧉</span><div><div>Copy to Clipboard</div><span class="data-btn-sub">Paste into a note or backup file</span></div></button>
     <button class="data-btn" onclick="document.getElementById('importFile').click()"><span class="data-btn-icon">📁</span><div><div>Import Data (from file)</div><span class="data-btn-sub">Select a JSON export file directly — recommended</span></div></button>
     <input type="file" id="importFile" accept=".json,application/json" style="display:none" onchange="handleImportFile(event)">
@@ -1405,7 +1486,7 @@ let currentViewDate = null;
 let appearance = { mode:'dark', accent:null, size:'13px', fonts:null, title:null, subtitle:null };
 
 function freshToday() {
-  return { tier:null, checks:{}, va:{prayer:0,book1:0,book2:0,workout:0}, multi:{}, skill:null, gpB:{}, metrics:{balance:'',trade:'',charts:''}, journal:{win:'',lesson:'',intention:''}, onePercent:'', seed:false, dayType:null, areas:{}, counts:{}, water:0, meditation:{type:null,blocks:0}, steps:'', anchorVerse:'' };
+  return { tier:null, checks:{}, va:{prayer:0,book1:0,book2:0,workout:0}, multi:{}, skill:null, gpB:{}, metrics:{balance:'',trade:'',charts:''}, journal:{win:'',lesson:'',intention:''}, onePercent:'', seed:false, dayType:null, areas:{}, counts:{}, water:0, meditation:{type:null,blocks:0}, steps:'', anchorVerse:'', stateTag:null, wellbeing:{energy:5,heaviness:5,clarity:5,restlessness:5,urge:0}, wellbeingTouched:false };
 }
 
 // ── DAY NAVIGATION — view/edit the full dashboard for any date ──
@@ -1447,6 +1528,15 @@ function clearDayUI() {
   document.querySelectorAll('.med-pose').forEach(el=>el.classList.remove('filled'));
   document.querySelectorAll('.bottle').forEach(el=>el.classList.remove('filled'));
   const medLbl=document.getElementById('medLbl'); if(medLbl) medLbl.textContent='No duration logged yet';
+  const stateSoberBtn=document.getElementById('stateSoberBtn'); if(stateSoberBtn) stateSoberBtn.classList.remove('active-state');
+  const stateUsedBtn=document.getElementById('stateUsedBtn'); if(stateUsedBtn) stateUsedBtn.classList.remove('active-state');
+  wbTouched = new Set();
+  const wbDefaults = {energy:5,heaviness:5,clarity:5,restlessness:5,urge:0};
+  Object.entries(wbDefaults).forEach(([k,v])=>{
+    const el=document.getElementById('wb-'+k); const val=document.getElementById('wb-'+k+'-val');
+    if(el) el.value=v; if(val) val.textContent=v;
+  });
+  updateWbHint();
 }
 
 function loadDay(dateKey) {
@@ -2289,6 +2379,32 @@ function togGP(el) {
   updateUI();
 }
 
+function setStateTag(val) {
+  today.stateTag = (today.stateTag === val) ? null : val;
+  const soberBtn=document.getElementById('stateSoberBtn');
+  const usedBtn=document.getElementById('stateUsedBtn');
+  if(soberBtn) soberBtn.classList.toggle('active-state', today.stateTag==='sober');
+  if(usedBtn) usedBtn.classList.toggle('active-state', today.stateTag==='used');
+}
+
+let wbTouched = new Set();
+function onWbInput(key) {
+  const el = document.getElementById('wb-'+key);
+  const val = document.getElementById('wb-'+key+'-val');
+  val.textContent = el.value;
+  if(!today.wellbeing) today.wellbeing = {energy:5,heaviness:5,clarity:5,restlessness:5,urge:0};
+  today.wellbeing[key] = parseInt(el.value);
+  wbTouched.add(key);
+  updateWbHint();
+}
+function updateWbHint() {
+  const hint = document.getElementById('wbHint');
+  if(!hint) return;
+  hint.textContent = wbTouched.size>0
+    ? 'Logged today — only touched sliders count; this won\'t affect AP, rank, or debt.'
+    : 'Not logged today — sliders only count once touched, so an untouched day doesn\'t quietly show up as "neutral" in the trend below.';
+}
+
 function togSeed() {
   today.seed=!today.seed;
   const btn=document.getElementById('seedBtn');
@@ -2328,6 +2444,9 @@ function saveDay() {
     rank: rank.name,
     seed: today.seed,
     dayType: today.dayType||null,
+    stateTag: today.stateTag || null,
+    wellbeing: today.wellbeing ? {...today.wellbeing} : null,
+    wellbeingTouched: wbTouched.size>0,
     onePercent: document.getElementById('onePercent').value.trim(),
     journal: {
       win: document.getElementById('jWin').value,
@@ -2438,6 +2557,7 @@ function renderProgress() {
   // ── DRAW ALL CHARTS ──
   drawAPCurve();
   drawCICurve();
+  drawWellbeingCurve();
   drawRadar();
   drawRing(conv);
   drawWeekBars();
@@ -2581,6 +2701,42 @@ function smoothPath(pts) {
 }
 
 // ── AP / GP CURVE ──
+function drawWellbeingCurve() {
+  const g = document.getElementById('wbLines');
+  if(!g) return;
+  g.innerHTML = '';
+  const h = db.history.filter(e=>e.wellbeingTouched && e.wellbeing).slice(-14);
+  if(h.length < 2){
+    document.getElementById('wbChartHint').textContent = h.length===0
+      ? 'Nothing logged yet — touch a slider on the Day page and it starts showing up here.'
+      : 'Only one logged day so far — need at least two to draw a line.';
+    return;
+  }
+  const W=700, H=120, PAD=10;
+  const n = h.length;
+  const xOf = i => PAD + (i/Math.max(n-1,1))*(W-PAD*2);
+  const yOf = v => H-PAD - (v/10)*(H-PAD*2); // scale 0-10 to chart height
+  const series = {
+    energy:      { color:'#64c8a0', vals: h.map(e=>e.wellbeing.energy) },
+    heaviness:   { color:'#c9a45c', vals: h.map(e=>e.wellbeing.heaviness) },
+    clarity:     { color:'#6ab0e8', vals: h.map(e=>e.wellbeing.clarity) },
+    restlessness:{ color:'#e89a6a', vals: h.map(e=>e.wellbeing.restlessness) },
+    urge:        { color:'#d9534f', vals: h.map(e=>e.wellbeing.urge) },
+  };
+  Object.values(series).forEach(s=>{
+    const pts = s.vals.map((v,i)=>[xOf(i), yOf(v)]);
+    const path = document.createElementNS('http://www.w3.org/2000/svg','path');
+    path.setAttribute('d', smoothPath(pts));
+    path.setAttribute('fill','none');
+    path.setAttribute('stroke', s.color);
+    path.setAttribute('stroke-width','1.8');
+    path.setAttribute('stroke-linejoin','round');
+    path.setAttribute('opacity','0.9');
+    g.appendChild(path);
+  });
+  document.getElementById('wbChartHint').textContent = `Showing ${n} logged day${n>1?'s':''} — untouched days in between are skipped, not shown as flat neutrals.`;
+}
+
 function drawAPCurve() {
   const data = db.history.slice(-30);
   const W=700, H=120, PAD=10;
@@ -2994,11 +3150,38 @@ function renderStats() {
     <div>Convergence (this week): <span style="color:var(--text)">${conv}%</span></div>`;
 }
 
+function resetToDefaults(){
+  if(!confirm('This erases everything saved in this browser for The Quickening — history, custom activities, rank/reward records, appearance — and reloads this file\'s original starting state. This cannot be undone. Export first if you want a backup. Continue?')) return;
+  localStorage.removeItem('quickening_db');
+  localStorage.removeItem('quickening_custom');
+  localStorage.removeItem('quickening_overrides');
+  localStorage.removeItem('quickening_appear');
+  location.reload();
+}
 function exportData() { const bundle={ db, customActs, itemOverrides, appearance }; const j=JSON.stringify(bundle,null,2); const b=new Blob([j],{type:'application/json'}); const u=URL.createObjectURL(b); const a=document.createElement('a'); a.href=u; a.download=`quickening-${getTodayKey()}.json`; a.click(); URL.revokeObjectURL(u); toast('Data exported — includes custom activities.'); }
 function copyData() { const bundle={ db, customActs, itemOverrides, appearance }; navigator.clipboard.writeText(JSON.stringify(bundle)).then(()=>toast('Copied.')).catch(()=>toast('Copy failed — use Export.')); }
 // Accepts either the new bundle format { db, customActs, itemOverrides, appearance }
 // or a legacy export that is just the db object itself — old files still import cleanly.
 function applyImportedBundle(p) {
+  // Lightweight data-only patch — e.g. a rewards/basket JSON with no day-history
+  // at all. Detected by the absence of both db.history and a bare history array,
+  // so it never gets confused with a real backup.
+  const looksLikeFullBundle = p && ((p.db && p.db.history) || p.history);
+  if (!looksLikeFullBundle && p && Array.isArray(p.basketItems)) {
+    if (!db.basketItems) db.basketItems = [];
+    const existingNames = new Set(db.basketItems.map(b=>b.name));
+    let added = 0;
+    p.basketItems.forEach(item=>{
+      if(!item || !item.name || existingNames.has(item.name)) return;
+      db.basketItems.push({ id:'bk-'+Date.now()+'-'+added, icon:item.icon||'🎁', name:item.name, tags:Array.isArray(item.tags)?item.tags:[], used:false, usedDate:null });
+      existingNames.add(item.name);
+      added++;
+    });
+    saveDB();
+    try{ renderBasketAdmin(); }catch(e){}
+    return `Added ${added} new Basket item${added===1?'':'s'} (${p.basketItems.length-added} already present, skipped).`;
+  }
+
   const isBundle = p && p.db && p.db.history;
   const incomingDb = isBundle ? p.db : p;
   if (!incomingDb || !incomingDb.history) throw new Error('No history key found in this file.');
@@ -3033,7 +3216,7 @@ function handleImportFile(e) {
     try {
       const p = JSON.parse(ev.target.result);
       const n = applyImportedBundle(p);
-      toast('Imported ' + n + ' entries — activities and custom items included.');
+      toast(typeof n === 'number' ? ('Imported ' + n + ' entries — activities and custom items included.') : n);
     } catch (err) {
       toast('Import failed — file is not valid JSON or is missing expected data.');
     }
@@ -3047,8 +3230,8 @@ function importData() {
   try {
     const t = document.getElementById('importTxt').value.trim();
     const p = JSON.parse(t);
-    applyImportedBundle(p);
-    toast('Imported successfully.');
+    const n = applyImportedBundle(p);
+    toast(typeof n === 'number' ? 'Imported successfully.' : n);
     document.getElementById('importArea').style.display = 'none';
   } catch(e) { toast('Import failed — check format.'); }
 }
@@ -3130,6 +3313,19 @@ function restoreUI() {
   renderMeditation();
   if(today.steps){ const si=document.getElementById('stepsInput'); if(si) si.value=today.steps; }
   if(today.anchorVerse){ const av=document.getElementById('anchorVerseInput'); if(av) av.value=today.anchorVerse; }
+  if(today.stateTag){
+    const soberBtn=document.getElementById('stateSoberBtn'); const usedBtn=document.getElementById('stateUsedBtn');
+    if(soberBtn) soberBtn.classList.toggle('active-state', today.stateTag==='sober');
+    if(usedBtn) usedBtn.classList.toggle('active-state', today.stateTag==='used');
+  }
+  if(today.wellbeingTouched && today.wellbeing){
+    Object.entries(today.wellbeing).forEach(([k,v])=>{
+      const el=document.getElementById('wb-'+k); const val=document.getElementById('wb-'+k+'-val');
+      if(el) el.value=v; if(val) val.textContent=v;
+      wbTouched.add(k);
+    });
+  }
+  updateWbHint();
   renderReadingTags();
   Object.entries(today.gpB).forEach(([k,v])=>{ if(v){ const el=document.querySelector(`.gp-item[data-key="${k}"]`); if(el){ el.classList.add('checked'); el.querySelector('.gp-chk').textContent='✓'; } } });
   if(today.metrics.balance) document.getElementById('mBal').value=today.metrics.balance;
