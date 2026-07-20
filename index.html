@@ -131,6 +131,7 @@ body.editing .tool-card:hover{background:var(--s1);}
   </div>
   <div class="hdr-r">
     <div class="date-chip" id="datechip"></div>
+    <div class="date-chip" id="syncStatus">—</div>
     <button class="hbtn" onclick="exportState()">Export</button>
     <button class="hbtn" onclick="document.getElementById('importFile').click()">Import</button>
     <input type="file" id="importFile" accept=".json" style="display:none" onchange="importState(this)">
@@ -194,10 +195,10 @@ const COLORS = ['default','gold','rose','blue'];
 
 // DEFAULT DATA
 const DEFAULT = {
-  pinned: ['quickening-fixed-3.html','the-day-merged.html','finance-tracker-1.html','habit-tracker-1.html','apartment-checklist-v2.html'],
+  pinned: ['quickening-fixed.html','the-day-merged.html','finance-tracker-1.html','habit-tracker-1.html','apartment-checklist-v2.html'],
   sections: [
     {id:'daily', label:'Daily Use', color:'default', tools:[
-      {name:'The Quickening', file:'quickening-fixed-3.html', desc:'Compound tracker · rewards · ranks', icon:'⚡', tag:'daily'},
+      {name:'The Quickening', file:'quickening-fixed.html', desc:'Compound tracker · rewards · ranks', icon:'⚡', tag:'daily'},
       {name:'The Day', file:'the-day-merged.html', desc:'Plan/execute + journal, gratitude, excerpts, vision — merged', icon:'📄', tag:'daily'},
       {name:'Finance Tracker', file:'finance-tracker-1.html', desc:'Daily use · current version', icon:'💸', tag:'daily'},
       {name:'Habit Tracker', file:'habit-tracker-1.html', desc:'Daily habits · new', icon:'✅', tag:'new'},
@@ -233,6 +234,7 @@ const DEFAULT = {
       {name:'Financial Literacy', file:'financial-literacy-curriculum.html', desc:'Money · investing · independence', icon:'💰'},
       {name:'Business & Entrepreneurship', file:'business-entrepreneurship-curriculum.html', desc:'Building · leading · scaling', icon:'🏗'},
       {name:'Business Curriculum (Shareable)', file:'business-curriculum-shareable.html', desc:'External-facing version', icon:'👥'},
+      {name:'Software Curriculum', file:'software-curriculum.html', desc:'Civil Engineering software mastery', icon:'🏗', tag:'new'},
     ]},
     {id:'finance', label:'Finance & Trading', color:'gold', tools:[
       {name:'Finances Tracker', file:'finances-tracker.html', desc:'Older/different from Finance Tracker — not daily', icon:'💵'},
@@ -282,6 +284,65 @@ function loadState(){
 
 function saveState(){
   try{ localStorage.setItem(LS, JSON.stringify(state)); }catch(e){}
+  scheduleCloudPush();
+}
+
+// ── CLOUD SYNC (Supabase) ──
+// state loads synchronously above so the page is usable immediately.
+// pullCloud() runs after that, and if the cloud copy is newer, swaps
+// state in and re-renders — additive on top of the existing load, not
+// a rework of it.
+const SYNC_URL = 'https://wrzxalfdatnpdnbmdjir.supabase.co/rest/v1/sync_data';
+const SYNC_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndyenhhbGZkYXRucGRuYm1kamlyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODQ1MjA4ODMsImV4cCI6MjEwMDA5Njg4M30.oyx47J97hZsjnF3iFOz9mHGt_9oGjqLMQ0zsiVhBC-g';
+const SYNC_KEY = 'AmiableMeerkat894';
+const SYNC_TOOL = 'lifeos';
+
+function setSyncStatus(msg) { const el=document.getElementById('syncStatus'); if(el) el.textContent=msg; }
+
+async function pullCloud() {
+  setSyncStatus('Syncing…');
+  try {
+    const ctrl = new AbortController();
+    const timeout = setTimeout(()=>ctrl.abort(), 6000);
+    const res = await fetch(`${SYNC_URL}?tool=eq.${SYNC_TOOL}&select=data,updated_at`, {
+      headers: { 'apikey': SYNC_ANON_KEY, 'Authorization': 'Bearer ' + SYNC_ANON_KEY, 'x-sync-key': SYNC_KEY },
+      signal: ctrl.signal
+    });
+    clearTimeout(timeout);
+    if(!res.ok) { setSyncStatus('Sync error'); return; }
+    const rows = await res.json();
+    if(!rows.length) { setSyncStatus('Synced'); pushCloudNow(); return; }
+    const remote = rows[0];
+    const localSyncedAt = localStorage.getItem(SYNC_TOOL + '_synced_at');
+    if(!localSyncedAt || new Date(remote.updated_at) > new Date(localSyncedAt)) {
+      state = remote.data;
+      localStorage.setItem(LS, JSON.stringify(state));
+      localStorage.setItem(SYNC_TOOL + '_synced_at', remote.updated_at);
+      render();
+    }
+    setSyncStatus('Synced');
+  } catch(e) { setSyncStatus('Offline'); }
+}
+
+let cloudPushTimer = null;
+function scheduleCloudPush() {
+  clearTimeout(cloudPushTimer);
+  cloudPushTimer = setTimeout(pushCloudNow, 1500);
+}
+
+async function pushCloudNow() {
+  setSyncStatus('Syncing…');
+  try {
+    const res = await fetch(`${SYNC_URL}?on_conflict=tool`, {
+      method: 'POST',
+      headers: { 'apikey': SYNC_ANON_KEY, 'Authorization': 'Bearer ' + SYNC_ANON_KEY, 'x-sync-key': SYNC_KEY, 'Content-Type': 'application/json', 'Prefer': 'resolution=merge-duplicates,return=representation' },
+      body: JSON.stringify([{ tool: SYNC_TOOL, data: state }])
+    });
+    if(!res.ok) { setSyncStatus('Sync error'); return; }
+    const rows = await res.json();
+    if(rows.length) localStorage.setItem(SYNC_TOOL + '_synced_at', rows[0].updated_at);
+    setSyncStatus('Synced');
+  } catch(e) { setSyncStatus('Offline'); }
 }
 
 function toast(m){
@@ -409,7 +470,7 @@ function doSearch(){
   let count = 0;
   const div = document.createElement('div');
   div.className = 'sec';
-  div.innerHTML = `<div class="sec-hdr"><div class="sec-left"><span class="sec-label">Search Results</span></div></div><div class="tool-grid" id="grid_search"></div>`;
+  div.innerHTML = `<div class="sec-hdr"><div class="sec-left"><span class="sec-label">Search Results</span></div></Hdiv><div class="tool-grid" id="grid_search"></div>`;
   wrap.appendChild(div);
   const grid = document.getElementById('grid_search');
   state.sections.forEach(sec => {
@@ -559,12 +620,12 @@ function importState(inp){
     }catch(err){ toast('Import failed — not a valid Home Base export.'); }
   };
   r.readAsText(file);
-  inp.value='';
 }
 
 try{if(localStorage.getItem('dante_os_theme')==='light')document.body.classList.add('light');}catch(e){}
 setDate();
 render();
+pullCloud();
 </script>
 </body>
 </html>
