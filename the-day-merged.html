@@ -1259,8 +1259,11 @@ async function pullCloud() {
     const remote = rows[0];
     const localSyncedAt = localStorage.getItem(SYNC_TOOL + '_synced_at');
     if(!localSyncedAt || new Date(remote.updated_at) > new Date(localSyncedAt)) {
-      db = remote.data;
-      localStorage.setItem(KEY, JSON.stringify(db));
+      const d = remote.data;
+      if(d.db) { db = d.db; localStorage.setItem(KEY, JSON.stringify(db)); }
+      if(d.state) { state = d.state; localStorage.setItem('theDayState', JSON.stringify(state)); }
+      if(d.weekData) { weekData = d.weekData; localStorage.setItem('theDayWeekData', JSON.stringify(weekData)); }
+      if(d.appMode) { appMode = d.appMode; activeDateKey = d.activeDateKey; localStorage.setItem('theDayMode', JSON.stringify({appMode,activeDateKey})); }
       localStorage.setItem(SYNC_TOOL + '_synced_at', remote.updated_at);
     }
     setSyncStatus('Synced');
@@ -1279,7 +1282,7 @@ async function pushCloudNow() {
     const res = await fetch(`${SYNC_URL}?on_conflict=tool`, {
       method: 'POST',
       headers: { 'apikey': SYNC_ANON_KEY, 'Authorization': 'Bearer ' + SYNC_ANON_KEY, 'x-sync-key': SYNC_KEY, 'Content-Type': 'application/json', 'Prefer': 'resolution=merge-duplicates,return=representation' },
-      body: JSON.stringify([{ tool: SYNC_TOOL, data: db }])
+      body: JSON.stringify([{ tool: SYNC_TOOL, data: {db, state, weekData, appMode, activeDateKey} }])
     });
     if(!res.ok) { setSyncStatus('Sync error'); return; }
     const rows = await res.json();
@@ -1420,7 +1423,7 @@ function startDay(){
   activeDateKey=todayKey();
   appMode='execute';
   viewingKey=null;
-  localStorage.setItem('theDayMode',JSON.stringify({appMode,activeDateKey}));
+  localStorage.setItem('theDayMode',JSON.stringify({appMode,activeDateKey}));scheduleCloudPush();
   renderBanner();
   renderDay();
   showToast('Day started — go build something');
@@ -1430,7 +1433,7 @@ function switchToPlan(){
   appMode='plan';
   activeDateKey=null;
   viewingKey=null;
-  localStorage.setItem('theDayMode',JSON.stringify({appMode,activeDateKey}));
+  localStorage.setItem('theDayMode',JSON.stringify({appMode,activeDateKey}));scheduleCloudPush();
   renderBanner();
   renderDay();
   showToast('Planning for tomorrow');
@@ -2072,7 +2075,7 @@ function switchTab(tab){
 function loadWeekJson(e){
   const file=e.target.files[0];if(!file)return;
   const r=new FileReader();
-  r.onload=ev=>{try{weekData=JSON.parse(ev.target.result);localStorage.setItem('theDayWeekData',JSON.stringify(weekData));renderRoutine(planKey());showToast('Ideal week loaded');}catch(err){showToast('Could not read file')}};
+  r.onload=ev=>{try{weekData=JSON.parse(ev.target.result);localStorage.setItem('theDayWeekData',JSON.stringify(weekData));scheduleCloudPush();renderRoutine(planKey());showToast('Ideal week loaded');}catch(err){showToast('Could not read file')}};
   r.readAsText(file);e.target.value='';
 }
 
@@ -2088,6 +2091,7 @@ function planSaveData(silent=false){
   const intentionEl=document.getElementById('intentionText');
   if(intentionEl) ensurePlan(planKey()).intention=intentionEl.value;
   localStorage.setItem('theDayState',JSON.stringify(state));
+  scheduleCloudPush();
   if(!silent) showToast('Saved');
 }
 function planLoadData(){
@@ -2675,7 +2679,7 @@ function importData(inp){
           incomingPlan.engagements.forEach(en=>{ if(!existIds.has(en.id)) state.engagements.push(en); });
         }
       }
-      if(imported.weekData){ weekData=imported.weekData; localStorage.setItem('theDayWeekData',JSON.stringify(weekData)); }
+      if(imported.weekData){ weekData=imported.weekData; localStorage.setItem('theDayWeekData',JSON.stringify(weekData));scheduleCloudPush(); }
       planSaveData(true);
 
       renderJ();renderG();buildTodos();renderVis();updateStats();renderArch();
@@ -2793,7 +2797,7 @@ async function init(){
   if(appMode==='execute'&&activeDateKey){
     if(activeDateKey<todayKey()){
       activeDateKey=todayKey();
-      localStorage.setItem('theDayMode',JSON.stringify({appMode,activeDateKey}));
+      localStorage.setItem('theDayMode',JSON.stringify({appMode,activeDateKey}));scheduleCloudPush();
     }
   }
 
