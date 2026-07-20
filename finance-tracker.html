@@ -3,6 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@300;400&display=swap" rel="stylesheet">
@@ -129,6 +130,7 @@ main{flex:1;padding:14px 16px 60px;max-width:680px;width:100%;margin:0 auto}
     <div class="logo-brand">dAnTE</div>
     <div class="logo-title">Money <em>Flow</em></div>
   </div>
+  <div id="syncStatus" style="font-family:'JetBrains Mono',monospace;font-size:8px;color:var(--text-muted);margin-right:8px;display:flex;align-items:center;">—</div>
   <button class="hbtn" onclick="toggleTheme()">☀︎</button>
   <button class="hbtn" onclick="exportData()">⬇</button>
   <button class="hbtn" onclick="document.getElementById('importFile').click()">⬆</button>
@@ -452,9 +454,63 @@ function switchTab(tab){
 }
 
 // ── PERSISTENCE ───────────────────────────────────────────
+const SYNC_URL = 'https://wrzxalfdatnpdnbmdjir.supabase.co/rest/v1/sync_data';
+const SYNC_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndyenhhbGZkYXRucGRuYm1kamlyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODQ1MjA4ODMsImV4cCI6MjEwMDA5Njg4M30.oyx47J97hZsjnF3iFOz9mHGt_9oGjqLMQ0zsiVhBC-g';
+const SYNC_KEY = 'AmiableMeerkat894';
+const SYNC_TOOL = 'finance-tracker';
+
+function setSyncStatus(msg) { const el=document.getElementById('syncStatus'); if(el) el.textContent=msg; }
+
+async function pullCloud() {
+  setSyncStatus('Syncing…');
+  try {
+    const ctrl = new AbortController();
+    const timeout = setTimeout(()=>ctrl.abort(), 6000);
+    const res = await fetch(`${SYNC_URL}?tool=eq.${SYNC_TOOL}&select=data,updated_at`, {
+      headers: { 'apikey': SYNC_ANON_KEY, 'Authorization': 'Bearer ' + SYNC_ANON_KEY, 'x-sync-key': SYNC_KEY },
+      signal: ctrl.signal
+    });
+    clearTimeout(timeout);
+    if(!res.ok) { setSyncStatus('Sync error'); return; }
+    const rows = await res.json();
+    if(!rows.length) { setSyncStatus('Synced'); pushCloudNow(); return; }
+    const remote = rows[0];
+    const localSyncedAt = localStorage.getItem(SYNC_TOOL + '_synced_at');
+    if(!localSyncedAt || new Date(remote.updated_at) > new Date(localSyncedAt)) {
+      const data = remote.data;
+      state = Object.assign({}, state, data);
+      localStorage.setItem('financeTracker', JSON.stringify(state));
+      localStorage.setItem(SYNC_TOOL + '_synced_at', remote.updated_at);
+    }
+    setSyncStatus('Synced');
+  } catch(e) { setSyncStatus('Offline'); }
+}
+
+let cloudPushTimer = null;
+function scheduleCloudPush() {
+  clearTimeout(cloudPushTimer);
+  cloudPushTimer = setTimeout(pushCloudNow, 1500);
+}
+
+async function pushCloudNow() {
+  setSyncStatus('Syncing…');
+  try {
+    const res = await fetch(`${SYNC_URL}?on_conflict=tool`, {
+      method: 'POST',
+      headers: { 'apikey': SYNC_ANON_KEY, 'Authorization': 'Bearer ' + SYNC_ANON_KEY, 'x-sync-key': SYNC_KEY, 'Content-Type': 'application/json', 'Prefer': 'resolution=merge-duplicates,return=representation' },
+      body: JSON.stringify([{ tool: SYNC_TOOL, data: state }])
+    });
+    if(!res.ok) { setSyncStatus('Sync error'); return; }
+    const rows = await res.json();
+    if(rows.length) localStorage.setItem(SYNC_TOOL + '_synced_at', rows[0].updated_at);
+    setSyncStatus('Synced');
+  } catch(e) { setSyncStatus('Offline'); }
+}
+
 function saveData(){
   localStorage.setItem('financeTracker',JSON.stringify(state));
   showToast('Saved');
+  scheduleCloudPush();
 }
 function loadData(){
   const raw=localStorage.getItem('financeTracker');
@@ -490,10 +546,14 @@ function renderAll(){
 
 const th=localStorage.getItem('financeTheme');
 if(th==='light'){isDark=false;document.body.classList.add('light')}
-loadData();
-buildCatSelect();
-document.getElementById('entryDate').value=new Date().toISOString().slice(0,10);
-renderAll();
+async function init(){
+  await pullCloud();
+  loadData();
+  buildCatSelect();
+  document.getElementById('entryDate').value=new Date().toISOString().slice(0,10);
+  renderAll();
+}
+init();
 </script>
 </body>
 </html>
