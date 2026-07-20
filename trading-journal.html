@@ -206,7 +206,7 @@ select.fi option{background:var(--s2);}
 
 <nav class="nav">
   <div class="nav-brand">Trade Journal</div>
-  <div class="nav-clock"><div class="ct" id="clk">--:--:--</div><div id="clkd" style="font-size:7px">--</div></div>
+  <div class="nav-clock"><div class="ct" id="clk">--:--:--</div><div id="clkd" style="font-size:7px">--</div><div id="syncStatus" style="font-size:7px">—</div></div>
   <div class="nt active" onclick="showPage('log',this)">Log Entry</div>
   <div class="nt" onclick="showPage('journal',this)">Journal</div>
   <div class="nt" onclick="showPage('edge',this)">Edge</div>
@@ -974,7 +974,8 @@ let imgs = {before:null, after:null};
 let recognition = null, isRec = false, transcript = '';
 let journalFilter = 'all';
 
-function init() {
+async function init() {
+  await pullCloud();
   load(); clock(); setInterval(clock,1000); setNow(); updateNavStats();
 }
 
@@ -982,7 +983,60 @@ function load() {
   try { const s = localStorage.getItem(STORE); if(s) entries = JSON.parse(s); } catch(e) {}
 }
 
-function save() { try { localStorage.setItem(STORE, JSON.stringify(entries)); } catch(e) {} }
+function save() { try { localStorage.setItem(STORE, JSON.stringify(entries)); } catch(e) {} scheduleCloudPush(); }
+
+// ── CLOUD SYNC (Supabase) ──
+const SYNC_URL = 'https://wrzxalfdatnpdnbmdjir.supabase.co/rest/v1/sync_data';
+const SYNC_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndyenhhbGZkYXRucGRuYm1kamlyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODQ1MjA4ODMsImV4cCI6MjEwMDA5Njg4M30.oyx47J97hZsjnF3iFOz9mHGt_9oGjqLMQ0zsiVhBC-g';
+const SYNC_KEY = 'AmiableMeerkat894';
+const SYNC_TOOL = 'trading-journal';
+
+function setSyncStatus(msg) { const el=document.getElementById('syncStatus'); if(el) el.textContent=msg; }
+
+async function pullCloud() {
+  setSyncStatus('Syncing…');
+  try {
+    const ctrl = new AbortController();
+    const timeout = setTimeout(()=>ctrl.abort(), 6000);
+    const res = await fetch(`${SYNC_URL}?tool=eq.${SYNC_TOOL}&select=data,updated_at`, {
+      headers: { 'apikey': SYNC_ANON_KEY, 'Authorization': 'Bearer ' + SYNC_ANON_KEY, 'x-sync-key': SYNC_KEY },
+      signal: ctrl.signal
+    });
+    clearTimeout(timeout);
+    if(!res.ok) { setSyncStatus('Sync error'); return; }
+    const rows = await res.json();
+    if(!rows.length) { setSyncStatus('Synced'); pushCloudNow(); return; }
+    const remote = rows[0];
+    const localSyncedAt = localStorage.getItem(SYNC_TOOL + '_synced_at');
+    if(!localSyncedAt || new Date(remote.updated_at) > new Date(localSyncedAt)) {
+      entries = remote.data;
+      localStorage.setItem(STORE, JSON.stringify(entries));
+      localStorage.setItem(SYNC_TOOL + '_synced_at', remote.updated_at);
+    }
+    setSyncStatus('Synced');
+  } catch(e) { setSyncStatus('Offline'); }
+}
+
+let cloudPushTimer = null;
+function scheduleCloudPush() {
+  clearTimeout(cloudPushTimer);
+  cloudPushTimer = setTimeout(pushCloudNow, 1500);
+}
+
+async function pushCloudNow() {
+  setSyncStatus('Syncing…');
+  try {
+    const res = await fetch(`${SYNC_URL}?on_conflict=tool`, {
+      method: 'POST',
+      headers: { 'apikey': SYNC_ANON_KEY, 'Authorization': 'Bearer ' + SYNC_ANON_KEY, 'x-sync-key': SYNC_KEY, 'Content-Type': 'application/json', 'Prefer': 'resolution=merge-duplicates,return=representation' },
+      body: JSON.stringify([{ tool: SYNC_TOOL, data: entries }])
+    });
+    if(!res.ok) { setSyncStatus('Sync error'); return; }
+    const rows = await res.json();
+    if(rows.length) localStorage.setItem(SYNC_TOOL + '_synced_at', rows[0].updated_at);
+    setSyncStatus('Synced');
+  } catch(e) { setSyncStatus('Offline'); }
+}
 
 // ── CLOCK ──
 function clock() {
