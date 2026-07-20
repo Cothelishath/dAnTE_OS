@@ -172,6 +172,7 @@ header{flex-shrink:0;background:var(--bg);border-bottom:1px solid var(--border);
 <header>
   <span class="brand">dAnTE</span>
   <span class="page-title">Ideal <em>Week</em></span>
+  <div class="btn" id="syncStatus" style="cursor:default;">—</div>
   <button class="theme-btn" onclick="toggleTheme()">☀︎</button>
   <button class="btn" onclick="openSettings()">⚙ Settings</button>
   <button class="btn" onclick="openAreaManager()">◈ Areas</button>
@@ -825,6 +826,60 @@ function saveData(){
   const data={wakeHour,sleepHour,areas,cells:cells.map(row=>row.map(c=>{const{_skip,...r}=c;return r})),guidelines};
   localStorage.setItem('idealWeekV3',JSON.stringify(data));
   showToast('Saved');
+  scheduleCloudPush();
+}
+
+// ── CLOUD SYNC (Supabase) ──
+const SYNC_URL = 'https://wrzxalfdatnpdnbmdjir.supabase.co/rest/v1/sync_data';
+const SYNC_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndyenhhbGZkYXRucGRuYm1kamlyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODQ1MjA4ODMsImV4cCI6MjEwMDA5Njg4M30.oyx47J97hZsjnF3iFOz9mHGt_9oGjqLMQ0zsiVhBC-g';
+const SYNC_KEY = 'AmiableMeerkat894';
+const SYNC_TOOL = 'ideal-week';
+
+function setSyncStatus(msg) { const el=document.getElementById('syncStatus'); if(el) el.textContent=msg; }
+
+async function pullCloud() {
+  setSyncStatus('Syncing…');
+  try {
+    const ctrl = new AbortController();
+    const timeout = setTimeout(()=>ctrl.abort(), 6000);
+    const res = await fetch(`${SYNC_URL}?tool=eq.${SYNC_TOOL}&select=data,updated_at`, {
+      headers: { 'apikey': SYNC_ANON_KEY, 'Authorization': 'Bearer ' + SYNC_ANON_KEY, 'x-sync-key': SYNC_KEY },
+      signal: ctrl.signal
+    });
+    clearTimeout(timeout);
+    if(!res.ok) { setSyncStatus('Sync error'); return; }
+    const rows = await res.json();
+    if(!rows.length) { setSyncStatus('Synced'); pushCloudNow(); return; }
+    const remote = rows[0];
+    const localSyncedAt = localStorage.getItem(SYNC_TOOL + '_synced_at');
+    if(!localSyncedAt || new Date(remote.updated_at) > new Date(localSyncedAt)) {
+      localStorage.setItem('idealWeekV3', JSON.stringify(remote.data));
+      localStorage.setItem(SYNC_TOOL + '_synced_at', remote.updated_at);
+    }
+    setSyncStatus('Synced');
+  } catch(e) { setSyncStatus('Offline'); }
+}
+
+let cloudPushTimer = null;
+function scheduleCloudPush() {
+  clearTimeout(cloudPushTimer);
+  cloudPushTimer = setTimeout(pushCloudNow, 1500);
+}
+
+async function pushCloudNow() {
+  setSyncStatus('Syncing…');
+  try {
+    const data={wakeHour,sleepHour,areas,cells:cells.map(row=>row.map(c=>{const{_skip,...r}=c;return r})),guidelines};
+    const res = await fetch(`${SYNC_URL}?on_conflict=tool`, {
+      method: 'POST',
+      headers: { 'apikey': SYNC_ANON_KEY, 'Authorization': 'Bearer ' + SYNC_ANON_KEY, 'x-sync-key': SYNC_KEY, 'Content-Type': 'application/json', 'Prefer': 'resolution=merge-duplicates,return=representation' },
+      body: JSON.stringify([{ tool: SYNC_TOOL, data }])
+    });
+    if(!res.ok) { setSyncStatus('Sync error'); return; }
+    const rows = await res.json();
+    if(rows.length) localStorage.setItem(SYNC_TOOL + '_synced_at', rows[0].updated_at);
+    setSyncStatus('Synced');
+  } catch(e) { setSyncStatus('Offline'); }
 }
 function loadData(){
   const raw=localStorage.getItem('idealWeekV3');
@@ -893,16 +948,19 @@ document.addEventListener('keydown',e=>{if(e.key==='Escape'){closeCellModal();cl
 const themeStored=localStorage.getItem('idealWeekTheme');
 if(themeStored==='light'){isDark=false;document.body.classList.add('light')}
 
-buildSlots();
-initCells();
-const loaded=loadData();
-if(!loaded){buildSlots();initCells();applyDefaults()}
+(async function(){
+  await pullCloud();
+  buildSlots();
+  initCells();
+  const loaded=loadData();
+  if(!loaded){buildSlots();initCells();applyDefaults()}
 
-injectAreaStyles();
-buildToolbar();
-buildLegend();
-renderTable();
-renderGuidelines();
+  injectAreaStyles();
+  buildToolbar();
+  buildLegend();
+  renderTable();
+  renderGuidelines();
+})();
 </script>
 </body>
 </html>
