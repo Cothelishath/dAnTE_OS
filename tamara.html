@@ -179,6 +179,7 @@ textarea.notes-area:focus{border-color:var(--border-warm);}
     <div class="header-name">Uyai</div>
     <div class="header-sub">Mine 💕 · Paul's Private Guide</div>
   </div>
+  <span id="syncStatus" style="font-size:0.6rem;opacity:0.6;margin-right:10px;">—</span>
   <button class="theme-toggle" onclick="toggleTheme()"><span id="theme-icon">☀</span></button>
 </header>
 
@@ -525,6 +526,7 @@ function saveField(id,key){
   localStorage.setItem(key,document.getElementById(id).value);
   const msg=document.getElementById('saved-'+id);
   if(msg){msg.style.opacity='1';setTimeout(()=>msg.style.opacity='0',2000);}
+  scheduleCloudPush();
 }
 
 function editHero(){
@@ -544,6 +546,7 @@ function saveJournal(){
   const msg=document.getElementById('saved-journal');
   msg.style.opacity='1';setTimeout(()=>msg.style.opacity='0',2000);
   renderJournal();
+  scheduleCloudPush();
 }
 
 function renderJournal(){
@@ -563,12 +566,14 @@ function deleteJournal(i){
   entries.splice(i,1);
   localStorage.setItem('tamara-journal',JSON.stringify(entries));
   renderJournal();
+  scheduleCloudPush();
 }
 
 function deleteItem(type,id){
   if(!confirm('Remove this?'))return;
   document.querySelector(`[data-id="${id}"]`)?.remove();
   persist();
+  persistContent();
 }
 
 function openEdit(type,id){
@@ -614,6 +619,7 @@ function confirmModal(){
   if(modalMode==='edit-hero'){
     if(fb)document.getElementById('hero-text').textContent=fb;
     localStorage.setItem('tamara-hero',fb);
+    scheduleCloudPush();
     closeModal();return;
   }
   if(!fa){closeModal();return;}
@@ -654,7 +660,102 @@ function confirmModal(){
       document.getElementById('trait-grid').insertAdjacentHTML('beforeend',`<div class="trait-chip" data-id="${id}"><div class="trait-chip-label">${fa}</div><div class="trait-chip-value">${fb}</div><button class="edit-btn" onclick="openEdit('trait','${id}')">Edit</button></div>`);
     }
   }
-  persist();closeModal();
+  persist();persistContent();closeModal();
+}
+
+function persistContent(){
+  const content={};
+  ['trait-grid','daily-items','weekly-items','monthly-items','ideas-grid','gift-grid','spirit-items'].forEach(id=>{
+    const el=document.getElementById(id);
+    if(el) content[id]=el.innerHTML;
+  });
+  localStorage.setItem('tamara-content', JSON.stringify(content));
+  scheduleCloudPush();
+}
+function restoreContent(){
+  const raw=localStorage.getItem('tamara-content');
+  if(!raw) return; // nothing saved yet — keep the built-in seed content as-is
+  try{
+    const content=JSON.parse(raw);
+    Object.keys(content).forEach(id=>{
+      const el=document.getElementById(id);
+      if(el) el.innerHTML=content[id];
+    });
+  }catch(e){}
+}
+
+// ── CLOUD SYNC (Supabase) ──
+// This tool has six separate localStorage keys plus the item-content
+// snapshot above; pull/push bundle all of them into one payload for the
+// tool's single row in sync_data.
+const SYNC_URL = 'https://wrzxalfdatnpdnbmdjir.supabase.co/rest/v1/sync_data';
+const SYNC_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndyenhhbGZkYXRucGRuYm1kamlyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODQ1MjA4ODMsImV4cCI6MjEwMDA5Njg4M30.oyx47J97hZsjnF3iFOz9mHGt_9oGjqLMQ0zsiVhBC-g';
+const SYNC_KEY = 'AmiableMeerkat894';
+const SYNC_TOOL = 'tamara';
+
+function setSyncStatus(msg) { const el=document.getElementById('syncStatus'); if(el) el.textContent=msg; }
+
+function gatherPayload(){
+  return {
+    content: JSON.parse(localStorage.getItem('tamara-content')||'null'),
+    checks: JSON.parse(localStorage.getItem('tamara-checks')||'{}'),
+    hero: localStorage.getItem('tamara-hero'),
+    conflictNotes: localStorage.getItem('tamara-conflict-notes'),
+    spiritNotes: localStorage.getItem('tamara-spirit-notes'),
+    creativeNotes: localStorage.getItem('tamara-creative-notes'),
+    journal: JSON.parse(localStorage.getItem('tamara-journal')||'[]')
+  };
+}
+
+async function pullCloud() {
+  setSyncStatus('Syncing…');
+  try {
+    const ctrl = new AbortController();
+    const timeout = setTimeout(()=>ctrl.abort(), 6000);
+    const res = await fetch(`${SYNC_URL}?tool=eq.${SYNC_TOOL}&select=data,updated_at`, {
+      headers: { 'apikey': SYNC_ANON_KEY, 'Authorization': 'Bearer ' + SYNC_ANON_KEY, 'x-sync-key': SYNC_KEY },
+      signal: ctrl.signal
+    });
+    clearTimeout(timeout);
+    if(!res.ok) { setSyncStatus('Sync error'); return; }
+    const rows = await res.json();
+    if(!rows.length) { setSyncStatus('Synced'); pushCloudNow(); return; }
+    const remote = rows[0];
+    const localSyncedAt = localStorage.getItem(SYNC_TOOL + '_synced_at');
+    if(!localSyncedAt || new Date(remote.updated_at) > new Date(localSyncedAt)) {
+      const d = remote.data;
+      if(d.content) localStorage.setItem('tamara-content', JSON.stringify(d.content));
+      if(d.checks) localStorage.setItem('tamara-checks', JSON.stringify(d.checks));
+      if(d.hero!=null) localStorage.setItem('tamara-hero', d.hero);
+      if(d.conflictNotes!=null) localStorage.setItem('tamara-conflict-notes', d.conflictNotes);
+      if(d.spiritNotes!=null) localStorage.setItem('tamara-spirit-notes', d.spiritNotes);
+      if(d.creativeNotes!=null) localStorage.setItem('tamara-creative-notes', d.creativeNotes);
+      if(d.journal) localStorage.setItem('tamara-journal', JSON.stringify(d.journal));
+      localStorage.setItem(SYNC_TOOL + '_synced_at', remote.updated_at);
+    }
+    setSyncStatus('Synced');
+  } catch(e) { setSyncStatus('Offline'); }
+}
+
+let cloudPushTimer = null;
+function scheduleCloudPush() {
+  clearTimeout(cloudPushTimer);
+  cloudPushTimer = setTimeout(pushCloudNow, 1500);
+}
+
+async function pushCloudNow() {
+  setSyncStatus('Syncing…');
+  try {
+    const res = await fetch(`${SYNC_URL}?on_conflict=tool`, {
+      method: 'POST',
+      headers: { 'apikey': SYNC_ANON_KEY, 'Authorization': 'Bearer ' + SYNC_ANON_KEY, 'x-sync-key': SYNC_KEY, 'Content-Type': 'application/json', 'Prefer': 'resolution=merge-duplicates,return=representation' },
+      body: JSON.stringify([{ tool: SYNC_TOOL, data: gatherPayload() }])
+    });
+    if(!res.ok) { setSyncStatus('Sync error'); return; }
+    const rows = await res.json();
+    if(rows.length) localStorage.setItem(SYNC_TOOL + '_synced_at', rows[0].updated_at);
+    setSyncStatus('Synced');
+  } catch(e) { setSyncStatus('Offline'); }
 }
 
 function persist(){
@@ -662,12 +763,16 @@ function persist(){
   document.querySelectorAll('[data-key]').forEach(el=>{checks[el.dataset.key]=el.classList.contains('done');});
   document.querySelectorAll('.gift-card[data-id]').forEach(el=>{checks['gift-'+el.dataset.id]=el.classList.contains('given');});
   localStorage.setItem('tamara-checks',JSON.stringify(checks));
+  scheduleCloudPush();
 }
 
-function init(){
+async function init(){
+  await pullCloud();
   const theme=localStorage.getItem('tamara-theme')||'dark';
   document.documentElement.setAttribute('data-theme',theme);
   document.getElementById('theme-icon').textContent=theme==='dark'?'☀':'☾';
+
+  restoreContent();
 
   const checks=JSON.parse(localStorage.getItem('tamara-checks')||'{}');
   document.querySelectorAll('[data-key]').forEach(el=>{if(checks[el.dataset.key])el.classList.add('done');});
