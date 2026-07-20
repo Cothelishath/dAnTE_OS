@@ -86,6 +86,7 @@ body.light .nav{background:rgba(245,245,240,.97);}
     <div class="subtitle">Built together &mdash; begun with her</div>
   </div>
   <div class="hdr-r">
+    <div class="btn" id="syncStatus" style="cursor:default;">—</div>
     <button class="btn" onclick="toggleTheme()">&#9788; / &#9790;</button>
     <button class="btn her" id="herBtn" onclick="filterHer()">For Her</button>
     <button class="btn" id="pendBtn" onclick="filterPending()">Pending</button>
@@ -404,9 +405,62 @@ var S={done:{},prices:{},custom:{}};
 var activeF=null,pendF=false,herF=false;
 
 function load(){try{var s=localStorage.getItem(LS);if(s)S=JSON.parse(s);}catch(e){}}
-function saveAll(){try{localStorage.setItem(LS,JSON.stringify(S));toast('Saved.');}catch(e){toast('Save failed.');}updateSummary();}
+function saveAll(){try{localStorage.setItem(LS,JSON.stringify(S));toast('Saved.');}catch(e){toast('Save failed.');}updateSummary();scheduleCloudPush();}
+
+// ── CLOUD SYNC (Supabase) ──
+const SYNC_URL = 'https://wrzxalfdatnpdnbmdjir.supabase.co/rest/v1/sync_data';
+const SYNC_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndyenhhbGZkYXRucGRuYm1kamlyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODQ1MjA4ODMsImV4cCI6MjEwMDA5Njg4M30.oyx47J97hZsjnF3iFOz9mHGt_9oGjqLMQ0zsiVhBC-g';
+const SYNC_KEY = 'AmiableMeerkat894';
+const SYNC_TOOL = 'apartment-checklist';
+
+function setSyncStatus(msg) { const el=document.getElementById('syncStatus'); if(el) el.textContent=msg; }
+
+async function pullCloud() {
+  setSyncStatus('Syncing…');
+  try {
+    const ctrl = new AbortController();
+    const timeout = setTimeout(()=>ctrl.abort(), 6000);
+    const res = await fetch(`${SYNC_URL}?tool=eq.${SYNC_TOOL}&select=data,updated_at`, {
+      headers: { 'apikey': SYNC_ANON_KEY, 'Authorization': 'Bearer ' + SYNC_ANON_KEY, 'x-sync-key': SYNC_KEY },
+      signal: ctrl.signal
+    });
+    clearTimeout(timeout);
+    if(!res.ok) { setSyncStatus('Sync error'); return; }
+    const rows = await res.json();
+    if(!rows.length) { setSyncStatus('Synced'); pushCloudNow(); return; }
+    const remote = rows[0];
+    const localSyncedAt = localStorage.getItem(SYNC_TOOL + '_synced_at');
+    if(!localSyncedAt || new Date(remote.updated_at) > new Date(localSyncedAt)) {
+      S = remote.data;
+      localStorage.setItem(LS, JSON.stringify(S));
+      localStorage.setItem(SYNC_TOOL + '_synced_at', remote.updated_at);
+    }
+    setSyncStatus('Synced');
+  } catch(e) { setSyncStatus('Offline'); }
+}
+
+let cloudPushTimer = null;
+function scheduleCloudPush() {
+  clearTimeout(cloudPushTimer);
+  cloudPushTimer = setTimeout(pushCloudNow, 1500);
+}
+
+async function pushCloudNow() {
+  setSyncStatus('Syncing…');
+  try {
+    const res = await fetch(`${SYNC_URL}?on_conflict=tool`, {
+      method: 'POST',
+      headers: { 'apikey': SYNC_ANON_KEY, 'Authorization': 'Bearer ' + SYNC_ANON_KEY, 'x-sync-key': SYNC_KEY, 'Content-Type': 'application/json', 'Prefer': 'resolution=merge-duplicates,return=representation' },
+      body: JSON.stringify([{ tool: SYNC_TOOL, data: S }])
+    });
+    if(!res.ok) { setSyncStatus('Sync error'); return; }
+    const rows = await res.json();
+    if(rows.length) localStorage.setItem(SYNC_TOOL + '_synced_at', rows[0].updated_at);
+    setSyncStatus('Synced');
+  } catch(e) { setSyncStatus('Offline'); }
+}
 function exportData(){var b=new Blob([JSON.stringify({state:S,exported:new Date().toISOString()},null,2)],{type:'application/json'});var a=document.createElement('a');a.href=URL.createObjectURL(b);a.download='home-checklist-'+new Date().toISOString().slice(0,10)+'.json';a.click();toast('Exported.');}
-function importData(e){var f=e.target.files[0];if(!f)return;var r=new FileReader();r.onload=function(ev){try{var p=JSON.parse(ev.target.result);if(p.state){S=p.state;localStorage.setItem(LS,JSON.stringify(S));render();toast('Imported.');}else toast('Invalid file.');}catch(err){toast('Could not read.');}};r.readAsText(f);e.target.value='';}
+function importData(e){var f=e.target.files[0];if(!f)return;var r=new FileReader();r.onload=function(ev){try{var p=JSON.parse(ev.target.result);if(p.state){S=p.state;localStorage.setItem(LS,JSON.stringify(S));render();toast('Imported.');scheduleCloudPush();}else toast('Invalid file.');}catch(err){toast('Could not read.');}};r.readAsText(f);e.target.value='';}
 function toggleTheme(){document.body.classList.toggle('light');try{localStorage.setItem('home_theme',document.body.classList.contains('light')?'light':'dark');}catch(e){}}
 function toast(m){var t=document.getElementById('toast');t.textContent=m;t.classList.add('show');setTimeout(function(){t.classList.remove('show');},2400);}
 function parseN(s){return parseFloat(String(s).replace(/[^0-9.]/g,''))||0;}
@@ -634,9 +688,12 @@ function doSearch(){
   document.querySelectorAll('.nt').forEach(function(t){t.classList.remove('active');});
 }
 
-load();
-try{if(localStorage.getItem('home_theme')==='light')document.body.classList.add('light');}catch(e){}
-render();
+(async function(){
+  await pullCloud();
+  load();
+  try{if(localStorage.getItem('home_theme')==='light')document.body.classList.add('light');}catch(e){}
+  render();
+})();
 </script>
 </body>
 </html>
