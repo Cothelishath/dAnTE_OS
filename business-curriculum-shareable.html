@@ -117,6 +117,7 @@ main{max-width:900px;margin:0 auto;padding:48px 48px 100px;}
 <header>
   <div class="wordmark">Business & Entrepreneurship <span>/ A Curriculum</span></div>
   <div class="header-right">
+    <span class="progress-label" id="syncStatus">—</span>
     <span class="progress-label" id="progress-label">0 of 12 started</span>
     <button class="theme-btn" onclick="toggleTheme()"><span id="theme-icon">☀</span></button>
   </div>
@@ -470,6 +471,7 @@ function toggleStarted(id,dot){
   const idx=started.indexOf(id);
   if(idx>-1){started.splice(idx,1);}else{started.push(id);}
   localStorage.setItem('bs-started',JSON.stringify(started));
+  scheduleCloudPush();
   dot.classList.toggle('active',started.includes(id));
   updateProgressLabel();updateProgress();
 }
@@ -484,6 +486,7 @@ function updateProgress(){
 }
 function saveNotes(){
   localStorage.setItem('bs-notes',document.getElementById('notes-area').value);
+  scheduleCloudPush();
   const btn=document.querySelector('.save-notes-btn');
   btn.textContent='Saved.';setTimeout(()=>btn.textContent='Save Notes',2000);
 }
@@ -533,7 +536,64 @@ function buildPillars(){
     list.appendChild(el);
   });
 }
-function init(){
+
+// ── CLOUD SYNC (Supabase) ──
+const SYNC_URL = 'https://wrzxalfdatnpdnbmdjir.supabase.co/rest/v1/sync_data';
+const SYNC_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndyenhhbGZkYXRucGRuYm1kamlyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODQ1MjA4ODMsImV4cCI6MjEwMDA5Njg4M30.oyx47J97hZsjnF3iFOz9mHGt_9oGjqLMQ0zsiVhBC-g';
+const SYNC_KEY = 'AmiableMeerkat894';
+const SYNC_TOOL = 'business-curriculum-shareable';
+
+function setSyncStatus(msg) { const el=document.getElementById('syncStatus'); if(el) el.textContent=msg; }
+
+async function pullCloud() {
+  setSyncStatus('Syncing…');
+  try {
+    const ctrl = new AbortController();
+    const timeout = setTimeout(()=>ctrl.abort(), 6000);
+    const res = await fetch(`${SYNC_URL}?tool=eq.${SYNC_TOOL}&select=data,updated_at`, {
+      headers: { 'apikey': SYNC_ANON_KEY, 'Authorization': 'Bearer ' + SYNC_ANON_KEY, 'x-sync-key': SYNC_KEY },
+      signal: ctrl.signal
+    });
+    clearTimeout(timeout);
+    if(!res.ok) { setSyncStatus('Sync error'); return; }
+    const rows = await res.json();
+    if(!rows.length) { setSyncStatus('Synced'); pushCloudNow(); return; }
+    const remote = rows[0];
+    const localSyncedAt = localStorage.getItem(SYNC_TOOL + '_synced_at');
+    if(!localSyncedAt || new Date(remote.updated_at) > new Date(localSyncedAt)) {
+      const d = remote.data;
+      if(d.started) { started = d.started; localStorage.setItem('bs-started', JSON.stringify(started)); }
+      if(d.notes!=null) localStorage.setItem('bs-notes', d.notes);
+      localStorage.setItem(SYNC_TOOL + '_synced_at', remote.updated_at);
+    }
+    setSyncStatus('Synced');
+  } catch(e) { setSyncStatus('Offline'); }
+}
+
+let cloudPushTimer = null;
+function scheduleCloudPush() {
+  clearTimeout(cloudPushTimer);
+  cloudPushTimer = setTimeout(pushCloudNow, 1500);
+}
+
+async function pushCloudNow() {
+  setSyncStatus('Syncing…');
+  try {
+    const data = { started, notes: localStorage.getItem('bs-notes')||'' };
+    const res = await fetch(`${SYNC_URL}?on_conflict=tool`, {
+      method: 'POST',
+      headers: { 'apikey': SYNC_ANON_KEY, 'Authorization': 'Bearer ' + SYNC_ANON_KEY, 'x-sync-key': SYNC_KEY, 'Content-Type': 'application/json', 'Prefer': 'resolution=merge-duplicates,return=representation' },
+      body: JSON.stringify([{ tool: SYNC_TOOL, data }])
+    });
+    if(!res.ok) { setSyncStatus('Sync error'); return; }
+    const rows = await res.json();
+    if(rows.length) localStorage.setItem(SYNC_TOOL + '_synced_at', rows[0].updated_at);
+    setSyncStatus('Synced');
+  } catch(e) { setSyncStatus('Offline'); }
+}
+
+async function init(){
+  await pullCloud();
   const theme=localStorage.getItem('bs-theme')||'dark';
   document.documentElement.setAttribute('data-theme',theme);
   document.getElementById('theme-icon').textContent=theme==='dark'?'☀':'☾';
