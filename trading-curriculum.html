@@ -143,6 +143,7 @@ textarea.inp{resize:vertical;min-height:68px;line-height:1.5}
     <div class="logo-brand">dAnTE · Trading</div>
     <div class="logo-title">The <em>Curriculum</em></div>
   </div>
+  <button class="hbtn" id="syncStatus" style="cursor:default;">—</button>
   <button class="hbtn" onclick="toggleTheme()">☀︎</button>
   <button class="hbtn" onclick="exportData()">⬇ Export</button>
   <button class="hbtn" onclick="importData()">⬆ Import</button>
@@ -661,6 +662,62 @@ document.getElementById('addTopicModal').addEventListener('click',e=>{
 function saveData(){
   localStorage.setItem('tradingCurriculum',JSON.stringify({progress,expanded}));
   showToast('Saved');
+  scheduleCloudPush();
+}
+
+// ── CLOUD SYNC (Supabase) ──
+const SYNC_URL = 'https://wrzxalfdatnpdnbmdjir.supabase.co/rest/v1/sync_data';
+const SYNC_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndyenhhbGZkYXRucGRuYm1kamlyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODQ1MjA4ODMsImV4cCI6MjEwMDA5Njg4M30.oyx47J97hZsjnF3iFOz9mHGt_9oGjqLMQ0zsiVhBC-g';
+const SYNC_KEY = 'AmiableMeerkat894';
+const SYNC_TOOL = 'trading-curriculum';
+
+function setSyncStatus(msg) { const el=document.getElementById('syncStatus'); if(el) el.textContent=msg; }
+
+async function pullCloud() {
+  setSyncStatus('Syncing…');
+  try {
+    const ctrl = new AbortController();
+    const timeout = setTimeout(()=>ctrl.abort(), 6000);
+    const res = await fetch(`${SYNC_URL}?tool=eq.${SYNC_TOOL}&select=data,updated_at`, {
+      headers: { 'apikey': SYNC_ANON_KEY, 'Authorization': 'Bearer ' + SYNC_ANON_KEY, 'x-sync-key': SYNC_KEY },
+      signal: ctrl.signal
+    });
+    clearTimeout(timeout);
+    if(!res.ok) { setSyncStatus('Sync error'); return; }
+    const rows = await res.json();
+    if(!rows.length) { setSyncStatus('Synced'); pushCloudNow(); return; }
+    const remote = rows[0];
+    const localSyncedAt = localStorage.getItem(SYNC_TOOL + '_synced_at');
+    if(!localSyncedAt || new Date(remote.updated_at) > new Date(localSyncedAt)) {
+      const d = remote.data;
+      if(d.progress) progress=d.progress;
+      if(d.expanded) expanded=d.expanded;
+      localStorage.setItem('tradingCurriculum', JSON.stringify({progress,expanded}));
+      localStorage.setItem(SYNC_TOOL + '_synced_at', remote.updated_at);
+    }
+    setSyncStatus('Synced');
+  } catch(e) { setSyncStatus('Offline'); }
+}
+
+let cloudPushTimer = null;
+function scheduleCloudPush() {
+  clearTimeout(cloudPushTimer);
+  cloudPushTimer = setTimeout(pushCloudNow, 1500);
+}
+
+async function pushCloudNow() {
+  setSyncStatus('Syncing…');
+  try {
+    const res = await fetch(`${SYNC_URL}?on_conflict=tool`, {
+      method: 'POST',
+      headers: { 'apikey': SYNC_ANON_KEY, 'Authorization': 'Bearer ' + SYNC_ANON_KEY, 'x-sync-key': SYNC_KEY, 'Content-Type': 'application/json', 'Prefer': 'resolution=merge-duplicates,return=representation' },
+      body: JSON.stringify([{ tool: SYNC_TOOL, data: {progress,expanded} }])
+    });
+    if(!res.ok) { setSyncStatus('Sync error'); return; }
+    const rows = await res.json();
+    if(rows.length) localStorage.setItem(SYNC_TOOL + '_synced_at', rows[0].updated_at);
+    setSyncStatus('Synced');
+  } catch(e) { setSyncStatus('Offline'); }
 }
 function loadData(){
   const raw=localStorage.getItem('tradingCurriculum');
@@ -691,9 +748,12 @@ document.addEventListener('keydown',e=>{if(e.key==='Escape')closeAddTopic()});
 // ── INIT ─────────────────────────────────────────────────
 const th=localStorage.getItem('tradingCurrTheme');
 if(th==='light'){isDark=false;document.body.classList.add('light')}
-loadData();
-initProgress();
-render();
+(async function(){
+  await pullCloud();
+  loadData();
+  initProgress();
+  render();
+})();
 </script>
 </body>
 </html>
