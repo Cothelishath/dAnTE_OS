@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- v3 — 20 Jul 2026 — added: Supabase cloud sync (pull on load, push on save) -->
+<!-- v4 — 20 Jul 2026 — fixes: wellbeing sliders persist; Sober/Used tag now actually saves; cloud sync now bundles custom activities and item overrides, not just db -->
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -1674,9 +1674,9 @@ function loadDB() {
 function saveDB() { try{ localStorage.setItem('quickening_db',JSON.stringify(db)); }catch(e){} scheduleCloudPush(); }
 
 // ── CLOUD SYNC (Supabase) ──
-// Mirrors localStorage's 'quickening_db' to a shared table so this tool reads
-// the same data on any device. localStorage stays the source of truth on THIS
-// device at all times; sync only overwrites it when the cloud copy is newer.
+// Bundles all three of this tool's localStorage keys — db, customActs,
+// itemOverrides — into one payload, since custom activities and item
+// overrides live outside the main db object.
 const SYNC_URL = 'https://wrzxalfdatnpdnbmdjir.supabase.co/rest/v1/sync_data';
 const SYNC_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndyenhhbGZkYXRucGRuYm1kamlyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODQ1MjA4ODMsImV4cCI6MjEwMDA5Njg4M30.oyx47J97hZsjnF3iFOz9mHGt_9oGjqLMQ0zsiVhBC-g';
 const SYNC_KEY = 'AmiableMeerkat894';
@@ -1700,16 +1700,14 @@ async function pullCloud() {
     clearTimeout(timeout);
     if(!res.ok) { setSyncStatus('Sync error'); return; }
     const rows = await res.json();
-    if(!rows.length) {
-      // No cloud row yet — seed it from whatever's local right now.
-      setSyncStatus('Synced');
-      pushCloudNow();
-      return;
-    }
+    if(!rows.length) { setSyncStatus('Synced'); pushCloudNow(); return; }
     const remote = rows[0];
     const localSyncedAt = localStorage.getItem('quickening_synced_at');
     if(!localSyncedAt || new Date(remote.updated_at) > new Date(localSyncedAt)) {
-      localStorage.setItem('quickening_db', JSON.stringify(remote.data));
+      const d = remote.data;
+      if(d.db) localStorage.setItem('quickening_db', JSON.stringify(d.db));
+      if(d.customActs) localStorage.setItem('quickening_custom', JSON.stringify(d.customActs));
+      if(d.itemOverrides) localStorage.setItem('quickening_overrides', JSON.stringify(d.itemOverrides));
       localStorage.setItem('quickening_synced_at', remote.updated_at);
     }
     setSyncStatus('Synced');
@@ -1727,6 +1725,7 @@ function scheduleCloudPush() {
 async function pushCloudNow() {
   setSyncStatus('Syncing…');
   try {
+    const data = { db, customActs, itemOverrides };
     const res = await fetch(`${SYNC_URL}?on_conflict=tool`, {
       method: 'POST',
       headers: {
@@ -1736,7 +1735,7 @@ async function pushCloudNow() {
         'Content-Type': 'application/json',
         'Prefer': 'resolution=merge-duplicates,return=representation'
       },
-      body: JSON.stringify([{ tool: SYNC_TOOL, data: db }])
+      body: JSON.stringify([{ tool: SYNC_TOOL, data }])
     });
     if(!res.ok) { setSyncStatus('Sync error'); return; }
     const rows = await res.json();
@@ -1746,10 +1745,18 @@ async function pushCloudNow() {
     setSyncStatus('Offline');
   }
 }
+
+// If the tab/app is about to be backgrounded or closed while a push is
+// still pending in its debounce window, fire it immediately rather than
+// risk the OS suspending the page before the timer completes — this is
+// the likely cause of edits that "sometimes" don't make it across devices.
+document.addEventListener('visibilitychange', () => {
+  if (document.visibilityState === 'hidden') { clearTimeout(cloudPushTimer); pushCloudNow(); }
+});
 function loadCustomActs() { try{ const s=localStorage.getItem('quickening_custom'); if(s) customActs=JSON.parse(s); }catch(e){} }
-function saveCustomActs() { try{ localStorage.setItem('quickening_custom',JSON.stringify(customActs)); }catch(e){} }
+function saveCustomActs() { try{ localStorage.setItem('quickening_custom',JSON.stringify(customActs)); }catch(e){} scheduleCloudPush(); }
 function loadItemOverrides() { try{ const s=localStorage.getItem('quickening_overrides'); if(s) itemOverrides=JSON.parse(s); }catch(e){} }
-function saveItemOverrides() { try{ localStorage.setItem('quickening_overrides',JSON.stringify(itemOverrides)); }catch(e){} }
+function saveItemOverrides() { try{ localStorage.setItem('quickening_overrides',JSON.stringify(itemOverrides)); }catch(e){} scheduleCloudPush(); }
 
 // ── REWARDS ──
 function addRewardCatalogueItem() {
@@ -2462,6 +2469,7 @@ function setStateTag(val) {
   const usedBtn=document.getElementById('stateUsedBtn');
   if(soberBtn) soberBtn.classList.toggle('active-state', today.stateTag==='sober');
   if(usedBtn) usedBtn.classList.toggle('active-state', today.stateTag==='used');
+  saveDay();
 }
 
 let wbTouched = new Set();
