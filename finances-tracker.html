@@ -211,6 +211,7 @@ body.light .nav{background:rgba(240,244,248,.97);}
     <div class="hdr-meta">Weekly updates · Monthly reviews<span>|</span><span id="lastSaved">Never saved</span></div>
   </div>
   <div class="hdr-right">
+    <button class="act-btn" id="syncStatus" style="cursor:default;">—</button>
     <button class="act-btn" onclick="toggleTheme()">☀ / ☾</button>
     <button class="act-btn on" onclick="saveAll()">Save All</button>
   </div>
@@ -478,6 +479,60 @@ function saveAll() {
   const lbl = `Saved ${now.getDate()} ${['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'][now.getMonth()]} ${now.getHours()}:${String(now.getMinutes()).padStart(2,'0')}`;
   document.getElementById('lastSaved').textContent = lbl;
   toast('All data saved.');
+  scheduleCloudPush();
+}
+
+// ── CLOUD SYNC (Supabase) ──
+const SYNC_URL = 'https://wrzxalfdatnpdnbmdjir.supabase.co/rest/v1/sync_data';
+const SYNC_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndyenhhbGZkYXRucGRuYm1kamlyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODQ1MjA4ODMsImV4cCI6MjEwMDA5Njg4M30.oyx47J97hZsjnF3iFOz9mHGt_9oGjqLMQ0zsiVhBC-g';
+const SYNC_KEY = 'AmiableMeerkat894';
+const SYNC_TOOL = 'finances-tracker';
+
+function setSyncStatus(msg) { const el=document.getElementById('syncStatus'); if(el) el.textContent=msg; }
+
+async function pullCloud() {
+  setSyncStatus('Syncing…');
+  try {
+    const ctrl = new AbortController();
+    const timeout = setTimeout(()=>ctrl.abort(), 6000);
+    const res = await fetch(`${SYNC_URL}?tool=eq.${SYNC_TOOL}&select=data,updated_at`, {
+      headers: { 'apikey': SYNC_ANON_KEY, 'Authorization': 'Bearer ' + SYNC_ANON_KEY, 'x-sync-key': SYNC_KEY },
+      signal: ctrl.signal
+    });
+    clearTimeout(timeout);
+    if(!res.ok) { setSyncStatus('Sync error'); return; }
+    const rows = await res.json();
+    if(!rows.length) { setSyncStatus('Synced'); pushCloudNow(); return; }
+    const remote = rows[0];
+    const localSyncedAt = localStorage.getItem(SYNC_TOOL + '_synced_at');
+    if(!localSyncedAt || new Date(remote.updated_at) > new Date(localSyncedAt)) {
+      data = remote.data;
+      localStorage.setItem(LS, JSON.stringify(data));
+      localStorage.setItem(SYNC_TOOL + '_synced_at', remote.updated_at);
+    }
+    setSyncStatus('Synced');
+  } catch(e) { setSyncStatus('Offline'); }
+}
+
+let cloudPushTimer = null;
+function scheduleCloudPush() {
+  clearTimeout(cloudPushTimer);
+  cloudPushTimer = setTimeout(pushCloudNow, 1500);
+}
+
+async function pushCloudNow() {
+  setSyncStatus('Syncing…');
+  try {
+    const res = await fetch(`${SYNC_URL}?on_conflict=tool`, {
+      method: 'POST',
+      headers: { 'apikey': SYNC_ANON_KEY, 'Authorization': 'Bearer ' + SYNC_ANON_KEY, 'x-sync-key': SYNC_KEY, 'Content-Type': 'application/json', 'Prefer': 'resolution=merge-duplicates,return=representation' },
+      body: JSON.stringify([{ tool: SYNC_TOOL, data }])
+    });
+    if(!res.ok) { setSyncStatus('Sync error'); return; }
+    const rows = await res.json();
+    if(rows.length) localStorage.setItem(SYNC_TOOL + '_synced_at', rows[0].updated_at);
+    setSyncStatus('Synced');
+  } catch(e) { setSyncStatus('Offline'); }
 }
 function collectCurrentFields() {
   // Accounts
@@ -861,7 +916,8 @@ function toast(msg) {
 }
 
 // ── INIT ──
-function init() {
+async function init() {
+  await pullCloud();
   loadData();
   try { if(localStorage.getItem('dante_fin_theme')==='light') document.body.classList.add('light'); } catch(e) {}
   renderAccounts();
