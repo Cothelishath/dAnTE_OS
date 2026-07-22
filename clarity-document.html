@@ -110,7 +110,11 @@ main{max-width:860px;margin:0 auto;padding:3rem 2rem 6rem;}
 <header>
   <div class="header-title">The Clarity Document</div>
   <div class="header-right">
+    <span class="progress-text" id="syncStatus">—</span>
     <span class="progress-text" id="progress-label">0 of 0 answered</span>
+    <button class="theme-toggle" onclick="exportData()" title="Export">⬇</button>
+    <button class="theme-toggle" onclick="document.getElementById('importFile').click()" title="Import">⬆</button>
+    <input type="file" id="importFile" accept=".json" style="display:none" onchange="importData(event)">
     <button class="theme-toggle" onclick="toggleTheme()"><span id="theme-icon">☀</span></button>
   </div>
 </header>
@@ -687,6 +691,89 @@ function saveAll(){
   msg.style.opacity='1';setTimeout(()=>msg.style.opacity='0',2000);
   updateProgress();
   updateOverview();
+  scheduleCloudPush();
+}
+
+function exportData(){
+  const data=JSON.parse(localStorage.getItem('clarity-answers')||'{}');
+  const blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'});
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(blob);
+  a.download='clarity-document-export.json';
+  a.click();
+}
+
+function importData(e){
+  const file=e.target.files[0];
+  if(!file)return;
+  const r=new FileReader();
+  r.onload=ev=>{
+    try{
+      const data=JSON.parse(ev.target.result);
+      localStorage.setItem('clarity-answers',JSON.stringify(data));
+      document.querySelectorAll('.answer-area').forEach(ta=>{
+        if(data[ta.dataset.key]!=null) ta.value=data[ta.dataset.key];
+      });
+      updateProgress();
+      updateOverview();
+      scheduleCloudPush();
+    }catch(err){ alert("Couldn't read that file."); }
+  };
+  r.readAsText(file);
+  e.target.value='';
+}
+
+// ── CLOUD SYNC (Supabase) ──
+const SYNC_URL = 'https://wrzxalfdatnpdnbmdjir.supabase.co/rest/v1/sync_data';
+const SYNC_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndyenhhbGZkYXRucGRuYm1kamlyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODQ1MjA4ODMsImV4cCI6MjEwMDA5Njg4M30.oyx47J97hZsjnF3iFOz9mHGt_9oGjqLMQ0zsiVhBC-g';
+const SYNC_KEY = 'AmiableMeerkat894';
+const SYNC_TOOL = 'clarity-document';
+
+function setSyncStatus(msg) { const el=document.getElementById('syncStatus'); if(el) el.textContent=msg; }
+
+async function pullCloud() {
+  setSyncStatus('Syncing…');
+  try {
+    const ctrl = new AbortController();
+    const timeout = setTimeout(()=>ctrl.abort(), 6000);
+    const res = await fetch(`${SYNC_URL}?tool=eq.${SYNC_TOOL}&select=data,updated_at`, {
+      headers: { 'apikey': SYNC_ANON_KEY, 'Authorization': 'Bearer ' + SYNC_ANON_KEY, 'x-sync-key': SYNC_KEY },
+      signal: ctrl.signal
+    });
+    clearTimeout(timeout);
+    if(!res.ok) { setSyncStatus('Sync error'); return; }
+    const rows = await res.json();
+    if(!rows.length) { setSyncStatus('Synced'); pushCloudNow(); return; }
+    const remote = rows[0];
+    const localSyncedAt = localStorage.getItem(SYNC_TOOL + '_synced_at');
+    if(!localSyncedAt || new Date(remote.updated_at) > new Date(localSyncedAt)) {
+      localStorage.setItem('clarity-answers', JSON.stringify(remote.data));
+      localStorage.setItem(SYNC_TOOL + '_synced_at', remote.updated_at);
+    }
+    setSyncStatus('Synced');
+  } catch(e) { setSyncStatus('Offline'); }
+}
+
+let cloudPushTimer = null;
+function scheduleCloudPush() {
+  clearTimeout(cloudPushTimer);
+  cloudPushTimer = setTimeout(pushCloudNow, 1500);
+}
+
+async function pushCloudNow() {
+  setSyncStatus('Syncing…');
+  try {
+    const data=JSON.parse(localStorage.getItem('clarity-answers')||'{}');
+    const res = await fetch(`${SYNC_URL}?on_conflict=tool`, {
+      method: 'POST',
+      headers: { 'apikey': SYNC_ANON_KEY, 'Authorization': 'Bearer ' + SYNC_ANON_KEY, 'x-sync-key': SYNC_KEY, 'Content-Type': 'application/json', 'Prefer': 'resolution=merge-duplicates,return=representation' },
+      body: JSON.stringify([{ tool: SYNC_TOOL, data }])
+    });
+    if(!res.ok) { setSyncStatus('Sync error'); return; }
+    const rows = await res.json();
+    if(rows.length) localStorage.setItem(SYNC_TOOL + '_synced_at', rows[0].updated_at);
+    setSyncStatus('Synced');
+  } catch(e) { setSyncStatus('Offline'); }
 }
 
 function markUnsaved(){
@@ -756,7 +843,8 @@ function scheduleAutosave(){
 }
 
 // ── INIT ──
-function init(){
+async function init(){
+  await pullCloud();
   const theme=localStorage.getItem('clarity-theme')||'dark';
   document.documentElement.setAttribute('data-theme',theme);
   document.getElementById('theme-icon').textContent=theme==='dark'?'☀':'☾';
