@@ -365,6 +365,7 @@ select.fi option{background:var(--s2);}
           <option>News / Volatility Spike</option>
           <option>Custom / Developing Setup</option>
         </optgroup>
+        <optgroup label="My Defined Patterns (V75)" id="myPatternsGroup"></optgroup>
       </select>
     </div>
     <div class="fg" style="margin-bottom:8px"><div class="fl">Entry Model / Trigger</div>
@@ -976,7 +977,26 @@ let journalFilter = 'all';
 
 async function init() {
   await pullCloud();
+  await loadPatternLibrary();
   load(); clock(); setInterval(clock,1000); setNow(); updateNavStats();
+}
+
+// Reads the pattern library from the "Trend Continuation — POI Reversal
+// Trigger" tool's own row (read-only — this tool never writes to it) and
+// injects it as real dropdown options here. Add or rename a pattern there
+// and it shows up here automatically next load, no manual duplication.
+async function loadPatternLibrary() {
+  try {
+    const res = await fetch(`${SYNC_URL}?tool=eq.trend-continuation-poi-trigger&select=data`, {
+      headers: { 'apikey': SYNC_ANON_KEY, 'Authorization': 'Bearer ' + SYNC_ANON_KEY, 'x-sync-key': SYNC_KEY }
+    });
+    if(!res.ok) return;
+    const rows = await res.json();
+    if(!rows.length || !rows[0].data.patternLibrary) return;
+    const group = document.getElementById('myPatternsGroup');
+    if(!group) return;
+    group.innerHTML = rows[0].data.patternLibrary.map(p => `<option>${String(p.name).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}</option>`).join('');
+  } catch(e) { /* silent — falls back to the static list above */ }
 }
 
 function load() {
