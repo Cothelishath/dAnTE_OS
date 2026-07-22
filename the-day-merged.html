@@ -791,6 +791,7 @@ textarea.rb-inp{resize:vertical;min-height:60px;line-height:1.5}
 .rt-task{background:var(--gold-glow);color:var(--gold-dim)}
 .rt-note{background:rgba(74,140,201,.1);color:#4a8cc9}
 .rt-trade{background:rgba(76,175,125,.1);color:var(--green)}
+.rt-priority{background:rgba(196,90,90,.12);color:#c45a5a}
 .rollover-src{font-family:var(--mono);font-size:9px;color:var(--text-muted);flex-shrink:0}
 
 /* TOAST */
@@ -1290,7 +1291,17 @@ async function pushCloudNow() {
     setSyncStatus('Synced');
   } catch(e) { setSyncStatus('Offline'); }
 }
-function tkey(){return new Date().toISOString().slice(0,10);}
+
+// Same reasoning as Quickening: if the app is backgrounded while either
+// debounce (the 700ms plan-autosave, or this module's 1.5s cloud push) is
+// still pending, force both through immediately rather than risk losing
+// an edit to a suspended tab.
+document.addEventListener('visibilitychange', () => {
+  if (document.visibilityState === 'hidden') {
+    clearTimeout(asTimer); planSaveData(true);
+    clearTimeout(cloudPushTimer); pushCloudNow();
+  }
+});
 function tnow(){return new Date().toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'});}
 function uid(){return Date.now()+Math.random().toString(36).slice(2,5);}
 function fdate(k){const d=new Date(k+'T12:00:00');return d.toLocaleDateString('en-GB',{weekday:'short',day:'numeric',month:'short'});}
@@ -2118,6 +2129,13 @@ function rolloverCheck(){
   Object.keys(state.plans).forEach(pastKey=>{
     if(pastKey>=key) return; // only past days
     const past=state.plans[pastKey];
+    // Unfinished priorities
+    (past.priorities||[]).forEach(p=>{
+      if(!p.done&&!plan.rolledIn.find(r=>r.srcId===p.id)){
+        plan.rolledIn.push({id:uid(),srcId:p.id,srcDate:pastKey,type:'priority',text:p.text,done:false});
+        p.rolledOver=true;
+      }
+    });
     // Unfinished tasks
     (past.tasks||[]).forEach(t=>{
       if(!t.done&&!plan.rolledIn.find(r=>r.srcId===t.id)){
@@ -2163,8 +2181,8 @@ function renderRolledIn(key){
     if(item.done) return;
     const div=document.createElement('div');
     div.className='rollover-item'+(item.done?' done':'');
-    const typeClass={task:'rt-task',note:'rt-note',trade:'rt-trade'}[item.type]||'rt-note';
-    const typeLabel={task:'Task',note:'Note',trade:'Setup'}[item.type]||item.type;
+    const typeClass={task:'rt-task',note:'rt-note',trade:'rt-trade',priority:'rt-priority'}[item.type]||'rt-note';
+    const typeLabel={task:'Task',note:'Note',trade:'Setup',priority:'Priority'}[item.type]||item.type;
     const srcDate=new Date(item.srcDate+'T12:00:00');
     const srcLabel=srcDate.getDate()+'/'+pad(srcDate.getMonth()+1);
     div.innerHTML=`
@@ -2172,9 +2190,22 @@ function renderRolledIn(key){
       <div class="rollover-type ${typeClass}">${typeLabel}</div>
       <div class="task-text" style="flex:1;font-size:12px;color:var(--text-dim)">${esc(item.text)}${item.obs?'<div style="font-size:11px;color:var(--text-muted);font-style:italic;margin-top:2px">'+esc(item.obs)+'</div>':''}</div>
       <div class="rollover-src">${srcLabel}</div>
+      ${item.type==='priority'?`<button class="task-del" onclick="promoteRollover('${item.id}')" style="opacity:1;color:var(--gold)" title="Add to today's priorities">↩</button>`:''}
       <button class="task-del" onclick="dismissRollover('${item.id}')" style="opacity:1;color:var(--text-muted)">✕</button>`;
     sec.appendChild(div);
   });
+}
+
+function promoteRollover(id){
+  const plan=ensurePlan(planKey());
+  const item=(plan.rolledIn||[]).find(x=>x.id===id);
+  if(!item)return;
+  if(!plan.priorities) plan.priorities=[];
+  if(plan.priorities.length>=3){ showToast('Three is the limit — clear a priority first'); return; }
+  plan.priorities.push({id:uid(),text:item.text,done:false});
+  item.done=true;
+  renderP3(planKey()); renderRolledIn(planKey()); planAutosave(); updateStats();
+  showToast('Added to today\'s priorities');
 }
 
 function toggleRollover(id){
