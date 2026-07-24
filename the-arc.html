@@ -1,0 +1,1015 @@
+<!DOCTYPE html>
+<!-- v2 — added: life categories, SMART goal fields (metric/deadline), minimum viable actions, tally-mark burst tracking, category manager -->
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Arc — dAnTE</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg:#0d0d0d; --bg2:#141414; --bg3:#1a1a1a;
+    --border:#2a2a2a; --border2:#333;
+    --gold:#c9a84c; --gold-dim:#8a6f2e; --gold-glow:rgba(201,168,76,0.08);
+    --text:#e8e4dc; --text-dim:#888; --text-muted:#555;
+    --red:#c0392b; --green:#4caf7d; --radius:6px;
+  }
+  .light {
+    --bg:#f5f2ec; --bg2:#ede9e0; --bg3:#e4dfd4;
+    --border:#d4cfc4; --border2:#c4bfb4;
+    --gold:#8a6020; --gold-dim:#b8902a; --gold-glow:rgba(138,96,32,0.07);
+    --text:#1a1814; --text-dim:#666; --text-muted:#999;
+  }
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+  body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;font-size:14px;line-height:1.6;min-height:100vh;transition:background .3s,color .3s;padding-bottom:60px}
+  .brand{font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.2em;color:var(--gold);text-transform:uppercase}
+  .arc-title{font-family:'Cormorant Garamond',serif;font-size:22px;font-weight:300;color:var(--text);letter-spacing:.04em}
+  header{display:flex;align-items:center;justify-content:space-between;padding:16px 24px;border-bottom:1px solid var(--border);flex-wrap:wrap;gap:10px}
+  .hdr-left{display:flex;flex-direction:column;gap:2px}
+  .hdr-right{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+  .btn{display:inline-flex;align-items:center;gap:6px;padding:7px 14px;border-radius:var(--radius);border:1px solid var(--border2);background:transparent;color:var(--text-dim);font-family:'Inter',sans-serif;font-size:12px;cursor:pointer;transition:all .2s;white-space:nowrap}
+  .btn:hover{border-color:var(--gold);color:var(--gold)}
+  .btn.gold{border-color:var(--gold-dim);color:var(--gold)}
+  #syncStatus{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--text-muted);padding:0 6px}
+
+  nav.tabs{display:flex;gap:2px;padding:0 24px;border-bottom:1px solid var(--border);background:var(--bg2)}
+  .tab{padding:12px 18px;font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--text-muted);cursor:pointer;border-bottom:2px solid transparent;transition:all .2s}
+  .tab:hover{color:var(--text-dim)}
+  .tab.active{color:var(--gold);border-bottom-color:var(--gold)}
+
+  main{max-width:920px;margin:0 auto;padding:28px 24px}
+  .page{display:none}
+  .page.active{display:block}
+
+  .section-label{font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.2em;color:var(--gold-dim);text-transform:uppercase;margin-bottom:10px;display:flex;justify-content:space-between;align-items:center}
+  .arc-h1{font-family:'Cormorant Garamond',serif;font-size:32px;font-weight:300;color:var(--text);letter-spacing:.03em;margin-bottom:4px}
+  .arc-sub{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--text-muted);letter-spacing:.06em}
+
+  .card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:18px;margin-bottom:14px}
+  .cat-block{margin-bottom:22px}
+  .cat-hd{display:flex;align-items:center;gap:8px;margin-bottom:8px;padding-bottom:6px;border-bottom:1px solid var(--border)}
+  .cat-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+  .cat-name{font-family:'Cormorant Garamond',serif;font-size:16px;color:var(--text);flex:1}
+  .cat-prog{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--text-muted)}
+
+  .progress-bar{height:4px;background:var(--bg3);border-radius:2px;overflow:hidden;margin:10px 0}
+  .progress-fill{height:100%;background:var(--gold);transition:width .3s}
+
+  .goal-row{padding:10px 0;border-bottom:1px solid var(--border)}
+  .goal-row:last-child{border-bottom:none}
+  .goal-main{display:flex;align-items:flex-start;gap:10px}
+  .goal-check{width:16px;height:16px;border:1px solid var(--border2);border-radius:3px;cursor:pointer;flex-shrink:0;margin-top:2px;transition:all .15s}
+  .goal-check.done{background:var(--gold);border-color:var(--gold)}
+  .goal-text{flex:1;font-size:13px;color:var(--text);background:transparent;border:none;width:100%;font-family:'Inter',sans-serif}
+  .goal-text:focus{outline:none}
+  .goal-text.done{color:var(--text-muted);text-decoration:line-through}
+  .goal-del{background:none;border:none;color:var(--text-muted);cursor:pointer;font-size:14px;padding:2px 6px;opacity:0;transition:opacity .15s}
+  .goal-row:hover .goal-del{opacity:1}
+  .goal-del:hover{color:var(--red)}
+  .rolled-tag{font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--gold-dim);background:var(--gold-glow);padding:1px 6px;border-radius:3px;margin-left:6px;white-space:nowrap}
+
+  .goal-sub{margin-left:26px;margin-top:6px;display:grid;grid-template-columns:1fr 1fr;gap:6px}
+  .goal-sub .fld{display:flex;flex-direction:column;gap:2px}
+  .goal-sub label{font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--text-muted);letter-spacing:.08em;text-transform:uppercase}
+  .goal-sub input, .goal-sub textarea{background:var(--bg3);border:1px solid var(--border2);border-radius:4px;padding:5px 8px;color:var(--text-dim);font-family:'Inter',sans-serif;font-size:11.5px;width:100%}
+  .goal-sub input:focus, .goal-sub textarea:focus{outline:none;border-color:var(--gold-dim);color:var(--text)}
+  .goal-sub .mva{grid-column:1/-1}
+  .goal-sub .mva label{color:var(--gold-dim)}
+  .goal-sub .mva input{border-color:var(--gold-dim);background:var(--gold-glow)}
+
+  .steps-block{margin-left:26px;margin-top:8px}
+  .steps-label{font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--text-muted);letter-spacing:.08em;text-transform:uppercase;margin-bottom:4px}
+  .step-row{display:flex;align-items:center;gap:7px;padding:2px 0}
+  .step-check{width:12px;height:12px;border:1px solid var(--border2);border-radius:3px;cursor:pointer;flex-shrink:0;transition:all .15s}
+  .step-check.done{background:var(--gold);border-color:var(--gold)}
+  .step-num{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--text-muted);width:14px;flex-shrink:0}
+  .step-text{flex:1;font-size:12px;color:var(--text-dim);background:transparent;border:none;font-family:'Inter',sans-serif}
+  .step-text:focus{outline:none;color:var(--text)}
+  .step-text.done{color:var(--text-muted);text-decoration:line-through}
+  .step-del{background:none;border:none;color:var(--text-muted);cursor:pointer;font-size:12px;padding:0 4px;opacity:0;transition:opacity .15s}
+  .step-row:hover .step-del{opacity:1}
+  .step-del:hover{color:var(--red)}
+  .step-add-row{display:flex;gap:6px;margin-top:4px;margin-left:21px}
+  .step-add-row input{flex:1;background:var(--bg3);border:1px solid var(--border2);border-radius:4px;padding:4px 8px;color:var(--text-dim);font-family:'Inter',sans-serif;font-size:11.5px}
+  .step-add-row input:focus{outline:none;border-color:var(--gold-dim);color:var(--text)}
+  .step-add-row button{background:none;border:1px solid var(--border2);border-radius:4px;color:var(--text-muted);padding:4px 10px;cursor:pointer;font-size:11px}
+
+  .add-row{display:flex;gap:8px;margin-top:8px}
+  .add-row select{background:var(--bg3);border:1px solid var(--border2);border-radius:var(--radius);padding:8px 6px;color:var(--text-dim);font-family:'Inter',sans-serif;font-size:12px;max-width:110px}
+  .add-row input{flex:1;background:var(--bg3);border:1px solid var(--border2);border-radius:var(--radius);padding:8px 10px;color:var(--text);font-family:'Inter',sans-serif;font-size:13px}
+  .add-row input:focus, .add-row select:focus{outline:none;border-color:var(--gold-dim)}
+  .add-row button{background:var(--gold-glow);border:1px solid var(--gold-dim);border-radius:var(--radius);color:var(--gold);padding:8px 16px;cursor:pointer;font-family:'Inter',sans-serif;font-size:12px;white-space:nowrap}
+
+  textarea.intention{width:100%;background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius);padding:12px;color:var(--text);font-family:'Cormorant Garamond',serif;font-size:16px;font-style:italic;resize:vertical;min-height:50px}
+  textarea.intention:focus{outline:none;border-color:var(--gold-dim)}
+
+  .burst-nav{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:8px}
+  .settings-row{display:flex;align-items:center;gap:10px;font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--text-dim);margin-bottom:16px;flex-wrap:wrap}
+  .settings-row input[type=date]{background:var(--bg3);border:1px solid var(--border2);border-radius:var(--radius);padding:6px 10px;color:var(--text);font-family:'JetBrains Mono',monospace;font-size:11px}
+
+  .month-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:18px}
+  .month-chip{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:10px;text-align:center;cursor:pointer;transition:all .15s}
+  .month-chip:hover{border-color:var(--gold-dim)}
+  .month-chip.active{border-color:var(--gold);background:var(--gold-glow)}
+  .month-chip .m-name{font-family:'Cormorant Garamond',serif;font-size:15px;color:var(--text)}
+  .month-chip .m-prog{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--gold-dim);margin-top:3px}
+
+  .empty{padding:14px 0;text-align:center;color:var(--text-muted);font-size:13px;font-style:italic}
+
+  /* ── TALLY MARKS ── */
+  .tally-row{display:flex;gap:4px;margin:14px 0;align-items:flex-end;flex-wrap:wrap}
+  .tally-mark{width:8px;height:24px;background:var(--border2);border-radius:2px;transition:background .2s}
+  .tally-mark.filled{background:var(--gold)}
+  .tally-mark.today{outline:2px solid var(--gold);outline-offset:2px}
+  .tally-mark.rest{background:rgba(76,175,125,.25)}
+  .tally-mark.rest.filled{background:var(--green)}
+  .tally-legend{font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--text-muted);letter-spacing:.06em;margin-bottom:4px}
+
+  .burst-tally-wrap{display:flex;align-items:center;gap:10px;margin-bottom:10px;flex-wrap:wrap}
+  .tally-group{display:inline-flex;position:relative;margin-right:8px;height:22px;align-items:flex-end}
+  .tally-stroke{width:2.5px;height:20px;background:var(--gold);margin-right:3px;border-radius:1px}
+  .tally-strike{position:absolute;width:24px;height:2.5px;background:var(--gold);top:9px;left:-3px;transform:rotate(-32deg);border-radius:1px}
+  .tally-count-label{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--gold-dim);letter-spacing:.06em}
+
+  /* ── MODAL ── */
+  .modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:100;align-items:center;justify-content:center;padding:20px}
+  .modal-overlay.show{display:flex}
+  .modal-box{background:var(--bg2);border:1px solid var(--border2);border-radius:var(--radius);padding:22px;max-width:420px;width:100%;max-height:80vh;overflow-y:auto}
+  .modal-box h3{font-family:'Cormorant Garamond',serif;font-size:20px;font-weight:400;margin-bottom:14px;color:var(--text)}
+  .cat-edit-row{display:flex;align-items:center;gap:8px;margin-bottom:8px}
+  .cat-edit-row input[type=text]{flex:1;background:var(--bg3);border:1px solid var(--border2);border-radius:4px;padding:6px 10px;color:var(--text);font-family:'Inter',sans-serif;font-size:13px}
+  .cat-edit-row input[type=color]{width:28px;height:28px;border:none;background:none;padding:0;cursor:pointer;flex-shrink:0}
+  .cat-edit-row button{background:none;border:none;color:var(--text-muted);cursor:pointer;font-size:15px}
+  .cat-edit-row button:hover{color:var(--red)}
+  .modal-close{margin-top:14px;width:100%;padding:9px;background:var(--gold-glow);border:1px solid var(--gold-dim);border-radius:var(--radius);color:var(--gold);cursor:pointer;font-family:'Inter',sans-serif;font-size:13px}
+
+  .toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:var(--bg2);border:1px solid var(--gold-dim);color:var(--gold);padding:10px 20px;border-radius:var(--radius);font-family:'Inter',sans-serif;font-size:13px;opacity:0;pointer-events:none;transition:opacity .3s;z-index:200}
+  .toast.show{opacity:1}
+
+  .import-summary{font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--text-dim);margin-bottom:12px}
+  .import-summary strong{color:var(--gold)}
+  select.scope-select{width:100%;background:var(--bg3);border:1px solid var(--border2);border-radius:var(--radius);padding:9px 10px;color:var(--text);font-family:'Inter',sans-serif;font-size:13px;margin-bottom:6px}
+
+  @media(max-width:600px){
+    .month-grid{grid-template-columns:repeat(2,1fr)}
+    header{padding:14px 16px}
+    main{padding:20px 16px}
+    .goal-sub{grid-template-columns:1fr}
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="hdr-left">
+    <div class="brand">dAnTE</div>
+    <div class="arc-title">The <em style="font-style:italic;color:var(--gold)">Arc</em></div>
+  </div>
+  <div class="hdr-right">
+    <div id="syncStatus">—</div>
+    <button class="btn" onclick="openCatManager()">⬡ Categories</button>
+    <button class="btn" onclick="toggleTheme()">☀ / ☾</button>
+    <button class="btn" onclick="exportData()">⬇ Export</button>
+    <button class="btn" onclick="document.getElementById('importFile').click()">⬆ Import</button>
+    <input type="file" id="importFile" accept=".json" style="display:none" onchange="importData(event)">
+    <button class="btn" onclick="document.getElementById('importGoalsFile').click()">⬆ Import Goals</button>
+    <input type="file" id="importGoalsFile" accept=".json" style="display:none" onchange="handleGoalsFileSelect(event)">
+    <button class="btn gold" onclick="saveAll()">Save</button>
+  </div>
+</header>
+
+<nav class="tabs">
+  <div class="tab active" data-tab="bursts" onclick="showTab('bursts',this)">Bursts</div>
+  <div class="tab" data-tab="month" onclick="showTab('month',this)">Month</div>
+  <div class="tab" data-tab="quarter" onclick="showTab('quarter',this)">Quarter</div>
+</nav>
+
+<main>
+
+  <!-- ══════════ BURSTS ══════════ -->
+  <div class="page active" id="page-bursts">
+    <div class="section-label"><span>10-Day Work Cycles</span></div>
+    <div class="arc-h1" id="burstHeading">Burst —</div>
+    <div class="arc-sub" id="burstDates">—</div>
+
+    <div class="settings-row">
+      <span>Cycle 1 starts:</span>
+      <input type="date" id="cycleStartInput" onchange="setCycleStart(this.value)">
+      <span id="cycleStatus"></span>
+    </div>
+
+    <div class="tally-legend">Bursts completed so far</div>
+    <div class="burst-tally-wrap">
+      <div id="burstPassedTally"></div>
+      <span class="tally-count-label" id="burstPassedLabel"></span>
+    </div>
+
+    <div class="tally-legend">This burst — 10 work days + 1 rest day</div>
+    <div class="tally-row" id="burstDayTally"></div>
+
+    <div class="burst-nav">
+      <button class="btn" onclick="shiftBurst(-1)">← Previous</button>
+      <button class="btn gold" onclick="jumpToCurrentBurst()">Today's Burst</button>
+      <button class="btn" onclick="shiftBurst(1)">Next →</button>
+    </div>
+
+    <div id="burstCategories"></div>
+  </div>
+
+  <!-- ══════════ MONTH ══════════ -->
+  <div class="page" id="page-month">
+    <div class="section-label"><span>Arching Monthly Goals</span></div>
+    <div class="arc-h1" id="monthHeading">—</div>
+
+    <div class="burst-nav">
+      <button class="btn" onclick="shiftMonth(-1)">← Prev</button>
+      <button class="btn gold" onclick="jumpToCurrentMonth()">This Month</button>
+      <button class="btn" onclick="shiftMonth(1)">Next →</button>
+    </div>
+
+    <textarea class="intention" id="monthIntention" placeholder="What is this month building toward?" onchange="saveMonthIntention()"></textarea>
+
+    <div class="progress-bar"><div class="progress-fill" id="monthProgressFill" style="width:0%"></div></div>
+    <div class="arc-sub" id="monthProgressLabel" style="margin-bottom:16px"></div>
+
+    <div id="monthCategories"></div>
+  </div>
+
+  <!-- ══════════ QUARTER ══════════ -->
+  <div class="page" id="page-quarter">
+    <div class="section-label"><span>Arching Quarterly Goals</span></div>
+    <div class="arc-h1" id="quarterHeading">—</div>
+
+    <div class="burst-nav">
+      <button class="btn" onclick="shiftQuarter(-1)">← Prev</button>
+      <button class="btn gold" onclick="jumpToCurrentQuarter()">This Quarter</button>
+      <button class="btn" onclick="shiftQuarter(1)">Next →</button>
+    </div>
+
+    <textarea class="intention" id="quarterIntention" placeholder="What is this quarter's arc?" onchange="saveQuarterIntention()"></textarea>
+
+    <div class="section-label" style="margin-top:20px"><span>Constituent Months</span></div>
+    <div class="month-grid" id="quarterMonthGrid"></div>
+
+    <div id="quarterCategories"></div>
+  </div>
+
+</main>
+
+<!-- ══════════ CATEGORY MANAGER MODAL ══════════ -->
+<div class="modal-overlay" id="catModal">
+  <div class="modal-box">
+    <h3>Manage Categories</h3>
+    <div id="catEditList"></div>
+    <div class="add-row" style="margin-top:12px">
+      <input type="text" id="newCatName" placeholder="New category name…" onkeydown="if(event.key==='Enter')addCategory()">
+      <button onclick="addCategory()">Add</button>
+    </div>
+    <button class="modal-close" onclick="closeCatManager()">Done</button>
+  </div>
+</div>
+
+<!-- ══════════ IMPORT GOALS MODAL ══════════ -->
+<div class="modal-overlay" id="importGoalsModal">
+  <div class="modal-box">
+    <h3>Import Goals</h3>
+    <div class="import-summary" id="importGoalsSummary">—</div>
+    <label style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--text-muted);letter-spacing:.08em;text-transform:uppercase">Add to</label>
+    <select class="scope-select" id="importScopeSelect">
+      <option value="burst">Current burst (whichever burst you're viewing)</option>
+      <option value="month" selected>Current month (whichever month you're viewing)</option>
+      <option value="quarter">Current quarter (whichever quarter you're viewing)</option>
+    </select>
+    <div style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--text-muted)">Unrecognized categories are created automatically, matched by name. Nothing existing gets overwritten — these are added on top.</div>
+    <button class="modal-close" onclick="confirmGoalsImport()">Import</button>
+    <button class="modal-close" style="background:transparent;border-color:var(--border2);color:var(--text-dim);margin-top:8px" onclick="cancelGoalsImport()">Cancel</button>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ══════════════════════ DATA MODEL ══════════════════════
+const STORAGE_KEY = 'the_arc_v1';
+
+const DEFAULT_CATEGORIES = [
+  {id:'income', name:'Income & Skill-Up', color:'#e0a030'},
+  {id:'faith', name:'Faith', color:'#c9a84c'},
+  {id:'body', name:'Body & Health', color:'#4caf7d'},
+  {id:'dante', name:'dAnTE Craft', color:'#4a8cc9'},
+  {id:'trading', name:'Trading', color:'#c45a5a'},
+  {id:'relationship', name:'Relationship (T)', color:'#cf6b9e'},
+  {id:'hobbies', name:'Hobbies & Craft', color:'#b98a4a'},
+  {id:'learning', name:'Learning & Skills', color:'#8a6fc9'},
+];
+
+// Starter SMART goals + minimum viable actions, grounded in what's already
+// established rather than generic filler. All fully editable/deletable —
+// this is a scaffold to work from, not a prescription.
+function starterGoals(scope){
+  const base = {
+    faith:      { burst:'Protect the 4AM prayer block every day this burst.', month:'Protect the 4AM prayer block every day this month, no exceptions.', quarter:'Hold the 4AM block as a non-negotiable across the full quarter.' },
+    body:       { burst:'Log sleep and any movement every day this burst.', month:'Establish a consistent sleep/movement baseline — log daily.', quarter:'Sustain a repeatable sleep/movement baseline through the quarter.' },
+    dante:      { burst:'Complete Modules 1–3 of IOSH Managing Safely.', month:'Complete IOSH Managing Safely in full.', quarter:'Complete IOSH Managing Safely and identify a second certification.' },
+    trading:    { burst:'Log 5 live-tested entries under the Trend Continuation strategy.', month:'Log 20 live-tested entries under the Trend Continuation strategy.', quarter:'Reach 60 total logged live-tested entries by end of quarter.' },
+    relationship:{ burst:'One phone-free, uninterrupted hour with T this burst.', month:'One phone-free, uninterrupted conversation with T each week.', quarter:'Sustain weekly uninterrupted time with T as a standing rhythm.' },
+    hobbies:    { burst:'Cut and assemble the first two walls of the scale model.', month:'Complete the scale paper model of one room.', quarter:'Finish the room model and choose the next physical hobby to start.' },
+    learning:   { burst:'One 30-minute prompt engineering session this burst.', month:'Three focused prompt-engineering sessions this month.', quarter:'Decide — prompt engineering as a serious track, or consciously park it.' },
+  };
+  const metrics = {
+    faith:'Days protected / days in period', body:'Days logged / days in period',
+    dante:'Modules or milestones complete', trading:'Entries logged / target',
+    relationship:'Weeks completed / weeks in period', hobbies:'% of model complete',
+    learning:'Sessions completed / target',
+  };
+  const mvas = {
+    faith:'Set the alarm tonight as a buffer.', body:'Log tonight\'s sleep before bed.',
+    dante:'Open Module 1 today.', trading:'Open the journal, log the next setup you see.',
+    relationship:'Text T now to set the time.', hobbies:'Cut the first wall piece.',
+    learning:'Block 30 minutes on the calendar.',
+  };
+  const generic = DEFAULT_CATEGORIES.filter(c=>c.id!=='income').map(c=>({
+    id: uid(), catId: c.id, text: base[c.id][scope], done:false,
+    metric: metrics[c.id], deadline:'', mva: mvas[c.id], steps:[]
+  }));
+  return [...incomeStarterGoals(scope), ...generic];
+}
+
+// Income & Skill-Up gets real sequenced plans, not just a one-line goal —
+// this is the direct answer to "not just goals on paper." Grounded in
+// what's actually true: Outlier's real onboarding flow, the trading system
+// that's already built (ruleset, journal, live-testing), and freelance
+// paths for civil engineering and prompt engineering. Fully editable —
+// this is a starting scaffold, not a script to follow blindly.
+function incomeStarterGoals(scope){
+  const mk = (text, metric, mva, steps) => ({
+    id: uid(), catId:'income', text, done:false, metric, deadline:'', mva,
+    steps: steps.map(t=>({id:uid(), text:t, done:false}))
+  });
+
+  if(scope==='burst'){
+    return [
+      mk('Get approved on Outlier AI', 'Approved and first task batch completed',
+        'Go to outlier.ai and click "View Opportunities" today.',
+        ['Go to outlier.ai, click View Opportunities',
+         'Pick the track matching your background — writing, reasoning, or technical/engineering',
+         'Create account, verify identity and location',
+         'Complete onboarding + skill screening (30–90 min, block real focused time for this, not a rushed 10 minutes)',
+         'If not accepted: note the specific gap, look for what to improve, reapply when ready',
+         'If accepted: complete the first task batch',
+         'Track the first payout date and amount']),
+      mk('Push 5 live-tested entries through the Trend Continuation strategy', 'Entries logged / 5',
+        'Open the Trading Journal now, log the next setup you see.',
+        ['Log the next 5 live-tested setups in the journal, using the defined pattern library',
+         'After each, fill in the actual outcome — win/loss/breakeven, no rounding up',
+         'Run one Study Framework review session (Intake/Processing/Testing mode) on what the 5 entries show',
+         'Check the Edge stats in the journal — is win rate/expectancy holding, drifting, or unclear']),
+      mk('Send first outreach for civil engineering freelance work', 'Messages sent / 5',
+        'Pick one platform (Upwork, Fiverr, or LinkedIn) and create/update the profile today.',
+        ['Choose one channel to start — Upwork, Fiverr, or direct LinkedIn outreach to firms/contacts',
+         'Prepare one clean sample drawing or portfolio piece to attach',
+         'Set an initial rate — even a placeholder is better than none',
+         'Send 5 outreach messages or applications this burst',
+         'Log every response, even a no, so the pattern becomes visible']),
+    ];
+  }
+  if(scope==='month'){
+    return [
+      mk('Outlier AI generating real, repeatable income', 'First 2 payouts received',
+        'If not yet applied, do it this week — see the burst-level plan.',
+        ['Complete onboarding and pass the skill screening',
+         'Establish a rhythm — a set number of hours/week on tasks',
+         'Maintain quality high enough to keep getting invited to further projects',
+         'Track total earned this month against the goal of covering at least one bill']),
+      mk('Log 20 live-tested entries under the Trend Continuation strategy', 'Entries logged / 20',
+        'Open the journal, log the next setup you see.',
+        ['Log 20 live-tested entries this month, no shortcuts on the ruleset',
+         'Weekly Study Framework review — what\'s actually working, what isn\'t',
+         'Identify real win rate and expectancy from the journal\'s Edge stats',
+         'Only adjust the ruleset based on what the data shows, not a single bad or good trade',
+         'Decide, with real numbers in hand, whether position size can responsibly increase']),
+      mk('Land first paid civil engineering freelance gig', 'First paid gig secured',
+        'Send today\'s outreach batch — see burst-level plan for the first 5.',
+        ['Apply to or message a steady cadence of leads across the month, not just once',
+         'Follow up on every application that goes quiet after a week',
+         'Close and deliver the first paid gig, however small',
+         'Ask that first client for a review or referral once delivered']),
+      mk('Decide on Forex as a second market to study', 'Decision made, documented',
+        'List 2 major currency pairs to look into this week.',
+        ['Identify 1–2 major forex pairs to study alongside the synthetics work',
+         'Compare session structure, volatility, and spread cost against V75',
+         'Paper-test the same Trend Continuation framework on forex before risking real capital',
+         'Decide: pursue seriously, park consciously, or drop it — and write down why']),
+    ];
+  }
+  // quarter
+  return [
+    mk('Build Outlier AI into a real second income stream', 'Consistent monthly payout established',
+      'Confirm application status and first task completed.',
+      ['Get through onboarding and the first month of task work',
+       'Establish a sustainable weekly time commitment that doesn\'t collide with CGSL site work',
+       'Reach a stable, repeatable monthly payout by end of quarter']),
+    mk('Reach 60 total logged live-tested entries under the Trend Continuation strategy', 'Entries logged / 60',
+      'Keep the journal open and current, every session.',
+      ['Sustain the logging discipline across all three months of the quarter',
+       'Run a Study Framework review at least once a month',
+       'By quarter end, have a real, data-backed answer on whether this strategy is ready for increased size']),
+    mk('Establish civil engineering freelancing as a repeatable channel, not a one-off', '2+ paid gigs completed',
+      'Confirm the first gig from month one is delivered and reviewed.',
+      ['Complete and deliver at least 2 paid gigs across the quarter',
+       'Build a small portfolio from delivered work',
+       'Identify whether this channel is worth scaling into a standing side-practice']),
+    mk('Settle the Forex question with real evidence, not just intention', 'Decision documented with data behind it',
+      'Review whatever paper-testing was done in month one.',
+      ['Complete a real comparison — synthetics vs forex — using actual paper-test or demo results',
+       'Make the call: expand into forex, or stay focused on synthetics and go deeper instead',
+       'Whichever way it goes, write down the reasoning so it doesn\'t need re-litigating next quarter']),
+  ];
+}
+
+function freshState(){
+  return {
+    cycleStart: '2026-08-01',
+    categories: JSON.parse(JSON.stringify(DEFAULT_CATEGORIES)),
+    bursts: {},
+    months: {},
+    quarters: {}
+  };
+}
+
+let state;
+try { const s = localStorage.getItem(STORAGE_KEY); state = s ? Object.assign(freshState(), JSON.parse(s)) : freshState(); }
+catch(e) { state = freshState(); }
+if(!state.categories || !state.categories.length) state.categories = JSON.parse(JSON.stringify(DEFAULT_CATEGORIES));
+
+let currentBurstIndex = 0;
+let currentMonthKey = '';
+let currentQuarterKey = '';
+let isDark = localStorage.getItem('arc-theme') !== 'light';
+
+function uid(){ return Date.now()+Math.random().toString(36).slice(2,6); }
+function esc(s){ return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+function pad(n){ return String(n).padStart(2,'0'); }
+function toKey(d){ return d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate()); }
+function todayKey(){ return toKey(new Date()); }
+function catById(id){ return state.categories.find(c=>c.id===id); }
+
+function saveAll(){
+  try { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); } catch(e){}
+  scheduleCloudPush();
+}
+function autosave(){ saveAll(); }
+
+// ══════════════════════ SHARED: CATEGORY-GROUPED GOAL RENDERING ══════════════════════
+// One rendering routine reused by Bursts/Month/Quarter — each passes its own
+// goal list, a container id, and callbacks for its own add/toggle/delete/edit.
+function renderCategoryGroups(containerId, goals, handlers){
+  const container = document.getElementById(containerId);
+  let html = '';
+  state.categories.forEach(cat=>{
+    const catGoals = goals.filter(g=>g.catId===cat.id);
+    const done = catGoals.filter(g=>g.done).length;
+    html += `<div class="cat-block">
+      <div class="cat-hd">
+        <div class="cat-dot" style="background:${cat.color}"></div>
+        <div class="cat-name">${esc(cat.name)}</div>
+        <div class="cat-prog">${catGoals.length ? done+'/'+catGoals.length : '—'}</div>
+      </div>`;
+    if(!catGoals.length){
+      html += `<div class="empty">No goals yet in this category.</div>`;
+    } else {
+      catGoals.forEach(g=>{
+        const steps = g.steps || [];
+        const stepsDone = steps.filter(s=>s.done).length;
+        html += `
+          <div class="goal-row">
+            <div class="goal-main">
+              <div class="goal-check ${g.done?'done':''}" onclick="${handlers.toggle}('${g.id}')"></div>
+              <input type="text" class="goal-text ${g.done?'done':''}" value="${esc(g.text)}" onchange="${handlers.setText}('${g.id}',this.value)">
+              ${g.rolledFrom?'<span class="rolled-tag">carried forward</span>':''}
+              <button class="goal-del" onclick="${handlers.del}('${g.id}')">✕</button>
+            </div>
+            <div class="goal-sub">
+              <div class="fld"><label>Measurable</label><input type="text" placeholder="How you'll know it's done" value="${esc(g.metric||'')}" onchange="${handlers.setField}('${g.id}','metric',this.value)"></div>
+              <div class="fld"><label>Time-bound</label><input type="date" value="${esc(g.deadline||'')}" onchange="${handlers.setField}('${g.id}','deadline',this.value)"></div>
+              <div class="fld mva"><label>Minimum viable action</label><input type="text" placeholder="Smallest possible first step" value="${esc(g.mva||'')}" onchange="${handlers.setField}('${g.id}','mva',this.value)"></div>
+            </div>
+            <div class="steps-block">
+              <div class="steps-label">Path to actually get there${steps.length?' — '+stepsDone+'/'+steps.length:''}</div>
+              ${steps.map((s,i)=>`
+                <div class="step-row">
+                  <div class="step-check ${s.done?'done':''}" onclick="${handlers.toggleStep}('${g.id}','${s.id}')"></div>
+                  <span class="step-num">${i+1}.</span>
+                  <input type="text" class="step-text ${s.done?'done':''}" value="${esc(s.text)}" onchange="${handlers.setStepText}('${g.id}','${s.id}',this.value)">
+                  <button class="step-del" onclick="${handlers.delStep}('${g.id}','${s.id}')">✕</button>
+                </div>`).join('')}
+              <div class="step-add-row">
+                <input type="text" id="newstep-${containerId}-${g.id}" placeholder="Add the next concrete step…" onkeydown="if(event.key==='Enter')${handlers.addStep}('${g.id}')">
+                <button onclick="${handlers.addStep}('${g.id}')">+ Step</button>
+              </div>
+            </div>
+          </div>`;
+      });
+    }
+    html += `
+      <div class="add-row">
+        <input type="text" id="new-${containerId}-${cat.id}" placeholder="Add a ${esc(cat.name)} goal…" onkeydown="if(event.key==='Enter')${handlers.add}('${cat.id}')">
+        <button onclick="${handlers.add}('${cat.id}')">Add</button>
+      </div>
+    </div>`;
+  });
+  container.innerHTML = html;
+}
+
+// ══════════════════════ BURSTS ══════════════════════
+function burstDateRange(index){
+  const start = new Date(state.cycleStart+'T00:00:00');
+  const workStart = new Date(start.getTime() + index*11*86400000);
+  const workEnd = new Date(workStart.getTime() + 9*86400000);
+  const restDay = new Date(workStart.getTime() + 10*86400000);
+  return { workStart, workEnd, restDay };
+}
+function burstIndexForToday(){
+  const start = new Date(state.cycleStart+'T00:00:00');
+  const today = new Date(todayKey()+'T00:00:00');
+  const diff = Math.floor((today-start)/86400000);
+  if(diff < 0) return 0;
+  return Math.floor(diff/11);
+}
+function ensureBurst(index){
+  if(!state.bursts[index]) state.bursts[index] = { title:'', goals:[] };
+  return state.bursts[index];
+}
+function fmtDate(d){ return d.toLocaleDateString('en-GB',{day:'numeric',month:'short'}); }
+
+function rolloverBursts(){
+  const curIdx = currentBurstIndex;
+  const cur = ensureBurst(curIdx);
+  for(let i=0; i<curIdx; i++){
+    const past = state.bursts[i];
+    if(!past) continue;
+    (past.goals||[]).forEach(g=>{
+      if(!g.done && !g.rolledOver && !cur.goals.find(x=>x.rolledFrom===g.id)){
+        cur.goals.push({ id:uid(), text:g.text, done:false, catId:g.catId, metric:g.metric, deadline:g.deadline, mva:g.mva, rolledFrom:g.id, rolledFromBurst:i });
+        g.rolledOver = true;
+      }
+    });
+  }
+}
+
+function renderTallyCount(n){
+  if(n<=0) return '<span style="color:var(--text-muted);font-size:12px">none yet</span>';
+  const groups = Math.floor(n/5);
+  const remainder = n%5;
+  let html='';
+  for(let g=0; g<groups; g++){
+    html += `<span class="tally-group">`+ '<span class="tally-stroke"></span>'.repeat(4) + `<span class="tally-strike"></span></span>`;
+  }
+  if(remainder>0){
+    html += `<span class="tally-group">` + '<span class="tally-stroke"></span>'.repeat(remainder) + `</span>`;
+  }
+  return html;
+}
+
+function renderDayTally(index){
+  const { workStart } = burstDateRange(index);
+  const todayD = new Date(todayKey()+'T00:00:00');
+  let html = '';
+  for(let i=0;i<11;i++){
+    const dayDate = new Date(workStart.getTime()+i*86400000);
+    const isRest = i===10;
+    const isPast = dayDate <= todayD;
+    const isToday = toKey(dayDate)===toKey(todayD);
+    html += `<div class="tally-mark ${isRest?'rest':''} ${isPast?'filled':''} ${isToday?'today':''}" title="${isRest?'Rest day':'Day '+(i+1)}"></div>`;
+  }
+  return html;
+}
+
+function renderBurst(){
+  const idx = currentBurstIndex;
+  const burst = ensureBurst(idx);
+  const { workStart, workEnd, restDay } = burstDateRange(idx);
+  const today = new Date(todayKey()+'T00:00:00');
+  const isCurrent = idx === burstIndexForToday();
+  const isRestDayToday = toKey(today) === toKey(restDay);
+
+  document.getElementById('burstHeading').textContent = 'Burst ' + (idx+1) + (isCurrent ? ' — Current' : '');
+  document.getElementById('burstDates').textContent =
+    fmtDate(workStart) + ' – ' + fmtDate(workEnd) + '  ·  rest day ' + fmtDate(restDay) +
+    (isRestDayToday ? '  ·  Today is your rest day' : '');
+
+  const passedCount = burstIndexForToday();
+  document.getElementById('burstPassedTally').innerHTML = renderTallyCount(passedCount);
+  document.getElementById('burstPassedLabel').textContent = passedCount;
+
+  document.getElementById('burstDayTally').innerHTML = renderDayTally(idx);
+
+  renderCategoryGroups('burstCategories', burst.goals || [], {
+    toggle:'toggleBurstGoal', del:'deleteBurstGoal', add:'addBurstGoal',
+    setText:'setBurstGoalText', setField:'setBurstGoalField',
+    toggleStep:'toggleBurstStep', setStepText:'setBurstStepText', delStep:'deleteBurstStep', addStep:'addBurstStep'
+  });
+}
+
+function addBurstGoal(catId){
+  const input = document.getElementById('new-burstCategories-'+catId);
+  const text = input.value.trim();
+  if(!text) return;
+  ensureBurst(currentBurstIndex).goals.push({ id:uid(), text, done:false, catId, metric:'', deadline:'', mva:'', steps:[] });
+  input.value='';
+  renderBurst(); autosave();
+}
+function toggleBurstGoal(id){ const g=ensureBurst(currentBurstIndex).goals.find(x=>x.id===id); if(g){g.done=!g.done; renderBurst(); autosave();} }
+function setBurstGoalText(id,val){ const g=ensureBurst(currentBurstIndex).goals.find(x=>x.id===id); if(g){g.text=val; autosave();} }
+function setBurstGoalField(id,field,val){ const g=ensureBurst(currentBurstIndex).goals.find(x=>x.id===id); if(g){g[field]=val; autosave();} }
+function deleteBurstGoal(id){ const b=ensureBurst(currentBurstIndex); b.goals=b.goals.filter(x=>x.id!==id); renderBurst(); autosave(); }
+function toggleBurstStep(gId,sId){ const g=ensureBurst(currentBurstIndex).goals.find(x=>x.id===gId); const s=(g&&g.steps||[]).find(x=>x.id===sId); if(s){s.done=!s.done; renderBurst(); autosave();} }
+function setBurstStepText(gId,sId,val){ const g=ensureBurst(currentBurstIndex).goals.find(x=>x.id===gId); const s=(g&&g.steps||[]).find(x=>x.id===sId); if(s){s.text=val; autosave();} }
+function deleteBurstStep(gId,sId){ const g=ensureBurst(currentBurstIndex).goals.find(x=>x.id===gId); if(g){g.steps=(g.steps||[]).filter(x=>x.id!==sId); renderBurst(); autosave();} }
+function addBurstStep(gId){
+  const input = document.getElementById('newstep-burstCategories-'+gId);
+  const text = input.value.trim(); if(!text) return;
+  const g = ensureBurst(currentBurstIndex).goals.find(x=>x.id===gId);
+  if(g){ if(!g.steps) g.steps=[]; g.steps.push({id:uid(),text,done:false}); renderBurst(); autosave(); }
+}
+function shiftBurst(dir){ currentBurstIndex = Math.max(0, currentBurstIndex+dir); renderBurst(); }
+function jumpToCurrentBurst(){ currentBurstIndex = burstIndexForToday(); rolloverBursts(); renderBurst(); autosave(); }
+function setCycleStart(val){
+  state.cycleStart = val;
+  document.getElementById('cycleStatus').textContent = 'Updated';
+  setTimeout(()=>document.getElementById('cycleStatus').textContent='',1500);
+  currentBurstIndex = burstIndexForToday();
+  rolloverBursts();
+  renderBurst();
+  autosave();
+}
+
+// ══════════════════════ MONTH ══════════════════════
+function monthKeyFor(d){ return d.getFullYear()+'-'+pad(d.getMonth()+1); }
+function monthLabel(key){ const [y,m] = key.split('-').map(Number); return new Date(y,m-1,1).toLocaleDateString('en-GB',{month:'long',year:'numeric'}); }
+function ensureMonth(key){ if(!state.months[key]) state.months[key] = { intention:'', goals:[] }; return state.months[key]; }
+function shiftMonthKey(key,dir){ const [y,m] = key.split('-').map(Number); const d = new Date(y,m-1+dir,1); return monthKeyFor(d); }
+
+function renderMonth(){
+  const key = currentMonthKey;
+  const month = ensureMonth(key);
+  document.getElementById('monthHeading').textContent = monthLabel(key);
+  document.getElementById('monthIntention').value = month.intention || '';
+
+  const goals = month.goals || [];
+  const doneCount = goals.filter(g=>g.done).length;
+  document.getElementById('monthProgressFill').style.width = (goals.length ? Math.round(doneCount/goals.length*100) : 0) + '%';
+  document.getElementById('monthProgressLabel').textContent = doneCount + ' / ' + goals.length + ' arching goals met';
+
+  renderCategoryGroups('monthCategories', goals, {
+    toggle:'toggleMonthGoal', del:'deleteMonthGoal', add:'addMonthGoal',
+    setText:'setMonthGoalText', setField:'setMonthGoalField',
+    toggleStep:'toggleMonthStep', setStepText:'setMonthStepText', delStep:'deleteMonthStep', addStep:'addMonthStep'
+  });
+}
+function saveMonthIntention(){ ensureMonth(currentMonthKey).intention = document.getElementById('monthIntention').value; autosave(); }
+function addMonthGoal(catId){
+  const input = document.getElementById('new-monthCategories-'+catId);
+  const text = input.value.trim();
+  if(!text) return;
+  ensureMonth(currentMonthKey).goals.push({ id:uid(), text, done:false, catId, metric:'', deadline:'', mva:'', steps:[] });
+  input.value='';
+  renderMonth(); autosave();
+}
+function toggleMonthGoal(id){ const g=ensureMonth(currentMonthKey).goals.find(x=>x.id===id); if(g){g.done=!g.done; renderMonth(); autosave();} }
+function setMonthGoalText(id,val){ const g=ensureMonth(currentMonthKey).goals.find(x=>x.id===id); if(g){g.text=val; autosave();} }
+function setMonthGoalField(id,field,val){ const g=ensureMonth(currentMonthKey).goals.find(x=>x.id===id); if(g){g[field]=val; autosave();} }
+function deleteMonthGoal(id){ const m=ensureMonth(currentMonthKey); m.goals=m.goals.filter(x=>x.id!==id); renderMonth(); autosave(); }
+function toggleMonthStep(gId,sId){ const g=ensureMonth(currentMonthKey).goals.find(x=>x.id===gId); const s=(g&&g.steps||[]).find(x=>x.id===sId); if(s){s.done=!s.done; renderMonth(); autosave();} }
+function setMonthStepText(gId,sId,val){ const g=ensureMonth(currentMonthKey).goals.find(x=>x.id===gId); const s=(g&&g.steps||[]).find(x=>x.id===sId); if(s){s.text=val; autosave();} }
+function deleteMonthStep(gId,sId){ const g=ensureMonth(currentMonthKey).goals.find(x=>x.id===gId); if(g){g.steps=(g.steps||[]).filter(x=>x.id!==sId); renderMonth(); autosave();} }
+function addMonthStep(gId){
+  const input = document.getElementById('newstep-monthCategories-'+gId);
+  const text = input.value.trim(); if(!text) return;
+  const g = ensureMonth(currentMonthKey).goals.find(x=>x.id===gId);
+  if(g){ if(!g.steps) g.steps=[]; g.steps.push({id:uid(),text,done:false}); renderMonth(); autosave(); }
+}
+function shiftMonth(dir){ currentMonthKey = shiftMonthKey(currentMonthKey,dir); renderMonth(); }
+function jumpToCurrentMonth(){ currentMonthKey = monthKeyFor(new Date()); renderMonth(); }
+
+// ══════════════════════ QUARTER ══════════════════════
+function quarterKeyFor(d){ const q = Math.floor(d.getMonth()/3)+1; return d.getFullYear()+'-Q'+q; }
+function quarterMonths(key){ const [y,q] = key.split('-Q').map(Number); const startMonth = (q-1)*3; return [0,1,2].map(i=>y+'-'+pad(startMonth+i+1)); }
+function quarterLabel(key){ const [y,q] = key.split('-Q'); return 'Q'+q+' '+y; }
+function ensureQuarter(key){ if(!state.quarters[key]) state.quarters[key] = { intention:'', goals:[] }; return state.quarters[key]; }
+function shiftQuarterKey(key,dir){ const [y,q] = key.split('-Q').map(Number); let newQ=q+dir, newY=y; if(newQ<1){newQ=4;newY--;} if(newQ>4){newQ=1;newY++;} return newY+'-Q'+newQ; }
+
+function renderQuarter(){
+  const key = currentQuarterKey;
+  const quarter = ensureQuarter(key);
+  document.getElementById('quarterHeading').textContent = quarterLabel(key);
+  document.getElementById('quarterIntention').value = quarter.intention || '';
+
+  const grid = document.getElementById('quarterMonthGrid');
+  grid.innerHTML = quarterMonths(key).map(mKey=>{
+    const m = state.months[mKey];
+    const goals = m ? (m.goals||[]) : [];
+    const done = goals.filter(g=>g.done).length;
+    const active = mKey===currentMonthKey ? 'active' : '';
+    return `<div class="month-chip ${active}" onclick="jumpToMonthFromQuarter('${mKey}')">
+      <div class="m-name">${monthLabel(mKey).split(' ')[0]}</div>
+      <div class="m-prog">${goals.length ? done+'/'+goals.length : '—'}</div>
+    </div>`;
+  }).join('');
+
+  renderCategoryGroups('quarterCategories', quarter.goals || [], {
+    toggle:'toggleQuarterGoal', del:'deleteQuarterGoal', add:'addQuarterGoal',
+    setText:'setQuarterGoalText', setField:'setQuarterGoalField',
+    toggleStep:'toggleQuarterStep', setStepText:'setQuarterStepText', delStep:'deleteQuarterStep', addStep:'addQuarterStep'
+  });
+}
+function saveQuarterIntention(){ ensureQuarter(currentQuarterKey).intention = document.getElementById('quarterIntention').value; autosave(); }
+function addQuarterGoal(catId){
+  const input = document.getElementById('new-quarterCategories-'+catId);
+  const text = input.value.trim();
+  if(!text) return;
+  ensureQuarter(currentQuarterKey).goals.push({ id:uid(), text, done:false, catId, metric:'', deadline:'', mva:'', steps:[] });
+  input.value='';
+  renderQuarter(); autosave();
+}
+function toggleQuarterGoal(id){ const g=ensureQuarter(currentQuarterKey).goals.find(x=>x.id===id); if(g){g.done=!g.done; renderQuarter(); autosave();} }
+function setQuarterGoalText(id,val){ const g=ensureQuarter(currentQuarterKey).goals.find(x=>x.id===id); if(g){g.text=val; autosave();} }
+function setQuarterGoalField(id,field,val){ const g=ensureQuarter(currentQuarterKey).goals.find(x=>x.id===id); if(g){g[field]=val; autosave();} }
+function deleteQuarterGoal(id){ const q=ensureQuarter(currentQuarterKey); q.goals=q.goals.filter(x=>x.id!==id); renderQuarter(); autosave(); }
+function toggleQuarterStep(gId,sId){ const g=ensureQuarter(currentQuarterKey).goals.find(x=>x.id===gId); const s=(g&&g.steps||[]).find(x=>x.id===sId); if(s){s.done=!s.done; renderQuarter(); autosave();} }
+function setQuarterStepText(gId,sId,val){ const g=ensureQuarter(currentQuarterKey).goals.find(x=>x.id===gId); const s=(g&&g.steps||[]).find(x=>x.id===sId); if(s){s.text=val; autosave();} }
+function deleteQuarterStep(gId,sId){ const g=ensureQuarter(currentQuarterKey).goals.find(x=>x.id===gId); if(g){g.steps=(g.steps||[]).filter(x=>x.id!==sId); renderQuarter(); autosave();} }
+function addQuarterStep(gId){
+  const input = document.getElementById('newstep-quarterCategories-'+gId);
+  const text = input.value.trim(); if(!text) return;
+  const g = ensureQuarter(currentQuarterKey).goals.find(x=>x.id===gId);
+  if(g){ if(!g.steps) g.steps=[]; g.steps.push({id:uid(),text,done:false}); renderQuarter(); autosave(); }
+}
+function shiftQuarter(dir){ currentQuarterKey = shiftQuarterKey(currentQuarterKey,dir); renderQuarter(); }
+function jumpToCurrentQuarter(){ currentQuarterKey = quarterKeyFor(new Date()); renderQuarter(); }
+function jumpToMonthFromQuarter(mKey){ currentMonthKey = mKey; showTab('month', document.querySelector('[data-tab="month"]')); renderMonth(); }
+
+// ══════════════════════ CATEGORY MANAGER ══════════════════════
+function openCatManager(){
+  renderCatEditList();
+  document.getElementById('catModal').classList.add('show');
+}
+function closeCatManager(){
+  document.getElementById('catModal').classList.remove('show');
+  renderBurst(); renderMonth(); renderQuarter();
+}
+function renderCatEditList(){
+  const list = document.getElementById('catEditList');
+  list.innerHTML = state.categories.map(c=>`
+    <div class="cat-edit-row">
+      <input type="color" value="${c.color}" onchange="setCatColor('${c.id}',this.value)">
+      <input type="text" value="${esc(c.name)}" onchange="setCatName('${c.id}',this.value)">
+      <button onclick="deleteCategory('${c.id}')" title="Delete category (goals stay, just uncategorized)">✕</button>
+    </div>`).join('');
+}
+function setCatName(id,val){ const c=catById(id); if(c){c.name=val; autosave();} }
+function setCatColor(id,val){ const c=catById(id); if(c){c.color=val; autosave();} }
+function addCategory(){
+  const input = document.getElementById('newCatName');
+  const name = input.value.trim();
+  if(!name) return;
+  state.categories.push({ id:uid(), name, color:'#c9a84c' });
+  input.value='';
+  renderCatEditList(); autosave();
+}
+function deleteCategory(id){
+  if(!confirm('Delete this category? Goals inside it will lose their category tag, not get deleted.')) return;
+  state.categories = state.categories.filter(c=>c.id!==id);
+  renderCatEditList(); autosave();
+}
+
+// ══════════════════════ IMPORT GOALS (separate from full-state Import) ══════════════════════
+// Detects two shapes: (1) the old monthly/quarterly plan files' nested
+// categories[].goals[] export ({text,target,count,done}), and (2) a flat
+// array of goal-like objects with flexible field names. Either way, this
+// only ever appends — it never touches existing goals, and categories are
+// matched by name or created fresh if nothing matches.
+let pendingImportGoals = [];
+
+function normalizeImportedGoals(parsed){
+  const out = [];
+  if(parsed && Array.isArray(parsed.categories) && parsed.categories.some(c=>Array.isArray(c.goals))){
+    parsed.categories.forEach(cat=>{
+      (cat.goals||[]).forEach(g=>{
+        out.push({
+          text: g.text || g.title || '',
+          catName: cat.name || 'Uncategorized',
+          metric: (g.target!=null) ? ('Target: '+g.target+(g.count!=null?' (was at '+g.count+')':'')) : (g.metric||''),
+          deadline: g.deadline || '',
+          mva: g.mva || '',
+          steps: Array.isArray(g.steps) ? g.steps.map(s=>({text: (typeof s==='string'?s:(s.text||'')), done:!!(s.done)})) : [],
+          done: !!g.done
+        });
+      });
+    });
+    return out;
+  }
+  if(Array.isArray(parsed)){
+    parsed.forEach(g=>{
+      out.push({
+        text: g.text || g.goal || g.title || '',
+        catName: g.category || g.cat || g.categoryName || 'Uncategorized',
+        metric: g.metric || g.measurable || '',
+        deadline: g.deadline || g.dueDate || g.due || '',
+        mva: g.mva || g.action || g.minimumViableAction || '',
+        steps: Array.isArray(g.steps) ? g.steps.map(s=>({text: (typeof s==='string'?s:(s.text||'')), done:!!(s.done)})) : [],
+        done: !!(g.done || g.complete)
+      });
+    });
+    return out;
+  }
+  if(parsed && Array.isArray(parsed.goals)) return normalizeImportedGoals(parsed.goals);
+  return out;
+}
+
+function resolveCategoryId(catName){
+  const existing = state.categories.find(c=>c.name.toLowerCase()===String(catName).toLowerCase());
+  if(existing) return existing.id;
+  const palette = ['#c9a84c','#4caf7d','#4a8cc9','#c45a5a','#cf6b9e','#b98a4a','#8a6fc9'];
+  const newCat = { id:uid(), name:catName, color: palette[state.categories.length % palette.length] };
+  state.categories.push(newCat);
+  return newCat.id;
+}
+
+function handleGoalsFileSelect(e){
+  const file = e.target.files[0];
+  if(!file) return;
+  const r = new FileReader();
+  r.onload = ev=>{
+    try{
+      const parsed = JSON.parse(ev.target.result);
+      pendingImportGoals = normalizeImportedGoals(parsed).filter(g=>g.text);
+      if(!pendingImportGoals.length){ alert('No recognizable goals found in that file.'); return; }
+      const cats = [...new Set(pendingImportGoals.map(g=>g.catName))];
+      document.getElementById('importGoalsSummary').innerHTML =
+        '<strong>'+pendingImportGoals.length+'</strong> goal(s) found across '+cats.length+' categor'+(cats.length===1?'y':'ies')+': '+esc(cats.join(', '));
+      document.getElementById('importGoalsModal').classList.add('show');
+    }catch(err){ alert("Couldn't read that file as JSON."); }
+  };
+  r.readAsText(file);
+  e.target.value='';
+}
+
+function confirmGoalsImport(){
+  const scope = document.getElementById('importScopeSelect').value;
+  let target;
+  if(scope==='burst') target = ensureBurst(currentBurstIndex).goals;
+  else if(scope==='month') target = ensureMonth(currentMonthKey).goals;
+  else target = ensureQuarter(currentQuarterKey).goals;
+
+  pendingImportGoals.forEach(g=>{
+    target.push({
+      id: uid(), text: g.text, done: g.done,
+      catId: resolveCategoryId(g.catName),
+      metric: g.metric, deadline: g.deadline, mva: g.mva,
+      steps: (g.steps||[]).map(s=>({id:uid(), text:s.text, done:s.done}))
+    });
+  });
+
+  const count = pendingImportGoals.length;
+  pendingImportGoals = [];
+  document.getElementById('importGoalsModal').classList.remove('show');
+  renderBurst(); renderMonth(); renderQuarter();
+  autosave();
+  showToast(count+' goal(s) imported into '+scope);
+}
+
+function cancelGoalsImport(){
+  pendingImportGoals = [];
+  document.getElementById('importGoalsModal').classList.remove('show');
+}
+
+function showToast(msg){
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'), 2800);
+}
+
+// ══════════════════════ TABS / THEME / EXPORT ══════════════════════
+function showTab(name, el){
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  el.classList.add('active');
+  document.getElementById('page-'+name).classList.add('active');
+}
+function toggleTheme(){
+  isDark = !isDark;
+  document.body.classList.toggle('light', !isDark);
+  localStorage.setItem('arc-theme', isDark?'dark':'light');
+}
+function exportData(){
+  const blob = new Blob([JSON.stringify(state,null,2)],{type:'application/json'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'the-arc-export.json';
+  a.click();
+}
+function importData(e){
+  const file = e.target.files[0];
+  if(!file) return;
+  const r = new FileReader();
+  r.onload = ev=>{
+    try{
+      const d = JSON.parse(ev.target.result);
+      state = Object.assign(freshState(), d);
+      if(!state.categories || !state.categories.length) state.categories = JSON.parse(JSON.stringify(DEFAULT_CATEGORIES));
+      renderBurst(); renderMonth(); renderQuarter();
+      autosave();
+    }catch(err){ alert("Couldn't read that file."); }
+  };
+  r.readAsText(file);
+  e.target.value='';
+}
+
+// ══════════════════════ CLOUD SYNC (Supabase) ══════════════════════
+const SYNC_URL = 'https://wrzxalfdatnpdnbmdjir.supabase.co/rest/v1/sync_data';
+const SYNC_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndyenhhbGZkYXRucGRuYm1kamlyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODQ1MjA4ODMsImV4cCI6MjEwMDA5Njg4M30.oyx47J97hZsjnF3iFOz9mHGt_9oGjqLMQ0zsiVhBC-g';
+const SYNC_KEY = 'AmiableMeerkat894';
+const SYNC_TOOL = 'the-arc';
+
+function setSyncStatus(msg){ const el=document.getElementById('syncStatus'); if(el) el.textContent=msg; }
+
+async function pullCloud(){
+  setSyncStatus('Syncing…');
+  try{
+    const ctrl = new AbortController();
+    const timeout = setTimeout(()=>ctrl.abort(),6000);
+    const res = await fetch(`${SYNC_URL}?tool=eq.${SYNC_TOOL}&select=data,updated_at`,{
+      headers:{ 'apikey':SYNC_ANON_KEY,'Authorization':'Bearer '+SYNC_ANON_KEY,'x-sync-key':SYNC_KEY },
+      signal: ctrl.signal
+    });
+    clearTimeout(timeout);
+    if(!res.ok){ setSyncStatus('Sync error'); return; }
+    const rows = await res.json();
+    if(!rows.length){ setSyncStatus('Synced'); pushCloudNow(); return; }
+    const remote = rows[0];
+    const localSyncedAt = localStorage.getItem(SYNC_TOOL+'_synced_at');
+    if(!localSyncedAt || new Date(remote.updated_at) > new Date(localSyncedAt)){
+      state = Object.assign(freshState(), remote.data);
+      if(!state.categories || !state.categories.length) state.categories = JSON.parse(JSON.stringify(DEFAULT_CATEGORIES));
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+      localStorage.setItem(SYNC_TOOL+'_synced_at', remote.updated_at);
+    }
+    setSyncStatus('Synced');
+  }catch(e){ setSyncStatus('Offline'); }
+}
+let cloudPushTimer = null;
+function scheduleCloudPush(){ clearTimeout(cloudPushTimer); cloudPushTimer = setTimeout(pushCloudNow, 1500); }
+async function pushCloudNow(){
+  setSyncStatus('Syncing…');
+  try{
+    const res = await fetch(`${SYNC_URL}?on_conflict=tool`,{
+      method:'POST',
+      headers:{ 'apikey':SYNC_ANON_KEY,'Authorization':'Bearer '+SYNC_ANON_KEY,'x-sync-key':SYNC_KEY,'Content-Type':'application/json','Prefer':'resolution=merge-duplicates,return=representation' },
+      body: JSON.stringify([{ tool:SYNC_TOOL, data:state }])
+    });
+    if(!res.ok){ setSyncStatus('Sync error'); return; }
+    const rows = await res.json();
+    if(rows.length) localStorage.setItem(SYNC_TOOL+'_synced_at', rows[0].updated_at);
+    setSyncStatus('Synced');
+  }catch(e){ setSyncStatus('Offline'); }
+}
+document.addEventListener('visibilitychange', ()=>{ if(document.visibilityState==='hidden'){ clearTimeout(cloudPushTimer); pushCloudNow(); } });
+
+// ══════════════════════ INIT ══════════════════════
+(async function(){
+  await pullCloud();
+
+  if(!isDark) document.body.classList.add('light');
+  document.getElementById('cycleStartInput').value = state.cycleStart;
+
+  currentBurstIndex = burstIndexForToday();
+  rolloverBursts();
+  currentMonthKey = monthKeyFor(new Date());
+  currentQuarterKey = quarterKeyFor(new Date());
+
+  // Seed starter content — full set if a period is genuinely empty; if it
+  // already has goals from earlier use, just backfill Income & Skill-Up
+  // specifically, since that category is new. Never touches anything else.
+  const b = ensureBurst(currentBurstIndex);
+  if(!b.goals.length) b.goals = starterGoals('burst');
+  else if(!b.goals.some(g=>g.catId==='income')) b.goals = [...incomeStarterGoals('burst'), ...b.goals];
+
+  const m = ensureMonth(currentMonthKey);
+  if(!m.goals.length) m.goals = starterGoals('month');
+  else if(!m.goals.some(g=>g.catId==='income')) m.goals = [...incomeStarterGoals('month'), ...m.goals];
+
+  const q = ensureQuarter(currentQuarterKey);
+  if(!q.goals.length) q.goals = starterGoals('quarter');
+  else if(!q.goals.some(g=>g.catId==='income')) q.goals = [...incomeStarterGoals('quarter'), ...q.goals];
+
+  renderBurst();
+  renderMonth();
+  renderQuarter();
+  autosave();
+})();
+</script>
+</body>
+</html>
