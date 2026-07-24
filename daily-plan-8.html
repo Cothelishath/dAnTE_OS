@@ -3,6 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@300;400&display=swap" rel="stylesheet">
@@ -227,6 +228,7 @@ textarea.rb-inp{resize:vertical;min-height:60px;line-height:1.5}
 .rt-task{background:var(--gold-glow);color:var(--gold-dim)}
 .rt-note{background:rgba(74,140,201,.1);color:#4a8cc9}
 .rt-trade{background:rgba(76,175,125,.1);color:var(--green)}
+.rt-priority{background:rgba(196,90,90,.12);color:#c45a5a}
 .rollover-src{font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--text-muted);flex-shrink:0}
 
 /* TOAST */
@@ -241,6 +243,7 @@ textarea.rb-inp{resize:vertical;min-height:60px;line-height:1.5}
     <div class="logo-brand">dAnTE</div>
     <div class="logo-title">The <em>Day</em></div>
   </div>
+  <div id="syncStatus" style="font-family:'JetBrains Mono',monospace;font-size:8px;color:var(--text-muted);margin-right:8px;display:flex;align-items:center;">—</div>
   <button class="hbtn" onclick="document.getElementById('weekJsonFile').click()" title="Load ideal week">⬆ Week</button>
   <button class="hbtn" onclick="exportData()">⬇</button>
   <button class="hbtn" onclick="document.getElementById('importFile').click()">⬆</button>
@@ -505,7 +508,7 @@ function startDay(){
   activeDateKey=todayKey();
   appMode='execute';
   viewingKey=null;
-  localStorage.setItem('theDayMode',JSON.stringify({appMode,activeDateKey}));
+  localStorage.setItem('theDayMode',JSON.stringify({appMode,activeDateKey}));scheduleCloudPush();
   renderBanner();
   renderDay();
   showToast('Day started — go build something');
@@ -515,7 +518,7 @@ function switchToPlan(){
   appMode='plan';
   activeDateKey=null;
   viewingKey=null;
-  localStorage.setItem('theDayMode',JSON.stringify({appMode,activeDateKey}));
+  localStorage.setItem('theDayMode',JSON.stringify({appMode,activeDateKey}));scheduleCloudPush();
   renderBanner();
   renderDay();
   showToast('Planning for tomorrow');
@@ -1157,7 +1160,7 @@ function switchTab(tab){
 function loadWeekJson(e){
   const file=e.target.files[0];if(!file)return;
   const r=new FileReader();
-  r.onload=ev=>{try{weekData=JSON.parse(ev.target.result);localStorage.setItem('theDayWeekData',JSON.stringify(weekData));renderRoutine(planKey());showToast('Ideal week loaded');}catch(err){showToast('Could not read file')}};
+  r.onload=ev=>{try{weekData=JSON.parse(ev.target.result);localStorage.setItem('theDayWeekData',JSON.stringify(weekData));scheduleCloudPush();renderRoutine(planKey());showToast('Ideal week loaded');}catch(err){showToast('Could not read file')}};
   r.readAsText(file);e.target.value='';
 }
 
@@ -1173,8 +1176,77 @@ function saveData(silent=false){
   const intentionEl=document.getElementById('intentionText');
   if(intentionEl) ensurePlan(planKey()).intention=intentionEl.value;
   localStorage.setItem('theDayState',JSON.stringify(state));
+  scheduleCloudPush();
   if(!silent) showToast('Saved');
 }
+
+// ── CLOUD SYNC (Supabase) ──
+// Own row, separate from the-daily.html — bundles this dashboard's three
+// keys: theDayState (plans/priorities/tasks), theDayWeekData (ideal week),
+// theDayMode (plan/execute mode + active date).
+const SYNC_URL = 'https://wrzxalfdatnpdnbmdjir.supabase.co/rest/v1/sync_data';
+const SYNC_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndyenhhbGZkYXRucGRuYm1kamlyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODQ1MjA4ODMsImV4cCI6MjEwMDA5Njg4M30.oyx47J97hZsjnF3iFOz9mHGt_9oGjqLMQ0zsiVhBC-g';
+const SYNC_KEY = 'AmiableMeerkat894';
+const SYNC_TOOL = 'daily-plan';
+
+function setSyncStatus(msg) { const el=document.getElementById('syncStatus'); if(el) el.textContent=msg; }
+
+async function pullCloud() {
+  setSyncStatus('Syncing…');
+  try {
+    const ctrl = new AbortController();
+    const timeout = setTimeout(()=>ctrl.abort(), 6000);
+    const res = await fetch(`${SYNC_URL}?tool=eq.${SYNC_TOOL}&select=data,updated_at`, {
+      headers: { 'apikey': SYNC_ANON_KEY, 'Authorization': 'Bearer ' + SYNC_ANON_KEY, 'x-sync-key': SYNC_KEY },
+      signal: ctrl.signal
+    });
+    clearTimeout(timeout);
+    if(!res.ok) { setSyncStatus('Sync error'); return; }
+    const rows = await res.json();
+    if(!rows.length) { setSyncStatus('Synced'); pushCloudNow(); return; }
+    const remote = rows[0];
+    const localSyncedAt = localStorage.getItem(SYNC_TOOL + '_synced_at');
+    if(!localSyncedAt || new Date(remote.updated_at) > new Date(localSyncedAt)) {
+      const d = remote.data;
+      if(d.state) { state = d.state; localStorage.setItem('theDayState', JSON.stringify(state)); }
+      if(d.weekData) { weekData = d.weekData; localStorage.setItem('theDayWeekData', JSON.stringify(weekData)); }
+      if(d.appMode) { appMode = d.appMode; activeDateKey = d.activeDateKey; localStorage.setItem('theDayMode', JSON.stringify({appMode,activeDateKey})); }
+      localStorage.setItem(SYNC_TOOL + '_synced_at', remote.updated_at);
+    }
+    setSyncStatus('Synced');
+  } catch(e) { setSyncStatus('Offline'); }
+}
+
+let cloudPushTimer = null;
+function scheduleCloudPush() {
+  clearTimeout(cloudPushTimer);
+  cloudPushTimer = setTimeout(pushCloudNow, 1500);
+}
+
+async function pushCloudNow() {
+  setSyncStatus('Syncing…');
+  try {
+    const res = await fetch(`${SYNC_URL}?on_conflict=tool`, {
+      method: 'POST',
+      headers: { 'apikey': SYNC_ANON_KEY, 'Authorization': 'Bearer ' + SYNC_ANON_KEY, 'x-sync-key': SYNC_KEY, 'Content-Type': 'application/json', 'Prefer': 'resolution=merge-duplicates,return=representation' },
+      body: JSON.stringify([{ tool: SYNC_TOOL, data: {state, weekData, appMode, activeDateKey} }])
+    });
+    if(!res.ok) { setSyncStatus('Sync error'); return; }
+    const rows = await res.json();
+    if(rows.length) localStorage.setItem(SYNC_TOOL + '_synced_at', rows[0].updated_at);
+    setSyncStatus('Synced');
+  } catch(e) { setSyncStatus('Offline'); }
+}
+
+// Force a pending push through immediately if the app is backgrounded —
+// same reasoning as Quickening/The Day: debounced saves can be lost if
+// the OS suspends the tab before the timer fires.
+document.addEventListener('visibilitychange', () => {
+  if (document.visibilityState === 'hidden') {
+    clearTimeout(asTimer); saveData(true);
+    clearTimeout(cloudPushTimer); pushCloudNow();
+  }
+});
 function loadData(){
   const s=localStorage.getItem('theDayState');
   if(s){try{const d=JSON.parse(s);if(d.plans)state.plans=d.plans;if(d.week)state.week=d.week;if(d.engagements)state.engagements=d.engagements;}catch(e){}}
@@ -1194,7 +1266,7 @@ function handleImport(e){
   r.onload=ev=>{try{
     const d=JSON.parse(ev.target.result);
     if(d.state){if(d.state.plans)state.plans=d.state.plans;if(d.state.week)state.week=d.state.week;if(d.state.engagements)state.engagements=d.state.engagements;}
-    if(d.weekData){weekData=d.weekData;localStorage.setItem('theDayWeekData',JSON.stringify(weekData));}
+    if(d.weekData){weekData=d.weekData;localStorage.setItem('theDayWeekData',JSON.stringify(weekData));scheduleCloudPush();}
     if(d.appMode)appMode=d.appMode;
     if(d.activeDateKey)activeDateKey=d.activeDateKey;
     renderAll();showToast('Imported');
@@ -1221,6 +1293,13 @@ function rolloverCheck(){
   Object.keys(state.plans).forEach(pastKey=>{
     if(pastKey>=key) return; // only past days
     const past=state.plans[pastKey];
+    // Unfinished priorities
+    (past.priorities||[]).forEach(p=>{
+      if(!p.done&&!plan.rolledIn.find(r=>r.srcId===p.id)){
+        plan.rolledIn.push({id:uid(),srcId:p.id,srcDate:pastKey,type:'priority',text:p.text,done:false});
+        p.rolledOver=true;
+      }
+    });
     // Unfinished tasks
     (past.tasks||[]).forEach(t=>{
       if(!t.done&&!plan.rolledIn.find(r=>r.srcId===t.id)){
@@ -1266,8 +1345,8 @@ function renderRolledIn(key){
     if(item.done) return;
     const div=document.createElement('div');
     div.className='rollover-item'+(item.done?' done':'');
-    const typeClass={task:'rt-task',note:'rt-note',trade:'rt-trade'}[item.type]||'rt-note';
-    const typeLabel={task:'Task',note:'Note',trade:'Setup'}[item.type]||item.type;
+    const typeClass={task:'rt-task',note:'rt-note',trade:'rt-trade',priority:'rt-priority'}[item.type]||'rt-note';
+    const typeLabel={task:'Task',note:'Note',trade:'Setup',priority:'Priority'}[item.type]||item.type;
     const srcDate=new Date(item.srcDate+'T12:00:00');
     const srcLabel=srcDate.getDate()+'/'+pad(srcDate.getMonth()+1);
     div.innerHTML=`
@@ -1275,9 +1354,22 @@ function renderRolledIn(key){
       <div class="rollover-type ${typeClass}">${typeLabel}</div>
       <div class="task-text" style="flex:1;font-size:12px;color:var(--text-dim)">${esc(item.text)}${item.obs?'<div style="font-size:11px;color:var(--text-muted);font-style:italic;margin-top:2px">'+esc(item.obs)+'</div>':''}</div>
       <div class="rollover-src">${srcLabel}</div>
+      ${item.type==='priority'?`<button class="task-del" onclick="promoteRollover('${item.id}')" style="opacity:1;color:var(--gold)" title="Add to today's priorities">↩</button>`:''}
       <button class="task-del" onclick="dismissRollover('${item.id}')" style="opacity:1;color:var(--text-muted)">✕</button>`;
     sec.appendChild(div);
   });
+}
+
+function promoteRollover(id){
+  const plan=ensurePlan(planKey());
+  const item=(plan.rolledIn||[]).find(x=>x.id===id);
+  if(!item)return;
+  if(!plan.priorities) plan.priorities=[];
+  if(plan.priorities.length>=3){ showToast('Three is the limit — clear a priority first'); return; }
+  plan.priorities.push({id:uid(),text:item.text,done:false});
+  item.done=true;
+  renderP3(planKey()); renderRolledIn(planKey()); autosave();
+  showToast('Added to today\'s priorities');
 }
 
 function toggleRollover(id){
@@ -1301,27 +1393,31 @@ function renderAll(){
 // ── INIT ─────────────────────────────────────────────────
 const th=localStorage.getItem('theDayTheme');
 if(th==='light'){isDark=false;document.body.classList.add('light')}
-loadData();
 
-// If in execute mode and a new calendar day has arrived, carry execute mode
-// forward to today automatically — this is what was silently dropping tasks:
-// previously the app fell back to "plan for tomorrow" and today's tasks were
-// only reachable by browsing history. Now "today" stays current on its own.
-if(appMode==='execute'&&activeDateKey){
-  if(activeDateKey<todayKey()){
-    activeDateKey=todayKey();
-    localStorage.setItem('theDayMode',JSON.stringify({appMode,activeDateKey}));
+(async function(){
+  await pullCloud();
+  loadData();
+
+  // If in execute mode and a new calendar day has arrived, carry execute mode
+  // forward to today automatically — this is what was silently dropping tasks:
+  // previously the app fell back to "plan for tomorrow" and today's tasks were
+  // only reachable by browsing history. Now "today" stays current on its own.
+  if(appMode==='execute'&&activeDateKey){
+    if(activeDateKey<todayKey()){
+      activeDateKey=todayKey();
+      localStorage.setItem('theDayMode',JSON.stringify({appMode,activeDateKey}));scheduleCloudPush();
+    }
   }
-}
 
-renderAll();
+  renderAll();
 
-// Restore intention
-const intentionEl=document.getElementById('intentionText');
-if(intentionEl){
-  const plan=ensurePlan(planKey());
-  intentionEl.value=plan.intention||'';
-}
+  // Restore intention
+  const intentionEl=document.getElementById('intentionText');
+  if(intentionEl){
+    const plan=ensurePlan(planKey());
+    intentionEl.value=plan.intention||'';
+  }
+})();
 
 // banner renders start button inline
 </script>
