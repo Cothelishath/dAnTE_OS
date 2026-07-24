@@ -637,6 +637,7 @@ body{
   <div class="top-right">
     <div class="top-date" id="topDate"></div>
     <div class="top-time" id="topTime"></div>
+    <div class="top-date" id="syncStatus">—</div>
     <button class="icon-btn" onclick="exportData()" title="Export data">
       <svg><use href="#ic-export"/></svg>
     </button>
@@ -892,7 +893,65 @@ const KEY = 'daily_v3';
 /* ── DB ───────────────────────────────── */
 let db; try{db=JSON.parse(localStorage.getItem(KEY))||fresh();}catch{db=fresh();}
 function fresh(){return{j:{},g:{},ex:{},todos:[],vis:[]};}
-function save(){try{localStorage.setItem(KEY,JSON.stringify(db));}catch{}}
+function save(){try{localStorage.setItem(KEY,JSON.stringify(db));}catch{} scheduleCloudPush();}
+
+// ── CLOUD SYNC (Supabase) ──
+// Own row, separate from daily-plan-8.html. Just the one key here.
+const SYNC_URL = 'https://wrzxalfdatnpdnbmdjir.supabase.co/rest/v1/sync_data';
+const SYNC_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndyenhhbGZkYXRucGRuYm1kamlyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODQ1MjA4ODMsImV4cCI6MjEwMDA5Njg4M30.oyx47J97hZsjnF3iFOz9mHGt_9oGjqLMQ0zsiVhBC-g';
+const SYNC_KEY = 'AmiableMeerkat894';
+const SYNC_TOOL = 'the-daily';
+
+function setSyncStatus(msg) { const el=document.getElementById('syncStatus'); if(el) el.textContent=msg; }
+
+async function pullCloud() {
+  setSyncStatus('Syncing…');
+  try {
+    const ctrl = new AbortController();
+    const timeout = setTimeout(()=>ctrl.abort(), 6000);
+    const res = await fetch(`${SYNC_URL}?tool=eq.${SYNC_TOOL}&select=data,updated_at`, {
+      headers: { 'apikey': SYNC_ANON_KEY, 'Authorization': 'Bearer ' + SYNC_ANON_KEY, 'x-sync-key': SYNC_KEY },
+      signal: ctrl.signal
+    });
+    clearTimeout(timeout);
+    if(!res.ok) { setSyncStatus('Sync error'); return; }
+    const rows = await res.json();
+    if(!rows.length) { setSyncStatus('Synced'); pushCloudNow(); return; }
+    const remote = rows[0];
+    const localSyncedAt = localStorage.getItem(SYNC_TOOL + '_synced_at');
+    if(!localSyncedAt || new Date(remote.updated_at) > new Date(localSyncedAt)) {
+      db = remote.data;
+      localStorage.setItem(KEY, JSON.stringify(db));
+      localStorage.setItem(SYNC_TOOL + '_synced_at', remote.updated_at);
+    }
+    setSyncStatus('Synced');
+  } catch(e) { setSyncStatus('Offline'); }
+}
+
+let cloudPushTimer = null;
+function scheduleCloudPush() {
+  clearTimeout(cloudPushTimer);
+  cloudPushTimer = setTimeout(pushCloudNow, 1500);
+}
+
+async function pushCloudNow() {
+  setSyncStatus('Syncing…');
+  try {
+    const res = await fetch(`${SYNC_URL}?on_conflict=tool`, {
+      method: 'POST',
+      headers: { 'apikey': SYNC_ANON_KEY, 'Authorization': 'Bearer ' + SYNC_ANON_KEY, 'x-sync-key': SYNC_KEY, 'Content-Type': 'application/json', 'Prefer': 'resolution=merge-duplicates,return=representation' },
+      body: JSON.stringify([{ tool: SYNC_TOOL, data: db }])
+    });
+    if(!res.ok) { setSyncStatus('Sync error'); return; }
+    const rows = await res.json();
+    if(rows.length) localStorage.setItem(SYNC_TOOL + '_synced_at', rows[0].updated_at);
+    setSyncStatus('Synced');
+  } catch(e) { setSyncStatus('Offline'); }
+}
+
+document.addEventListener('visibilitychange', () => {
+  if (document.visibilityState === 'hidden') { clearTimeout(cloudPushTimer); pushCloudNow(); }
+});
 function tkey(){return new Date().toISOString().slice(0,10);}
 function tnow(){return new Date().toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'});}
 function uid(){return Date.now()+Math.random().toString(36).slice(2,5);}
@@ -1448,7 +1507,8 @@ function renderHistory(){
 }
 
 /* ── INIT ─────────────────────────────── */
-function init(){
+async function init(){
+  await pullCloud();
   // Restore theme
   document.documentElement.setAttribute('data-theme', dark?'dark':'light');
   document.querySelector('#themeBtn svg use').setAttribute('href', dark?'#ic-sun':'#ic-moon');
