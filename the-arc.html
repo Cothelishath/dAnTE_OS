@@ -329,14 +329,81 @@ function starterGoals(scope){
     relationship:'Text T now to set the time.', hobbies:'Cut the first wall piece.',
     learning:'Block 30 minutes on the calendar.',
   };
-  const generic = DEFAULT_CATEGORIES.filter(c=>c.id!=='income').map(c=>({
+  const generic = DEFAULT_CATEGORIES.filter(c=>c.id!=='income' && c.id!=='faith').map(c=>({
     id: uid(), catId: c.id, text: base[c.id][scope], done:false,
     metric: metrics[c.id], deadline:'', mva: mvas[c.id], steps:[]
   }));
-  return [...incomeStarterGoals(scope), ...generic];
+  return [...incomeStarterGoals(scope), ...faithStarterGoals(scope), ...generic];
 }
 
-// Income & Skill-Up gets real sequenced plans, not just a one-line goal —
+// Faith gets the same dedicated treatment as Income — grounded in what's
+// actually true: the reading backlog tracked in Bible_Tracker_Gemini.html,
+// the sermon habit that keeps losing its slot to calls or work, and the
+// book already in progress. These sit alongside whatever prayer-block goal
+// is already there, not replacing it.
+function faithStarterGoals(scope){
+  const mk = (text, metric, mva, steps) => ({
+    id: uid(), catId:'faith', text, done:false, metric, deadline:'', mva,
+    steps: steps.map(t=>({id:uid(), text:t, done:false}))
+  });
+
+  if(scope==='burst'){
+    return [
+      mk('Close the Bible reading backlog using the 3-hour rhythm (6am start)', 'Reads logged in Bible_Tracker_Gemini this burst',
+        'Set 6 recurring alarms today — 6/9/12/3/6/9.',
+        ['Set recurring alarms for each 3-hour checkpoint starting 6am',
+         'Open Bible_Tracker_Gemini.html and check exactly where the backlog stands',
+         'At the very next alarm, do the read immediately — don\'t defer it',
+         'Log every session in the tracker as it happens, not after the fact',
+         'At burst end, check the tracker to see how much backlog actually closed']),
+      mk('Give the daily sermon a protected slot that doesn\'t lose to calls or work', 'Days sermon actually played / days this burst',
+        'Pick one fixed trigger moment today and test it once.',
+        ['Identify one daily moment nothing else already claims — right after the 4AM block is the strongest candidate',
+         'Set a recurring reminder labeled "Sermon" at that exact moment',
+         'For the next 3 days, press play the instant the reminder fires — don\'t decide in the moment',
+         'At day 10, count honestly how many days it actually happened; change the trigger if it didn\'t stick']),
+      mk('Start the next faith-aligned book', 'Book started, y/n',
+        'Choose the next book today, open to page 1.',
+        ['Choose the next book',
+         'Set a small daily or weekly page/chapter target',
+         'Protect one real sitting this burst to actually start it',
+         'Log progress somewhere you\'ll actually see it again']),
+    ];
+  }
+  if(scope==='month'){
+    return [
+      mk('Close the Bible reading backlog entirely this month', 'Backlog cleared, per the tracker',
+        'Review the tracker today and confirm this week\'s checkpoints.',
+        ['Review Bible_Tracker_Gemini weekly to check the backlog trend, not just daily',
+         'Protect the 3-hour rhythm as non-negotiable across all 4 weeks',
+         'If a checkpoint is missed, catch it the same day rather than letting it compound']),
+      mk('Make sermon listening a fixed daily habit, not best-effort', 'Days hit / days in month',
+        'Confirm this week whether the burst-level trigger moment actually held.',
+        ['Confirm the trigger moment from the first burst held through the month',
+         'If it slipped, identify why and choose a more protected moment',
+         'By week 4, sermon should need no willpower — it just happens at the trigger']),
+      mk('Finish the next faith-aligned book this month', '% complete',
+        'Check today whether you\'re on pace against the page target.',
+        ['Maintain the page/chapter rhythm set in week 1',
+         'Mid-month check — on pace or behind, adjust the target honestly',
+         'Finish it, and note one real takeaway before moving to the next one']),
+    ];
+  }
+  return [
+    mk('Sustain zero Bible-reading backlog through the quarter', 'Backlog status, monthly check',
+      'Confirm this month closed with zero backlog before moving on.',
+      ['Treat any backlog as a same-week problem, never let it compound past a week',
+       'At the end of each month, confirm via the tracker that backlog is genuinely at zero']),
+    mk('Sermon listening fully automatic, no missed days by quarter end', 'Missed-days trend, monthly',
+      'Pull up the last month\'s hit-rate and look at the trend honestly.',
+      ['Track missed days monthly, not just at quarter end',
+       'If missed days aren\'t trending toward zero by month 2, change the trigger moment entirely rather than repeating what isn\'t working']),
+    mk('Read 2-3 faith-aligned books across the quarter', 'Books completed / target',
+      'Line up the next book now so there\'s no gap after the current one.',
+      ['Line up the next book as soon as one finishes — don\'t leave a gap',
+       'Protect at least 3 real sittings a week across the quarter']),
+  ];
+}
 // this is the direct answer to "not just goals on paper." Grounded in
 // what's actually true: Outlier's real onboarding flow, the trading system
 // that's already built (ruleset, journal, live-testing), and freelance
@@ -991,19 +1058,30 @@ document.addEventListener('visibilitychange', ()=>{ if(document.visibilityState=
   currentQuarterKey = quarterKeyFor(new Date());
 
   // Seed starter content — full set if a period is genuinely empty; if it
-  // already has goals from earlier use, just backfill Income & Skill-Up
-  // specifically, since that category is new. Never touches anything else.
+  // already has goals from earlier use, backfill Income & Skill-Up and the
+  // newly-detailed Faith goals specifically (checking for actual step
+  // content, not just the category tag, since the old generic Faith goal
+  // has no steps). Never touches anything else already there.
   const b = ensureBurst(currentBurstIndex);
   if(!b.goals.length) b.goals = starterGoals('burst');
-  else if(!b.goals.some(g=>g.catId==='income')) b.goals = [...incomeStarterGoals('burst'), ...b.goals];
+  else {
+    if(!b.goals.some(g=>g.catId==='income')) b.goals = [...incomeStarterGoals('burst'), ...b.goals];
+    if(!b.goals.some(g=>g.catId==='faith' && g.steps && g.steps.length)) b.goals = [...faithStarterGoals('burst'), ...b.goals];
+  }
 
   const m = ensureMonth(currentMonthKey);
   if(!m.goals.length) m.goals = starterGoals('month');
-  else if(!m.goals.some(g=>g.catId==='income')) m.goals = [...incomeStarterGoals('month'), ...m.goals];
+  else {
+    if(!m.goals.some(g=>g.catId==='income')) m.goals = [...incomeStarterGoals('month'), ...m.goals];
+    if(!m.goals.some(g=>g.catId==='faith' && g.steps && g.steps.length)) m.goals = [...faithStarterGoals('month'), ...m.goals];
+  }
 
   const q = ensureQuarter(currentQuarterKey);
   if(!q.goals.length) q.goals = starterGoals('quarter');
-  else if(!q.goals.some(g=>g.catId==='income')) q.goals = [...incomeStarterGoals('quarter'), ...q.goals];
+  else {
+    if(!q.goals.some(g=>g.catId==='income')) q.goals = [...incomeStarterGoals('quarter'), ...q.goals];
+    if(!q.goals.some(g=>g.catId==='faith' && g.steps && g.steps.length)) q.goals = [...faithStarterGoals('quarter'), ...q.goals];
+  }
 
   renderBurst();
   renderMonth();
