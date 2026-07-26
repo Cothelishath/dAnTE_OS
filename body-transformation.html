@@ -207,6 +207,64 @@ function ytLink(name){
   return `https://www.youtube.com/results?search_query=${encodeURIComponent(name+' proper form tutorial')}`;
 }
 
+// ── EXERCISE GIF LOOKUP (ExerciseDB via RapidAPI) ──
+// Cached permanently in localStorage once found — these don't change, so
+// no reason to ever look the same exercise up twice. Falls back silently
+// to the SVG icon if no match or the API call fails; never blocks render.
+const EXDB_KEY = '4823e5a827mshb68f8da98751262p186487jsn43b592941eb8';
+const EXDB_HOST = 'exercisedb.p.rapidapi.com';
+const GIF_CACHE_KEY = 'exercise_gif_cache_v1';
+
+function getGifCache(){ try{ return JSON.parse(localStorage.getItem(GIF_CACHE_KEY)||'{}'); }catch(e){ return {}; } }
+function setGifCache(cache){ try{ localStorage.setItem(GIF_CACHE_KEY, JSON.stringify(cache)); }catch(e){} }
+
+// Strips qualifiers ExerciseDB's naming won't recognize (e.g. "Diamond
+// Push-ups" -> try "push up"; "Self-Resisted Hammer Curl" -> try "hammer curl")
+function searchTermsFor(name){
+  const base = name.toLowerCase().replace(/[—-]/g,' ').replace(/\(.*?\)/g,'').trim();
+  const stripped = base.replace(/\b(diamond|close-grip|close grip|pike|wide|slow|self-resisted|self resisted|isometric|wide grip|jump)\b/g,'').trim();
+  const terms = [base, stripped].filter((v,i,a)=>v && a.indexOf(v)===i);
+  return terms;
+}
+
+async function fetchGifForExercise(name){
+  const cache = getGifCache();
+  if(name in cache) return cache[name]; // includes cached "null" (previously not found)
+
+  for(const term of searchTermsFor(name)){
+    try{
+      const res = await fetch(`https://${EXDB_HOST}/exercises/name/${encodeURIComponent(term)}`, {
+        headers: { 'X-RapidAPI-Key': EXDB_KEY, 'X-RapidAPI-Host': EXDB_HOST }
+      });
+      if(res.ok){
+        const results = await res.json();
+        if(Array.isArray(results) && results.length && results[0].gifUrl){
+          cache[name] = results[0].gifUrl;
+          setGifCache(cache);
+          return cache[name];
+        }
+      }
+    }catch(e){ /* network issue — fall through to next term / SVG fallback */ }
+  }
+  cache[name] = null;
+  setGifCache(cache);
+  return null;
+}
+
+async function loadExerciseGifs(day){
+  if(day.type!=='workout') return;
+  for(let i=0;i<day.exercises.length;i++){
+    const ex = day.exercises[i];
+    const wrap = document.getElementById('exicon-'+day.key+'-'+i);
+    if(!wrap) continue;
+    const gifUrl = await fetchGifForExercise(ex.name);
+    if(gifUrl && wrap){
+      wrap.innerHTML = `<img src="${gifUrl}" alt="${esc(ex.name)}" style="width:44px;height:44px;object-fit:cover;border-radius:6px;flex-shrink:0">`;
+    }
+    // no match — leave the SVG icon already in place, no action needed
+  }
+}
+
 // ══════════════════════ EXERCISE DATABASE ══════════════════════
 // Tuesday corrected: Wide Push-ups and the towel-based curl both replaced
 // with Doorway Rows (two grip variants) — this was previously a "Back" day
@@ -405,7 +463,7 @@ function renderDay(){
       return `<div class="set-box ${done?'done':''}" onclick="toggleSet(${i},${s})">${done?'✓':s+1}</div>`;
     }).join('');
     return `<div class="ex-card">
-      ${icon(ex.cat)}
+      <div class="ex-icon-wrap" id="exicon-${day.key}-${i}">${icon(ex.cat)}</div>
       <div class="ex-info">
         <div class="ex-name">${esc(ex.name)}</div>
         <div class="ex-reps">${esc(ex.reps)}</div>
@@ -419,6 +477,7 @@ function renderDay(){
   html += renderMiniList(COOLDOWN, 'cooldown', log);
 
   body.innerHTML = html;
+  loadExerciseGifs(day);
 }
 
 function renderMiniList(list, prefix, log){
