@@ -236,15 +236,20 @@ async function fetchGifForExercise(name){
       const res = await fetch(`https://${EXDB_HOST}/exercises/name/${encodeURIComponent(term)}`, {
         headers: { 'X-RapidAPI-Key': EXDB_KEY, 'X-RapidAPI-Host': EXDB_HOST }
       });
+      if(!res.ok){
+        console.warn('ExerciseDB lookup failed for "'+term+'":', res.status, await res.text().catch(()=>''));
+      }
       if(res.ok){
         const results = await res.json();
         if(Array.isArray(results) && results.length && results[0].gifUrl){
           cache[name] = results[0].gifUrl;
           setGifCache(cache);
           return cache[name];
+        } else {
+          console.log('ExerciseDB: no results for "'+term+'"');
         }
       }
-    }catch(e){ /* network issue — fall through to next term / SVG fallback */ }
+    }catch(e){ console.error('ExerciseDB fetch error for "'+term+'":', (e&&e.message)||String(e)); }
   }
   cache[name] = null;
   setGifCache(cache);
