@@ -207,18 +207,20 @@ function ytLink(name){
   return `https://www.youtube.com/results?search_query=${encodeURIComponent(name+' proper form tutorial')}`;
 }
 
-// ── EXERCISE GIF LOOKUP (ExerciseDB via RapidAPI) ──
+// ── EXERCISE GIF LOOKUP (AscendAPI's ExerciseDB, via RapidAPI) ──
 // Cached permanently in localStorage once found — these don't change, so
 // no reason to ever look the same exercise up twice. Falls back silently
 // to the SVG icon if no match or the API call fails; never blocks render.
+// Two real calls per exercise: search (returns exerciseId + a static
+// image) then a detail fetch on that id (returns the actual gifUrls).
 const EXDB_KEY = '4823e5a827mshb68f8da98751262p186487jsn43b592941eb8';
-const EXDB_HOST = 'exercisedb.p.rapidapi.com';
-const GIF_CACHE_KEY = 'exercise_gif_cache_v1';
+const EXDB_HOST = 'edb-with-videos-and-images-by-ascendapi.p.rapidapi.com';
+const GIF_CACHE_KEY = 'exercise_gif_cache_v2';
 
 function getGifCache(){ try{ return JSON.parse(localStorage.getItem(GIF_CACHE_KEY)||'{}'); }catch(e){ return {}; } }
 function setGifCache(cache){ try{ localStorage.setItem(GIF_CACHE_KEY, JSON.stringify(cache)); }catch(e){} }
 
-// Strips qualifiers ExerciseDB's naming won't recognize (e.g. "Diamond
+// Strips qualifiers this database's naming won't recognize (e.g. "Diamond
 // Push-ups" -> try "push up"; "Self-Resisted Hammer Curl" -> try "hammer curl")
 function searchTermsFor(name){
   const base = name.toLowerCase().replace(/[—-]/g,' ').replace(/\(.*?\)/g,'').trim();
@@ -227,27 +229,35 @@ function searchTermsFor(name){
   return terms;
 }
 
+async function edbFetch(path){
+  const res = await fetch(`https://${EXDB_HOST}${path}`, {
+    headers: { 'Content-Type':'application/json', 'x-rapidapi-host': EXDB_HOST, 'x-rapidapi-key': EXDB_KEY }
+  });
+  if(!res.ok){ console.warn('ExerciseDB request failed:', path, res.status, await res.text().catch(()=>'')); return null; }
+  return res.json();
+}
+
 async function fetchGifForExercise(name){
   const cache = getGifCache();
   if(name in cache) return cache[name]; // includes cached "null" (previously not found)
 
   for(const term of searchTermsFor(name)){
     try{
-      const res = await fetch(`https://${EXDB_HOST}/exercises/name/${encodeURIComponent(term)}`, {
-        headers: { 'X-RapidAPI-Key': EXDB_KEY, 'X-RapidAPI-Host': EXDB_HOST }
-      });
-      if(!res.ok){
-        console.warn('ExerciseDB lookup failed for "'+term+'":', res.status, await res.text().catch(()=>''));
+      const searchRes = await edbFetch(`/api/v1/exercises/search?search=${encodeURIComponent(term)}`);
+      if(!searchRes || !searchRes.success || !searchRes.data || !searchRes.data.length){
+        console.log('ExerciseDB: no results for "'+term+'"');
+        continue;
       }
-      if(res.ok){
-        const results = await res.json();
-        if(Array.isArray(results) && results.length && results[0].gifUrl){
-          cache[name] = results[0].gifUrl;
-          setGifCache(cache);
-          return cache[name];
-        } else {
-          console.log('ExerciseDB: no results for "'+term+'"');
-        }
+      const exerciseId = searchRes.data[0].exerciseId;
+      const detail = await edbFetch(`/api/v1/exercises/${exerciseId}`);
+      const gifUrl = detail && detail.data && (
+        detail.data.gifUrl ||
+        (detail.data.gifUrls && (detail.data.gifUrls['360p'] || Object.values(detail.data.gifUrls)[0]))
+      );
+      if(gifUrl){
+        cache[name] = gifUrl;
+        setGifCache(cache);
+        return gifUrl;
       }
     }catch(e){ console.error('ExerciseDB fetch error for "'+term+'":', (e&&e.message)||String(e)); }
   }
