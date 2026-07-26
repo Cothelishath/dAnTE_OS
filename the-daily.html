@@ -904,28 +904,47 @@ const SYNC_TOOL = 'the-daily';
 
 function setSyncStatus(msg) { const el=document.getElementById('syncStatus'); if(el) el.textContent=msg; }
 
+// Merge, not overwrite. Journal/gratitude/excerpts are date-keyed objects —
+// union of keys, local wins on same-date conflicts (the device you're
+// actually sitting at right now knows about its own unsynced edits).
+// Todos/vision are id-keyed arrays — union by id, same local-wins rule.
+// This is what actually stops one device's stale push from silently
+// erasing entries the other device hadn't synced down yet.
+function mergeById(remoteArr, localArr){
+  const map = new Map();
+  (remoteArr||[]).forEach(item=>map.set(item.id, item));
+  (localArr||[]).forEach(item=>map.set(item.id, item));
+  return Array.from(map.values());
+}
+function mergeDb(local, remote){
+  if(!remote) return local;
+  return {
+    j: Object.assign({}, remote.j||{}, local.j||{}),
+    g: Object.assign({}, remote.g||{}, local.g||{}),
+    ex: Object.assign({}, remote.ex||{}, local.ex||{}),
+    todos: mergeById(remote.todos, local.todos),
+    vis: mergeById(remote.vis, local.vis)
+  };
+}
+
 async function pullCloud() {
   setSyncStatus('Syncing…');
   try {
-    const ctrl = new AbortController();
-    const timeout = setTimeout(()=>ctrl.abort(), 6000);
-    const res = await fetch(`${SYNC_URL}?tool=eq.${SYNC_TOOL}&select=data,updated_at`, {
-      headers: { 'apikey': SYNC_ANON_KEY, 'Authorization': 'Bearer ' + SYNC_ANON_KEY, 'x-sync-key': SYNC_KEY },
-      signal: ctrl.signal
-    });
-    clearTimeout(timeout);
-    if(!res.ok) { setSyncStatus('Sync error'); return; }
+    const res = await Promise.race([
+      fetch(`${SYNC_URL}?tool=eq.${SYNC_TOOL}&select=data,updated_at`, {
+        headers: { 'apikey': SYNC_ANON_KEY, 'Authorization': 'Bearer ' + SYNC_ANON_KEY, 'x-sync-key': SYNC_KEY }
+      }),
+      new Promise((_, reject) => setTimeout(() => reject(new Error('pull timed out')), 15000))
+    ]);
+    if(!res.ok) { setSyncStatus('Sync error'); console.error('pullCloud failed:', res.status, await res.text().catch(()=>'')); return; }
     const rows = await res.json();
     if(!rows.length) { setSyncStatus('Synced'); pushCloudNow(); return; }
     const remote = rows[0];
-    const localSyncedAt = localStorage.getItem(SYNC_TOOL + '_synced_at');
-    if(!localSyncedAt || new Date(remote.updated_at) > new Date(localSyncedAt)) {
-      db = remote.data;
-      localStorage.setItem(KEY, JSON.stringify(db));
-      localStorage.setItem(SYNC_TOOL + '_synced_at', remote.updated_at);
-    }
+    db = mergeDb(db, remote.data);
+    localStorage.setItem(KEY, JSON.stringify(db));
+    localStorage.setItem(SYNC_TOOL + '_synced_at', remote.updated_at);
     setSyncStatus('Synced');
-  } catch(e) { setSyncStatus('Offline'); }
+  } catch(e) { setSyncStatus('Offline'); console.error('pullCloud error:', (e && e.message) || String(e)); }
 }
 
 let cloudPushTimer = null;
@@ -942,11 +961,11 @@ async function pushCloudNow() {
       headers: { 'apikey': SYNC_ANON_KEY, 'Authorization': 'Bearer ' + SYNC_ANON_KEY, 'x-sync-key': SYNC_KEY, 'Content-Type': 'application/json', 'Prefer': 'resolution=merge-duplicates,return=representation' },
       body: JSON.stringify([{ tool: SYNC_TOOL, data: db }])
     });
-    if(!res.ok) { setSyncStatus('Sync error'); return; }
+    if(!res.ok) { setSyncStatus('Sync error'); console.error('pushCloudNow failed:', res.status, await res.text().catch(()=>'')); return; }
     const rows = await res.json();
     if(rows.length) localStorage.setItem(SYNC_TOOL + '_synced_at', rows[0].updated_at);
     setSyncStatus('Synced');
-  } catch(e) { setSyncStatus('Offline'); }
+  } catch(e) { setSyncStatus('Offline'); console.error('pushCloudNow error:', (e && e.message) || String(e)); }
 }
 
 document.addEventListener('visibilitychange', () => {
@@ -1124,16 +1143,39 @@ function saveExc(id){
   db.ex[k][id].text=txt;
   save();buildExc();updateStats();
 }
+/* ── IMAGE COMPRESSION ───────────────────
+   Resizes to a max dimension and re-encodes as JPEG before storing, so a
+   photo becomes ~50-150KB instead of several MB — this is what actually
+   makes syncing photos across devices reliable rather than a payload risk. */
+function compressImage(file, callback, maxDim, quality){
+  maxDim = maxDim || 1000;
+  quality = quality || 0.72;
+  const reader = new FileReader();
+  reader.onload = e => {
+    const img = new Image();
+    img.onload = () => {
+      let w = img.width, h = img.height;
+      if(w > h && w > maxDim){ h = Math.round(h * maxDim / w); w = maxDim; }
+      else if(h > maxDim){ w = Math.round(w * maxDim / h); h = maxDim; }
+      const canvas = document.createElement('canvas');
+      canvas.width = w; canvas.height = h;
+      canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+      callback(canvas.toDataURL('image/jpeg', quality));
+    };
+    img.onerror = () => callback(e.target.result); // fall back to original if decoding fails
+    img.src = e.target.result;
+  };
+  reader.readAsDataURL(file);
+}
+
 function saveExcImg(id,inp){
   const file=inp.files[0];if(!file)return;
-  const r=new FileReader();
-  r.onload=e=>{
+  compressImage(file, dataUrl=>{
     const k=tkey();if(!db.ex[k])db.ex[k]={};
     if(!db.ex[k][id])db.ex[k][id]={};
-    db.ex[k][id].img=e.target.result;
+    db.ex[k][id].img=dataUrl;
     save();buildExc();updateStats();
-  };
-  r.readAsDataURL(file);
+  });
   inp.value='';
 }
 function removeExcImg(id){
@@ -1252,12 +1294,10 @@ function openVModal(){
 function closeVModal(){document.getElementById('vModal').classList.remove('open');}
 function handleImg(inp){
   const f=inp.files[0];if(!f)return;
-  const r=new FileReader();
-  r.onload=e=>{
-    pendImg=e.target.result;
+  compressImage(f, dataUrl=>{
+    pendImg=dataUrl;
     document.getElementById('imgArea').innerHTML=`<img src="${pendImg}" style="width:100%;height:100%;object-fit:cover">`;
-  };
-  r.readAsDataURL(f);
+  });
 }
 function delVis(id){db.vis=db.vis.filter(x=>x.id!==id);save();renderVis();}
 function editVis(id){
