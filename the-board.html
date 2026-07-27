@@ -1,0 +1,427 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Board — dAnTE</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg:#0d0d0d; --bg2:#141414; --bg3:#1a1a1a;
+    --border:#2a2a2a; --border2:#333;
+    --gold:#c9a84c; --gold-dim:#8a6f2e; --gold-glow:rgba(201,168,76,0.08);
+    --text:#e8e4dc; --text-dim:#888; --text-muted:#555;
+    --red:#c0392b; --radius:8px;
+  }
+  .light {
+    --bg:#f5f2ec; --bg2:#ede9e0; --bg3:#e4dfd4;
+    --border:#d4cfc4; --border2:#c4bfb4;
+    --gold:#8a6020; --gold-dim:#b8902a; --gold-glow:rgba(138,96,32,0.07);
+    --text:#1a1814; --text-dim:#666; --text-muted:#999;
+  }
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+  body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;font-size:14px;line-height:1.6;min-height:100vh;padding-bottom:60px}
+  header{display:flex;align-items:center;justify-content:space-between;padding:16px 24px;border-bottom:1px solid var(--border);flex-wrap:wrap;gap:10px}
+  .brand{font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.2em;color:var(--gold);text-transform:uppercase}
+  .title{font-family:'Cormorant Garamond',serif;font-size:22px;font-weight:300;color:var(--text)}
+  .title em{font-style:italic;color:var(--gold)}
+  .hdr-right{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+  .btn{display:inline-flex;align-items:center;gap:6px;padding:7px 14px;border-radius:6px;border:1px solid var(--border2);background:transparent;color:var(--text-dim);font-family:'Inter',sans-serif;font-size:12px;cursor:pointer;white-space:nowrap}
+  .btn:hover{border-color:var(--gold);color:var(--gold)}
+  .btn.gold{border-color:var(--gold-dim);color:var(--gold)}
+  #syncStatus{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--text-muted);padding:0 6px}
+
+  .filter-bar{display:flex;gap:6px;padding:14px 24px;border-bottom:1px solid var(--border);overflow-x:auto;background:var(--bg2)}
+  .filter-chip{flex-shrink:0;padding:6px 14px;border-radius:14px;border:1px solid var(--border2);background:var(--bg3);color:var(--text-dim);font-family:'JetBrains Mono',monospace;font-size:11px;cursor:pointer;white-space:nowrap}
+  .filter-chip.active{border-color:var(--gold);color:var(--gold);background:var(--gold-glow)}
+
+  main{max-width:1200px;margin:0 auto;padding:24px}
+  .empty{text-align:center;padding:60px 20px;color:var(--text-muted);font-family:'Cormorant Garamond',serif;font-size:20px;font-style:italic}
+
+  .board{columns:4 260px;column-gap:14px}
+  .card{break-inside:avoid;margin-bottom:14px;border-radius:var(--radius);overflow:hidden;background:var(--bg2);border:1px solid var(--border);cursor:pointer;position:relative}
+  .card img{width:100%;display:block}
+  .card .cat-tag{position:absolute;top:8px;left:8px;font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:.08em;text-transform:uppercase;padding:3px 8px;border-radius:10px;background:rgba(0,0,0,0.65);color:var(--gold);backdrop-filter:blur(2px)}
+  .card .cap{padding:10px 12px}
+  .card .cap-title{font-size:12.5px;color:var(--text);font-weight:500}
+  .card .cap-note{font-size:11px;color:var(--text-muted);margin-top:2px;overflow:hidden;text-overflow:ellipsis;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
+
+  .modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:100;align-items:center;justify-content:center;padding:20px}
+  .modal-overlay.show{display:flex}
+  .modal-box{background:var(--bg2);border:1px solid var(--border2);border-radius:var(--radius);max-width:480px;width:100%;max-height:86vh;overflow-y:auto}
+  .modal-box img{width:100%;display:block}
+  .modal-body{padding:20px}
+  .modal-body h3{font-family:'Cormorant Garamond',serif;font-size:20px;font-weight:400;margin-bottom:8px}
+  .modal-field{margin-bottom:12px}
+  .modal-field label{font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--text-muted);letter-spacing:.08em;text-transform:uppercase;display:block;margin-bottom:4px}
+  .modal-field input, .modal-field textarea, .modal-field select{width:100%;background:var(--bg3);border:1px solid var(--border2);border-radius:6px;padding:8px 10px;color:var(--text);font-family:'Inter',sans-serif;font-size:13px}
+  .modal-field textarea{resize:vertical;min-height:60px}
+  .modal-actions{display:flex;gap:8px;margin-top:16px}
+  .modal-actions .btn{flex:1;justify-content:center;padding:9px}
+  .modal-close-x{position:absolute;top:10px;right:10px;background:rgba(0,0,0,.6);color:#fff;border:none;border-radius:50%;width:28px;height:28px;cursor:pointer;font-size:14px;z-index:5}
+  .src-link{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--gold-dim);text-decoration:none;display:inline-block;margin-top:4px}
+  .src-link:hover{text-decoration:underline}
+
+  .import-summary{font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--text-dim);margin-bottom:12px}
+  .import-summary strong{color:var(--gold)}
+  .cat-edit-row{display:flex;align-items:center;gap:8px;margin-bottom:8px}
+  .cat-edit-row input[type=text]{flex:1;background:var(--bg3);border:1px solid var(--border2);border-radius:4px;padding:6px 10px;color:var(--text);font-size:13px}
+  .cat-edit-row button{background:none;border:none;color:var(--text-muted);cursor:pointer;font-size:15px}
+  .cat-edit-row button:hover{color:var(--red)}
+  .add-row{display:flex;gap:8px;margin-top:10px}
+  .add-row input{flex:1;background:var(--bg3);border:1px solid var(--border2);border-radius:6px;padding:8px 10px;color:var(--text);font-size:13px}
+
+  .toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:var(--bg2);border:1px solid var(--gold-dim);color:var(--gold);padding:10px 20px;border-radius:6px;font-size:13px;opacity:0;pointer-events:none;transition:opacity .3s;z-index:200}
+  .toast.show{opacity:1}
+
+  @media(max-width:900px){ .board{columns:2 200px} }
+  @media(max-width:600px){
+    header{padding:14px 16px}
+    main{padding:16px}
+    .board{columns:2 150px;column-gap:8px}
+    .card{margin-bottom:8px}
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div>
+    <div class="brand">dAnTE</div>
+    <div class="title">The <em>Board</em></div>
+  </div>
+  <div class="hdr-right">
+    <div id="syncStatus">—</div>
+    <button class="btn" onclick="openCatManager()">⬡ Categories</button>
+    <button class="btn" onclick="toggleTheme()">☀ / ☾</button>
+    <button class="btn" onclick="exportData()">⬇ Export</button>
+    <button class="btn" onclick="document.getElementById('importPinsFile').click()">⬆ Import Pins</button>
+    <input type="file" id="importPinsFile" accept=".json" style="display:none" onchange="handlePinsFileSelect(event)">
+    <button class="btn gold" onclick="openAddModal()">+ Add</button>
+  </div>
+</header>
+
+<div class="filter-bar" id="filterBar"></div>
+
+<main>
+  <div id="boardContainer"></div>
+</main>
+
+<!-- ══════════ ITEM DETAIL / ADD MODAL ══════════ -->
+<div class="modal-overlay" id="itemModal">
+  <div class="modal-box" id="itemModalBox"></div>
+</div>
+
+<!-- ══════════ CATEGORY MANAGER ══════════ -->
+<div class="modal-overlay" id="catModal">
+  <div class="modal-box">
+    <div class="modal-body">
+      <h3>Manage Categories</h3>
+      <div id="catEditList"></div>
+      <div class="add-row">
+        <input type="text" id="newCatName" placeholder="New category…" onkeydown="if(event.key==='Enter')addCategory()">
+        <button class="btn" onclick="addCategory()">Add</button>
+      </div>
+      <button class="btn gold" style="width:100%;margin-top:14px;justify-content:center" onclick="closeCatManager()">Done</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════ IMPORT PINS MODAL ══════════ -->
+<div class="modal-overlay" id="importPinsModal">
+  <div class="modal-box">
+    <div class="modal-body">
+      <h3>Import Pins</h3>
+      <div class="import-summary" id="importPinsSummary">—</div>
+      <button class="btn gold" style="width:100%;justify-content:center" onclick="confirmPinsImport()">Import</button>
+      <button class="btn" style="width:100%;justify-content:center;margin-top:8px" onclick="cancelPinsImport()">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const STORAGE_KEY = 'the_board_v1';
+const DEFAULT_CATEGORIES = [
+  {id:'patterns', name:'Chart Patterns'},
+  {id:'concepts', name:'SMC / ICT Concepts'},
+  {id:'riskmgmt', name:'Risk Management'},
+  {id:'psychology', name:'Trading Psychology'},
+  {id:'terminology', name:'Terminology'},
+  {id:'other', name:'Other'},
+];
+function freshState(){ return { categories: JSON.parse(JSON.stringify(DEFAULT_CATEGORIES)), items: [] }; }
+let state;
+try { const s = localStorage.getItem(STORAGE_KEY); state = s ? Object.assign(freshState(), JSON.parse(s)) : freshState(); }
+catch(e) { state = freshState(); }
+if(!state.categories || !state.categories.length) state.categories = JSON.parse(JSON.stringify(DEFAULT_CATEGORIES));
+
+let activeFilter = 'all';
+let isDark = localStorage.getItem('board-theme') !== 'light';
+let editingId = null;
+
+function uid(){ return Date.now()+Math.random().toString(36).slice(2,6); }
+function esc(s){ return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+function catById(id){ return state.categories.find(c=>c.id===id); }
+function catName(id){ const c=catById(id); return c?c.name:'Uncategorized'; }
+function saveAll(){ try{ localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); }catch(e){} scheduleCloudPush(); }
+function showToast(msg){ const t=document.getElementById('toast'); t.textContent=msg; t.classList.add('show'); setTimeout(()=>t.classList.remove('show'),2500); }
+
+// ── FILTER BAR ──
+function renderFilterBar(){
+  const bar = document.getElementById('filterBar');
+  let html = `<div class="filter-chip ${activeFilter==='all'?'active':''}" onclick="setFilter('all')">All (${state.items.length})</div>`;
+  state.categories.forEach(c=>{
+    const count = state.items.filter(i=>i.catId===c.id).length;
+    html += `<div class="filter-chip ${activeFilter===c.id?'active':''}" onclick="setFilter('${c.id}')">${esc(c.name)} (${count})</div>`;
+  });
+  bar.innerHTML = html;
+}
+function setFilter(id){ activeFilter = id; renderFilterBar(); renderBoard(); }
+
+// ── BOARD ──
+function renderBoard(){
+  const container = document.getElementById('boardContainer');
+  const items = activeFilter==='all' ? state.items : state.items.filter(i=>i.catId===activeFilter);
+  if(!items.length){
+    container.innerHTML = `<div class="empty">Nothing here yet — paste Pinterest links to Claude in chat, or add something directly with + Add.</div>`;
+    return;
+  }
+  container.innerHTML = `<div class="board">` + items.map(item=>`
+    <div class="card" onclick="openDetailModal('${item.id}')">
+      <div class="cat-tag">${esc(catName(item.catId))}</div>
+      <img src="${item.imageUrl}" loading="lazy" onerror="this.style.display='none'">
+      <div class="cap">
+        <div class="cap-title">${esc(item.title||'Untitled')}</div>
+        ${item.notes?`<div class="cap-note">${esc(item.notes)}</div>`:''}
+      </div>
+    </div>
+  `).join('') + `</div>`;
+}
+
+function openDetailModal(id){
+  const item = state.items.find(i=>i.id===id);
+  if(!item) return;
+  editingId = id;
+  const box = document.getElementById('itemModalBox');
+  box.innerHTML = `
+    <div style="position:relative">
+      <button class="modal-close-x" onclick="closeItemModal()">✕</button>
+      <img src="${item.imageUrl}" onerror="this.style.display='none'">
+    </div>
+    <div class="modal-body">
+      <div class="modal-field"><label>Title</label><input type="text" id="editTitle" value="${esc(item.title)}"></div>
+      <div class="modal-field"><label>Category</label>
+        <select id="editCat">${state.categories.map(c=>`<option value="${c.id}" ${c.id===item.catId?'selected':''}>${esc(c.name)}</option>`).join('')}</select>
+      </div>
+      <div class="modal-field"><label>Notes — why you like it, price, ideas</label><textarea id="editNotes">${esc(item.notes||'')}</textarea></div>
+      ${item.sourceUrl?`<a class="src-link" href="${item.sourceUrl}" target="_blank" rel="noopener">View original ↗</a>`:''}
+      <div class="modal-actions">
+        <button class="btn gold" onclick="saveItemEdit()">Save</button>
+        <button class="btn" onclick="deleteItem()">Delete</button>
+      </div>
+    </div>`;
+  document.getElementById('itemModal').classList.add('show');
+}
+function saveItemEdit(){
+  const item = state.items.find(i=>i.id===editingId);
+  if(!item) return;
+  item.title = document.getElementById('editTitle').value;
+  item.catId = document.getElementById('editCat').value;
+  item.notes = document.getElementById('editNotes').value;
+  closeItemModal(); renderFilterBar(); renderBoard(); saveAll();
+}
+function deleteItem(){
+  if(!confirm('Delete this item?')) return;
+  state.items = state.items.filter(i=>i.id!==editingId);
+  closeItemModal(); renderFilterBar(); renderBoard(); saveAll();
+}
+function closeItemModal(){ document.getElementById('itemModal').classList.remove('show'); editingId=null; }
+
+function openAddModal(){
+  editingId = null;
+  const box = document.getElementById('itemModalBox');
+  box.innerHTML = `
+    <div class="modal-body">
+      <h3>Add Item</h3>
+      <div class="modal-field"><label>Image URL</label><input type="text" id="editTitle-imgurl" placeholder="https://..."></div>
+      <div class="modal-field"><label>Title</label><input type="text" id="addTitle" placeholder="What is it"></div>
+      <div class="modal-field"><label>Category</label>
+        <select id="addCat">${state.categories.map(c=>`<option value="${c.id}">${esc(c.name)}</option>`).join('')}</select>
+      </div>
+      <div class="modal-field"><label>Source link (optional)</label><input type="text" id="addSource" placeholder="https://pinterest.com/..."></div>
+      <div class="modal-field"><label>Notes</label><textarea id="addNotes" placeholder="Why you like it, price, ideas"></textarea></div>
+      <div class="modal-actions">
+        <button class="btn gold" onclick="confirmAddItem()">Add to board</button>
+        <button class="btn" onclick="closeItemModal()">Cancel</button>
+      </div>
+    </div>`;
+  document.getElementById('itemModal').classList.add('show');
+}
+function confirmAddItem(){
+  const imageUrl = document.getElementById('editTitle-imgurl').value.trim();
+  if(!imageUrl){ alert('An image URL is needed.'); return; }
+  state.items.unshift({
+    id: uid(), imageUrl,
+    title: document.getElementById('addTitle').value.trim(),
+    catId: document.getElementById('addCat').value,
+    sourceUrl: document.getElementById('addSource').value.trim(),
+    notes: document.getElementById('addNotes').value.trim(),
+    added: new Date().toISOString()
+  });
+  closeItemModal(); renderFilterBar(); renderBoard(); saveAll();
+  showToast('Added to board');
+}
+
+// ── CATEGORY MANAGER ──
+function openCatManager(){ renderCatEditList(); document.getElementById('catModal').classList.add('show'); }
+function closeCatManager(){ document.getElementById('catModal').classList.remove('show'); renderFilterBar(); renderBoard(); }
+function renderCatEditList(){
+  document.getElementById('catEditList').innerHTML = state.categories.map(c=>`
+    <div class="cat-edit-row">
+      <input type="text" value="${esc(c.name)}" onchange="setCatName('${c.id}',this.value)">
+      <button onclick="deleteCategory('${c.id}')">✕</button>
+    </div>`).join('');
+}
+function setCatName(id,val){ const c=catById(id); if(c){c.name=val; saveAll();} }
+function addCategory(){
+  const input = document.getElementById('newCatName');
+  const name = input.value.trim();
+  if(!name) return;
+  state.categories.push({id:uid(), name});
+  input.value=''; renderCatEditList(); saveAll();
+}
+function deleteCategory(id){
+  if(!confirm('Delete this category? Items inside it will lose their category tag, not get deleted.')) return;
+  state.categories = state.categories.filter(c=>c.id!==id);
+  renderCatEditList(); saveAll();
+}
+
+// ── IMPORT PINS ──
+// Same pattern as The Arc's goal imports: Claude fetches Pinterest links in
+// chat and hands back a JSON file of {imageUrl, title, notes, sourceUrl,
+// category} — this just reads it in and adds to the board, never overwrites.
+let pendingPins = [];
+function handlePinsFileSelect(e){
+  const file = e.target.files[0];
+  if(!file) return;
+  const r = new FileReader();
+  r.onload = ev=>{
+    try{
+      const parsed = JSON.parse(ev.target.result);
+      pendingPins = (Array.isArray(parsed)?parsed:[]).filter(p=>p.imageUrl);
+      if(!pendingPins.length){ alert('No usable items found in that file.'); return; }
+      document.getElementById('importPinsSummary').innerHTML = '<strong>'+pendingPins.length+'</strong> item(s) ready to add.';
+      document.getElementById('importPinsModal').classList.add('show');
+    }catch(err){ alert("Couldn't read that file as JSON."); }
+  };
+  r.readAsText(file);
+  e.target.value='';
+}
+function resolveCategoryId(catNameStr){
+  if(!catNameStr) return 'other';
+  const existing = state.categories.find(c=>c.name.toLowerCase()===String(catNameStr).toLowerCase());
+  if(existing) return existing.id;
+  const newCat = { id:uid(), name:catNameStr };
+  state.categories.push(newCat);
+  return newCat.id;
+}
+function confirmPinsImport(){
+  pendingPins.forEach(p=>{
+    state.items.unshift({
+      id: uid(), imageUrl: p.imageUrl, title: p.title||'', notes: p.notes||'',
+      sourceUrl: p.sourceUrl||'', catId: resolveCategoryId(p.category),
+      added: new Date().toISOString()
+    });
+  });
+  const count = pendingPins.length;
+  pendingPins = [];
+  document.getElementById('importPinsModal').classList.remove('show');
+  renderFilterBar(); renderBoard(); saveAll();
+  showToast(count+' item(s) added to the board');
+}
+function cancelPinsImport(){ pendingPins=[]; document.getElementById('importPinsModal').classList.remove('show'); }
+
+// ── THEME / EXPORT ──
+function toggleTheme(){
+  isDark = !isDark;
+  document.body.classList.toggle('light', !isDark);
+  localStorage.setItem('board-theme', isDark?'dark':'light');
+}
+function exportData(){
+  const blob = new Blob([JSON.stringify(state,null,2)],{type:'application/json'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'the-board-export.json';
+  a.click();
+}
+
+// ── CLOUD SYNC (Supabase) ──
+const SYNC_URL = 'https://wrzxalfdatnpdnbmdjir.supabase.co/rest/v1/sync_data';
+const SYNC_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndyenhhbGZkYXRucGRuYm1kamlyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODQ1MjA4ODMsImV4cCI6MjEwMDA5Njg4M30.oyx47J97hZsjnF3iFOz9mHGt_9oGjqLMQ0zsiVhBC-g';
+const SYNC_KEY = 'AmiableMeerkat894';
+const SYNC_TOOL = 'the-board';
+
+function setSyncStatus(msg){ const el=document.getElementById('syncStatus'); if(el) el.textContent=msg; }
+
+async function pullCloud(){
+  setSyncStatus('Syncing…');
+  try{
+    const res = await Promise.race([
+      fetch(`${SYNC_URL}?tool=eq.${SYNC_TOOL}&select=data,updated_at`, {
+        headers:{ 'apikey':SYNC_ANON_KEY,'Authorization':'Bearer '+SYNC_ANON_KEY,'x-sync-key':SYNC_KEY }
+      }),
+      new Promise((_,reject)=>setTimeout(()=>reject(new Error('pull timed out')),15000))
+    ]);
+    if(!res.ok){ setSyncStatus('Sync error'); console.error('pullCloud failed:', res.status, await res.text().catch(()=>'')); return; }
+    const rows = await res.json();
+    if(!rows.length){ setSyncStatus('Synced'); pushCloudNow(); return; }
+    const remote = rows[0];
+    const localSyncedAt = localStorage.getItem(SYNC_TOOL+'_synced_at');
+    if(!localSyncedAt || new Date(remote.updated_at) > new Date(localSyncedAt)){
+      // Merge, not overwrite — union items by id, union categories by id.
+      const remoteData = remote.data || {categories:[],items:[]};
+      const itemMap = new Map();
+      (remoteData.items||[]).forEach(i=>itemMap.set(i.id,i));
+      (state.items||[]).forEach(i=>itemMap.set(i.id,i));
+      const catMap = new Map();
+      (remoteData.categories||[]).forEach(c=>catMap.set(c.id,c));
+      (state.categories||[]).forEach(c=>catMap.set(c.id,c));
+      state.items = Array.from(itemMap.values());
+      state.categories = Array.from(catMap.values());
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+      localStorage.setItem(SYNC_TOOL+'_synced_at', remote.updated_at);
+    }
+    setSyncStatus('Synced');
+  }catch(e){ setSyncStatus('Offline'); console.error('pullCloud error:', (e&&e.message)||String(e)); }
+}
+let cloudPushTimer = null;
+function scheduleCloudPush(){ clearTimeout(cloudPushTimer); cloudPushTimer = setTimeout(pushCloudNow, 1500); }
+async function pushCloudNow(){
+  setSyncStatus('Syncing…');
+  try{
+    const res = await fetch(`${SYNC_URL}?on_conflict=tool`, {
+      method:'POST',
+      headers:{ 'apikey':SYNC_ANON_KEY,'Authorization':'Bearer '+SYNC_ANON_KEY,'x-sync-key':SYNC_KEY,'Content-Type':'application/json','Prefer':'resolution=merge-duplicates,return=representation' },
+      body: JSON.stringify([{ tool:SYNC_TOOL, data:state }])
+    });
+    if(!res.ok){ setSyncStatus('Sync error'); console.error('pushCloudNow failed:', res.status, await res.text().catch(()=>'')); return; }
+    const rows = await res.json();
+    if(rows.length) localStorage.setItem(SYNC_TOOL+'_synced_at', rows[0].updated_at);
+    setSyncStatus('Synced');
+  }catch(e){ setSyncStatus('Offline'); console.error('pushCloudNow error:', (e&&e.message)||String(e)); }
+}
+document.addEventListener('visibilitychange', ()=>{ if(document.visibilityState==='hidden'){ clearTimeout(cloudPushTimer); pushCloudNow(); } });
+
+// ── INIT ──
+(async function(){
+  await pullCloud();
+  if(!isDark) document.body.classList.add('light');
+  renderFilterBar();
+  renderBoard();
+})();
+</script>
+</body>
+</html>
