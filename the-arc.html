@@ -1141,6 +1141,13 @@ document.addEventListener('visibilitychange', ()=>{ if(document.visibilityState=
 (async function(){
   await pullCloud();
 
+  // Backfill any default category missing by id — this is what was
+  // actually broken: goals tagged 'personal' existed, but the category
+  // object itself was never added unless the whole list was empty.
+  DEFAULT_CATEGORIES.forEach(dc=>{
+    if(!state.categories.some(c=>c.id===dc.id)) state.categories.push(JSON.parse(JSON.stringify(dc)));
+  });
+
   if(!isDark) document.body.classList.add('light');
   document.getElementById('cycleStartInput').value = state.cycleStart;
 
