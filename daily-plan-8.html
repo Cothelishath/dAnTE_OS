@@ -1191,30 +1191,57 @@ const SYNC_TOOL = 'daily-plan';
 
 function setSyncStatus(msg) { const el=document.getElementById('syncStatus'); if(el) el.textContent=msg; }
 
+// Merge, not overwrite. state.plans is date-keyed; within each date,
+// priorities/tasks/rolledIn are id-keyed arrays (union by id, local wins
+// on same-id conflicts) and routineEdits/routineDone are plain objects
+// (shallow merge, local wins on same-key conflicts). This is what
+// actually stops one device's stale push from erasing a task the other
+// device added but hadn't synced down yet.
+function mergeArrById(remoteArr, localArr){
+  const map = new Map();
+  (remoteArr||[]).forEach(item=>map.set(item.id, item));
+  (localArr||[]).forEach(item=>map.set(item.id, item));
+  return Array.from(map.values());
+}
+function mergePlanState(local, remote){
+  if(!remote) return local;
+  const merged = { plans: {} };
+  const allKeys = new Set([...Object.keys(remote.plans||{}), ...Object.keys(local.plans||{})]);
+  allKeys.forEach(dk=>{
+    const r = (remote.plans||{})[dk] || {};
+    const l = (local.plans||{})[dk] || {};
+    merged.plans[dk] = {
+      intention: l.intention || r.intention || '',
+      priorities: mergeArrById(r.priorities, l.priorities),
+      tasks: mergeArrById(r.tasks, l.tasks),
+      rolledIn: mergeArrById(r.rolledIn, l.rolledIn),
+      routineEdits: Object.assign({}, r.routineEdits||{}, l.routineEdits||{}),
+      routineDone: Object.assign({}, r.routineDone||{}, l.routineDone||{})
+    };
+  });
+  return merged;
+}
+
 async function pullCloud() {
   setSyncStatus('Syncing…');
   try {
-    const ctrl = new AbortController();
-    const timeout = setTimeout(()=>ctrl.abort(), 6000);
-    const res = await fetch(`${SYNC_URL}?tool=eq.${SYNC_TOOL}&select=data,updated_at`, {
-      headers: { 'apikey': SYNC_ANON_KEY, 'Authorization': 'Bearer ' + SYNC_ANON_KEY, 'x-sync-key': SYNC_KEY },
-      signal: ctrl.signal
-    });
-    clearTimeout(timeout);
-    if(!res.ok) { setSyncStatus('Sync error'); return; }
+    const res = await Promise.race([
+      fetch(`${SYNC_URL}?tool=eq.${SYNC_TOOL}&select=data,updated_at`, {
+        headers: { 'apikey': SYNC_ANON_KEY, 'Authorization': 'Bearer ' + SYNC_ANON_KEY, 'x-sync-key': SYNC_KEY }
+      }),
+      new Promise((_, reject) => setTimeout(() => reject(new Error('pull timed out')), 15000))
+    ]);
+    if(!res.ok) { setSyncStatus('Sync error'); console.error('pullCloud failed:', res.status, await res.text().catch(()=>'')); return; }
     const rows = await res.json();
     if(!rows.length) { setSyncStatus('Synced'); pushCloudNow(); return; }
     const remote = rows[0];
-    const localSyncedAt = localStorage.getItem(SYNC_TOOL + '_synced_at');
-    if(!localSyncedAt || new Date(remote.updated_at) > new Date(localSyncedAt)) {
-      const d = remote.data;
-      if(d.state) { state = d.state; localStorage.setItem('theDayState', JSON.stringify(state)); }
-      if(d.weekData) { weekData = d.weekData; localStorage.setItem('theDayWeekData', JSON.stringify(weekData)); }
-      if(d.appMode) { appMode = d.appMode; activeDateKey = d.activeDateKey; localStorage.setItem('theDayMode', JSON.stringify({appMode,activeDateKey})); }
-      localStorage.setItem(SYNC_TOOL + '_synced_at', remote.updated_at);
-    }
+    const d = remote.data;
+    if(d.state) { state = mergePlanState(state, d.state); localStorage.setItem('theDayState', JSON.stringify(state)); }
+    if(d.weekData) { weekData = d.weekData; localStorage.setItem('theDayWeekData', JSON.stringify(weekData)); }
+    if(d.appMode) { appMode = d.appMode; activeDateKey = d.activeDateKey; localStorage.setItem('theDayMode', JSON.stringify({appMode,activeDateKey})); }
+    localStorage.setItem(SYNC_TOOL + '_synced_at', remote.updated_at);
     setSyncStatus('Synced');
-  } catch(e) { setSyncStatus('Offline'); }
+  } catch(e) { setSyncStatus('Offline'); console.error('pullCloud error:', (e&&e.message)||String(e)); }
 }
 
 let cloudPushTimer = null;
@@ -1231,11 +1258,11 @@ async function pushCloudNow() {
       headers: { 'apikey': SYNC_ANON_KEY, 'Authorization': 'Bearer ' + SYNC_ANON_KEY, 'x-sync-key': SYNC_KEY, 'Content-Type': 'application/json', 'Prefer': 'resolution=merge-duplicates,return=representation' },
       body: JSON.stringify([{ tool: SYNC_TOOL, data: {state, weekData, appMode, activeDateKey} }])
     });
-    if(!res.ok) { setSyncStatus('Sync error'); return; }
+    if(!res.ok) { setSyncStatus('Sync error'); console.error('pushCloudNow failed:', res.status, await res.text().catch(()=>'')); return; }
     const rows = await res.json();
     if(rows.length) localStorage.setItem(SYNC_TOOL + '_synced_at', rows[0].updated_at);
     setSyncStatus('Synced');
-  } catch(e) { setSyncStatus('Offline'); }
+  } catch(e) { setSyncStatus('Offline'); console.error('pushCloudNow error:', (e&&e.message)||String(e)); }
 }
 
 // Force a pending push through immediately if the app is backgrounded —
