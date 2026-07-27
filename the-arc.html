@@ -225,6 +225,7 @@
     <div class="burst-nav">
       <button class="btn" onclick="shiftMonth(-1)">← Prev</button>
       <button class="btn gold" onclick="jumpToCurrentMonth()">This Month</button>
+      <input type="month" id="monthJumpInput" onchange="jumpToMonth(this.value)" style="background:var(--bg3);border:1px solid var(--border2);border-radius:var(--radius);padding:6px 10px;color:var(--text);font-family:'JetBrains Mono',monospace;font-size:11px">
       <button class="btn" onclick="shiftMonth(1)">Next →</button>
     </div>
 
@@ -276,11 +277,8 @@
     <h3>Import Goals</h3>
     <div class="import-summary" id="importGoalsSummary">—</div>
     <label style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--text-muted);letter-spacing:.08em;text-transform:uppercase">Add to</label>
-    <select class="scope-select" id="importScopeSelect">
-      <option value="burst">Current burst (whichever burst you're viewing)</option>
-      <option value="month" selected>Current month (whichever month you're viewing)</option>
-      <option value="quarter">Current quarter (whichever quarter you're viewing)</option>
-    </select>
+    <select class="scope-select" id="importScopeSelect" onchange="updateImportTargetLabel()"></select>
+    <div class="import-summary" id="importTargetLabel" style="color:var(--gold)"></div>
     <div style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--text-muted)">Unrecognized categories are created automatically, matched by name. Nothing existing gets overwritten — these are added on top.</div>
     <button class="modal-close" onclick="confirmGoalsImport()">Import</button>
     <button class="modal-close" style="background:transparent;border-color:var(--border2);color:var(--text-dim);margin-top:8px" onclick="cancelGoalsImport()">Cancel</button>
@@ -295,6 +293,7 @@ const STORAGE_KEY = 'the_arc_v1';
 
 const DEFAULT_CATEGORIES = [
   {id:'income', name:'Income & Skill-Up', color:'#e0a030'},
+  {id:'personal', name:'Personal', color:'#7ec9c9'},
   {id:'faith', name:'Faith', color:'#c9a84c'},
   {id:'body', name:'Body & Health', color:'#4caf7d'},
   {id:'dante', name:'dAnTE Craft', color:'#4a8cc9'},
@@ -329,11 +328,11 @@ function starterGoals(scope){
     relationship:'Text T now to set the time.', hobbies:'Cut the first wall piece.',
     learning:'Block 30 minutes on the calendar.',
   };
-  const generic = DEFAULT_CATEGORIES.filter(c=>c.id!=='income' && c.id!=='faith').map(c=>({
+  const generic = DEFAULT_CATEGORIES.filter(c=>c.id!=='income' && c.id!=='faith' && c.id!=='personal').map(c=>({
     id: uid(), catId: c.id, text: base[c.id][scope], done:false,
     metric: metrics[c.id], deadline:'', mva: mvas[c.id], steps:[]
   }));
-  return [...incomeStarterGoals(scope), ...faithStarterGoals(scope), ...generic];
+  return [...incomeStarterGoals(scope), ...faithStarterGoals(scope), ...personalStarterGoals(scope), ...generic];
 }
 
 // Faith gets the same dedicated treatment as Income — grounded in what's
@@ -409,6 +408,44 @@ function faithStarterGoals(scope){
 // that's already built (ruleset, journal, live-testing), and freelance
 // paths for civil engineering and prompt engineering. Fully editable —
 // this is a starting scaffold, not a script to follow blindly.
+// Personal is new, per your own request: decisions and research now, so
+// execution is instant once income allows — not a purchase plan, a
+// decision plan. Left deliberately light beyond the apartment thread,
+// since you flagged "goals for me" as broader than just this.
+function personalStarterGoals(scope){
+  const mk = (text, metric, mva, steps) => ({
+    id: uid(), catId:'personal', text, done:false, metric, deadline:'', mva,
+    steps: steps.map(t=>({id:uid(), text:t, done:false}))
+  });
+
+  if(scope==='burst'){
+    return [
+      mk('Research and decide on one category of apartment items — specific choices and real prices, not vague ideas', 'Category decided, y/n',
+        'Pick one category right now — furniture, appliances, or decor — and open a browser tab.',
+        ['Pick one category to start with rather than trying to decide everything at once',
+         'Research real options and real current prices, not rough guesses',
+         'Land on a specific decision — this exact item, this exact price — so there\'s nothing left to deliberate later',
+         'Write the decision down somewhere it\'ll actually be found again when the money is there']),
+    ];
+  }
+  if(scope==='month'){
+    return [
+      mk('Build a complete, priced, decided list across the main apartment categories', 'Categories decided / total categories identified',
+        'Confirm the burst-level category is fully decided before adding the next.',
+        ['Add one new category to the decided list each week rather than all at once',
+         'Keep every decision specific — item, price, source — not just a wish',
+         'By month end, know exactly what "furnishing the apartment" will actually cost, in total']),
+    ];
+  }
+  return [
+    mk('Have a complete, priced apartment plan ready to execute the moment income allows', 'Full plan complete, y/n',
+      'Review what\'s already decided from month one.',
+      ['Consolidate every category\'s decisions into one place',
+       'Total the real cost so there\'s a genuine number, not a guess',
+       'When income allows, this should be pure execution — no more deciding, just doing']),
+  ];
+}
+
 function incomeStarterGoals(scope){
   const mk = (text, metric, mva, steps) => ({
     id: uid(), catId:'income', text, done:false, metric, deadline:'', mva,
@@ -555,6 +592,7 @@ function renderCategoryGroups(containerId, goals, handlers){
               <div class="goal-check ${g.done?'done':''}" onclick="${handlers.toggle}('${g.id}')"></div>
               <input type="text" class="goal-text ${g.done?'done':''}" value="${esc(g.text)}" onchange="${handlers.setText}('${g.id}',this.value)">
               ${g.rolledFrom?'<span class="rolled-tag">carried forward</span>':''}
+              ${handlers.move?`<button class="goal-del" onclick="${handlers.move}('${g.id}')" title="Move to a different period">↦</button>`:''}
               <button class="goal-del" onclick="${handlers.del}('${g.id}')">✕</button>
             </div>
             <div class="goal-sub">
@@ -675,7 +713,7 @@ function renderBurst(){
   renderCategoryGroups('burstCategories', burst.goals || [], {
     toggle:'toggleBurstGoal', del:'deleteBurstGoal', add:'addBurstGoal',
     setText:'setBurstGoalText', setField:'setBurstGoalField',
-    toggleStep:'toggleBurstStep', setStepText:'setBurstStepText', delStep:'deleteBurstStep', addStep:'addBurstStep'
+    toggleStep:'toggleBurstStep', setStepText:'setBurstStepText', delStep:'deleteBurstStep', addStep:'addBurstStep', move:'moveBurstGoal'
   });
 }
 
@@ -691,6 +729,18 @@ function toggleBurstGoal(id){ const g=ensureBurst(currentBurstIndex).goals.find(
 function setBurstGoalText(id,val){ const g=ensureBurst(currentBurstIndex).goals.find(x=>x.id===id); if(g){g.text=val; autosave();} }
 function setBurstGoalField(id,field,val){ const g=ensureBurst(currentBurstIndex).goals.find(x=>x.id===id); if(g){g[field]=val; autosave();} }
 function deleteBurstGoal(id){ const b=ensureBurst(currentBurstIndex); b.goals=b.goals.filter(x=>x.id!==id); renderBurst(); autosave(); }
+function moveBurstGoal(id){
+  const input = prompt('Move to which burst number? (e.g. 2 for Burst 2)', currentBurstIndex+2);
+  const targetIdx = parseInt(input,10)-1;
+  if(isNaN(targetIdx) || targetIdx<0) return;
+  const source = ensureBurst(currentBurstIndex);
+  const goal = source.goals.find(g=>g.id===id);
+  if(!goal) return;
+  source.goals = source.goals.filter(g=>g.id!==id);
+  ensureBurst(targetIdx).goals.push(goal);
+  renderBurst(); autosave();
+  showToast('Moved to Burst ' + (targetIdx+1));
+}
 function toggleBurstStep(gId,sId){ const g=ensureBurst(currentBurstIndex).goals.find(x=>x.id===gId); const s=(g&&g.steps||[]).find(x=>x.id===sId); if(s){s.done=!s.done; renderBurst(); autosave();} }
 function setBurstStepText(gId,sId,val){ const g=ensureBurst(currentBurstIndex).goals.find(x=>x.id===gId); const s=(g&&g.steps||[]).find(x=>x.id===sId); if(s){s.text=val; autosave();} }
 function deleteBurstStep(gId,sId){ const g=ensureBurst(currentBurstIndex).goals.find(x=>x.id===gId); if(g){g.steps=(g.steps||[]).filter(x=>x.id!==sId); renderBurst(); autosave();} }
@@ -723,6 +773,8 @@ function renderMonth(){
   const month = ensureMonth(key);
   document.getElementById('monthHeading').textContent = monthLabel(key);
   document.getElementById('monthIntention').value = month.intention || '';
+  const jumpInput = document.getElementById('monthJumpInput');
+  if(jumpInput) jumpInput.value = key;
 
   const goals = month.goals || [];
   const doneCount = goals.filter(g=>g.done).length;
@@ -732,7 +784,7 @@ function renderMonth(){
   renderCategoryGroups('monthCategories', goals, {
     toggle:'toggleMonthGoal', del:'deleteMonthGoal', add:'addMonthGoal',
     setText:'setMonthGoalText', setField:'setMonthGoalField',
-    toggleStep:'toggleMonthStep', setStepText:'setMonthStepText', delStep:'deleteMonthStep', addStep:'addMonthStep'
+    toggleStep:'toggleMonthStep', setStepText:'setMonthStepText', delStep:'deleteMonthStep', addStep:'addMonthStep', move:'moveMonthGoal'
   });
 }
 function saveMonthIntention(){ ensureMonth(currentMonthKey).intention = document.getElementById('monthIntention').value; autosave(); }
@@ -748,6 +800,17 @@ function toggleMonthGoal(id){ const g=ensureMonth(currentMonthKey).goals.find(x=
 function setMonthGoalText(id,val){ const g=ensureMonth(currentMonthKey).goals.find(x=>x.id===id); if(g){g.text=val; autosave();} }
 function setMonthGoalField(id,field,val){ const g=ensureMonth(currentMonthKey).goals.find(x=>x.id===id); if(g){g[field]=val; autosave();} }
 function deleteMonthGoal(id){ const m=ensureMonth(currentMonthKey); m.goals=m.goals.filter(x=>x.id!==id); renderMonth(); autosave(); }
+function moveMonthGoal(id){
+  const input = prompt('Move to which month? (format YYYY-MM, e.g. 2026-08)', shiftMonthKey(currentMonthKey,1));
+  if(!input || !/^\d{4}-\d{2}$/.test(input)) return;
+  const source = ensureMonth(currentMonthKey);
+  const goal = source.goals.find(g=>g.id===id);
+  if(!goal) return;
+  source.goals = source.goals.filter(g=>g.id!==id);
+  ensureMonth(input).goals.push(goal);
+  renderMonth(); autosave();
+  showToast('Moved to ' + monthLabel(input));
+}
 function toggleMonthStep(gId,sId){ const g=ensureMonth(currentMonthKey).goals.find(x=>x.id===gId); const s=(g&&g.steps||[]).find(x=>x.id===sId); if(s){s.done=!s.done; renderMonth(); autosave();} }
 function setMonthStepText(gId,sId,val){ const g=ensureMonth(currentMonthKey).goals.find(x=>x.id===gId); const s=(g&&g.steps||[]).find(x=>x.id===sId); if(s){s.text=val; autosave();} }
 function deleteMonthStep(gId,sId){ const g=ensureMonth(currentMonthKey).goals.find(x=>x.id===gId); if(g){g.steps=(g.steps||[]).filter(x=>x.id!==sId); renderMonth(); autosave();} }
@@ -759,6 +822,7 @@ function addMonthStep(gId){
 }
 function shiftMonth(dir){ currentMonthKey = shiftMonthKey(currentMonthKey,dir); renderMonth(); }
 function jumpToCurrentMonth(){ currentMonthKey = monthKeyFor(new Date()); renderMonth(); }
+function jumpToMonth(val){ if(val){ currentMonthKey = val; renderMonth(); } }
 
 // ══════════════════════ QUARTER ══════════════════════
 function quarterKeyFor(d){ const q = Math.floor(d.getMonth()/3)+1; return d.getFullYear()+'-Q'+q; }
@@ -788,7 +852,7 @@ function renderQuarter(){
   renderCategoryGroups('quarterCategories', quarter.goals || [], {
     toggle:'toggleQuarterGoal', del:'deleteQuarterGoal', add:'addQuarterGoal',
     setText:'setQuarterGoalText', setField:'setQuarterGoalField',
-    toggleStep:'toggleQuarterStep', setStepText:'setQuarterStepText', delStep:'deleteQuarterStep', addStep:'addQuarterStep'
+    toggleStep:'toggleQuarterStep', setStepText:'setQuarterStepText', delStep:'deleteQuarterStep', addStep:'addQuarterStep', move:'moveQuarterGoal'
   });
 }
 function saveQuarterIntention(){ ensureQuarter(currentQuarterKey).intention = document.getElementById('quarterIntention').value; autosave(); }
@@ -804,6 +868,17 @@ function toggleQuarterGoal(id){ const g=ensureQuarter(currentQuarterKey).goals.f
 function setQuarterGoalText(id,val){ const g=ensureQuarter(currentQuarterKey).goals.find(x=>x.id===id); if(g){g.text=val; autosave();} }
 function setQuarterGoalField(id,field,val){ const g=ensureQuarter(currentQuarterKey).goals.find(x=>x.id===id); if(g){g[field]=val; autosave();} }
 function deleteQuarterGoal(id){ const q=ensureQuarter(currentQuarterKey); q.goals=q.goals.filter(x=>x.id!==id); renderQuarter(); autosave(); }
+function moveQuarterGoal(id){
+  const input = prompt('Move to which quarter? (format YYYY-Q#, e.g. 2026-Q4)', shiftQuarterKey(currentQuarterKey,1));
+  if(!input || !/^\d{4}-Q[1-4]$/.test(input)) return;
+  const source = ensureQuarter(currentQuarterKey);
+  const goal = source.goals.find(g=>g.id===id);
+  if(!goal) return;
+  source.goals = source.goals.filter(g=>g.id!==id);
+  ensureQuarter(input).goals.push(goal);
+  renderQuarter(); autosave();
+  showToast('Moved to ' + quarterLabel(input));
+}
 function toggleQuarterStep(gId,sId){ const g=ensureQuarter(currentQuarterKey).goals.find(x=>x.id===gId); const s=(g&&g.steps||[]).find(x=>x.id===sId); if(s){s.done=!s.done; renderQuarter(); autosave();} }
 function setQuarterStepText(gId,sId,val){ const g=ensureQuarter(currentQuarterKey).goals.find(x=>x.id===gId); const s=(g&&g.steps||[]).find(x=>x.id===sId); if(s){s.text=val; autosave();} }
 function deleteQuarterStep(gId,sId){ const g=ensureQuarter(currentQuarterKey).goals.find(x=>x.id===gId); if(g){g.steps=(g.steps||[]).filter(x=>x.id!==sId); renderQuarter(); autosave();} }
@@ -916,11 +991,28 @@ function handleGoalsFileSelect(e){
       const cats = [...new Set(pendingImportGoals.map(g=>g.catName))];
       document.getElementById('importGoalsSummary').innerHTML =
         '<strong>'+pendingImportGoals.length+'</strong> goal(s) found across '+cats.length+' categor'+(cats.length===1?'y':'ies')+': '+esc(cats.join(', '));
+      const sel = document.getElementById('importScopeSelect');
+      sel.innerHTML = `
+        <option value="burst">Burst</option>
+        <option value="month" selected>Month</option>
+        <option value="quarter">Quarter</option>`;
+      updateImportTargetLabel();
       document.getElementById('importGoalsModal').classList.add('show');
     }catch(err){ alert("Couldn't read that file as JSON."); }
   };
   r.readAsText(file);
   e.target.value='';
+}
+
+// Spells out exactly which real period will receive the goals — no more
+// "current" ambiguity. This is what actually would have caught the
+// July/August mixup before it happened.
+function updateImportTargetLabel(){
+  const scope = document.getElementById('importScopeSelect').value;
+  const label = document.getElementById('importTargetLabel');
+  if(scope==='burst') label.textContent = '→ Burst ' + (currentBurstIndex+1) + ' (' + fmtDate(burstDateRange(currentBurstIndex).workStart) + ' – ' + fmtDate(burstDateRange(currentBurstIndex).workEnd) + ')';
+  else if(scope==='month') label.textContent = '→ ' + monthLabel(currentMonthKey);
+  else label.textContent = '→ ' + quarterLabel(currentQuarterKey);
 }
 
 function confirmGoalsImport(){
@@ -1067,6 +1159,7 @@ document.addEventListener('visibilitychange', ()=>{ if(document.visibilityState=
   else {
     if(!b.goals.some(g=>g.catId==='income')) b.goals = [...incomeStarterGoals('burst'), ...b.goals];
     if(!b.goals.some(g=>g.catId==='faith' && g.steps && g.steps.length)) b.goals = [...faithStarterGoals('burst'), ...b.goals];
+    if(!b.goals.some(g=>g.catId==='personal')) b.goals = [...personalStarterGoals('burst'), ...b.goals];
   }
 
   const m = ensureMonth(currentMonthKey);
