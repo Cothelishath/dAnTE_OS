@@ -261,8 +261,9 @@ async function fetchGifForExercise(name){
       }
     }catch(e){ console.error('ExerciseDB fetch error for "'+term+'":', (e&&e.message)||String(e)); }
   }
-  cache[name] = null;
-  setGifCache(cache);
+  // Deliberately not caching the failure here — only successes get cached
+  // permanently. A miss should always get retried next load, not get
+  // stuck forever from one bad attempt.
   return null;
 }
 
