@@ -31,6 +31,28 @@
   --c-hap:    #8ae86a; --c-hab:  #e8e06a; --c-sel:  #c06ae8;
   --c-gown:   #e8a86a; /* gratitude section */
 }
+/* ── LISTS ── */
+.list-card{background:var(--s1);border:1px solid var(--br);border-radius:8px;padding:14px;margin-bottom:14px}
+.list-hd{display:flex;align-items:center;gap:8px;margin-bottom:10px}
+.list-name{flex:1;background:transparent;border:none;color:var(--t1);font-family:var(--serif);font-size:17px;font-weight:400}
+.list-name:focus{outline:none}
+.list-del{background:none;border:none;color:var(--t3);cursor:pointer;font-size:14px}
+.list-del:hover{color:#c0392b}
+.litem-row{display:flex;align-items:flex-start;gap:8px;padding:5px 0;border-bottom:1px solid var(--br)}
+.litem-row:last-child{border-bottom:none}
+.litem-check{width:15px;height:15px;border:1px solid var(--br2);border-radius:3px;cursor:pointer;flex-shrink:0;margin-top:3px}
+.litem-check.done{background:var(--gold);border-color:var(--gold)}
+.litem-text{flex:1;font-size:13px;color:var(--t1);outline:none;min-height:18px}
+.litem-text.done{color:var(--t3);text-decoration:line-through}
+.litem-toolbar{display:none;gap:4px;margin-left:23px;margin-bottom:4px}
+.litem-row.focused .litem-toolbar{display:flex}
+.litem-toolbar button{width:22px;height:22px;background:var(--s3);border:1px solid var(--br2);border-radius:4px;color:var(--t2);font-size:11px;cursor:pointer}
+.litem-toolbar button:hover{color:var(--gold);border-color:var(--gold)}
+.litem-del{background:none;border:none;color:var(--t3);cursor:pointer;font-size:12px;opacity:0;flex-shrink:0}
+.litem-row:hover .litem-del{opacity:1}
+.list-add-item{display:flex;gap:6px;margin-top:8px}
+.list-add-item input{flex:1;background:var(--s3);border:1px solid var(--br2);border-radius:5px;padding:6px 9px;color:var(--t1);font-family:var(--sans);font-size:12.5px}
+.list-add-item button{background:var(--gold-d);border:1px solid var(--gold);border-radius:5px;color:var(--gold);padding:6px 12px;font-size:12px;cursor:pointer}
 [data-theme="light"] {
   --bg:#f6f2ea; --s1:#efebe1; --s2:#e8e3d8; --s3:#dfd9cc; --s4:#d6d0c2;
   --br:rgba(0,0,0,0.07); --br2:rgba(0,0,0,0.13);
@@ -670,6 +692,9 @@ body{
       <div class="nav-item" onclick="goPanel('todos',this)">
         <svg><use href="#ic-check"/></svg>To-Something
       </div>
+      <div class="nav-item" onclick="goPanel('lists',this)">
+        <svg><use href="#ic-check"/></svg>Lists
+      </div>
       <div class="nav-item" onclick="goPanel('vision',this)">
         <svg><use href="#ic-eye"/></svg>Vision Board
       </div>
@@ -751,6 +776,15 @@ body{
       <div class="panel" id="p-todos">
         <div class="tag-row" id="tagRow"></div>
         <div id="todoSecs"></div>
+      </div>
+
+      <!-- LISTS -->
+      <div class="panel" id="p-lists">
+        <div id="listsContainer"></div>
+        <div class="list-add-item">
+          <input type="text" id="newListName" placeholder="New list name — Shopping, Books, Market…" onkeydown="if(event.key==='Enter')addList()">
+          <button onclick="addList()">+ List</button>
+        </div>
       </div>
 
       <!-- VISION BOARD -->
@@ -885,6 +919,7 @@ const PMETA = {
   gratitude:{t:'Gratitude',    s:'Name it specifically, not generically'},
   excerpts: {t:'Excerpts',     s:'Nine daily sources — your morning foundation'},
   todos:    {t:'To-Something', s:'Persistent lists — organised by tag'},
+  lists:    {t:'Lists',        s:'Shopping, market, reading — whatever needs to persist'},
   vision:   {t:'Vision Board', s:'What you are building toward — made visible'},
   history:  {t:'History',      s:'Previous days — journal, gratitude, excerpts'},
 };
@@ -892,7 +927,7 @@ const KEY = 'daily_v3';
 
 /* ── DB ───────────────────────────────── */
 let db; try{db=JSON.parse(localStorage.getItem(KEY))||fresh();}catch{db=fresh();}
-function fresh(){return{j:{},g:{},ex:{},todos:[],vis:[]};}
+function fresh(){return{j:{},g:{},ex:{},todos:[],vis:[],lists:[]};}
 function save(){try{localStorage.setItem(KEY,JSON.stringify(db));}catch{} scheduleCloudPush();}
 
 // ── CLOUD SYNC (Supabase) ──
@@ -923,7 +958,8 @@ function mergeDb(local, remote){
     g: Object.assign({}, remote.g||{}, local.g||{}),
     ex: Object.assign({}, remote.ex||{}, local.ex||{}),
     todos: mergeById(remote.todos, local.todos),
-    vis: mergeById(remote.vis, local.vis)
+    vis: mergeById(remote.vis, local.vis),
+    lists: mergeById(remote.lists, local.lists)
   };
 }
 
@@ -1005,6 +1041,7 @@ function goPanel(name,el){
   if(name==='excerpts')buildExc();
   if(name==='vision')renderVis();
   if(name==='history')renderHistory();
+  if(name==='lists')renderLists();
 }
 function goRTab(name,el){
   document.querySelectorAll('.rpanel').forEach(p=>p.classList.remove('on'));
@@ -1212,6 +1249,103 @@ function gotoSrc(id){
 
 /* ── TODOS ────────────────────────────── */
 let atag='All';
+/* ── LISTS ──────────────────────────────
+   Distinct from To-Something: named lists that persist as their own
+   container (Shopping, Market, Books), each with checkable items and
+   light inline formatting (bold/italic/underline/strikethrough) per item. */
+function ensureLists(){ if(!db.lists) db.lists=[]; return db.lists; }
+
+function renderLists(){
+  const lists = ensureLists();
+  const container = document.getElementById('listsContainer');
+  if(!lists.length){
+    container.innerHTML = `<div style="color:var(--t3);font-style:italic;font-family:var(--serif);padding:20px 0">No lists yet — add one below.</div>`;
+    return;
+  }
+  container.innerHTML = lists.map(list=>`
+    <div class="list-card">
+      <div class="list-hd">
+        <input type="text" class="list-name" value="${escA(list.name)}" onchange="renameList('${list.id}',this.value)">
+        <button class="list-del" onclick="deleteList('${list.id}')">✕</button>
+      </div>
+      ${(list.items||[]).map(item=>`
+        <div class="litem-row" id="lrow-${item.id}">
+          <div class="litem-check ${item.done?'done':''}" onclick="toggleListItem('${list.id}','${item.id}')"></div>
+          <div class="litem-text ${item.done?'done':''}" contenteditable="true"
+               onfocus="document.getElementById('lrow-${item.id}').classList.add('focused')"
+               onblur="document.getElementById('lrow-${item.id}').classList.remove('focused'); saveListItemHtml('${list.id}','${item.id}',this)"
+               oninput="clearTimeout(window._liTimer); window._liTimer=setTimeout(()=>saveListItemHtml('${list.id}','${item.id}',this),600)"
+          >${item.html||''}</div>
+          <button class="litem-del" onclick="deleteListItem('${list.id}','${item.id}')">✕</button>
+        </div>
+        <div class="litem-toolbar" id="ltb-${item.id}">
+          <button onmousedown="event.preventDefault()" onclick="formatListItem('${item.id}','bold')"><b>B</b></button>
+          <button onmousedown="event.preventDefault()" onclick="formatListItem('${item.id}','italic')"><i>I</i></button>
+          <button onmousedown="event.preventDefault()" onclick="formatListItem('${item.id}','underline')"><u>U</u></button>
+          <button onmousedown="event.preventDefault()" onclick="formatListItem('${item.id}','strikeThrough')"><s>S</s></button>
+        </div>
+      `).join('')}
+      <div class="list-add-item">
+        <input type="text" id="newitem-${list.id}" placeholder="Add an item…" onkeydown="if(event.key==='Enter')addListItem('${list.id}')">
+        <button onclick="addListItem('${list.id}')">Add</button>
+      </div>
+    </div>
+  `).join('');
+}
+function escA(s){ return String(s||'').replace(/&/g,'&amp;').replace(/"/g,'&quot;'); }
+
+function addList(){
+  const input = document.getElementById('newListName');
+  const name = input.value.trim();
+  if(!name) return;
+  ensureLists().push({ id:uid(), name, items:[] });
+  input.value='';
+  renderLists(); save();
+}
+function renameList(id,val){
+  const list = ensureLists().find(l=>l.id===id);
+  if(list){ list.name=val; save(); }
+}
+function deleteList(id){
+  if(!confirm('Delete this whole list?')) return;
+  db.lists = ensureLists().filter(l=>l.id!==id);
+  renderLists(); save();
+}
+function addListItem(listId){
+  const input = document.getElementById('newitem-'+listId);
+  const text = input.value.trim();
+  if(!text) return;
+  const list = ensureLists().find(l=>l.id===listId);
+  if(!list) return;
+  if(!list.items) list.items=[];
+  list.items.push({ id:uid(), html: escHtml(text), done:false });
+  input.value='';
+  renderLists(); save();
+}
+function escHtml(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+function toggleListItem(listId,itemId){
+  const list = ensureLists().find(l=>l.id===listId);
+  const item = list && (list.items||[]).find(i=>i.id===itemId);
+  if(item){ item.done=!item.done; renderLists(); save(); }
+}
+function deleteListItem(listId,itemId){
+  const list = ensureLists().find(l=>l.id===listId);
+  if(list){ list.items=(list.items||[]).filter(i=>i.id!==itemId); renderLists(); save(); }
+}
+function saveListItemHtml(listId,itemId,el){
+  const list = ensureLists().find(l=>l.id===listId);
+  const item = list && (list.items||[]).find(i=>i.id===itemId);
+  if(item){ item.html = el.innerHTML; save(); }
+}
+function formatListItem(itemId,command){
+  const el = document.querySelector('#lrow-'+itemId+' .litem-text');
+  if(!el) return;
+  el.focus();
+  document.execCommand(command, false, null);
+  const list = ensureLists().find(l=>(l.items||[]).some(i=>i.id===itemId));
+  if(list) saveListItemHtml(list.id, itemId, el);
+}
+
 function buildTodos(){
   const tags=['All',...TAGS];
   document.getElementById('tagRow').innerHTML=tags.map(t=>
@@ -1549,6 +1683,7 @@ function renderHistory(){
 /* ── INIT ─────────────────────────────── */
 async function init(){
   await pullCloud();
+  if(!db.lists) db.lists=[];
   // Restore theme
   document.documentElement.setAttribute('data-theme', dark?'dark':'light');
   document.querySelector('#themeBtn svg use').setAttribute('href', dark?'#ic-sun':'#ic-moon');
