@@ -220,6 +220,7 @@ body.light .nav{background:rgba(240,244,248,.97);}
 <nav class="nav">
   <button class="nt active" onclick="showPage('accounts',this)">Accounts</button>
   <button class="nt" onclick="showPage('income',this)">Income</button>
+  <button class="nt" onclick="showPage('subscriptions',this)">Subscriptions</button>
   <button class="nt" onclick="showPage('flow',this)">Flow Map</button>
   <button class="nt" onclick="showPage('portfolio',this)">Portfolio</button>
   <button class="nt" onclick="showPage('moving',this)">Moving</button>
@@ -285,6 +286,41 @@ body.light .nav{background:rgba(240,244,248,.97);}
   <div class="save-bar">
     <button class="save-btn" onclick="saveAll()">Save</button>
     <span class="save-status" id="incSaveStatus"></span>
+  </div>
+</div>
+
+<!-- ══ SUBSCRIPTIONS ══ -->
+<div class="page" id="page-subscriptions">
+  <div class="pg-title">Subscriptions <em>& Recurring</em></div>
+  <div class="pg-sub">Every recurring charge in one place — nothing quietly renews unnoticed</div>
+
+  <div class="summary-bar">
+    <div class="sb-box"><div class="sb-val" id="subMonthlyTotal">₦0</div><div class="sb-lbl">Monthly Total</div></div>
+    <div class="sb-box"><div class="sb-val" id="subYearlyTotal">₦0</div><div class="sb-lbl">Yearly Total</div></div>
+    <div class="sb-box"><div class="sb-val" id="subActiveCount">0</div><div class="sb-lbl">Active</div></div>
+    <div class="sb-box"><div class="sb-val" id="subNextDue">—</div><div class="sb-lbl">Next Due</div></div>
+  </div>
+
+  <div class="sec-lbl">All Subscriptions</div>
+  <table class="income-table" id="subsTable">
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Amount</th>
+        <th>Frequency</th>
+        <th>Next Due</th>
+        <th>Category</th>
+        <th>Active</th>
+        <th></th>
+      </tr>
+    </thead>
+    <tbody id="subsTbody"></tbody>
+  </table>
+  <button class="save-btn" onclick="addSubscription()" style="margin-top:10px">+ Add Subscription</button>
+
+  <div class="save-bar">
+    <button class="save-btn" onclick="saveAll()">Save</button>
+    <span class="save-status" id="subSaveStatus"></span>
   </div>
 </div>
 
@@ -891,7 +927,58 @@ function saveReview() {
   setTimeout(()=>{el.textContent=''},2400);
 }
 
-// ── HELPERS ──
+// ── SUBSCRIPTIONS ──
+function renderSubs() {
+  if(!data.subscriptions) data.subscriptions = [];
+  const tbody = document.getElementById('subsTbody');
+  tbody.innerHTML = data.subscriptions.map((s,i) => `
+    <tr>
+      <td><input class="it-input" value="${esc(s.name||'')}" placeholder="Netflix, gym, etc." oninput="updateSub(${i},'name',this.value)"></td>
+      <td><input class="it-input amount" value="${esc(s.amount||'')}" placeholder="₦0" oninput="updateSub(${i},'amount',this.value)"></td>
+      <td><select class="it-sel" onchange="updateSub(${i},'freq',this.value)">
+        ${['Weekly','Monthly','Quarterly','Yearly'].map(f=>`<option ${s.freq===f?'selected':''}>${f}</option>`).join('')}
+      </select></td>
+      <td><input class="it-input" type="date" value="${esc(s.dueDate||'')}" oninput="updateSub(${i},'dueDate',this.value)"></td>
+      <td><input class="it-input" value="${esc(s.category||'')}" placeholder="Entertainment, tools..." oninput="updateSub(${i},'category',this.value)"></td>
+      <td style="text-align:center"><input type="checkbox" ${s.active!==false?'checked':''} onchange="updateSub(${i},'active',this.checked)"></td>
+      <td><button class="save-btn" style="padding:4px 10px;font-size:11px" onclick="deleteSubscription(${i})">✕</button></td>
+    </tr>`).join('');
+  updateSubsSummary();
+}
+function updateSub(i,field,val){
+  if(!data.subscriptions[i]) return;
+  data.subscriptions[i][field]=val;
+  updateSubsSummary();
+}
+function addSubscription(){
+  if(!data.subscriptions) data.subscriptions=[];
+  data.subscriptions.push({name:'',amount:'',freq:'Monthly',dueDate:'',category:'',active:true});
+  renderSubs();
+}
+function deleteSubscription(i){
+  if(!confirm('Remove this subscription?')) return;
+  data.subscriptions.splice(i,1);
+  renderSubs(); saveAll();
+}
+function updateSubsSummary(){
+  const subs = (data.subscriptions||[]).filter(s=>s.active!==false);
+  const toMonthly = (amt,freq) => {
+    const n = parseNum(amt);
+    if(freq==='Weekly') return n*4.33;
+    if(freq==='Quarterly') return n/3;
+    if(freq==='Yearly') return n/12;
+    return n; // Monthly
+  };
+  const monthlyTotal = subs.reduce((sum,s)=>sum+toMonthly(s.amount,s.freq),0);
+  setText('subMonthlyTotal', '₦'+fmtNum(monthlyTotal));
+  setText('subYearlyTotal', '₦'+fmtNum(monthlyTotal*12));
+  setText('subActiveCount', subs.length);
+
+  const upcoming = subs.filter(s=>s.dueDate).sort((a,b)=>a.dueDate.localeCompare(b.dueDate))[0];
+  setText('subNextDue', upcoming ? (upcoming.name||'Untitled')+' — '+upcoming.dueDate : '—');
+}
+
+
 function parseNum(s) { if(!s) return 0; return parseFloat(String(s).replace(/[₦$,\s]/g,''))||0; }
 function fmtNum(n) { if(!n) return '0'; return Math.round(n).toLocaleString(); }
 function esc(s) { return String(s||'').replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;'); }
@@ -922,6 +1009,7 @@ async function init() {
   try { if(localStorage.getItem('dante_fin_theme')==='light') document.body.classList.add('light'); } catch(e) {}
   renderAccounts();
   renderIncome();
+  renderSubs();
   renderFlow();
   renderPortfolio();
   renderMoving();
