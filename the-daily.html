@@ -110,6 +110,10 @@ body{
   scrollbar-width:none;
 }
 .leftnav::-webkit-scrollbar{display:none;}
+.mobile-tabs{display:none;overflow-x:auto;scrollbar-width:none;white-space:nowrap;border-bottom:1px solid var(--br);background:var(--s1)}
+.mobile-tabs::-webkit-scrollbar{display:none;}
+.mtab{display:inline-block;padding:12px 14px;font-family:var(--mono);font-size:10px;letter-spacing:.06em;text-transform:uppercase;color:var(--t3);border-bottom:2px solid transparent}
+.mtab.active{color:var(--gold);border-bottom-color:var(--gold)}
 .nav-grp{padding:20px 0 4px;}
 .nav-grp-lbl{
   font-family:var(--mono);font-size:8px;letter-spacing:0.2em;
@@ -617,7 +621,7 @@ body{
 }
 .msrc.on{border-color:var(--gold-m);color:var(--gold);background:var(--gold-d);}
 
-@media(max-width:860px){.shell{grid-template-columns:1fr 240px;}.leftnav{display:none;}}
+@media(max-width:860px){.shell{grid-template-columns:1fr 240px;}.leftnav{display:none;}.mobile-tabs{display:block;}}
 @media(max-width:620px){
   .shell{grid-template-columns:1fr;}
   .rp,.leftnav{display:none;}
@@ -677,6 +681,16 @@ body{
 <div class="shell">
 
   <!-- LEFT NAV -->
+  <nav class="mobile-tabs" id="mobileTabs">
+    <div class="mtab active" onclick="goPanel('journal',this,true)">Journal</div>
+    <div class="mtab" onclick="goPanel('gratitude',this,true)">Gratitude</div>
+    <div class="mtab" onclick="goPanel('excerpts',this,true)">Excerpts</div>
+    <div class="mtab" onclick="goPanel('todos',this,true)">To-Something</div>
+    <div class="mtab" onclick="goPanel('lists',this,true)">Lists</div>
+    <div class="mtab" onclick="goPanel('vision',this,true)">Vision</div>
+    <div class="mtab" onclick="goPanel('history',this,true)">History</div>
+  </nav>
+
   <nav class="leftnav">
     <div class="nav-grp">
       <div class="nav-grp-lbl">Today</div>
@@ -1034,8 +1048,18 @@ function toggleTheme(){
 function goPanel(name,el){
   document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
   document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+  document.querySelectorAll('.mtab').forEach(n=>n.classList.remove('active'));
   document.getElementById('p-'+name).classList.add('active');
   if(el)el.classList.add('active');
+  // Keep the other nav variant's active state in sync too, in case the
+  // window gets resized across the mobile/desktop breakpoint.
+  const idx=['journal','gratitude','excerpts','todos','lists','vision','history'].indexOf(name);
+  if(idx>-1){
+    const mtabs=document.querySelectorAll('.mtab');
+    const navItems=document.querySelectorAll('.leftnav .nav-item');
+    if(mtabs[idx]) mtabs[idx].classList.add('active');
+    if(navItems[idx]) navItems[idx].classList.add('active');
+  }
   document.getElementById('cTitle').textContent=PMETA[name].t;
   document.getElementById('cSub').textContent=PMETA[name].s;
   if(name==='excerpts')buildExc();
