@@ -75,6 +75,19 @@
   .goal-del:hover{color:var(--red)}
   .rolled-tag{font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--gold-dim);background:var(--gold-glow);padding:1px 6px;border-radius:3px;margin-left:6px;white-space:nowrap}
 
+  .stamp-row{display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--border)}
+  .stamp-row:last-child{border-bottom:none}
+  .stamp-label{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--gold-dim);letter-spacing:.04em;flex:0 0 200px}
+  .stamp-value{flex:1;background:var(--bg3);border:1px solid var(--border2);border-radius:4px;padding:6px 10px;color:var(--text);font-family:'Inter',sans-serif;font-size:12.5px}
+  .stamp-value:focus{outline:none;border-color:var(--gold-dim)}
+
+  .counter-row{display:flex;align-items:center;gap:12px;padding:8px 0;border-bottom:1px solid var(--border);flex-wrap:wrap}
+  .counter-row:last-child{border-bottom:none}
+  .counter-label{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--gold-dim);letter-spacing:.04em;flex:0 0 180px}
+  .counter-tally{flex:1;min-width:80px}
+  .counter-controls{display:flex;align-items:center;gap:6px}
+  .counter-controls .btn{padding:3px 9px;font-size:13px}
+
   .goal-sub{margin-left:26px;margin-top:6px;display:grid;grid-template-columns:1fr 1fr;gap:6px}
   .goal-sub .fld{display:flex;flex-direction:column;gap:2px}
   .goal-sub label{font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--text-muted);letter-spacing:.08em;text-transform:uppercase}
@@ -162,6 +175,8 @@
     header{padding:14px 16px}
     main{padding:20px 16px}
     .goal-sub{grid-template-columns:1fr}
+    .stamp-row,.counter-row{flex-direction:column;align-items:stretch;gap:6px}
+    .stamp-label,.counter-label{flex:none}
   }
 </style>
 </head>
@@ -220,11 +235,18 @@
       <button class="btn" onclick="shiftBurst(1)">Next →</button>
     </div>
 
-    <div class="section-label" style="margin-top:22px"><span>This Burst's Targets</span></div>
-    <div id="burstTargets"></div>
+    <div class="section-label" style="margin-top:22px"><span>Decision Stamps — this burst's choices</span></div>
+    <div id="burstStamps"></div>
     <div class="add-row" style="margin-bottom:20px">
-      <input type="text" id="newBurstTarget" placeholder="Add a named target for this burst…" onkeydown="if(event.key==='Enter')addBurstTarget()">
-      <button onclick="addBurstTarget()">Add</button>
+      <input type="text" id="newBurstStampLabel" placeholder="Add a named stamp for this burst…" onkeydown="if(event.key==='Enter')addBurstStamp()">
+      <button onclick="addBurstStamp()">Add</button>
+    </div>
+
+    <div class="section-label" style="margin-top:18px"><span>Counters — this burst's tallies</span></div>
+    <div id="burstCounters"></div>
+    <div class="add-row" style="margin-bottom:20px">
+      <input type="text" id="newBurstCounterLabel" placeholder="Add a counter for this burst…" onkeydown="if(event.key==='Enter')addBurstCounter()">
+      <button onclick="addBurstCounter()">Add</button>
     </div>
 
     <div id="burstCategories"></div>
@@ -690,14 +712,39 @@ function toggleGoalCollapse(id){
 // unchecked each time a new burst is first touched — completing one burst's
 // copy never marks a future burst's copy done, since each burst holds its
 // own separate targets array. Add more templates here as Paul names them.
-const RECURRING_BURST_TARGETS = [
-  { key:'book', text:'Finish 1 book this burst' }
+// ══════════════════════ RECURRING BURST STAMPS & COUNTERS ══════════════════════
+// Two different shapes, deliberately not checkboxes. A Decision Stamp is a
+// named slot whose VALUE is the record — "Book of the Burst: ___" — blank
+// and unnamed at the start of every burst, filled in as the burst's actual
+// choice becomes the record itself, not a yes/no on whether something got
+// done. A Counter is pure tally — volume without content, e.g. sermons
+// listened, where the count matters and there's nothing else to name.
+// Both reseed fresh (blank value / count 0) the first time a given burst
+// index is touched — completing burst 4's stamp never touches burst 5's.
+const RECURRING_STAMPS = [
+  { key:'book',    label:'Book of the Burst',                 catId:'faith' },
+  { key:'verse',   label:'Verse to memorize',                 catId:'faith' },
+  { key:'pattern', label:'Pattern/concept to refine',          catId:'trading' },
+  { key:'vehicle', label:'Investment vehicle or skill studied',catId:'income' },
+  { key:'move',    label:'Project or move made this burst',    catId:null },
 ];
-function seedRecurringTargets(burst){
-  if(!burst.targets) burst.targets = [];
-  RECURRING_BURST_TARGETS.forEach(rt=>{
-    if(!burst.targets.some(t=>t.recurKey===rt.key)){
-      burst.targets.push({ id:uid(), text:rt.text, done:false, recurKey:rt.key });
+const RECURRING_COUNTERS = [
+  { key:'sermons',  label:'Sermons listened', catId:'faith' },
+  { key:'fastdays', label:'Fast days',         catId:'faith' },
+];
+function seedRecurringStamps(burst){
+  if(!burst.stamps) burst.stamps = [];
+  RECURRING_STAMPS.forEach(rs=>{
+    if(!burst.stamps.some(s=>s.recurKey===rs.key)){
+      burst.stamps.push({ id:uid(), recurKey:rs.key, label:rs.label, value:'', catId:rs.catId });
+    }
+  });
+}
+function seedRecurringCounters(burst){
+  if(!burst.counters) burst.counters = [];
+  RECURRING_COUNTERS.forEach(rc=>{
+    if(!burst.counters.some(c=>c.recurKey===rc.key)){
+      burst.counters.push({ id:uid(), recurKey:rc.key, label:rc.label, count:0, catId:rc.catId });
     }
   });
 }
@@ -718,10 +765,12 @@ function burstIndexForToday(){
   return Math.floor(diff/11);
 }
 function ensureBurst(index){
-  if(!state.bursts[index]) state.bursts[index] = { title:'', goals:[], targets:[] };
+  if(!state.bursts[index]) state.bursts[index] = { title:'', goals:[], stamps:[], counters:[] };
   const b = state.bursts[index];
-  if(!b.targets) b.targets = [];
-  seedRecurringTargets(b);
+  if(!b.stamps) b.stamps = [];
+  if(!b.counters) b.counters = [];
+  seedRecurringStamps(b);
+  seedRecurringCounters(b);
   return b;
 }
 function fmtDate(d){ return d.toLocaleDateString('en-GB',{day:'numeric',month:'short'}); }
@@ -788,7 +837,8 @@ function renderBurst(){
 
   document.getElementById('burstDayTally').innerHTML = renderDayTally(idx);
 
-  renderBurstTargets();
+  renderBurstStamps();
+  renderBurstCounters();
 
   renderCategoryGroups('burstCategories', burst.goals || [], {
     toggle:'toggleBurstGoal', del:'deleteBurstGoal', add:'addBurstGoal',
@@ -797,40 +847,77 @@ function renderBurst(){
   });
 }
 
-function renderBurstTargets(){
+function renderBurstStamps(){
   const b = ensureBurst(currentBurstIndex);
-  const el = document.getElementById('burstTargets');
+  const el = document.getElementById('burstStamps');
   if(!el) return;
-  if(!b.targets.length){ el.innerHTML = `<div class="empty">No targets yet this burst.</div>`; return; }
-  el.innerHTML = b.targets.map(t=>`
-    <div class="goal-row" style="padding:6px 0">
-      <div class="goal-main">
-        <div class="goal-check ${t.done?'done':''}" onclick="toggleBurstTarget('${t.id}')"></div>
-        <input type="text" class="goal-text ${t.done?'done':''}" value="${esc(t.text)}" onchange="setBurstTargetText('${t.id}',this.value)">
-        <button class="goal-del" onclick="deleteBurstTarget('${t.id}')">✕</button>
-      </div>
-    </div>`).join('');
+  if(!b.stamps.length){ el.innerHTML = `<div class="empty">No stamps yet this burst.</div>`; return; }
+  el.innerHTML = b.stamps.map(s=>{
+    const cat = s.catId ? catById(s.catId) : null;
+    const dot = cat ? `<span style="display:inline-block;width:7px;height:7px;border-radius:50%;background:${cat.color};margin-right:7px"></span>` : '';
+    return `
+    <div class="stamp-row">
+      <div class="stamp-label">${dot}${esc(s.label)}</div>
+      <input type="text" class="stamp-value" placeholder="Not yet named…" value="${esc(s.value||'')}" onchange="setStampValue('${s.id}',this.value)">
+      <button class="goal-del" onclick="deleteStamp('${s.id}')">✕</button>
+    </div>`;
+  }).join('');
 }
-function addBurstTarget(){
-  const input = document.getElementById('newBurstTarget');
-  const text = input.value.trim();
-  if(!text) return;
-  ensureBurst(currentBurstIndex).targets.push({ id:uid(), text, done:false });
-  input.value='';
-  renderBurstTargets(); autosave();
+function setStampValue(id,val){
+  const s = ensureBurst(currentBurstIndex).stamps.find(x=>x.id===id);
+  if(s){ s.value=val; autosave(); }
 }
-function toggleBurstTarget(id){
-  const t = ensureBurst(currentBurstIndex).targets.find(x=>x.id===id);
-  if(t){ t.done=!t.done; renderBurstTargets(); autosave(); }
-}
-function setBurstTargetText(id,val){
-  const t = ensureBurst(currentBurstIndex).targets.find(x=>x.id===id);
-  if(t){ t.text=val; autosave(); }
-}
-function deleteBurstTarget(id){
+function deleteStamp(id){
   const b = ensureBurst(currentBurstIndex);
-  b.targets = b.targets.filter(x=>x.id!==id);
-  renderBurstTargets(); autosave();
+  b.stamps = b.stamps.filter(x=>x.id!==id);
+  renderBurstStamps(); autosave();
+}
+function addBurstStamp(){
+  const input = document.getElementById('newBurstStampLabel');
+  const label = input.value.trim();
+  if(!label) return;
+  ensureBurst(currentBurstIndex).stamps.push({ id:uid(), label, value:'', catId:null });
+  input.value='';
+  renderBurstStamps(); autosave();
+}
+
+function renderBurstCounters(){
+  const b = ensureBurst(currentBurstIndex);
+  const el = document.getElementById('burstCounters');
+  if(!el) return;
+  if(!b.counters.length){ el.innerHTML = `<div class="empty">No counters yet this burst.</div>`; return; }
+  el.innerHTML = b.counters.map(c=>{
+    const cat = c.catId ? catById(c.catId) : null;
+    const dot = cat ? `<span style="display:inline-block;width:7px;height:7px;border-radius:50%;background:${cat.color};margin-right:7px"></span>` : '';
+    return `
+    <div class="counter-row">
+      <div class="counter-label">${dot}${esc(c.label)}</div>
+      <div class="counter-tally">${renderTallyCount(c.count)}</div>
+      <div class="counter-controls">
+        <button class="btn" onclick="bumpCounter('${c.id}',-1)">−</button>
+        <span class="tally-count-label">${c.count}</span>
+        <button class="btn" onclick="bumpCounter('${c.id}',1)">+</button>
+        <button class="goal-del" onclick="deleteCounter('${c.id}')">✕</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+function bumpCounter(id,delta){
+  const c = ensureBurst(currentBurstIndex).counters.find(x=>x.id===id);
+  if(c){ c.count = Math.max(0, c.count+delta); renderBurstCounters(); autosave(); }
+}
+function deleteCounter(id){
+  const b = ensureBurst(currentBurstIndex);
+  b.counters = b.counters.filter(x=>x.id!==id);
+  renderBurstCounters(); autosave();
+}
+function addBurstCounter(){
+  const input = document.getElementById('newBurstCounterLabel');
+  const label = input.value.trim();
+  if(!label) return;
+  ensureBurst(currentBurstIndex).counters.push({ id:uid(), label, count:0, catId:null });
+  input.value='';
+  renderBurstCounters(); autosave();
 }
 
 function addBurstGoal(catId){
