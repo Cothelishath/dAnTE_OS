@@ -48,7 +48,10 @@
 
   .card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:18px;margin-bottom:14px}
   .cat-block{margin-bottom:22px}
-  .cat-hd{display:flex;align-items:center;gap:8px;margin-bottom:8px;padding-bottom:6px;border-bottom:1px solid var(--border)}
+  .cat-hd{display:flex;align-items:center;gap:8px;margin-bottom:8px;padding-bottom:6px;border-bottom:1px solid var(--border);cursor:pointer;user-select:none}
+  .cat-toggle{font-size:10px;color:var(--text-muted);flex-shrink:0;transition:transform .2s;width:10px;text-align:center}
+  .cat-block.collapsed .cat-toggle{transform:rotate(-90deg)}
+  .cat-block.collapsed .cat-body{display:none}
   .cat-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
   .cat-name{font-family:'Cormorant Garamond',serif;font-size:16px;color:var(--text);flex:1}
   .cat-prog{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--text-muted)}
@@ -197,6 +200,11 @@
       <span>Cycle 1 starts:</span>
       <input type="date" id="cycleStartInput" onchange="setCycleStart(this.value)">
       <span id="cycleStatus"></span>
+    </div>
+
+    <div class="settings-row">
+      <span>Currently reading / studying:</span>
+      <input type="text" id="currentReadingInput" placeholder="e.g. a book, a course, a study track…" onchange="saveCurrentReading(this.value)" style="flex:1;min-width:180px;background:var(--bg3);border:1px solid var(--border2);border-radius:var(--radius);padding:6px 10px;color:var(--text);font-family:'Inter',sans-serif;font-size:12px">
     </div>
 
     <div class="tally-legend">Bursts completed so far</div>
@@ -538,7 +546,8 @@ function freshState(){
     categories: JSON.parse(JSON.stringify(DEFAULT_CATEGORIES)),
     bursts: {},
     months: {},
-    quarters: {}
+    quarters: {},
+    currentReading: ''
   };
 }
 
@@ -551,6 +560,14 @@ let currentBurstIndex = 0;
 let currentMonthKey = '';
 let currentQuarterKey = '';
 let isDark = localStorage.getItem('arc-theme') !== 'light';
+
+// Collapse state is a local display preference, not synced data — deliberately
+// kept out of `state` so it never round-trips through export/import/cloud sync.
+// Undefined means "no manual choice yet": categories with goals default open,
+// empty categories default collapsed, until the person actually clicks one.
+let collapsedCats = {};
+try { collapsedCats = JSON.parse(localStorage.getItem('arc_collapsed_cats') || '{}'); }
+catch(e) { collapsedCats = {}; }
 
 function uid(){ return Date.now()+Math.random().toString(36).slice(2,6); }
 function esc(s){ return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
@@ -574,12 +591,16 @@ function renderCategoryGroups(containerId, goals, handlers){
   state.categories.forEach(cat=>{
     const catGoals = goals.filter(g=>g.catId===cat.id);
     const done = catGoals.filter(g=>g.done).length;
-    html += `<div class="cat-block">
-      <div class="cat-hd">
+    const explicitCollapse = collapsedCats[cat.id];
+    const isCollapsed = explicitCollapse===undefined ? (catGoals.length===0) : explicitCollapse;
+    html += `<div class="cat-block ${isCollapsed?'collapsed':''}" data-cat="${cat.id}">
+      <div class="cat-hd" onclick="toggleCatCollapse('${cat.id}')">
+        <div class="cat-toggle">▾</div>
         <div class="cat-dot" style="background:${cat.color}"></div>
         <div class="cat-name">${esc(cat.name)}</div>
         <div class="cat-prog">${catGoals.length ? done+'/'+catGoals.length : '—'}</div>
-      </div>`;
+      </div>
+      <div class="cat-body">`;
     if(!catGoals.length){
       html += `<div class="empty">No goals yet in this category.</div>`;
     } else {
@@ -622,9 +643,19 @@ function renderCategoryGroups(containerId, goals, handlers){
         <input type="text" id="new-${containerId}-${cat.id}" placeholder="Add a ${esc(cat.name)} goal…" onkeydown="if(event.key==='Enter')${handlers.add}('${cat.id}')">
         <button onclick="${handlers.add}('${cat.id}')">Add</button>
       </div>
+      </div>
     </div>`;
   });
   container.innerHTML = html;
+}
+
+function toggleCatCollapse(catId){
+  const blocks = document.querySelectorAll('.cat-block[data-cat="'+catId+'"]');
+  const currentlyCollapsed = blocks.length ? blocks[0].classList.contains('collapsed') : false;
+  const next = !currentlyCollapsed;
+  collapsedCats[catId] = next;
+  try { localStorage.setItem('arc_collapsed_cats', JSON.stringify(collapsedCats)); } catch(e){}
+  blocks.forEach(b=>b.classList.toggle('collapsed', next));
 }
 
 // ══════════════════════ BURSTS ══════════════════════
@@ -752,6 +783,10 @@ function addBurstStep(gId){
 }
 function shiftBurst(dir){ currentBurstIndex = Math.max(0, currentBurstIndex+dir); renderBurst(); }
 function jumpToCurrentBurst(){ currentBurstIndex = burstIndexForToday(); rolloverBursts(); renderBurst(); autosave(); }
+function saveCurrentReading(val){
+  state.currentReading = val;
+  autosave();
+}
 function setCycleStart(val){
   state.cycleStart = val;
   document.getElementById('cycleStatus').textContent = 'Updated';
@@ -1150,6 +1185,7 @@ document.addEventListener('visibilitychange', ()=>{ if(document.visibilityState=
 
   if(!isDark) document.body.classList.add('light');
   document.getElementById('cycleStartInput').value = state.cycleStart;
+  document.getElementById('currentReadingInput').value = state.currentReading || '';
 
   currentBurstIndex = burstIndexForToday();
   rolloverBursts();
