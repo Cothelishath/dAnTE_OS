@@ -62,6 +62,9 @@
   .goal-row{padding:10px 0;border-bottom:1px solid var(--border)}
   .goal-row:last-child{border-bottom:none}
   .goal-main{display:flex;align-items:flex-start;gap:10px}
+  .goal-toggle{font-size:9px;color:var(--text-muted);cursor:pointer;flex-shrink:0;margin-top:4px;transition:transform .2s;width:10px;text-align:center}
+  .goal-row.collapsed .goal-toggle{transform:rotate(-90deg)}
+  .goal-row.collapsed .goal-detail{display:none}
   .goal-check{width:16px;height:16px;border:1px solid var(--border2);border-radius:3px;cursor:pointer;flex-shrink:0;margin-top:2px;transition:all .15s}
   .goal-check.done{background:var(--gold);border-color:var(--gold)}
   .goal-text{flex:1;font-size:13px;color:var(--text);background:transparent;border:none;width:100%;font-family:'Inter',sans-serif}
@@ -202,11 +205,6 @@
       <span id="cycleStatus"></span>
     </div>
 
-    <div class="settings-row">
-      <span>Currently reading / studying:</span>
-      <input type="text" id="currentReadingInput" placeholder="e.g. a book, a course, a study track…" onchange="saveCurrentReading(this.value)" style="flex:1;min-width:180px;background:var(--bg3);border:1px solid var(--border2);border-radius:var(--radius);padding:6px 10px;color:var(--text);font-family:'Inter',sans-serif;font-size:12px">
-    </div>
-
     <div class="tally-legend">Bursts completed so far</div>
     <div class="burst-tally-wrap">
       <div id="burstPassedTally"></div>
@@ -220,6 +218,13 @@
       <button class="btn" onclick="shiftBurst(-1)">← Previous</button>
       <button class="btn gold" onclick="jumpToCurrentBurst()">Today's Burst</button>
       <button class="btn" onclick="shiftBurst(1)">Next →</button>
+    </div>
+
+    <div class="section-label" style="margin-top:22px"><span>This Burst's Targets</span></div>
+    <div id="burstTargets"></div>
+    <div class="add-row" style="margin-bottom:20px">
+      <input type="text" id="newBurstTarget" placeholder="Add a named target for this burst…" onkeydown="if(event.key==='Enter')addBurstTarget()">
+      <button onclick="addBurstTarget()">Add</button>
     </div>
 
     <div id="burstCategories"></div>
@@ -546,8 +551,7 @@ function freshState(){
     categories: JSON.parse(JSON.stringify(DEFAULT_CATEGORIES)),
     bursts: {},
     months: {},
-    quarters: {},
-    currentReading: ''
+    quarters: {}
   };
 }
 
@@ -568,6 +572,14 @@ let isDark = localStorage.getItem('arc-theme') !== 'light';
 let collapsedCats = {};
 try { collapsedCats = JSON.parse(localStorage.getItem('arc_collapsed_cats') || '{}'); }
 catch(e) { collapsedCats = {}; }
+
+// Same idea, per goal rather than per category — defaults to collapsed
+// (true) for every goal until manually expanded once, since an opened
+// category still dumping every goal's full metric/deadline/mva/steps grid
+// at once was the actual source of the bombardment, not just category count.
+let collapsedGoals = {};
+try { collapsedGoals = JSON.parse(localStorage.getItem('arc_collapsed_goals') || '{}'); }
+catch(e) { collapsedGoals = {}; }
 
 function uid(){ return Date.now()+Math.random().toString(36).slice(2,6); }
 function esc(s){ return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
@@ -607,15 +619,18 @@ function renderCategoryGroups(containerId, goals, handlers){
       catGoals.forEach(g=>{
         const steps = g.steps || [];
         const stepsDone = steps.filter(s=>s.done).length;
+        const goalCollapsed = collapsedGoals[g.id]===undefined ? true : collapsedGoals[g.id];
         html += `
-          <div class="goal-row">
+          <div class="goal-row ${goalCollapsed?'collapsed':''}" id="goalrow-${g.id}">
             <div class="goal-main">
               <div class="goal-check ${g.done?'done':''}" onclick="${handlers.toggle}('${g.id}')"></div>
+              <div class="goal-toggle" onclick="toggleGoalCollapse('${g.id}')">▾</div>
               <input type="text" class="goal-text ${g.done?'done':''}" value="${esc(g.text)}" onchange="${handlers.setText}('${g.id}',this.value)">
               ${g.rolledFrom?'<span class="rolled-tag">carried forward</span>':''}
               ${handlers.move?`<button class="goal-del" onclick="${handlers.move}('${g.id}')" title="Move to a different period">↦</button>`:''}
               <button class="goal-del" onclick="${handlers.del}('${g.id}')">✕</button>
             </div>
+            <div class="goal-detail">
             <div class="goal-sub">
               <div class="fld"><label>Measurable</label><input type="text" placeholder="How you'll know it's done" value="${esc(g.metric||'')}" onchange="${handlers.setField}('${g.id}','metric',this.value)"></div>
               <div class="fld"><label>Time-bound</label><input type="date" value="${esc(g.deadline||'')}" onchange="${handlers.setField}('${g.id}','deadline',this.value)"></div>
@@ -634,6 +649,7 @@ function renderCategoryGroups(containerId, goals, handlers){
                 <input type="text" id="newstep-${containerId}-${g.id}" placeholder="Add the next concrete step…" onkeydown="if(event.key==='Enter')${handlers.addStep}('${g.id}')">
                 <button onclick="${handlers.addStep}('${g.id}')">+ Step</button>
               </div>
+            </div>
             </div>
           </div>`;
       });
@@ -658,6 +674,34 @@ function toggleCatCollapse(catId){
   blocks.forEach(b=>b.classList.toggle('collapsed', next));
 }
 
+function toggleGoalCollapse(id){
+  const el = document.getElementById('goalrow-'+id);
+  if(!el) return;
+  const next = !el.classList.contains('collapsed');
+  el.classList.toggle('collapsed', next);
+  collapsedGoals[id] = next;
+  try { localStorage.setItem('arc_collapsed_goals', JSON.stringify(collapsedGoals)); } catch(e){}
+}
+
+// ══════════════════════ RECURRING BURST TARGETS ══════════════════════
+// Lighter-weight than category goals — just a name and a checkbox, no
+// SMART fields or steps. Some are ad-hoc (added once, for this burst only);
+// others recur automatically every burst via recurKey, reseeded fresh and
+// unchecked each time a new burst is first touched — completing one burst's
+// copy never marks a future burst's copy done, since each burst holds its
+// own separate targets array. Add more templates here as Paul names them.
+const RECURRING_BURST_TARGETS = [
+  { key:'book', text:'Finish 1 book this burst' }
+];
+function seedRecurringTargets(burst){
+  if(!burst.targets) burst.targets = [];
+  RECURRING_BURST_TARGETS.forEach(rt=>{
+    if(!burst.targets.some(t=>t.recurKey===rt.key)){
+      burst.targets.push({ id:uid(), text:rt.text, done:false, recurKey:rt.key });
+    }
+  });
+}
+
 // ══════════════════════ BURSTS ══════════════════════
 function burstDateRange(index){
   const start = new Date(state.cycleStart+'T00:00:00');
@@ -674,8 +718,11 @@ function burstIndexForToday(){
   return Math.floor(diff/11);
 }
 function ensureBurst(index){
-  if(!state.bursts[index]) state.bursts[index] = { title:'', goals:[] };
-  return state.bursts[index];
+  if(!state.bursts[index]) state.bursts[index] = { title:'', goals:[], targets:[] };
+  const b = state.bursts[index];
+  if(!b.targets) b.targets = [];
+  seedRecurringTargets(b);
+  return b;
 }
 function fmtDate(d){ return d.toLocaleDateString('en-GB',{day:'numeric',month:'short'}); }
 
@@ -741,11 +788,49 @@ function renderBurst(){
 
   document.getElementById('burstDayTally').innerHTML = renderDayTally(idx);
 
+  renderBurstTargets();
+
   renderCategoryGroups('burstCategories', burst.goals || [], {
     toggle:'toggleBurstGoal', del:'deleteBurstGoal', add:'addBurstGoal',
     setText:'setBurstGoalText', setField:'setBurstGoalField',
     toggleStep:'toggleBurstStep', setStepText:'setBurstStepText', delStep:'deleteBurstStep', addStep:'addBurstStep', move:'moveBurstGoal'
   });
+}
+
+function renderBurstTargets(){
+  const b = ensureBurst(currentBurstIndex);
+  const el = document.getElementById('burstTargets');
+  if(!el) return;
+  if(!b.targets.length){ el.innerHTML = `<div class="empty">No targets yet this burst.</div>`; return; }
+  el.innerHTML = b.targets.map(t=>`
+    <div class="goal-row" style="padding:6px 0">
+      <div class="goal-main">
+        <div class="goal-check ${t.done?'done':''}" onclick="toggleBurstTarget('${t.id}')"></div>
+        <input type="text" class="goal-text ${t.done?'done':''}" value="${esc(t.text)}" onchange="setBurstTargetText('${t.id}',this.value)">
+        <button class="goal-del" onclick="deleteBurstTarget('${t.id}')">✕</button>
+      </div>
+    </div>`).join('');
+}
+function addBurstTarget(){
+  const input = document.getElementById('newBurstTarget');
+  const text = input.value.trim();
+  if(!text) return;
+  ensureBurst(currentBurstIndex).targets.push({ id:uid(), text, done:false });
+  input.value='';
+  renderBurstTargets(); autosave();
+}
+function toggleBurstTarget(id){
+  const t = ensureBurst(currentBurstIndex).targets.find(x=>x.id===id);
+  if(t){ t.done=!t.done; renderBurstTargets(); autosave(); }
+}
+function setBurstTargetText(id,val){
+  const t = ensureBurst(currentBurstIndex).targets.find(x=>x.id===id);
+  if(t){ t.text=val; autosave(); }
+}
+function deleteBurstTarget(id){
+  const b = ensureBurst(currentBurstIndex);
+  b.targets = b.targets.filter(x=>x.id!==id);
+  renderBurstTargets(); autosave();
 }
 
 function addBurstGoal(catId){
@@ -783,10 +868,6 @@ function addBurstStep(gId){
 }
 function shiftBurst(dir){ currentBurstIndex = Math.max(0, currentBurstIndex+dir); renderBurst(); }
 function jumpToCurrentBurst(){ currentBurstIndex = burstIndexForToday(); rolloverBursts(); renderBurst(); autosave(); }
-function saveCurrentReading(val){
-  state.currentReading = val;
-  autosave();
-}
 function setCycleStart(val){
   state.cycleStart = val;
   document.getElementById('cycleStatus').textContent = 'Updated';
@@ -1185,7 +1266,6 @@ document.addEventListener('visibilitychange', ()=>{ if(document.visibilityState=
 
   if(!isDark) document.body.classList.add('light');
   document.getElementById('cycleStartInput').value = state.cycleStart;
-  document.getElementById('currentReadingInput').value = state.currentReading || '';
 
   currentBurstIndex = burstIndexForToday();
   rolloverBursts();
