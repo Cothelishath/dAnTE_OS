@@ -115,10 +115,6 @@ body{
   scrollbar-width:none;
 }
 .leftnav::-webkit-scrollbar{display:none;}
-.mobile-tabs{display:none;overflow-x:auto;scrollbar-width:none;white-space:nowrap;border-bottom:1px solid var(--br);background:var(--s1)}
-.mobile-tabs::-webkit-scrollbar{display:none;}
-.mtab{display:inline-block;padding:12px 14px;font-family:var(--mono);font-size:10px;letter-spacing:.06em;text-transform:uppercase;color:var(--t3);border-bottom:2px solid transparent}
-.mtab.active{color:var(--gold);border-bottom-color:var(--gold)}
 .nav-grp{padding:20px 0 4px;}
 .nav-grp-lbl{
   font-family:var(--mono);font-size:8px;letter-spacing:0.2em;
@@ -600,14 +596,37 @@ body{
 }
 
 /* ── MOBILE ─────────────────────────────── */
-/* Single mobile nav: the top .mobile-tabs ribbon (already scrollable,
-   already includes every panel incl. Lists) handles all widths ≤860px.
-   The old bottom .mob-nav + .mob-src-bar were a second, out-of-sync nav
-   and have been removed. */
-@media(max-width:860px){.shell{grid-template-columns:1fr 240px;}.leftnav{display:none;}.mobile-tabs{display:block;}}
+/* Single mobile nav: the bottom bar, at every width ≤860px (not just
+   ≤620 — between 620–860 the leftnav is already hidden, so the bottom
+   bar needs to be the nav there too, not just on the smallest screens). */
+.mob-nav{display:none;flex-shrink:0;border-top:1px solid var(--br);background:var(--s1);padding-bottom:env(safe-area-inset-bottom,0px);}
+.mob-nav-grid{display:grid;grid-template-columns:repeat(7,1fr);}
+.mob-item{
+  display:flex;flex-direction:column;align-items:center;
+  justify-content:center;padding:9px 2px 12px;
+  cursor:pointer;font-family:var(--mono);font-size:6.5px;
+  letter-spacing:0.06em;text-transform:uppercase;color:var(--t4);
+  transition:all 0.18s;border-top:2px solid transparent;gap:4px;
+}
+.mob-item svg{width:17px;height:17px;stroke:currentColor;fill:none;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round;}
+.mob-item.on{color:var(--gold);border-top-color:var(--gold);}
+.mob-src-bar{
+  display:none;overflow-x:auto;padding:8px 14px;gap:7px;
+  border-top:1px solid var(--br);background:var(--s1);scrollbar-width:none;
+}
+.mob-src-bar::-webkit-scrollbar{display:none;}
+.mob-src-bar.show{display:flex;}
+.msrc{
+  padding:4px 12px;border-radius:20px;
+  border:1px solid var(--br);
+  font-family:var(--mono);font-size:7px;letter-spacing:0.1em;
+  text-transform:uppercase;color:var(--t4);
+  cursor:pointer;white-space:nowrap;flex-shrink:0;transition:all 0.18s;
+}
+.msrc.on{border-color:var(--gold-m);color:var(--gold);background:var(--gold-d);}
+
+@media(max-width:860px){.shell{grid-template-columns:1fr;}.leftnav{display:none;}.rp{display:none;}.mob-nav{display:block;}}
 @media(max-width:620px){
-  .shell{grid-template-columns:1fr;}
-  .rp,.leftnav{display:none;}
   .topbar{padding:0 16px;}
   .centre-body{padding:16px 16px 40px;}
   .centre-hd{padding:13px 16px 11px;}
@@ -663,16 +682,6 @@ body{
 <div class="shell">
 
   <!-- LEFT NAV -->
-  <nav class="mobile-tabs" id="mobileTabs">
-    <div class="mtab active" onclick="goPanel('journal',this,true)">Journal</div>
-    <div class="mtab" onclick="goPanel('gratitude',this,true)">Gratitude</div>
-    <div class="mtab" onclick="goPanel('excerpts',this,true)">Excerpts</div>
-    <div class="mtab" onclick="goPanel('todos',this,true)">To-Something</div>
-    <div class="mtab" onclick="goPanel('lists',this,true)">Lists</div>
-    <div class="mtab" onclick="goPanel('vision',this,true)">Vision</div>
-    <div class="mtab" onclick="goPanel('history',this,true)">History</div>
-  </nav>
-
   <nav class="leftnav">
     <div class="nav-grp">
       <div class="nav-grp-lbl">Today</div>
@@ -828,6 +837,45 @@ body{
 
 </div><!-- /shell -->
 
+<!-- MOBILE SOURCE BAR -->
+<div class="mob-src-bar" id="mSrcBar">
+  <div class="msrc on" onclick="mSrc(this,'votd')" style="color:var(--c-votd)">VOTD</div>
+  <div class="msrc" onclick="mSrc(this,'wis')" style="color:var(--c-wis)">Wisdom</div>
+  <div class="msrc" onclick="mSrc(this,'grat')" style="color:var(--c-grat)">Grat App</div>
+  <div class="msrc" onclick="mSrc(this,'drea')" style="color:var(--c-drea)">Dreamfora</div>
+  <div class="msrc" onclick="mSrc(this,'sto')" style="color:var(--c-sto)">Stoic</div>
+  <div class="msrc" onclick="mSrc(this,'law')" style="color:var(--c-law)">Laws</div>
+  <div class="msrc" onclick="mSrc(this,'hap')" style="color:var(--c-hap)">Happiness</div>
+  <div class="msrc" onclick="mSrc(this,'hab')" style="color:var(--c-hab)">7 Habits</div>
+  <div class="msrc" onclick="mSrc(this,'sel')" style="color:var(--c-sel)">Self-Disc.</div>
+</div>
+
+<!-- MOBILE NAV -->
+<div class="mob-nav">
+  <div class="mob-nav-grid">
+    <div class="mob-item on" id="mn-journal" onclick="mNav(this,'journal')">
+      <svg><use href="#ic-pen"/></svg>Journal
+    </div>
+    <div class="mob-item" id="mn-gratitude" onclick="mNav(this,'gratitude')">
+      <svg><use href="#ic-heart"/></svg>Gratitude
+    </div>
+    <div class="mob-item" id="mn-excerpts" onclick="mNav(this,'excerpts')">
+      <svg><use href="#ic-book"/></svg>Excerpts
+    </div>
+    <div class="mob-item" id="mn-todos" onclick="mNav(this,'todos')">
+      <svg><use href="#ic-check"/></svg>To-Do
+    </div>
+    <div class="mob-item" id="mn-lists" onclick="mNav(this,'lists')">
+      <svg><use href="#ic-check"/></svg>Lists
+    </div>
+    <div class="mob-item" id="mn-vision" onclick="mNav(this,'vision')">
+      <svg><use href="#ic-eye"/></svg>Vision
+    </div>
+    <div class="mob-item" id="mn-history" onclick="mNav(this,'history')">
+      <svg><use href="#ic-book"/></svg>History
+    </div>
+  </div>
+</div>
 
 <!-- VISION MODAL -->
 <div class="overlay" id="vModal">
@@ -959,16 +1007,33 @@ function mergeById(a, b){
   (b||[]).forEach(item=>{ if(!map.has(item.id)) map.set(item.id, item); });
   return Array.from(map.values());
 }
-// Lists: merge by list id, then merge ITEMS within each list by item id,
-// instead of one side's whole item array replacing the other's.
+// Lists: merge by list id, then merge ITEMS within each list by item id.
+// If an item only exists on one side, it's simply added. If it exists on
+// BOTH sides (same id, e.g. a price or checkbox was changed on one
+// device), the version with the more recent updatedAt wins — this is the
+// piece that was missing before: only new items were ever added, so an
+// edit to an item that already existed on both sides never propagated.
 function mergeLists(a, b){
   const byId = new Map();
   (a||[]).forEach(l=>byId.set(l.id, {...l, items:[...(l.items||[])]}));
   (b||[]).forEach(l=>{
     if(!byId.has(l.id)){ byId.set(l.id, {...l, items:[...(l.items||[])]}); return; }
     const existing = byId.get(l.id);
-    const haveIds = new Set(existing.items.map(i=>i.id));
-    (l.items||[]).forEach(item=>{ if(!haveIds.has(item.id)) existing.items.push(item); });
+    const itemMap = new Map(existing.items.map(i=>[i.id,i]));
+    (l.items||[]).forEach(item=>{
+      const cur = itemMap.get(item.id);
+      if(!cur){ itemMap.set(item.id, item); return; }
+      const curT = cur.updatedAt||0, newT = item.updatedAt||0;
+      if(newT > curT) itemMap.set(item.id, item);
+      else if(newT === curT){
+        // No usable timestamp on either side (e.g. legacy data) — prefer
+        // whichever copy actually has more filled-in fields rather than
+        // arbitrarily picking one and losing the other's edit.
+        const score = x => (x.price?1:0)+(x.done?1:0)+((x.html||'').length);
+        if(score(item) > score(cur)) itemMap.set(item.id, item);
+      }
+    });
+    existing.items = Array.from(itemMap.values());
   });
   return Array.from(byId.values());
 }
@@ -1055,17 +1120,18 @@ function toggleTheme(){
 function goPanel(name,el){
   document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
   document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
-  document.querySelectorAll('.mtab').forEach(n=>n.classList.remove('active'));
   document.getElementById('p-'+name).classList.add('active');
   if(el)el.classList.add('active');
-  // Keep the other nav variant's active state in sync too, in case the
-  // window gets resized across the mobile/desktop breakpoint.
+  // Keep the other nav variant's active state in sync too — e.g. if this
+  // was triggered from the desktop leftnav (or gotoSrc), the bottom
+  // mobile nav should still reflect the right tab, and vice versa.
   const idx=['journal','gratitude','excerpts','todos','lists','vision','history'].indexOf(name);
   if(idx>-1){
-    const mtabs=document.querySelectorAll('.mtab');
     const navItems=document.querySelectorAll('.leftnav .nav-item');
-    if(mtabs[idx]) mtabs[idx].classList.add('active');
+    const mobItems=document.querySelectorAll('.mob-item');
     if(navItems[idx]) navItems[idx].classList.add('active');
+    document.querySelectorAll('.mob-item').forEach(b=>b.classList.remove('on'));
+    if(mobItems[idx]) mobItems[idx].classList.add('on');
   }
   document.getElementById('cTitle').textContent=PMETA[name].t;
   document.getElementById('cSub').textContent=PMETA[name].s;
@@ -1360,7 +1426,7 @@ function addListItem(listId){
   const list = ensureLists().find(l=>l.id===listId);
   if(!list) return;
   if(!list.items) list.items=[];
-  list.items.push({ id:uid(), html: escHtml(text), done:false, price:'' });
+  list.items.push({ id:uid(), html: escHtml(text), done:false, price:'', updatedAt:Date.now() });
   input.value='';
   renderLists(); save();
 }
@@ -1368,12 +1434,12 @@ function escHtml(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;')
 function saveListItemPrice(listId,itemId,val){
   const list = ensureLists().find(l=>l.id===listId);
   const item = list && (list.items||[]).find(i=>i.id===itemId);
-  if(item){ item.price = val===''?'':val; renderLists(); save(); }
+  if(item){ item.price = val===''?'':val; item.updatedAt=Date.now(); renderLists(); save(); }
 }
 function toggleListItem(listId,itemId){
   const list = ensureLists().find(l=>l.id===listId);
   const item = list && (list.items||[]).find(i=>i.id===itemId);
-  if(item){ item.done=!item.done; renderLists(); save(); }
+  if(item){ item.done=!item.done; item.updatedAt=Date.now(); renderLists(); save(); }
 }
 function deleteListItem(listId,itemId){
   const list = ensureLists().find(l=>l.id===listId);
@@ -1382,7 +1448,7 @@ function deleteListItem(listId,itemId){
 function saveListItemHtml(listId,itemId,el){
   const list = ensureLists().find(l=>l.id===listId);
   const item = list && (list.items||[]).find(i=>i.id===itemId);
-  if(item){ item.html = el.innerHTML; save(); }
+  if(item){ item.html = el.innerHTML; item.updatedAt=Date.now(); save(); }
 }
 function formatListItem(itemId,command){
   const el = document.querySelector('#lrow-'+itemId+' .litem-text');
@@ -1579,6 +1645,20 @@ function renderArch(){
       ${arr.length>3?`<div class="arch-e"><div class="arch-etxt" style="color:var(--t4)">+${arr.length-3} more</div></div>`:''}
     </div>`;
   }).join('');
+}
+
+/* ── MOBILE ───────────────────────────── */
+function mNav(el,name){
+  document.querySelectorAll('.mob-item').forEach(b=>b.classList.remove('on'));
+  el.classList.add('on');
+  goPanel(name,null);
+  const bar=document.getElementById('mSrcBar');
+  name==='excerpts'?bar.classList.add('show'):bar.classList.remove('show');
+}
+function mSrc(el,id){
+  document.querySelectorAll('.msrc').forEach(p=>p.classList.remove('on'));
+  el.classList.add('on');
+  gotoSrc(id);
 }
 
 /* ── MODAL OUTSIDE CLICK ──────────────── */
