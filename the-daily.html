@@ -53,6 +53,11 @@
 .list-add-item{display:flex;gap:6px;margin-top:8px}
 .list-add-item input{flex:1;background:var(--s3);border:1px solid var(--br2);border-radius:5px;padding:6px 9px;color:var(--t1);font-family:var(--sans);font-size:12.5px}
 .list-add-item button{background:var(--gold-d);border:1px solid var(--gold);border-radius:5px;color:var(--gold);padding:6px 12px;font-size:12px;cursor:pointer}
+.litem-price{width:78px;flex-shrink:0;background:var(--s3);border:1px solid var(--br2);border-radius:4px;padding:4px 6px;color:var(--t2);font-family:var(--mono);font-size:11px;text-align:right}
+.litem-price:focus{outline:none;border-color:var(--br2);color:var(--t1)}
+.litem-price::placeholder{color:var(--t4)}
+.list-total{display:flex;gap:16px;flex-wrap:wrap;margin-top:10px;padding-top:8px;border-top:1px solid var(--br);font-family:var(--mono);font-size:10px;letter-spacing:.05em;color:var(--t3)}
+.list-total b{color:var(--gold);font-weight:500}
 [data-theme="light"] {
   --bg:#f6f2ea; --s1:#efebe1; --s2:#e8e3d8; --s3:#dfd9cc; --s4:#d6d0c2;
   --br:rgba(0,0,0,0.07); --br2:rgba(0,0,0,0.13);
@@ -595,37 +600,14 @@ body{
 }
 
 /* ── MOBILE ─────────────────────────────── */
-.mob-nav{display:none;flex-shrink:0;border-top:1px solid var(--br);background:var(--s1);padding-bottom:env(safe-area-inset-bottom,0px);}
-.mob-nav-grid{display:grid;grid-template-columns:repeat(6,1fr);}
-.mob-item{
-  display:flex;flex-direction:column;align-items:center;
-  justify-content:center;padding:10px 4px 13px;
-  cursor:pointer;font-family:var(--mono);font-size:7px;
-  letter-spacing:0.08em;text-transform:uppercase;color:var(--t4);
-  transition:all 0.18s;border-top:2px solid transparent;gap:5px;
-}
-.mob-item svg{width:18px;height:18px;stroke:currentColor;fill:none;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round;}
-.mob-item.on{color:var(--gold);border-top-color:var(--gold);}
-.mob-src-bar{
-  display:none;overflow-x:auto;padding:8px 14px;gap:7px;
-  border-top:1px solid var(--br);background:var(--s1);scrollbar-width:none;
-}
-.mob-src-bar::-webkit-scrollbar{display:none;}
-.mob-src-bar.show{display:flex;}
-.msrc{
-  padding:4px 12px;border-radius:20px;
-  border:1px solid var(--br);
-  font-family:var(--mono);font-size:7px;letter-spacing:0.1em;
-  text-transform:uppercase;color:var(--t4);
-  cursor:pointer;white-space:nowrap;flex-shrink:0;transition:all 0.18s;
-}
-.msrc.on{border-color:var(--gold-m);color:var(--gold);background:var(--gold-d);}
-
+/* Single mobile nav: the top .mobile-tabs ribbon (already scrollable,
+   already includes every panel incl. Lists) handles all widths ≤860px.
+   The old bottom .mob-nav + .mob-src-bar were a second, out-of-sync nav
+   and have been removed. */
 @media(max-width:860px){.shell{grid-template-columns:1fr 240px;}.leftnav{display:none;}.mobile-tabs{display:block;}}
 @media(max-width:620px){
   .shell{grid-template-columns:1fr;}
   .rp,.leftnav{display:none;}
-  .mob-nav{display:block;}
   .topbar{padding:0 16px;}
   .centre-body{padding:16px 16px 40px;}
   .centre-hd{padding:13px 16px 11px;}
@@ -846,42 +828,6 @@ body{
 
 </div><!-- /shell -->
 
-<!-- MOBILE SOURCE BAR -->
-<div class="mob-src-bar" id="mSrcBar">
-  <div class="msrc on" onclick="mSrc(this,'votd')" style="color:var(--c-votd)">VOTD</div>
-  <div class="msrc" onclick="mSrc(this,'wis')" style="color:var(--c-wis)">Wisdom</div>
-  <div class="msrc" onclick="mSrc(this,'grat')" style="color:var(--c-grat)">Grat App</div>
-  <div class="msrc" onclick="mSrc(this,'drea')" style="color:var(--c-drea)">Dreamfora</div>
-  <div class="msrc" onclick="mSrc(this,'sto')" style="color:var(--c-sto)">Stoic</div>
-  <div class="msrc" onclick="mSrc(this,'law')" style="color:var(--c-law)">Laws</div>
-  <div class="msrc" onclick="mSrc(this,'hap')" style="color:var(--c-hap)">Happiness</div>
-  <div class="msrc" onclick="mSrc(this,'hab')" style="color:var(--c-hab)">7 Habits</div>
-  <div class="msrc" onclick="mSrc(this,'sel')" style="color:var(--c-sel)">Self-Disc.</div>
-</div>
-
-<!-- MOBILE NAV -->
-<div class="mob-nav">
-  <div class="mob-nav-grid">
-    <div class="mob-item on" id="mn-journal" onclick="mNav(this,'journal')">
-      <svg><use href="#ic-pen"/></svg>Journal
-    </div>
-    <div class="mob-item" id="mn-gratitude" onclick="mNav(this,'gratitude')">
-      <svg><use href="#ic-heart"/></svg>Gratitude
-    </div>
-    <div class="mob-item" id="mn-excerpts" onclick="mNav(this,'excerpts')">
-      <svg><use href="#ic-book"/></svg>Excerpts
-    </div>
-    <div class="mob-item" id="mn-todos" onclick="mNav(this,'todos')">
-      <svg><use href="#ic-check"/></svg>Lists
-    </div>
-    <div class="mob-item" id="mn-vision" onclick="mNav(this,'vision')">
-      <svg><use href="#ic-eye"/></svg>Vision
-    </div>
-    <div class="mob-item" id="mn-history" onclick="mNav(this,'history')">
-      <svg><use href="#ic-book"/></svg>History
-    </div>
-  </div>
-</div>
 
 <!-- VISION MODAL -->
 <div class="overlay" id="vModal">
@@ -953,27 +899,88 @@ const SYNC_TOOL = 'the-daily';
 
 function setSyncStatus(msg) { const el=document.getElementById('syncStatus'); if(el) el.textContent=msg; }
 
-// Merge, not overwrite. Journal/gratitude/excerpts are date-keyed objects —
-// union of keys, local wins on same-date conflicts (the device you're
-// actually sitting at right now knows about its own unsynced edits).
-// Todos/vision are id-keyed arrays — union by id, same local-wins rule.
-// This is what actually stops one device's stale push from silently
-// erasing entries the other device hadn't synced down yet.
-function mergeById(remoteArr, localArr){
+// Merge, not overwrite — at the ENTRY level, not the whole-day or
+// whole-list level. The old version here (and in the manual Import
+// button) replaced an entire day's journal array or an entire list's
+// items whenever the two sides disagreed, so whichever device happened
+// to sync last silently deleted the other device's unsynced entries or
+// list items. These helpers instead union the actual contents.
+
+// Journal/Gratitude: entries within a day, grouped by timestamp. Exact
+// duplicate text is deduped. Where two entries share a timestamp and one
+// is a straight continuation of the other (an in-place edit that added
+// more text), the longer version is kept. Genuinely different entries at
+// the same minute are both kept rather than one silently dropped.
+function mergeDayEntries(a, b){
+  const all = [...(a||[]), ...(b||[])];
+  const byTime = {};
+  all.forEach(e=>{ (byTime[e.time]=byTime[e.time]||[]).push(e); });
+  const merged = [];
+  Object.keys(byTime).forEach(t=>{
+    const group = byTime[t];
+    const uniq = [];
+    group.forEach(e=>{ if(!uniq.some(u=>u.text===e.text)) uniq.push(e); });
+    uniq.sort((x,y)=>y.text.length-x.text.length);
+    const kept = [];
+    uniq.forEach(e=>{ if(!kept.some(k=>k.text.startsWith(e.text))) kept.push(e); });
+    kept.forEach(k=>merged.push(k));
+  });
+  merged.sort((x,y)=>x.time.localeCompare(y.time));
+  return merged;
+}
+function mergeDateKeyed(a, b){
+  const days = new Set([...Object.keys(a||{}), ...Object.keys(b||{})]);
+  const out = {};
+  days.forEach(day=>{ out[day] = mergeDayEntries((a||{})[day], (b||{})[day]); });
+  return out;
+}
+// Excerpts: per day, per source — merge field by field (text/img)
+// instead of one side's whole day winning.
+function mergeExcerpts(a, b){
+  const days = new Set([...Object.keys(a||{}), ...Object.keys(b||{})]);
+  const out = {};
+  days.forEach(day=>{
+    const da=(a||{})[day]||{}, db_=(b||{})[day]||{};
+    const srcIds = new Set([...Object.keys(da), ...Object.keys(db_)]);
+    out[day] = {};
+    srcIds.forEach(sid=>{
+      const x=da[sid], y=db_[sid];
+      if(x && y){ out[day][sid] = { text: (y.text&&(!x.text||y.text.length>x.text.length))?y.text:(x.text||y.text), img: x.img||y.img }; }
+      else out[day][sid] = x||y;
+    });
+  });
+  return out;
+}
+// Todos/Vision: id-keyed arrays, union by id (first side wins on a true
+// id collision — same record, no field-level merge needed there).
+function mergeById(a, b){
   const map = new Map();
-  (remoteArr||[]).forEach(item=>map.set(item.id, item));
-  (localArr||[]).forEach(item=>map.set(item.id, item));
+  (a||[]).forEach(item=>map.set(item.id, item));
+  (b||[]).forEach(item=>{ if(!map.has(item.id)) map.set(item.id, item); });
   return Array.from(map.values());
+}
+// Lists: merge by list id, then merge ITEMS within each list by item id,
+// instead of one side's whole item array replacing the other's.
+function mergeLists(a, b){
+  const byId = new Map();
+  (a||[]).forEach(l=>byId.set(l.id, {...l, items:[...(l.items||[])]}));
+  (b||[]).forEach(l=>{
+    if(!byId.has(l.id)){ byId.set(l.id, {...l, items:[...(l.items||[])]}); return; }
+    const existing = byId.get(l.id);
+    const haveIds = new Set(existing.items.map(i=>i.id));
+    (l.items||[]).forEach(item=>{ if(!haveIds.has(item.id)) existing.items.push(item); });
+  });
+  return Array.from(byId.values());
 }
 function mergeDb(local, remote){
   if(!remote) return local;
   return {
-    j: Object.assign({}, remote.j||{}, local.j||{}),
-    g: Object.assign({}, remote.g||{}, local.g||{}),
-    ex: Object.assign({}, remote.ex||{}, local.ex||{}),
-    todos: mergeById(remote.todos, local.todos),
-    vis: mergeById(remote.vis, local.vis),
-    lists: mergeById(remote.lists, local.lists)
+    j: mergeDateKeyed(local.j, remote.j),
+    g: mergeDateKeyed(local.g, remote.g),
+    ex: mergeExcerpts(local.ex, remote.ex),
+    todos: mergeById(local.todos, remote.todos),
+    vis: mergeById(local.vis, remote.vis),
+    lists: mergeLists(local.lists, remote.lists)
   };
 }
 
@@ -1286,13 +1293,18 @@ function renderLists(){
     container.innerHTML = `<div style="color:var(--t3);font-style:italic;font-family:var(--serif);padding:20px 0">No lists yet — add one below.</div>`;
     return;
   }
-  container.innerHTML = lists.map(list=>`
+  container.innerHTML = lists.map(list=>{
+    const items = list.items||[];
+    const total = items.reduce((sum,i)=>sum+(parseFloat(i.price)||0),0);
+    const remaining = items.filter(i=>!i.done).reduce((sum,i)=>sum+(parseFloat(i.price)||0),0);
+    const anyPriced = items.some(i=>i.price!==undefined && i.price!==null && i.price!=='');
+    return `
     <div class="list-card">
       <div class="list-hd">
         <input type="text" class="list-name" value="${escA(list.name)}" onchange="renameList('${list.id}',this.value)">
         <button class="list-del" onclick="deleteList('${list.id}')">✕</button>
       </div>
-      ${(list.items||[]).map(item=>`
+      ${items.map(item=>`
         <div class="litem-row" id="lrow-${item.id}">
           <div class="litem-check ${item.done?'done':''}" onclick="toggleListItem('${list.id}','${item.id}')"></div>
           <div class="litem-text ${item.done?'done':''}" contenteditable="true"
@@ -1300,6 +1312,8 @@ function renderLists(){
                onblur="document.getElementById('lrow-${item.id}').classList.remove('focused'); saveListItemHtml('${list.id}','${item.id}',this)"
                oninput="clearTimeout(window._liTimer); window._liTimer=setTimeout(()=>saveListItemHtml('${list.id}','${item.id}',this),600)"
           >${item.html||''}</div>
+          <input type="number" step="any" class="litem-price" placeholder="₦ price" value="${item.price!=null&&item.price!==''?escA(String(item.price)):''}"
+                 onchange="saveListItemPrice('${list.id}','${item.id}',this.value)">
           <button class="litem-del" onclick="deleteListItem('${list.id}','${item.id}')">✕</button>
         </div>
         <div class="litem-toolbar" id="ltb-${item.id}">
@@ -1313,8 +1327,12 @@ function renderLists(){
         <input type="text" id="newitem-${list.id}" placeholder="Add an item…" onkeydown="if(event.key==='Enter')addListItem('${list.id}')">
         <button onclick="addListItem('${list.id}')">Add</button>
       </div>
+      ${anyPriced?`<div class="list-total">
+        <div>Total: <b>₦${total.toLocaleString()}</b></div>
+        <div>Remaining (unchecked): <b>₦${remaining.toLocaleString()}</b></div>
+      </div>`:''}
     </div>
-  `).join('');
+  `;}).join('');
 }
 function escA(s){ return String(s||'').replace(/&/g,'&amp;').replace(/"/g,'&quot;'); }
 
@@ -1342,11 +1360,16 @@ function addListItem(listId){
   const list = ensureLists().find(l=>l.id===listId);
   if(!list) return;
   if(!list.items) list.items=[];
-  list.items.push({ id:uid(), html: escHtml(text), done:false });
+  list.items.push({ id:uid(), html: escHtml(text), done:false, price:'' });
   input.value='';
   renderLists(); save();
 }
 function escHtml(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+function saveListItemPrice(listId,itemId,val){
+  const list = ensureLists().find(l=>l.id===listId);
+  const item = list && (list.items||[]).find(i=>i.id===itemId);
+  if(item){ item.price = val===''?'':val; renderLists(); save(); }
+}
 function toggleListItem(listId,itemId){
   const list = ensureLists().find(l=>l.id===listId);
   const item = list && (list.items||[]).find(i=>i.id===itemId);
@@ -1558,20 +1581,6 @@ function renderArch(){
   }).join('');
 }
 
-/* ── MOBILE ───────────────────────────── */
-function mNav(el,name){
-  document.querySelectorAll('.mob-item').forEach(b=>b.classList.remove('on'));
-  el.classList.add('on');
-  goPanel(name,null);
-  const bar=document.getElementById('mSrcBar');
-  name==='excerpts'?bar.classList.add('show'):bar.classList.remove('show');
-}
-function mSrc(el,id){
-  document.querySelectorAll('.msrc').forEach(p=>p.classList.remove('on'));
-  el.classList.add('on');
-  gotoSrc(id);
-}
-
 /* ── MODAL OUTSIDE CLICK ──────────────── */
 document.getElementById('vModal').addEventListener('click',e=>{
   if(e.target.id==='vModal')closeVModal();
@@ -1593,21 +1602,19 @@ function importData(inp){
   r.onload = e => {
     try {
       const imported = JSON.parse(e.target.result);
-      // Merge — imported data wins on conflicts, but nothing is deleted
-      if(imported.j) Object.assign(db.j, imported.j);
-      if(imported.g) Object.assign(db.g, imported.g);
-      if(imported.ex) Object.assign(db.ex, imported.ex);
-      if(imported.todos) {
-        const existIds = new Set(db.todos.map(x=>x.id));
-        imported.todos.forEach(t=>{ if(!existIds.has(t.id)) db.todos.push(t); });
-      }
-      if(imported.vis) {
-        const existIds = new Set(db.vis.map(x=>x.id));
-        imported.vis.forEach(v=>{ if(!existIds.has(v.id)) db.vis.push(v); });
-      }
+      // Real entry-level / item-level merge — same logic as cloud sync.
+      // Nothing is deleted or silently replaced on either side.
+      db.j = mergeDateKeyed(db.j, imported.j);
+      db.g = mergeDateKeyed(db.g, imported.g);
+      db.ex = mergeExcerpts(db.ex, imported.ex);
+      db.todos = mergeById(db.todos, imported.todos);
+      db.vis = mergeById(db.vis, imported.vis);
+      db.lists = mergeLists(db.lists, imported.lists);
       save();
       renderJ();renderG();buildTodos();renderVis();updateStats();renderArch();
       if(document.getElementById('p-excerpts').classList.contains('active')) buildExc();
+      if(document.getElementById('p-lists').classList.contains('active')) renderLists();
+      alert('Merged — everything from both files is kept, nothing overwritten.');
     } catch(err){ alert('Could not read file. Make sure it is a valid Daily export.'); }
   };
   r.readAsText(file);
