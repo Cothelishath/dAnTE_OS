@@ -1,0 +1,853 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Trade Protocol — dAnTE</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0b0b0c; --bg2:#131315; --panel:#17181a; --panel2:#1d1e21;
+  --line:#2a2b2f; --line2:#35363b;
+  --text:#e9e7e1; --text-dim:#9a988f; --text-faint:#68665f;
+  --gold:#c9a45c; --gold-bright:#e8c785; --gold-dim:#6b5c3a; --gold-glow:rgba(201,164,92,.09);
+  --green:#6bab84; --red:#c0645a; --blue:#6a95c0;
+  --radius:10px;
+}
+.light{
+  --bg:#f5f2ec; --bg2:#ede9e0; --panel:#f9f7f2; --panel2:#efece4;
+  --line:#d8d2c4; --line2:#c8c1b0;
+  --text:#1a1814; --text-dim:#5c574c; --text-faint:#8a8474;
+  --gold:#8a6020; --gold-bright:#a97a2e; --gold-dim:#c9a45c; --gold-glow:rgba(138,96,32,.08);
+}
+*{box-sizing:border-box;}
+body{ margin:0; background:var(--bg); color:var(--text); font-family:'Inter',sans-serif; line-height:1.55; transition:background .2s,color .2s; padding-bottom:60px;}
+h1,h2,h3{ font-family:'Cormorant Garamond',serif; font-weight:600; margin:0; }
+.mono{ font-family:'JetBrains Mono',monospace; }
+header{ display:flex; align-items:center; justify-content:space-between; gap:10px; padding:16px 20px; max-width:900px; margin:0 auto; flex-wrap:wrap; border-bottom:1px solid var(--line); }
+.hdr-left{display:flex;flex-direction:column;gap:2px}
+.eyebrow{ font-family:'JetBrains Mono',monospace; font-size:.62rem; letter-spacing:.15em; color:var(--gold); text-transform:uppercase; }
+h1{ font-size:1.4rem; }
+.hdr-right{display:flex;gap:6px;align-items:center;flex-wrap:wrap}
+#syncStatus{font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--text-faint);padding:0 4px}
+.icon-btn{ background:var(--panel); border:1px solid var(--line); color:var(--text-dim); border-radius:8px; padding:7px 12px; cursor:pointer; font-size:.72rem; font-family:'Inter',sans-serif;}
+.icon-btn:hover{ border-color:var(--gold-dim); color:var(--text); }
+.icon-btn.gold{border-color:var(--gold-dim);color:var(--gold);background:var(--gold-glow)}
+
+nav.tabs{ display:flex; gap:2px; padding:0 20px; border-bottom:1px solid var(--line); background:var(--bg2); max-width:900px; margin:0 auto; overflow-x:auto; }
+.tab{ padding:11px 14px; font-family:'JetBrains Mono',monospace; font-size:10px; letter-spacing:.1em; text-transform:uppercase; color:var(--text-faint); cursor:pointer; border-bottom:2px solid transparent; white-space:nowrap; }
+.tab.active{ color:var(--gold); border-bottom-color:var(--gold); }
+
+main{max-width:900px;margin:0 auto;padding:20px}
+.page{display:none}
+.page.active{display:block}
+
+.rule-box{ background:linear-gradient(135deg, var(--gold-glow), transparent); border:1px solid var(--gold-dim); border-radius:var(--radius); padding:14px 18px; margin-bottom:18px; }
+.rule-box .rule-label{ font-family:'JetBrains Mono',monospace; font-size:.6rem; letter-spacing:.12em; text-transform:uppercase; color:var(--gold); margin-bottom:5px; }
+.rule-box .rule-text{ font-size:.95rem; font-family:'Cormorant Garamond',serif; font-style:italic; color:var(--gold-bright); }
+
+.stats-row{ display:flex; gap:8px; margin-bottom:18px; flex-wrap:wrap; }
+.stat{ background:var(--panel); border:1px solid var(--line); border-radius:8px; padding:9px 14px; flex:1; min-width:80px; text-align:center; }
+.stat-n{ font-family:'JetBrains Mono',monospace; font-size:1.15rem; color:var(--gold-bright); }
+.stat-l{ font-size:.62rem; color:var(--text-faint); text-transform:uppercase; letter-spacing:.05em; margin-top:1px; }
+
+.section-label{font-family:'JetBrains Mono',monospace;font-size:.68rem;letter-spacing:.15em;color:var(--gold);text-transform:uppercase;margin-bottom:10px;display:flex;justify-content:space-between;align-items:center}
+.filter-row{display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap;align-items:center}
+.filter-row select, .filter-row input{background:var(--panel);border:1px solid var(--line);color:var(--text);border-radius:6px;padding:6px 9px;font-size:.78rem;font-family:'Inter',sans-serif}
+
+.new-trade-btn{ width:100%; background:var(--gold-glow); border:1px dashed var(--gold-dim); border-radius:var(--radius); color:var(--gold); padding:12px; cursor:pointer; font-family:'JetBrains Mono',monospace; font-size:.72rem; letter-spacing:.1em; text-transform:uppercase; margin-bottom:18px; }
+.new-trade-btn:hover{ background:var(--gold-dim); color:#000; }
+
+/* ── TRADE CARD ── */
+.trade-card{ border:1px solid var(--line); border-radius:var(--radius); background:var(--panel); margin-bottom:12px; overflow:hidden; }
+.trade-hd{ padding:12px 16px; display:flex; align-items:center; gap:10px; cursor:pointer; flex-wrap:wrap; }
+.trade-hd:hover{ background:var(--panel2); }
+.trade-tag{ font-family:'JetBrains Mono',monospace; font-size:.62rem; letter-spacing:.06em; text-transform:uppercase; padding:2px 8px; border-radius:4px; border:1px solid var(--line2); }
+.trade-tag.forming{ color:var(--blue); border-color:var(--blue); }
+.trade-tag.confirmed{ color:var(--gold); border-color:var(--gold-dim); }
+.trade-tag.win{ color:var(--green); border-color:var(--green); }
+.trade-tag.loss{ color:var(--red); border-color:var(--red); }
+.trade-tag.be{ color:var(--text-dim); border-color:var(--line2); }
+.trade-title{ font-family:'Cormorant Garamond',serif; font-size:1.1rem; flex:1; min-width:120px; }
+.trade-sub{ font-family:'JetBrains Mono',monospace; font-size:.66rem; color:var(--text-faint); }
+.chevron{ color:var(--text-faint); font-size:.7rem; transition:.2s; }
+.trade-card.open .chevron{ transform:rotate(90deg); }
+.trade-body{ display:none; padding:4px 16px 16px; border-top:1px solid var(--line); }
+.trade-card.open .trade-body{ display:block; }
+.trade-del{background:none;border:1px solid var(--line);color:var(--text-faint);border-radius:6px;padding:4px 9px;cursor:pointer;font-size:.68rem}
+.trade-del:hover{border-color:var(--red);color:var(--red)}
+
+.stage{ margin-top:16px; border:1px solid var(--line); border-radius:8px; padding:12px 14px; background:var(--bg2); }
+.stage-hd{ font-family:'JetBrains Mono',monospace; font-size:.66rem; letter-spacing:.1em; text-transform:uppercase; color:var(--gold); margin-bottom:10px; display:flex; justify-content:space-between; align-items:center; }
+.stage-num{ border:1px solid var(--gold-dim); border-radius:4px; padding:1px 6px; margin-right:6px; }
+.grid2{ display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-bottom:8px; }
+.grid3{ display:grid; grid-template-columns:1fr 1fr 1fr; gap:8px; margin-bottom:8px; }
+@media(max-width:560px){ .grid2,.grid3{ grid-template-columns:1fr; } }
+.fld label{ font-family:'JetBrains Mono',monospace; font-size:.6rem; color:var(--text-faint); text-transform:uppercase; letter-spacing:.05em; display:block; margin-bottom:3px; }
+.fld input, .fld select, .fld textarea{ width:100%; background:var(--panel); border:1px solid var(--line); color:var(--text); border-radius:5px; padding:7px 9px; font-size:.8rem; font-family:'Inter',sans-serif; }
+.fld textarea{ resize:vertical; min-height:38px; }
+.fld input:focus, .fld select:focus, .fld textarea:focus{ outline:none; border-color:var(--gold-dim); }
+
+.check4{ display:flex; flex-direction:column; gap:6px; margin-bottom:8px; }
+.check4-row{ display:flex; align-items:flex-start; gap:8px; background:var(--panel); border:1px solid var(--line); border-radius:6px; padding:8px 10px; }
+.check4-box{ width:16px; height:16px; border:1px solid var(--line2); border-radius:4px; flex-shrink:0; margin-top:2px; cursor:pointer; display:flex; align-items:center; justify-content:center; font-size:10px; color:transparent; }
+.check4-box.on{ background:var(--gold-dim); border-color:var(--gold-dim); color:#000; }
+.check4-body{flex:1}
+.check4-label{ font-size:.8rem; }
+.check4-note{ width:100%; background:transparent; border:none; border-bottom:1px dashed var(--line2); color:var(--text-dim); font-size:.72rem; margin-top:4px; padding:2px 0; }
+.check4-note:focus{ outline:none; border-bottom-color:var(--gold-dim); }
+
+.lib-add-inline{ display:flex; gap:6px; margin-top:6px; }
+.lib-add-inline input{ flex:1; background:var(--panel); border:1px solid var(--line); color:var(--text); border-radius:5px; padding:6px 8px; font-size:.76rem; }
+.lib-add-inline button{ background:var(--gold-glow); border:1px solid var(--gold-dim); color:var(--gold); border-radius:5px; padding:6px 10px; font-size:.72rem; cursor:pointer; }
+
+/* screenshots */
+.shot-grid{ display:grid; grid-template-columns:repeat(auto-fill,minmax(110px,1fr)); gap:8px; margin-top:8px; }
+.shot-item{ position:relative; border:1px solid var(--line); border-radius:6px; overflow:hidden; background:var(--panel); }
+.shot-item img{ width:100%; height:80px; object-fit:cover; display:block; cursor:zoom-in; }
+.shot-label{ font-size:.6rem; padding:3px 5px; color:var(--text-faint); font-family:'JetBrains Mono',monospace; }
+.shot-del{ position:absolute; top:3px; right:3px; background:rgba(0,0,0,.6); color:#fff; border:none; border-radius:3px; font-size:.6rem; padding:1px 5px; cursor:pointer; }
+.shot-add{ border:1px dashed var(--line2); border-radius:6px; display:flex; align-items:center; justify-content:center; min-height:80px; cursor:pointer; color:var(--text-faint); font-size:.65rem; text-align:center; padding:6px; }
+.shot-add:hover{ border-color:var(--gold-dim); color:var(--gold); }
+
+.outcome-row{ display:flex; gap:6px; margin-bottom:10px; flex-wrap:wrap; }
+.outcome-btn{ flex:1; min-width:70px; text-align:center; padding:8px 4px; border:1px solid var(--line); border-radius:6px; cursor:pointer; font-size:.7rem; font-family:'JetBrains Mono',monospace; text-transform:uppercase; letter-spacing:.05em; color:var(--text-dim); }
+.outcome-btn.sel.win{ border-color:var(--green); color:var(--green); background:rgba(107,171,132,.08); }
+.outcome-btn.sel.loss{ border-color:var(--red); color:var(--red); background:rgba(192,100,90,.08); }
+.outcome-btn.sel.be{ border-color:var(--text-dim); color:var(--text); background:var(--panel2); }
+.outcome-btn.sel.open{ border-color:var(--blue); color:var(--blue); background:rgba(106,149,192,.08); }
+
+/* library manager */
+.lib-section{margin-bottom:26px}
+.lib-item{ display:flex; align-items:center; gap:10px; padding:9px 12px; background:var(--panel); border:1px solid var(--line); border-radius:7px; margin-bottom:6px; }
+.lib-item input[type=text]{ flex:1; background:transparent; border:none; color:var(--text); font-size:.84rem; font-family:'Inter',sans-serif; }
+.lib-item input[type=text]:focus{outline:none}
+.lib-item select{background:var(--panel2);border:1px solid var(--line);color:var(--text-dim);border-radius:4px;padding:4px 6px;font-size:.68rem}
+.lib-item .del-btn{ background:none; border:none; color:var(--text-faint); cursor:pointer; font-size:.85rem; }
+.lib-item .del-btn:hover{ color:var(--red); }
+.lib-add-row{ display:flex; gap:8px; margin-top:8px; }
+.lib-add-row input{ flex:1; background:var(--bg2); border:1px solid var(--line); color:var(--text); border-radius:6px; padding:8px 10px; font-size:.84rem; }
+.lib-add-row select{background:var(--bg2);border:1px solid var(--line);color:var(--text);border-radius:6px;padding:8px 6px;font-size:.78rem}
+.lib-add-row button{ background:var(--gold-dim); color:#000; border:none; border-radius:6px; padding:8px 14px; font-size:.8rem; cursor:pointer; }
+
+textarea.protocol-note{ width:100%; background:var(--bg2); border:1px solid var(--line); border-radius:8px; padding:10px 12px; color:var(--text); font-family:'Inter',sans-serif; font-size:.82rem; resize:vertical; min-height:70px; }
+.protocol-block{margin-bottom:20px}
+.protocol-block h3{font-size:1.1rem;margin-bottom:6px;color:var(--gold-bright)}
+
+.lightbox{ display:none; position:fixed; inset:0; background:rgba(0,0,0,.9); z-index:300; align-items:center; justify-content:center; cursor:zoom-out; }
+.lightbox.show{ display:flex; }
+.lightbox img{ max-width:94vw; max-height:92vh; object-fit:contain; border-radius:4px; }
+
+.empty{ text-align:center; padding:30px; font-family:'Cormorant Garamond',serif; font-style:italic; color:var(--text-faint); }
+input[type=file]{display:none}
+::-webkit-scrollbar{width:4px;height:4px}
+::-webkit-scrollbar-thumb{background:var(--line2);border-radius:2px}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="hdr-left">
+    <div class="eyebrow">dAnTE · Trading</div>
+    <h1>Trade Protocol</h1>
+  </div>
+  <div class="hdr-right">
+    <span id="syncStatus" class="mono">—</span>
+    <button class="icon-btn" onclick="toggleTheme()">☀ / ☾</button>
+    <button class="icon-btn" onclick="exportData()">⬇ Export</button>
+    <button class="icon-btn" onclick="document.getElementById('importFile').click()">⬆ Import</button>
+    <input type="file" id="importFile" accept=".json">
+    <button class="icon-btn gold" onclick="saveAll(true)">Save</button>
+  </div>
+</header>
+
+<nav class="tabs">
+  <div class="tab active" data-tab="trades" onclick="showTab('trades',this)">Trades</div>
+  <div class="tab" data-tab="protocol" onclick="showTab('protocol',this)">Protocol</div>
+  <div class="tab" data-tab="library" onclick="showTab('library',this)">Library</div>
+  <div class="tab" data-tab="stats" onclick="showTab('stats',this)">Stats</div>
+</nav>
+
+<main>
+
+  <!-- ══════════ TRADES ══════════ -->
+  <div class="page active" id="page-trades">
+    <div class="stats-row">
+      <div class="stat"><div class="stat-n" id="sTotal">0</div><div class="stat-l">Total</div></div>
+      <div class="stat"><div class="stat-n" id="sForming">0</div><div class="stat-l">Forming</div></div>
+      <div class="stat"><div class="stat-n" id="sWin">0</div><div class="stat-l">Wins</div></div>
+      <div class="stat"><div class="stat-n" id="sLoss">0</div><div class="stat-l">Losses</div></div>
+    </div>
+
+    <button class="new-trade-btn" onclick="createTrade()">+ New Trade — start as it's forming, fill it in as it plays out</button>
+
+    <div class="filter-row">
+      <select id="filterInstrument" onchange="renderTrades()"><option value="">All instruments</option></select>
+      <select id="filterStatus" onchange="renderTrades()">
+        <option value="">All statuses</option>
+        <option value="forming">Forming</option>
+        <option value="confirmed">Confirmed / Open</option>
+        <option value="win">Closed — Win</option>
+        <option value="loss">Closed — Loss</option>
+        <option value="be">Closed — Breakeven</option>
+      </select>
+      <input type="text" id="filterSearch" placeholder="Search notes..." oninput="renderTrades()">
+    </div>
+
+    <div id="tradesContainer"></div>
+  </div>
+
+  <!-- ══════════ PROTOCOL ══════════ -->
+  <div class="page" id="page-protocol">
+    <div class="rule-box">
+      <div class="rule-label">The rule everything rests on</div>
+      <div class="rule-text">A zone or block is a location, never a signal. Confirmation is what tells you when.</div>
+    </div>
+    <div id="protocolContainer"></div>
+  </div>
+
+  <!-- ══════════ LIBRARY ══════════ -->
+  <div class="page" id="page-library">
+    <div class="lib-section">
+      <div class="section-label"><span>Instruments</span></div>
+      <div id="libInstruments"></div>
+      <div class="lib-add-row">
+        <input type="text" id="addInstrument" placeholder="e.g. V25, EUR/USD, XAU/USD..." onkeydown="if(event.key==='Enter')addLibItem('instruments')">
+        <button onclick="addLibItem('instruments')">+ Add</button>
+      </div>
+    </div>
+    <div class="lib-section">
+      <div class="section-label"><span>Candle Set Types <span style="color:var(--text-faint);font-weight:400;text-transform:none;letter-spacing:0">— the origin pattern that defines a zone</span></span></div>
+      <div id="libCandleSets"></div>
+      <div class="lib-add-row">
+        <input type="text" id="addCandleSet" placeholder="Name a candle set type..." onkeydown="if(event.key==='Enter')addLibItem('candleSetTypes')">
+        <button onclick="addLibItem('candleSetTypes')">+ Add</button>
+      </div>
+    </div>
+    <div class="lib-section">
+      <div class="section-label"><span>Operating Block Definitions</span></div>
+      <div id="libOperatingBlocks"></div>
+      <div class="lib-add-row">
+        <input type="text" id="addOperatingBlock" placeholder="Name an operating block definition..." onkeydown="if(event.key==='Enter')addLibItem('operatingBlockTypes')">
+        <button onclick="addLibItem('operatingBlockTypes')">+ Add</button>
+      </div>
+    </div>
+    <div class="lib-section">
+      <div class="section-label"><span>Confirmation Models</span></div>
+      <div id="libConfirmations"></div>
+      <div class="lib-add-row">
+        <input type="text" id="addConfirmation" placeholder="Name a confirmation model...">
+        <select id="addConfirmationKind"><option value="candles">Candles</option><option value="pattern">Pattern</option><option value="second-foray">Second foray</option></select>
+        <button onclick="addLibItem('confirmationModels')">+ Add</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════ STATS ══════════ -->
+  <div class="page" id="page-stats">
+    <div class="stats-row">
+      <div class="stat"><div class="stat-n" id="statTotal2">0</div><div class="stat-l">Total logged</div></div>
+      <div class="stat"><div class="stat-n" id="statWinRate">—</div><div class="stat-l">Win rate</div></div>
+      <div class="stat"><div class="stat-n" id="statAvgPips">—</div><div class="stat-l">Avg pips (closed)</div></div>
+    </div>
+    <div class="section-label"><span>By instrument</span></div>
+    <div id="statsByInstrument" style="margin-bottom:20px"></div>
+    <div class="section-label"><span>By zone timeframe <span style="color:var(--text-faint);font-weight:400;text-transform:none;letter-spacing:0">— which timeframes actually deliver, and how they cluster</span></span></div>
+    <div id="statsByZoneTF"></div>
+  </div>
+
+</main>
+
+<div class="lightbox" id="lightbox" onclick="this.classList.remove('show')"><img id="lightboxImg" src=""></div>
+<datalist id="tfSuggestions">
+  <option value="1M"><option value="3M"><option value="5M"><option value="15M"><option value="30M">
+  <option value="1H"><option value="2H"><option value="4H"><option value="8H"><option value="12H">
+  <option value="Daily"><option value="Weekly"><option value="Monthly">
+</datalist>
+
+<script>
+// ══════════════════════ DATA MODEL ══════════════════════
+const STORAGE_KEY = 'trade_protocol_v1';
+
+const DEFAULT_LIBRARY = {
+  instruments: [
+    {id:'v75-1s', name:'V75(1s)'}, {id:'v75', name:'V75'}, {id:'v10', name:'V10'},
+    {id:'v25', name:'V25'}, {id:'v50', name:'V50'}, {id:'v100', name:'V100'},
+  ],
+  candleSetTypes: [
+    {id:'pin-engulf', name:'Inverted Pin/Doji + Momentum Engulfing'},
+  ],
+  operatingBlockTypes: [
+    {id:'last-opp-candle', name:'Last opposite-color candle before the BoS expansion leg'},
+  ],
+  confirmationModels: [
+    {id:'3candle', name:'3-Candle Reversal (opposite candle → small same-direction candle → momentum candle exceeding the first candle\'s extreme)', kind:'pattern'},
+    {id:'second-foray', name:'Second foray — return sweep of the same IDM, more momentous 2nd expansion', kind:'second-foray'},
+  ],
+};
+
+const PROTOCOL_DEFAULT = [
+  { id:'p1', title:'Step 1 — HTF Context & Operating Range',
+    text:'Identify the overall trend on a higher timeframe of your choosing. Use a Fibonacci tool to define the current operating range — valid buys sit in the discount, valid sells in the premium. Don\'t just read the trend; place where price delivery currently sits within it, so you\'re not trading against the immediate HTF program.' },
+  { id:'p2', title:'Step 2 — Mechanical Zone Discovery (The "4 Lines")',
+    text:'A zone is only valid to operate from if it meets all four: (1) Candle Set High/Low — the boundary of the origin reversal pattern. (2) Break of Structure — an uninterrupted, momentous expansion follows the candle set. (3) EPA Low — after the BoS, price returns and dips below the BoS line before reversing again; this is what makes the price action efficient. (4) Inducement — the low created by the EPA process is the liquidity that must be swept before the real move. The candle immediately before the "tip" and the candle that creates the BoS should not themselves be counted as part of the 2–3 candles defining the zone. Fresh zones are prioritized — be wary of aging zone sets that take too long to deliver.' },
+  { id:'p3', title:'Step 3 — Identification of the Operating Block',
+    text:'Drop to a lower timeframe of your choosing to find the specific Operating Block — typically the last opposite-color candle before the momentum expansion that broke structure.' },
+  { id:'p4', title:'Step 4 — The Confirmation (the signal)',
+    text:'Wait for a specific confirmation to print within the operating block — candles, a named pattern, or a second foray of the zone. A POI or block is never a trade on its own; it\'s only a location. The confirmation is what tells you when. Timeframe scaling matters: a 30M zone typically wants a 1M-scale confirmation, not a 15M one — waiting for too coarse a confirmation on an intraday setup often means missing the entry entirely.' },
+  { id:'p5', title:'Step 5 — LTF Internal Confirmation',
+    text:'Confirm entry on a lower timeframe again: price dips into the operating block, sweeps the internal IDM (short-term low), and prints an internal BoS. High-quality zones often deliver twice — an initial move, then a return to sweep the same IDM again for a more momentous second expansion.' },
+  { id:'p6', title:'Step 6 — Target Selection',
+    text:'Scalp strategy: target the high (or low) of the immediate setup. Entry-pattern / trend strategy: target the current highest (or lowest) point of HTF market structure. Tag every logged trade with which of the two it was — conflating them corrupts both win rates.' },
+  { id:'p-notes', title:'Key concepts to keep in view',
+    text:'EPA vs raw expansion — raw expansion creates inefficient price action (gaps); EPA is the leg that makes price efficient and provides the actual, safe entry. This protocol has held up across different instruments and on both HTF and intraday deliveries so far — but no timeframe pairing is fixed. A 4H zone and a 15M zone are not the same trade with different clocks; track them separately and let the data show how each actually delivers.' },
+];
+
+function freshState(){
+  return {
+    library: JSON.parse(JSON.stringify(DEFAULT_LIBRARY)),
+    protocol: JSON.parse(JSON.stringify(PROTOCOL_DEFAULT)),
+    trades: [],
+  };
+}
+
+let state;
+try { const s = localStorage.getItem(STORAGE_KEY); state = s ? Object.assign(freshState(), JSON.parse(s)) : freshState(); }
+catch(e){ state = freshState(); }
+if(!state.library) state.library = JSON.parse(JSON.stringify(DEFAULT_LIBRARY));
+if(!state.protocol) state.protocol = JSON.parse(JSON.stringify(PROTOCOL_DEFAULT));
+if(!state.trades) state.trades = [];
+
+let isDark = localStorage.getItem('tp-theme') !== 'light';
+let openTradeIds = new Set();
+
+function uid(){ return Date.now()+Math.random().toString(36).slice(2,7); }
+function esc(s){ return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+function escA(s){ return String(s||'').replace(/&/g,'&amp;').replace(/"/g,'&quot;'); }
+function fmtDate(ts){ if(!ts) return '—'; const d=new Date(ts); return d.toLocaleDateString('en-GB',{day:'numeric',month:'short'})+' '+d.toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'}); }
+
+function saveAll(manual){
+  try{ localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); }catch(e){}
+  scheduleCloudPush();
+  if(manual) showToastMini('Saved.');
+}
+function autosave(){ saveAll(false); }
+
+function showToastMini(msg){
+  let t = document.getElementById('miniToast');
+  if(!t){
+    t = document.createElement('div');
+    t.id='miniToast';
+    t.style.cssText='position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:var(--panel2);border:1px solid var(--gold-dim);color:var(--gold);padding:9px 18px;border-radius:8px;font-size:.78rem;z-index:400;opacity:0;transition:opacity .3s;font-family:Inter,sans-serif';
+    document.body.appendChild(t);
+  }
+  t.textContent = msg;
+  t.style.opacity='1';
+  clearTimeout(t._h);
+  t._h = setTimeout(()=>t.style.opacity='0', 1800);
+}
+
+// ══════════════════════ TABS / THEME ══════════════════════
+function showTab(name, el){
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  el.classList.add('active');
+  document.getElementById('page-'+name).classList.add('active');
+  if(name==='protocol') renderProtocol();
+  if(name==='library') renderLibrary();
+  if(name==='stats') renderStats();
+}
+function toggleTheme(){
+  isDark = !isDark;
+  document.body.classList.toggle('light', !isDark);
+  localStorage.setItem('tp-theme', isDark?'dark':'light');
+}
+
+// ══════════════════════ LIBRARY ══════════════════════
+function renderLibrary(){
+  const map = [
+    ['instruments','libInstruments',false],
+    ['candleSetTypes','libCandleSets',false],
+    ['operatingBlockTypes','libOperatingBlocks',false],
+    ['confirmationModels','libConfirmations',true],
+  ];
+  map.forEach(([key, containerId, hasKind])=>{
+    const container = document.getElementById(containerId);
+    const items = state.library[key] || [];
+    container.innerHTML = items.map(it=>`
+      <div class="lib-item">
+        <input type="text" value="${escA(it.name)}" onchange="renameLibItem('${key}','${it.id}',this.value)">
+        ${hasKind ? `<select onchange="setLibItemKind('${key}','${it.id}',this.value)">
+          <option value="candles" ${it.kind==='candles'?'selected':''}>Candles</option>
+          <option value="pattern" ${it.kind==='pattern'?'selected':''}>Pattern</option>
+          <option value="second-foray" ${it.kind==='second-foray'?'selected':''}>Second foray</option>
+        </select>`:''}
+        <button class="del-btn" onclick="deleteLibItem('${key}','${it.id}')">✕</button>
+      </div>`).join('') || '<div class="empty" style="padding:10px">Nothing yet — add one below.</div>';
+  });
+}
+function addLibItem(key){
+  const inputMap = {instruments:'addInstrument', candleSetTypes:'addCandleSet', operatingBlockTypes:'addOperatingBlock', confirmationModels:'addConfirmation'};
+  const input = document.getElementById(inputMap[key]);
+  const name = input.value.trim();
+  if(!name) return;
+  const item = {id:uid(), name};
+  if(key==='confirmationModels') item.kind = document.getElementById('addConfirmationKind').value;
+  state.library[key].push(item);
+  input.value='';
+  renderLibrary(); renderTrades(); autosave();
+}
+function renameLibItem(key,id,val){ const it=state.library[key].find(x=>x.id===id); if(it){it.name=val; autosave(); renderTrades();} }
+function setLibItemKind(key,id,val){ const it=state.library[key].find(x=>x.id===id); if(it){it.kind=val; autosave();} }
+function deleteLibItem(key,id){
+  if(!confirm('Remove this from the library? Trades already using it keep the reference, it just won\'t be selectable for new ones.')) return;
+  state.library[key] = state.library[key].filter(x=>x.id!==id);
+  renderLibrary(); autosave();
+}
+function libOptions(key, selectedId, kindFilter){
+  let items = state.library[key] || [];
+  if(kindFilter) items = items.filter(i=>i.kind===kindFilter);
+  return '<option value="">— select —</option>' + items.map(i=>`<option value="${i.id}" ${i.id===selectedId?'selected':''}>${esc(i.name)}</option>`).join('');
+}
+function instrumentOptions(selectedId){
+  return '<option value="">— select —</option>' + (state.library.instruments||[]).map(i=>`<option value="${i.id}" ${i.id===selectedId?'selected':''}>${esc(i.name)}</option>`).join('');
+}
+function libName(key,id){ const it=(state.library[key]||[]).find(x=>x.id===id); return it?it.name:''; }
+
+// ══════════════════════ PROTOCOL ══════════════════════
+function renderProtocol(){
+  const c = document.getElementById('protocolContainer');
+  c.innerHTML = state.protocol.map(p=>`
+    <div class="protocol-block">
+      <h3>${esc(p.title)}</h3>
+      <textarea class="protocol-note" onchange="setProtocolText('${p.id}',this.value)">${esc(p.text)}</textarea>
+    </div>`).join('');
+}
+function setProtocolText(id,val){ const p=state.protocol.find(x=>x.id===id); if(p){p.text=val; autosave();} }
+
+// ══════════════════════ TRADES ══════════════════════
+function ensureTradeDefaults(t){
+  t.direction = t.direction||'buy';
+  t.status = t.status||'forming'; // forming | confirmed | closed
+  t.htf = t.htf || {trend:'', timeframe:'', position:'', notes:''};
+  t.zone = t.zone || {timeframe:'', candleSetTypeId:'', lines:{candleSet:{on:false,note:''},bos:{on:false,note:''},epa:{on:false,note:''},idm:{on:false,note:''}}, freshness:'', notes:''};
+  t.operatingBlock = t.operatingBlock || {timeframe:'', typeId:'', notes:''};
+  t.confirmation = t.confirmation || {kind:'', modelId:'', timeframe:'', notes:''};
+  t.ltf = t.ltf || {timeframe:'', idmSwept:false, internalBoS:false, deliveredTwice:false, notes:''};
+  t.target = t.target || {strategyType:'scalp', tpNote:''};
+  t.outcome = t.outcome || {result:'open', slPips:'', tpPips:'', lotSize:'minimum', riskAmount:'', rewardAmount:'', actualPips:'', actualAmount:''};
+  t.notes = t.notes||'';
+  t.screenshots = t.screenshots||[];
+  t.updatedAt = t.updatedAt || Date.now();
+  return t;
+}
+function createTrade(){
+  const t = ensureTradeDefaults({ id:uid(), createdAt:Date.now(), updatedAt:Date.now() });
+  state.trades.unshift(t);
+  openTradeIds.add(t.id);
+  renderTrades(); autosave();
+  setTimeout(()=>document.getElementById('trade-'+t.id)?.scrollIntoView({behavior:'smooth',block:'start'}), 60);
+}
+function deleteTrade(id){
+  if(!confirm('Delete this trade entry? This cannot be undone.')) return;
+  state.trades = state.trades.filter(t=>t.id!==id);
+  renderTrades(); autosave();
+}
+function touch(t){ t.updatedAt = Date.now(); }
+function toggleTradeOpen(id){
+  if(openTradeIds.has(id)) openTradeIds.delete(id); else openTradeIds.add(id);
+  renderTrades();
+}
+
+function statusBadge(t){
+  if(t.status==='closed'){
+    const r = t.outcome.result;
+    if(r==='win') return '<span class="trade-tag win">Win</span>';
+    if(r==='loss') return '<span class="trade-tag loss">Loss</span>';
+    if(r==='be') return '<span class="trade-tag be">Breakeven</span>';
+    return '<span class="trade-tag confirmed">Closed</span>';
+  }
+  if(t.status==='confirmed') return '<span class="trade-tag confirmed">Confirmed / Open</span>';
+  return '<span class="trade-tag forming">Forming</span>';
+}
+
+function populateInstrumentFilter(){
+  const sel = document.getElementById('filterInstrument');
+  const cur = sel.value;
+  sel.innerHTML = '<option value="">All instruments</option>' + (state.library.instruments||[]).map(i=>`<option value="${i.id}">${esc(i.name)}</option>`).join('');
+  sel.value = cur;
+}
+
+function renderTrades(){
+  populateInstrumentFilter();
+  const fi = document.getElementById('filterInstrument').value;
+  const fs = document.getElementById('filterStatus').value;
+  const fq = (document.getElementById('filterSearch').value||'').toLowerCase();
+
+  let list = state.trades.map(ensureTradeDefaults);
+  if(fi) list = list.filter(t=>t.instrumentId===fi);
+  if(fs){
+    if(['win','loss','be'].includes(fs)) list = list.filter(t=>t.status==='closed' && t.outcome.result===fs);
+    else list = list.filter(t=>t.status===fs);
+  }
+  if(fq) list = list.filter(t=> (t.notes||'').toLowerCase().includes(fq) || libName('instruments',t.instrumentId).toLowerCase().includes(fq));
+
+  document.getElementById('sTotal').textContent = state.trades.length;
+  document.getElementById('sForming').textContent = state.trades.filter(t=>ensureTradeDefaults(t).status==='forming').length;
+  document.getElementById('sWin').textContent = state.trades.filter(t=>t.status==='closed'&&t.outcome&&t.outcome.result==='win').length;
+  document.getElementById('sLoss').textContent = state.trades.filter(t=>t.status==='closed'&&t.outcome&&t.outcome.result==='loss').length;
+
+  const container = document.getElementById('tradesContainer');
+  if(!list.length){ container.innerHTML = '<div class="empty">No trades match — adjust filters, or log your first one above.</div>'; return; }
+
+  container.innerHTML = list.map(t=>{
+    const open = openTradeIds.has(t.id);
+    const instName = libName('instruments',t.instrumentId) || 'No instrument set';
+    return `<div class="trade-card ${open?'open':''}" id="trade-${t.id}">
+      <div class="trade-hd" onclick="toggleTradeOpen('${t.id}')">
+        <span class="chevron">▶</span>
+        <span class="trade-title">${esc(instName)} <span style="color:var(--text-faint);font-size:.85rem">· ${t.direction==='buy'?'Buy':'Sell'}</span></span>
+        ${statusBadge(t)}
+        <span class="trade-sub">${fmtDate(t.createdAt)}</span>
+      </div>
+      <div class="trade-body">
+        ${renderTradeForm(t)}
+        <div style="display:flex;justify-content:flex-end;margin-top:10px">
+          <button class="trade-del" onclick="event.stopPropagation();deleteTrade('${t.id}')">✕ Delete trade</button>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function renderTradeForm(t){
+  const l = t.zone.lines;
+  const shotStages = ['HTF','Zone','Operating Block','Confirmation','LTF','Outcome','Other'];
+  return `
+    <div class="grid2">
+      <div class="fld"><label>Instrument</label><select onchange="setTradeField('${t.id}','instrumentId',this.value)">${instrumentOptions(t.instrumentId)}</select></div>
+      <div class="fld"><label>Direction</label><select onchange="setTradeField('${t.id}','direction',this.value)">
+        <option value="buy" ${t.direction==='buy'?'selected':''}>Buy</option>
+        <option value="sell" ${t.direction==='sell'?'selected':''}>Sell</option>
+      </select></div>
+    </div>
+    <div class="grid2">
+      <div class="fld"><label>Status</label><select onchange="setTradeStatus('${t.id}',this.value)">
+        <option value="forming" ${t.status==='forming'?'selected':''}>Forming</option>
+        <option value="confirmed" ${t.status==='confirmed'?'selected':''}>Confirmed / Open</option>
+        <option value="closed" ${t.status==='closed'?'selected':''}>Closed</option>
+      </select></div>
+      <div class="fld"><label>Last updated</label><input type="text" value="${fmtDate(t.updatedAt)}" disabled></div>
+    </div>
+
+    <div class="stage">
+      <div class="stage-hd"><span><span class="stage-num">1</span>HTF Context &amp; Operating Range</span></div>
+      <div class="grid3">
+        <div class="fld"><label>Trend</label><select onchange="setNested('${t.id}','htf','trend',this.value)">
+          <option value="">—</option>
+          <option value="bullish" ${t.htf.trend==='bullish'?'selected':''}>Bullish</option>
+          <option value="bearish" ${t.htf.trend==='bearish'?'selected':''}>Bearish</option>
+          <option value="ranging" ${t.htf.trend==='ranging'?'selected':''}>Ranging</option>
+        </select></div>
+        <div class="fld"><label>Timeframe used</label><input type="text" list="tfSuggestions" value="${escA(t.htf.timeframe)}" onchange="setNested('${t.id}','htf','timeframe',this.value)" placeholder="any timeframe"></div>
+        <div class="fld"><label>Price position</label><select onchange="setNested('${t.id}','htf','position',this.value)">
+          <option value="">—</option>
+          <option value="discount" ${t.htf.position==='discount'?'selected':''}>Discount</option>
+          <option value="premium" ${t.htf.position==='premium'?'selected':''}>Premium</option>
+          <option value="equilibrium" ${t.htf.position==='equilibrium'?'selected':''}>Equilibrium</option>
+        </select></div>
+      </div>
+      <div class="fld"><label>Notes</label><textarea onchange="setNested('${t.id}','htf','notes',this.value)">${esc(t.htf.notes)}</textarea></div>
+      ${renderShots(t,'HTF')}
+    </div>
+
+    <div class="stage">
+      <div class="stage-hd"><span><span class="stage-num">2</span>Zone — The 4 Lines</span></div>
+      <div class="grid2">
+        <div class="fld"><label>Timeframe</label><input type="text" list="tfSuggestions" value="${escA(t.zone.timeframe)}" onchange="setNested('${t.id}','zone','timeframe',this.value)" placeholder="any timeframe"></div>
+        <div class="fld"><label>Candle set type</label><select onchange="setNested('${t.id}','zone','candleSetTypeId',this.value)">${libOptions('candleSetTypes', t.zone.candleSetTypeId)}</select></div>
+      </div>
+      <div class="check4">
+        ${check4Row(t.id,'candleSet','Candle Set High/Low marked', l.candleSet)}
+        ${check4Row(t.id,'bos','Break of Structure confirmed', l.bos)}
+        ${check4Row(t.id,'epa','EPA Low — dipped below the BoS line before reversing', l.epa)}
+        ${check4Row(t.id,'idm','Inducement identified', l.idm)}
+      </div>
+      <div class="grid2">
+        <div class="fld"><label>Freshness</label><select onchange="setNested('${t.id}','zone','freshness',this.value)">
+          <option value="">—</option>
+          <option value="fresh" ${t.zone.freshness==='fresh'?'selected':''}>Fresh</option>
+          <option value="aging" ${t.zone.freshness==='aging'?'selected':''}>Aging</option>
+        </select></div>
+        <div class="fld"><label>Notes</label><input type="text" value="${escA(t.zone.notes)}" onchange="setNested('${t.id}','zone','notes',this.value)"></div>
+      </div>
+      ${renderShots(t,'Zone')}
+    </div>
+
+    <div class="stage">
+      <div class="stage-hd"><span><span class="stage-num">3</span>Operating Block</span></div>
+      <div class="grid2">
+        <div class="fld"><label>Timeframe</label><input type="text" list="tfSuggestions" value="${escA(t.operatingBlock.timeframe)}" onchange="setNested('${t.id}','operatingBlock','timeframe',this.value)" placeholder="any timeframe"></div>
+        <div class="fld"><label>Definition used</label><select onchange="setNested('${t.id}','operatingBlock','typeId',this.value)">${libOptions('operatingBlockTypes', t.operatingBlock.typeId)}</select></div>
+      </div>
+      <div class="fld"><label>Notes</label><input type="text" value="${escA(t.operatingBlock.notes)}" onchange="setNested('${t.id}','operatingBlock','notes',this.value)"></div>
+      ${renderShots(t,'Operating Block')}
+    </div>
+
+    <div class="stage">
+      <div class="stage-hd"><span><span class="stage-num">4</span>Confirmation (the signal)</span></div>
+      <div class="grid3">
+        <div class="fld"><label>Kind</label><select onchange="setConfirmationKind('${t.id}',this.value)">
+          <option value="">—</option>
+          <option value="candles" ${t.confirmation.kind==='candles'?'selected':''}>Candles</option>
+          <option value="pattern" ${t.confirmation.kind==='pattern'?'selected':''}>Pattern</option>
+          <option value="second-foray" ${t.confirmation.kind==='second-foray'?'selected':''}>Second foray</option>
+        </select></div>
+        <div class="fld"><label>Model</label><select onchange="setNested('${t.id}','confirmation','modelId',this.value)">${libOptions('confirmationModels', t.confirmation.modelId, t.confirmation.kind||null)}</select></div>
+        <div class="fld"><label>Timeframe</label><input type="text" list="tfSuggestions" value="${escA(t.confirmation.timeframe)}" onchange="setNested('${t.id}','confirmation','timeframe',this.value)" placeholder="any timeframe"></div>
+      </div>
+      <div class="fld"><label>Notes</label><input type="text" value="${escA(t.confirmation.notes)}" onchange="setNested('${t.id}','confirmation','notes',this.value)"></div>
+      ${renderShots(t,'Confirmation')}
+    </div>
+
+    <div class="stage">
+      <div class="stage-hd"><span><span class="stage-num">5</span>LTF Internal Confirmation</span></div>
+      <div class="fld" style="margin-bottom:8px"><label>Timeframe</label><input type="text" list="tfSuggestions" value="${escA(t.ltf.timeframe)}" onchange="setNested('${t.id}','ltf','timeframe',this.value)" placeholder="any timeframe"></div>
+      <div class="check4">
+        ${simpleCheckRow(t.id,'ltf','idmSwept','Internal IDM swept', t.ltf.idmSwept)}
+        ${simpleCheckRow(t.id,'ltf','internalBoS','Internal Break of Structure', t.ltf.internalBoS)}
+        ${simpleCheckRow(t.id,'ltf','deliveredTwice','Delivered twice — 2nd sweep of same IDM', t.ltf.deliveredTwice)}
+      </div>
+      <div class="fld"><label>Notes</label><input type="text" value="${escA(t.ltf.notes)}" onchange="setNested('${t.id}','ltf','notes',this.value)"></div>
+      ${renderShots(t,'LTF')}
+    </div>
+
+    <div class="stage">
+      <div class="stage-hd"><span><span class="stage-num">6</span>Target &amp; Outcome</span></div>
+      <div class="grid2">
+        <div class="fld"><label>Strategy type</label><select onchange="setNested('${t.id}','target','strategyType',this.value)">
+          <option value="scalp" ${t.target.strategyType==='scalp'?'selected':''}>Scalp — immediate setup high/low</option>
+          <option value="entry-pattern" ${t.target.strategyType==='entry-pattern'?'selected':''}>Entry pattern — HTF structure high/low</option>
+        </select></div>
+        <div class="fld"><label>TP note / level</label><input type="text" value="${escA(t.target.tpNote)}" onchange="setNested('${t.id}','target','tpNote',this.value)"></div>
+      </div>
+
+      <div class="outcome-row">
+        ${['open','win','loss','be'].map(r=>`<div class="outcome-btn ${t.outcome.result===r?'sel '+r:''}" onclick="setOutcomeResult('${t.id}','${r}')">${r==='be'?'Breakeven':r.charAt(0).toUpperCase()+r.slice(1)}</div>`).join('')}
+      </div>
+
+      <div class="grid3">
+        <div class="fld"><label>SL — pips</label><input type="number" step="any" value="${escA(t.outcome.slPips)}" onchange="setNested('${t.id}','outcome','slPips',this.value)"></div>
+        <div class="fld"><label>TP — pips</label><input type="number" step="any" value="${escA(t.outcome.tpPips)}" onchange="setNested('${t.id}','outcome','tpPips',this.value)"></div>
+        <div class="fld"><label>Lot size</label><input type="text" value="${escA(t.outcome.lotSize)}" onchange="setNested('${t.id}','outcome','lotSize',this.value)" placeholder="minimum"></div>
+      </div>
+      <div class="grid2">
+        <div class="fld"><label>Cost at SL (this lot size)</label><input type="number" step="any" value="${escA(t.outcome.riskAmount)}" onchange="setNested('${t.id}','outcome','riskAmount',this.value)"></div>
+        <div class="fld"><label>Value at TP (this lot size)</label><input type="number" step="any" value="${escA(t.outcome.rewardAmount)}" onchange="setNested('${t.id}','outcome','rewardAmount',this.value)"></div>
+      </div>
+      <div class="grid2">
+        <div class="fld"><label>Actual result — pips</label><input type="number" step="any" value="${escA(t.outcome.actualPips)}" onchange="setNested('${t.id}','outcome','actualPips',this.value)"></div>
+        <div class="fld"><label>Actual result — amount</label><input type="number" step="any" value="${escA(t.outcome.actualAmount)}" onchange="setNested('${t.id}','outcome','actualAmount',this.value)"></div>
+      </div>
+      ${renderShots(t,'Outcome')}
+    </div>
+
+    <div class="fld" style="margin-top:14px"><label>Journal notes (optional — narrative, not mechanical)</label><textarea onchange="setTradeField('${t.id}','notes',this.value)">${esc(t.notes)}</textarea></div>
+    ${renderShots(t,'Other')}
+  `;
+}
+
+function check4Row(tradeId, key, label, lineObj){
+  return `<div class="check4-row">
+    <div class="check4-box ${lineObj.on?'on':''}" onclick="toggleLine('${tradeId}','${key}')">${lineObj.on?'✓':''}</div>
+    <div class="check4-body">
+      <div class="check4-label">${label}</div>
+      <input type="text" class="check4-note" placeholder="note (optional)" value="${escA(lineObj.note)}" onchange="setLineNote('${tradeId}','${key}',this.value)">
+    </div>
+  </div>`;
+}
+function simpleCheckRow(tradeId, section, key, label, val){
+  return `<div class="check4-row">
+    <div class="check4-box ${val?'on':''}" onclick="toggleSimple('${tradeId}','${section}','${key}')">${val?'✓':''}</div>
+    <div class="check4-body"><div class="check4-label">${label}</div></div>
+  </div>`;
+}
+function renderShots(t, stage){
+  const shots = (t.screenshots||[]).filter(s=>s.stage===stage);
+  return `<div class="shot-grid">
+    ${shots.map(s=>`<div class="shot-item">
+        <img src="${s.dataUrl}" onclick="openLightbox('${s.dataUrl}')">
+        <div class="shot-label">${esc(s.timeframe||stage)}</div>
+        <button class="shot-del" onclick="deleteShot('${t.id}','${s.id}')">✕</button>
+      </div>`).join('')}
+    <div class="shot-add" onclick="triggerShotUpload('${t.id}','${stage}')">+ Screenshot<input type="file" accept="image/*" id="shotinput-${t.id}-${stage.replace(/\s/g,'')}" onchange="handleShotUpload('${t.id}','${stage}',this)"></div>
+  </div>`;
+}
+function triggerShotUpload(tradeId, stage){
+  document.getElementById('shotinput-'+tradeId+'-'+stage.replace(/\s/g,'')).click();
+}
+function compressImage(file, callback, maxDim, quality){
+  maxDim = maxDim || 1000; quality = quality || 0.72;
+  const reader = new FileReader();
+  reader.onload = e => {
+    const img = new Image();
+    img.onload = () => {
+      let w=img.width, h=img.height;
+      if(w>h && w>maxDim){ h=Math.round(h*maxDim/w); w=maxDim; } else if(h>maxDim){ w=Math.round(w*maxDim/h); h=maxDim; }
+      const canvas=document.createElement('canvas'); canvas.width=w; canvas.height=h;
+      canvas.getContext('2d').drawImage(img,0,0,w,h);
+      callback(canvas.toDataURL('image/jpeg',quality));
+    };
+    img.onerror = () => callback(e.target.result);
+    img.src = e.target.result;
+  };
+  reader.readAsDataURL(file);
+}
+function handleShotUpload(tradeId, stage, inp){
+  const file = inp.files[0]; if(!file) return;
+  const t = state.trades.find(x=>x.id===tradeId); if(!t) return;
+  const tf = prompt('Which timeframe is this screenshot from?', t.zone.timeframe||'') || stage;
+  compressImage(file, dataUrl=>{
+    t.screenshots.push({id:uid(), stage, timeframe:tf, dataUrl});
+    touch(t); renderTrades(); autosave();
+  });
+  inp.value='';
+}
+function deleteShot(tradeId, shotId){
+  const t = state.trades.find(x=>x.id===tradeId); if(!t) return;
+  t.screenshots = t.screenshots.filter(s=>s.id!==shotId);
+  touch(t); renderTrades(); autosave();
+}
+function openLightbox(src){
+  document.getElementById('lightboxImg').src = src;
+  document.getElementById('lightbox').classList.add('show');
+}
+
+function setTradeField(id, field, val){ const t=state.trades.find(x=>x.id===id); if(t){ t[field]=val; touch(t); autosave(); renderTrades(); } }
+function setTradeStatus(id, val){ const t=state.trades.find(x=>x.id===id); if(t){ t.status=val; touch(t); autosave(); renderTrades(); } }
+function setNested(id, section, field, val){ const t=state.trades.find(x=>x.id===id); if(t){ t[section][field]=val; touch(t); autosave(); if(field==='candleSetTypeId'||field==='typeId'||field==='modelId'||field==='timeframe') renderTrades(); } }
+function setConfirmationKind(id, val){ const t=state.trades.find(x=>x.id===id); if(t){ t.confirmation.kind=val; t.confirmation.modelId=''; touch(t); autosave(); renderTrades(); } }
+function toggleLine(id, key){ const t=state.trades.find(x=>x.id===id); if(t){ t.zone.lines[key].on=!t.zone.lines[key].on; touch(t); autosave(); renderTrades(); } }
+function setLineNote(id, key, val){ const t=state.trades.find(x=>x.id===id); if(t){ t.zone.lines[key].note=val; touch(t); autosave(); } }
+function toggleSimple(id, section, key){ const t=state.trades.find(x=>x.id===id); if(t){ t[section][key]=!t[section][key]; touch(t); autosave(); renderTrades(); } }
+function setOutcomeResult(id, val){ const t=state.trades.find(x=>x.id===id); if(t){ t.outcome.result=val; if(val!=='open') t.status='closed'; touch(t); autosave(); renderTrades(); } }
+
+// ══════════════════════ STATS ══════════════════════
+function renderStats(){
+  const trades = state.trades.map(ensureTradeDefaults);
+  const closed = trades.filter(t=>t.status==='closed' && ['win','loss','be'].includes(t.outcome.result));
+  document.getElementById('statTotal2').textContent = trades.length;
+  const wins = closed.filter(t=>t.outcome.result==='win').length;
+  document.getElementById('statWinRate').textContent = closed.length ? Math.round(wins/closed.length*100)+'%' : '—';
+  const pipsArr = closed.map(t=>parseFloat(t.outcome.actualPips)).filter(n=>!isNaN(n));
+  document.getElementById('statAvgPips').textContent = pipsArr.length ? (pipsArr.reduce((a,b)=>a+b,0)/pipsArr.length).toFixed(1) : '—';
+
+  const byInst = {};
+  trades.forEach(t=>{ const name=libName('instruments',t.instrumentId)||'Unset'; byInst[name]=byInst[name]||{total:0,win:0,loss:0,be:0}; byInst[name].total++; if(t.status==='closed') byInst[name][t.outcome.result]=(byInst[name][t.outcome.result]||0)+1; });
+  document.getElementById('statsByInstrument').innerHTML = Object.entries(byInst).map(([name,s])=>`
+    <div class="lib-item"><div style="flex:1">${esc(name)}</div><div class="mono" style="font-size:.72rem;color:var(--text-dim)">${s.total} logged · ${s.win||0}W / ${s.loss||0}L / ${s.be||0}BE</div></div>
+  `).join('') || '<div class="empty" style="padding:10px">No trades logged yet.</div>';
+
+  const byTF = {};
+  trades.forEach(t=>{ const tf=t.zone.timeframe||'Unset'; byTF[tf]=byTF[tf]||{total:0,win:0,loss:0,be:0}; byTF[tf].total++; if(t.status==='closed') byTF[tf][t.outcome.result]=(byTF[tf][t.outcome.result]||0)+1; });
+  document.getElementById('statsByZoneTF').innerHTML = Object.entries(byTF).map(([tf,s])=>`
+    <div class="lib-item"><div style="flex:1">${esc(tf)}</div><div class="mono" style="font-size:.72rem;color:var(--text-dim)">${s.total} logged · ${s.win||0}W / ${s.loss||0}L / ${s.be||0}BE</div></div>
+  `).join('') || '<div class="empty" style="padding:10px">No trades logged yet.</div>';
+}
+
+// ══════════════════════ EXPORT / IMPORT ══════════════════════
+function exportData(){
+  const blob = new Blob([JSON.stringify(state,null,2)],{type:'application/json'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'trade-protocol-export.json';
+  a.click();
+}
+document.getElementById('importFile').addEventListener('change', function(e){
+  const file = e.target.files[0]; if(!file) return;
+  const r = new FileReader();
+  r.onload = ev=>{
+    try{
+      const imported = JSON.parse(ev.target.result);
+      state = mergeState(state, imported);
+      renderTrades(); renderLibrary(); renderProtocol(); renderStats();
+      autosave();
+      showToastMini('Imported and merged.');
+    }catch(err){ alert("Couldn't read that file."); }
+  };
+  r.readAsText(file);
+  e.target.value='';
+});
+
+// merge by id everywhere, last-write-wins on trades via updatedAt, library items add-only by id
+function mergeState(local, remote){
+  const out = { library:{}, protocol: local.protocol, trades: [] };
+  ['instruments','candleSetTypes','operatingBlockTypes','confirmationModels'].forEach(key=>{
+    const map = new Map();
+    (local.library[key]||[]).forEach(i=>map.set(i.id,i));
+    (remote.library&&remote.library[key]||[]).forEach(i=>{ if(!map.has(i.id)) map.set(i.id,i); });
+    out.library[key] = Array.from(map.values());
+  });
+  const tmap = new Map();
+  (local.trades||[]).forEach(t=>tmap.set(t.id, ensureTradeDefaults(t)));
+  (remote.trades||[]).forEach(t=>{
+    t = ensureTradeDefaults(t);
+    const cur = tmap.get(t.id);
+    if(!cur || (t.updatedAt||0) > (cur.updatedAt||0)) tmap.set(t.id, t);
+  });
+  out.trades = Array.from(tmap.values()).sort((a,b)=>b.createdAt-a.createdAt);
+  return out;
+}
+
+// ══════════════════════ CLOUD SYNC (Supabase) ══════════════════════
+const SYNC_URL = 'https://wrzxalfdatnpdnbmdjir.supabase.co/rest/v1/sync_data';
+const SYNC_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndyenhhbGZkYXRucGRuYm1kamlyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODQ1MjA4ODMsImV4cCI6MjEwMDA5Njg4M30.oyx47J97hZsjnF3iFOz9mHGt_9oGjqLMQ0zsiVhBC-g';
+const SYNC_KEY = 'AmiableMeerkat894';
+const SYNC_TOOL = 'trade-protocol';
+
+function setSyncStatus(msg){ const el=document.getElementById('syncStatus'); if(el) el.textContent=msg; }
+async function pullCloud(){
+  setSyncStatus('Syncing…');
+  try{
+    const ctrl = new AbortController(); const timeout=setTimeout(()=>ctrl.abort(),6000);
+    const res = await fetch(`${SYNC_URL}?tool=eq.${SYNC_TOOL}&select=data,updated_at`,{
+      headers:{ 'apikey':SYNC_ANON_KEY,'Authorization':'Bearer '+SYNC_ANON_KEY,'x-sync-key':SYNC_KEY }, signal: ctrl.signal
+    });
+    clearTimeout(timeout);
+    if(!res.ok){ setSyncStatus('Sync error'); return; }
+    const rows = await res.json();
+    if(!rows.length){ setSyncStatus('Synced'); pushCloudNow(); return; }
+    const remote = rows[0];
+    state = mergeState(state, remote.data);
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+    setSyncStatus('Synced');
+  }catch(e){ setSyncStatus('Offline'); }
+}
+let cloudPushTimer=null;
+function scheduleCloudPush(){ clearTimeout(cloudPushTimer); cloudPushTimer=setTimeout(pushCloudNow,1500); }
+async function pushCloudNow(){
+  setSyncStatus('Syncing…');
+  try{
+    const res = await fetch(`${SYNC_URL}?on_conflict=tool`,{
+      method:'POST',
+      headers:{ 'apikey':SYNC_ANON_KEY,'Authorization':'Bearer '+SYNC_ANON_KEY,'x-sync-key':SYNC_KEY,'Content-Type':'application/json','Prefer':'resolution=merge-duplicates,return=representation' },
+      body: JSON.stringify([{ tool:SYNC_TOOL, data:state }])
+    });
+    if(!res.ok){ setSyncStatus('Sync error'); return; }
+    setSyncStatus('Synced');
+  }catch(e){ setSyncStatus('Offline'); }
+}
+document.addEventListener('visibilitychange', ()=>{ if(document.visibilityState==='hidden'){ clearTimeout(cloudPushTimer); pushCloudNow(); } });
+
+// ══════════════════════ INIT ══════════════════════
+(async function(){
+  await pullCloud();
+  if(!isDark) document.body.classList.add('light');
+  populateInstrumentFilter();
+  renderTrades();
+  autosave();
+})();
+</script>
+</body>
+</html>
