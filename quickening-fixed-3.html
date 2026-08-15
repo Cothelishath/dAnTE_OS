@@ -706,8 +706,8 @@ body.light .aic-bar-track { background:rgba(0,0,0,0.07); }
   </div>
 
   <!-- FAITH -->
-  <div class="sec">
-    <div class="sec-head"><span>🕊 Faith &amp; Spirituality <span style="color:var(--faith);font-size:8px;">· Primary</span></span><button class="sec-edit-btn" onclick="openEdit('faith')">edit</button></div>
+  <div class="sec" id="sec-faith">
+    <div class="sec-head"><span>🕊 Faith &amp; Spirituality <span style="color:var(--faith);font-size:8px;">· Primary</span></span><button class="sec-edit-btn" onclick="hideSection('faith')" title="Hide this section">hide</button><button class="sec-edit-btn" onclick="openEdit('faith')">edit</button></div>
     <div id="acts-faith">
       <div class="va-wrap" id="va-prayer">
         <div class="va-header"><div class="va-chk" id="prayer-chk"></div><div class="va-name">Morning Prayer</div><div class="va-pts" id="prayer-pts">0 AP</div></div>
@@ -754,8 +754,8 @@ body.light .aic-bar-track { background:rgba(0,0,0,0.07); }
   </div>
 
   <!-- HEALTH -->
-  <div class="sec">
-    <div class="sec-head"><span>🔥 Health &amp; Body <span style="color:var(--health);font-size:8px;">· Primary</span></span><button class="sec-edit-btn" onclick="openEdit('health')">edit</button></div>
+  <div class="sec" id="sec-health">
+    <div class="sec-head"><span>🔥 Health &amp; Body <span style="color:var(--health);font-size:8px;">· Primary</span></span><button class="sec-edit-btn" onclick="hideSection('health')" title="Hide this section">hide</button><button class="sec-edit-btn" onclick="openEdit('health')">edit</button></div>
     <div id="acts-health">
       <div class="va-wrap" id="va-workout">
         <div class="va-header"><div class="va-chk" id="workout-chk"></div><div class="va-name">Workout / Movement</div><div class="va-pts" id="workout-pts">0 AP</div></div>
@@ -795,7 +795,7 @@ body.light .aic-bar-track { background:rgba(0,0,0,0.07); }
     <div class="interrupt-grid">
       <div>
         <div class="va-name" style="margin-bottom:6px;">Anchor verse for today</div>
-        <input type="text" id="anchorVerseInput" class="interrupt-input" placeholder="e.g. Psalm 90:12" oninput="today.anchorVerse=this.value">
+        <input type="text" id="anchorVerseInput" class="interrupt-input" placeholder="e.g. Psalm 90:12" oninput="today.anchorVerse=this.value; db.currentAnchorVerse=this.value; scheduleCloudPush();">
       </div>
       <div>
         <div class="va-name" style="margin-bottom:6px;">Currently reading</div>
@@ -806,8 +806,8 @@ body.light .aic-bar-track { background:rgba(0,0,0,0.07); }
   </div>
 
   <!-- MIND -->
-  <div class="sec">
-    <div class="sec-head"><span>📖 Mind &amp; Learning <span style="color:var(--mind);font-size:8px;">· Primary</span></span><button class="sec-edit-btn" onclick="openEdit('mind')">edit</button></div>
+  <div class="sec" id="sec-mind">
+    <div class="sec-head"><span>📖 Mind &amp; Learning <span style="color:var(--mind);font-size:8px;">· Primary</span></span><button class="sec-edit-btn" onclick="hideSection('mind')" title="Hide this section">hide</button><button class="sec-edit-btn" onclick="openEdit('mind')">edit</button></div>
     <div id="acts-mind">
       <div class="va-wrap" id="va-book1">
         <div class="va-header"><div class="va-chk" id="book1-chk"></div><div class="va-name">Book Reading — Session 1</div><div class="va-pts" id="book1-pts">0 AP</div></div>
@@ -852,8 +852,8 @@ body.light .aic-bar-track { background:rgba(0,0,0,0.07); }
   </div>
 
   <!-- CRAFT -->
-  <div class="sec">
-    <div class="sec-head"><span>⚡ Craft &amp; Skills <span style="color:var(--craft);font-size:8px;">· Primary</span></span><button class="sec-edit-btn" onclick="openEdit('craft')">edit</button></div>
+  <div class="sec" id="sec-craft">
+    <div class="sec-head"><span>⚡ Craft &amp; Skills <span style="color:var(--craft);font-size:8px;">· Primary</span></span><button class="sec-edit-btn" onclick="hideSection('craft')" title="Hide this section">hide</button><button class="sec-edit-btn" onclick="openEdit('craft')">edit</button></div>
     <div id="acts-craft">
       <div class="multi-wrap">
         <div class="multi-header"><div class="multi-name">Chart Work</div><div class="multi-pts" id="chart-pts">0 AP</div></div>
@@ -895,8 +895,8 @@ body.light .aic-bar-track { background:rgba(0,0,0,0.07); }
   </div>
 
   <!-- FINANCES -->
-  <div class="sec">
-    <div class="sec-head"><span>💰 Finances <span style="color:var(--finance);font-size:8px;">· Primary</span></span><button class="sec-edit-btn" onclick="openEdit('finance')">edit</button></div>
+  <div class="sec" id="sec-finance">
+    <div class="sec-head"><span>💰 Finances <span style="color:var(--finance);font-size:8px;">· Primary</span></span><button class="sec-edit-btn" onclick="hideSection('finance')" title="Hide this section">hide</button><button class="sec-edit-btn" onclick="openEdit('finance')">edit</button></div>
     <div id="acts-finance">
       <div class="act-item" data-key="output" data-pts="20" data-area="finance" onclick="togAct(this)"><div class="ai-chk"></div><div class="ai-name">Output Work — Completed</div><div class="ai-pts">20 AP</div></div>
       <div class="act-item" data-key="journal-output" data-pts="15" data-area="finance" onclick="togAct(this)"><div class="ai-chk"></div><div class="ai-name">Journaling as Output</div><div class="ai-pts">15 AP</div></div>
@@ -910,8 +910,8 @@ body.light .aic-bar-track { background:rgba(0,0,0,0.07); }
   </div>
 
   <!-- CHARACTER -->
-  <div class="sec">
-    <div class="sec-head"><span>🧭 Character &amp; Discipline <span style="color:var(--character);font-size:8px;">· Primary</span></span><button class="sec-edit-btn" onclick="openEdit('character')">edit</button></div>
+  <div class="sec" id="sec-character">
+    <div class="sec-head"><span>🧭 Character &amp; Discipline <span style="color:var(--character);font-size:8px;">· Primary</span></span><button class="sec-edit-btn" onclick="hideSection('character')" title="Hide this section">hide</button><button class="sec-edit-btn" onclick="openEdit('character')">edit</button></div>
     <div id="acts-character">
       <div class="act-item" data-key="stage" data-pts="10" data-area="character" onclick="togAct(this)"><div class="ai-chk"></div><div class="ai-name">Set the Stage for Tomorrow</div><div class="ai-pts">10 AP</div></div>
       <div class="act-item" data-key="evjournal" data-pts="10" data-area="character" onclick="togAct(this)"><div class="ai-chk"></div><div class="ai-name">Evening Journal — Reflection</div><div class="ai-pts">10 AP</div></div>
@@ -921,8 +921,8 @@ body.light .aic-bar-track { background:rgba(0,0,0,0.07); }
   </div>
 
   <!-- SECONDARY AREAS -->
-  <div class="sec">
-    <div class="sec-head"><span>Career &amp; Professional <span style="color:var(--career);font-size:8px;">· Secondary</span></span><button class="sec-edit-btn" onclick="openEdit('career')">edit</button></div>
+  <div class="sec" id="sec-career">
+    <div class="sec-head"><span>Career &amp; Professional <span style="color:var(--career);font-size:8px;">· Secondary</span></span><button class="sec-edit-btn" onclick="hideSection('career')" title="Hide this section">hide</button><button class="sec-edit-btn" onclick="openEdit('career')">edit</button></div>
     <div id="acts-career">
       <div class="act-item" data-key="autocad-lesson" data-pts="15" data-area="career" onclick="togAct(this)"><div class="ai-chk"></div><div class="ai-name">AutoCAD Lesson — 30 min</div><div class="ai-pts">15 AP</div></div>
       <div class="act-item" data-key="forex-lesson" data-pts="15" data-area="career" onclick="togAct(this)"><div class="ai-chk"></div><div class="ai-name">Forex / Trading Video Lesson — 30 min</div><div class="ai-pts">15 AP</div></div>
@@ -932,8 +932,8 @@ body.light .aic-bar-track { background:rgba(0,0,0,0.07); }
     </div>
   </div>
 
-  <div class="sec">
-    <div class="sec-head"><span>🏗 Business &amp; Entrepreneurial <span style="color:var(--business);font-size:8px;">· Secondary</span></span><button class="sec-edit-btn" onclick="openEdit('business')">edit</button></div>
+  <div class="sec" id="sec-business">
+    <div class="sec-head"><span>🏗 Business &amp; Entrepreneurial <span style="color:var(--business);font-size:8px;">· Secondary</span></span><button class="sec-edit-btn" onclick="hideSection('business')" title="Hide this section">hide</button><button class="sec-edit-btn" onclick="openEdit('business')">edit</button></div>
     <div id="acts-business">
       <div class="act-item" data-key="dante-docs" data-pts="20" data-area="business" onclick="togAct(this)"><div class="ai-chk"></div><div class="ai-name">Dante Craft Founding Docs</div><div class="ai-pts">20 AP</div></div>
       <div class="act-item" data-key="dante-vision" data-pts="15" data-area="business" onclick="togAct(this)"><div class="ai-chk"></div><div class="ai-name">dAnTE Vision Work</div><div class="ai-pts">15 AP</div></div>
@@ -941,8 +941,8 @@ body.light .aic-bar-track { background:rgba(0,0,0,0.07); }
     </div>
   </div>
 
-  <div class="sec">
-    <div class="sec-head"><span>🤝 Relationships <span style="color:var(--relationships);font-size:8px;">· Secondary</span></span><button class="sec-edit-btn" onclick="openEdit('relationships')">edit</button></div>
+  <div class="sec" id="sec-relationships">
+    <div class="sec-head"><span>🤝 Relationships <span style="color:var(--relationships);font-size:8px;">· Secondary</span></span><button class="sec-edit-btn" onclick="hideSection('relationships')" title="Hide this section">hide</button><button class="sec-edit-btn" onclick="openEdit('relationships')">edit</button></div>
     <div id="acts-relationships">
       <div class="act-item" data-key="rel-morning-call" data-pts="15" data-area="relationships" onclick="togAct(this)"><div class="ai-chk"></div><div class="ai-name">Morning Call / Text — T (7:00–8:00)</div><div class="ai-pts">15 AP</div></div>
       <div class="act-item" data-key="rel-afternoon-call" data-pts="20" data-area="relationships" onclick="togAct(this)"><div class="ai-chk"></div><div class="ai-name">Afternoon Call — T (1:00–3:00)</div><div class="ai-pts">20 AP</div></div>
@@ -953,16 +953,16 @@ body.light .aic-bar-track { background:rgba(0,0,0,0.07); }
     </div>
   </div>
 
-  <div class="sec">
-    <div class="sec-head"><span>✍ Creative Expression <span style="color:var(--creative);font-size:8px;">· Secondary</span></span><button class="sec-edit-btn" onclick="openEdit('creative')">edit</button></div>
+  <div class="sec" id="sec-creative">
+    <div class="sec-head"><span>✍ Creative Expression <span style="color:var(--creative);font-size:8px;">· Secondary</span></span><button class="sec-edit-btn" onclick="hideSection('creative')" title="Hide this section">hide</button><button class="sec-edit-btn" onclick="openEdit('creative')">edit</button></div>
     <div id="acts-creative">
       <div class="act-item" data-key="write" data-pts="12" data-area="creative" onclick="togAct(this)"><div class="ai-chk"></div><div class="ai-name">Writing — Personal or Creative</div><div class="ai-pts">12 AP</div></div>
       <div class="act-item" data-key="aesthetic" data-pts="8" data-area="creative" onclick="togAct(this)"><div class="ai-chk"></div><div class="ai-name">Something Beautiful — Made or Noticed</div><div class="ai-pts">8 AP</div></div>
     </div>
   </div>
 
-  <div class="sec">
-    <div class="sec-head"><span>🏠 Environment <span style="color:var(--environment);font-size:8px;">· Secondary</span></span><button class="sec-edit-btn" onclick="openEdit('environment')">edit</button></div>
+  <div class="sec" id="sec-environment">
+    <div class="sec-head"><span>🏠 Environment <span style="color:var(--environment);font-size:8px;">· Secondary</span></span><button class="sec-edit-btn" onclick="hideSection('environment')" title="Hide this section">hide</button><button class="sec-edit-btn" onclick="openEdit('environment')">edit</button></div>
     <div id="acts-environment">
       <div class="act-item" data-key="env-order" data-pts="8" data-area="environment" onclick="togAct(this)"><div class="ai-chk"></div><div class="ai-name">Space Ordered / Maintained</div><div class="ai-pts">8 AP</div></div>
       <div class="act-item" data-key="env-system" data-pts="12" data-area="environment" onclick="togAct(this)"><div class="ai-chk"></div><div class="ai-name">System or Tool Built / Improved</div><div class="ai-pts">12 AP</div></div>
@@ -1488,7 +1488,7 @@ let currentViewDate = null;
 let appearance = { mode:'dark', accent:null, size:'13px', fonts:null, title:null, subtitle:null };
 
 function freshToday() {
-  return { tier:null, checks:{}, va:{prayer:0,book1:0,book2:0,workout:0}, multi:{}, skill:null, gpB:{}, metrics:{balance:'',trade:'',charts:''}, journal:{win:'',lesson:'',intention:''}, onePercent:'', seed:false, dayType:null, areas:{}, counts:{}, water:0, meditation:{type:null,blocks:0}, steps:'', anchorVerse:'', stateTag:null, wellbeing:{energy:5,heaviness:5,clarity:5,restlessness:5,urge:0}, wellbeingTouched:false };
+  return { tier:null, checks:{}, va:{prayer:0,book1:0,book2:0,workout:0}, multi:{}, skill:null, gpB:{}, metrics:{balance:'',trade:'',charts:''}, journal:{win:'',lesson:'',intention:''}, onePercent:'', seed:false, dayType:null, areas:{}, counts:{}, water:0, meditation:{type:null,blocks:0}, steps:'', anchorVerse:(typeof db!=='undefined' && db && db.currentAnchorVerse) || '', stateTag:null, wellbeing:{energy:5,heaviness:5,clarity:5,restlessness:5,urge:0}, wellbeingTouched:false };
 }
 
 // ── DAY NAVIGATION — view/edit the full dashboard for any date ──
@@ -1585,6 +1585,7 @@ async function init() {
   applyAppearance();
   loadDay(getTodayKey());
   renderReadingTags();
+  renderHiddenSections();
   updateUI();
   checkPendingAchievements();
 }
@@ -1651,12 +1652,21 @@ function loadDB() {
       db.history.sort((a,b) => a.date.localeCompare(b.date));
       saveDB();
     } else {
-      // First load — inject saved history
+      // First load — inject saved history. Only push this to the cloud if
+      // the pull above actually succeeded — otherwise we can't tell whether
+      // "no local data" means genuinely first-run, or a failed/offline pull
+      // that shouldn't be allowed to overwrite real cloud data with this
+      // built-in seed snapshot. This is the exact failure mode that caused
+      // a prior data-loss incident: a failed pull + empty local storage +
+      // an unconditional push silently wiped a real cloud copy.
       db = JSON.parse(JSON.stringify(SEED_DATA));
-      saveDB();
+      if (pullSucceeded) { saveDB(); }
+      else { saveDBLocalOnly(); setSyncStatus('⚠ Unverified — reload once online'); }
     }
   } catch(e) {
     db = JSON.parse(JSON.stringify(SEED_DATA));
+    if (pullSucceeded) { saveDB(); }
+    else { saveDBLocalOnly(); setSyncStatus('⚠ Unverified — reload once online'); }
   }
   // Normalize once, regardless of which branch above ran — SEED_DATA itself
   // doesn't define these keys, so every path needs this same safety net.
@@ -1667,11 +1677,15 @@ function loadDB() {
   if (!db.currentlyReading) db.currentlyReading = [];
   if (!db.pendingAchievements) db.pendingAchievements = [];
   if (!db.basketItems) db.basketItems = [];
+  if (db.currentAnchorVerse == null) db.currentAnchorVerse = '';
+  if (!db.hiddenSections) db.hiddenSections = [];
   const k = getTodayKey();
   const ex = db.history.find(e => e.date === k);
   if (ex) today = migrateLegacyDay(Object.assign(freshToday(), ex.state || {}));
 }
 function saveDB() { try{ localStorage.setItem('quickening_db',JSON.stringify(db)); }catch(e){} scheduleCloudPush(); }
+function saveDBLocalOnly() { try{ localStorage.setItem('quickening_db',JSON.stringify(db)); }catch(e){} }
+let pullSucceeded = false;
 
 // ── CLOUD SYNC (Supabase) ──
 // Bundles all three of this tool's localStorage keys — db, customActs,
@@ -1699,6 +1713,7 @@ async function pullCloud() {
     });
     clearTimeout(timeout);
     if(!res.ok) { setSyncStatus('Sync error'); return; }
+    pullSucceeded = true;
     const rows = await res.json();
     if(!rows.length) { setSyncStatus('Synced'); pushCloudNow(); return; }
     const remote = rows[0];
@@ -2470,6 +2485,8 @@ function setStateTag(val) {
   if(soberBtn) soberBtn.classList.toggle('active-state', today.stateTag==='sober');
   if(usedBtn) usedBtn.classList.toggle('active-state', today.stateTag==='used');
   saveDay();
+  clearTimeout(cloudPushTimer);
+  pushCloudNow();
 }
 
 let wbTouched = new Set();
@@ -3556,6 +3573,42 @@ function calcStreak() {
     checkDate.setDate(checkDate.getDate()-1);
   }
   return streak;
+}
+
+// ── HIDE SECTIONS ──
+// Hides a whole section from view without deleting anything — activities,
+// history, and stats underneath are untouched. Meant for things like a
+// Relationships block that's painful to look at right now; unhide any time
+// from the strip that appears once at least one section is hidden.
+function ensureHiddenSections(){ if(!db.hiddenSections) db.hiddenSections=[]; return db.hiddenSections; }
+function hideSection(key){
+  const list = ensureHiddenSections();
+  if(!list.includes(key)) list.push(key);
+  saveDB();
+  renderHiddenSections();
+}
+function unhideSection(key){
+  db.hiddenSections = ensureHiddenSections().filter(k=>k!==key);
+  saveDB();
+  renderHiddenSections();
+}
+const SECTION_LABELS = { faith:'Faith & Spirituality', health:'Health & Body', mind:'Mind & Learning', craft:'Craft & Skills', finance:'Finances', character:'Character & Discipline', career:'Career & Professional', business:'Business & Entrepreneurial', relationships:'Relationships', creative:'Creative Expression', environment:'Environment' };
+function renderHiddenSections(){
+  const list = ensureHiddenSections();
+  Object.keys(SECTION_LABELS).forEach(key=>{
+    const el = document.getElementById('sec-'+key);
+    if(el) el.style.display = list.includes(key) ? 'none' : '';
+  });
+  let strip = document.getElementById('hiddenSectionsStrip');
+  if(!list.length){ if(strip) strip.remove(); return; }
+  if(!strip){
+    strip = document.createElement('div');
+    strip.id = 'hiddenSectionsStrip';
+    strip.style.cssText = 'position:sticky;bottom:0;background:var(--surface2);border-top:1px solid var(--border-acc);padding:8px 14px;display:flex;gap:8px;flex-wrap:wrap;align-items:center;z-index:40;';
+    document.body.appendChild(strip);
+  }
+  strip.innerHTML = '<span style="font-size:8px;color:var(--text-dim);letter-spacing:.08em;text-transform:uppercase;">Hidden:</span>' +
+    list.map(k=>`<button class="btn" style="font-size:8px;padding:4px 10px" onclick="unhideSection('${k}')">${SECTION_LABELS[k]||k} — restore</button>`).join('');
 }
 
 init();
