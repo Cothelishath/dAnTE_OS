@@ -53,6 +53,7 @@ main{max-width:900px;margin:0 auto;padding:20px}
 .stat-l{ font-size:.62rem; color:var(--text-faint); text-transform:uppercase; letter-spacing:.05em; margin-top:1px; }
 
 .section-label{font-family:'JetBrains Mono',monospace;font-size:.68rem;letter-spacing:.15em;color:var(--gold);text-transform:uppercase;margin-bottom:10px;display:flex;justify-content:space-between;align-items:center}
+.hint{font-family:'JetBrains Mono',monospace;font-size:.66rem;color:var(--text-faint);margin:-6px 0 12px}
 .filter-row{display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap;align-items:center}
 .filter-row select, .filter-row input{background:var(--panel);border:1px solid var(--line);color:var(--text);border-radius:6px;padding:6px 9px;font-size:.78rem;font-family:'Inter',sans-serif}
 
@@ -69,6 +70,7 @@ main{max-width:900px;margin:0 auto;padding:20px}
 .trade-tag.win{ color:var(--green); border-color:var(--green); }
 .trade-tag.loss{ color:var(--red); border-color:var(--red); }
 .trade-tag.be{ color:var(--text-dim); border-color:var(--line2); }
+.trade-tag.strategy{ color:var(--blue); border-color:var(--blue); }
 .trade-title{ font-family:'Cormorant Garamond',serif; font-size:1.1rem; flex:1; min-width:120px; }
 .trade-sub{ font-family:'JetBrains Mono',monospace; font-size:.66rem; color:var(--text-faint); }
 .chevron{ color:var(--text-faint); font-size:.7rem; transition:.2s; }
@@ -88,6 +90,8 @@ main{max-width:900px;margin:0 auto;padding:20px}
 .fld input, .fld select, .fld textarea{ width:100%; background:var(--panel); border:1px solid var(--line); color:var(--text); border-radius:5px; padding:7px 9px; font-size:.8rem; font-family:'Inter',sans-serif; }
 .fld textarea{ resize:vertical; min-height:38px; }
 .fld input:focus, .fld select:focus, .fld textarea:focus{ outline:none; border-color:var(--gold-dim); }
+.checkrow{display:flex;align-items:center;gap:8px;margin-bottom:8px;font-size:.8rem;color:var(--text-dim)}
+.checkrow label{display:flex;align-items:center;gap:6px;cursor:pointer}
 
 .check4{ display:flex; flex-direction:column; gap:6px; margin-bottom:8px; }
 .check4-row{ display:flex; align-items:flex-start; gap:8px; background:var(--panel); border:1px solid var(--line); border-radius:6px; padding:8px 10px; }
@@ -126,6 +130,7 @@ main{max-width:900px;margin:0 auto;padding:20px}
 .lib-item select{background:var(--panel2);border:1px solid var(--line);color:var(--text-dim);border-radius:4px;padding:4px 6px;font-size:.68rem}
 .lib-item .del-btn{ background:none; border:none; color:var(--text-faint); cursor:pointer; font-size:.85rem; }
 .lib-item .del-btn:hover{ color:var(--red); }
+.lib-cat-label{font-family:'JetBrains Mono',monospace;font-size:.62rem;color:var(--text-faint);text-transform:uppercase;letter-spacing:.08em;margin:10px 0 4px}
 .lib-add-row{ display:flex; gap:8px; margin-top:8px; }
 .lib-add-row input{ flex:1; background:var(--bg2); border:1px solid var(--line); color:var(--text); border-radius:6px; padding:8px 10px; font-size:.84rem; }
 .lib-add-row select{background:var(--bg2);border:1px solid var(--line);color:var(--text);border-radius:6px;padding:8px 6px;font-size:.78rem}
@@ -134,6 +139,24 @@ main{max-width:900px;margin:0 auto;padding:20px}
 textarea.protocol-note{ width:100%; background:var(--bg2); border:1px solid var(--line); border-radius:8px; padding:10px 12px; color:var(--text); font-family:'Inter',sans-serif; font-size:.82rem; resize:vertical; min-height:70px; }
 .protocol-block{margin-bottom:20px}
 .protocol-block h3{font-size:1.1rem;margin-bottom:6px;color:var(--gold-bright)}
+
+.binge-hero{ background:linear-gradient(135deg,var(--gold-glow),transparent); border:1px solid var(--gold-dim); border-radius:var(--radius); padding:20px; text-align:center; margin-bottom:18px; }
+.binge-day{ font-family:'Cormorant Garamond',serif; font-size:2.4rem; color:var(--gold-bright); }
+.binge-sub{ font-family:'JetBrains Mono',monospace; font-size:.68rem; color:var(--text-faint); text-transform:uppercase; letter-spacing:.1em; margin-top:4px; }
+.binge-cats{ display:grid; grid-template-columns:repeat(5,1fr); gap:8px; margin-top:16px; }
+@media(max-width:640px){ .binge-cats{ grid-template-columns:repeat(2,1fr); } }
+.binge-cat{ background:var(--panel2); border:1px solid var(--line); border-radius:8px; padding:10px; text-align:center; }
+.binge-cat.done{ border-color:var(--green); }
+.binge-cat-name{ font-size:.72rem; color:var(--text-dim); }
+.binge-cat-n{ font-family:'JetBrains Mono',monospace; font-size:1.1rem; color:var(--text); margin-top:2px; }
+.binge-cat.done .binge-cat-n{ color:var(--green); }
+
+.breakdown-row{ display:flex; align-items:center; gap:10px; padding:6px 0; border-bottom:1px solid var(--line); }
+.breakdown-row:last-child{border-bottom:none}
+.bd-name{ flex:1; font-size:.82rem; color:var(--text); }
+.bd-bar-wrap{ flex:1; height:6px; background:var(--bg2); border-radius:3px; overflow:hidden; }
+.bd-bar{ height:100%; background:var(--gold-dim); }
+.bd-stat{ font-family:'JetBrains Mono',monospace; font-size:.68rem; color:var(--text-dim); width:120px; text-align:right; flex-shrink:0; }
 
 .lightbox{ display:none; position:fixed; inset:0; background:rgba(0,0,0,.9); z-index:300; align-items:center; justify-content:center; cursor:zoom-out; }
 .lightbox.show{ display:flex; }
@@ -165,6 +188,7 @@ input[type=file]{display:none}
 <nav class="tabs">
   <div class="tab active" data-tab="trades" onclick="showTab('trades',this)">Trades</div>
   <div class="tab" data-tab="protocol" onclick="showTab('protocol',this)">Protocol</div>
+  <div class="tab" data-tab="binge" onclick="showTab('binge',this)">Binge</div>
   <div class="tab" data-tab="library" onclick="showTab('library',this)">Library</div>
   <div class="tab" data-tab="stats" onclick="showTab('stats',this)">Stats</div>
 </nav>
@@ -183,6 +207,7 @@ input[type=file]{display:none}
     <button class="new-trade-btn" onclick="createTrade()">+ New Trade — start as it's forming, fill it in as it plays out</button>
 
     <div class="filter-row">
+      <select id="filterStrategy" onchange="renderTrades()"><option value="">All strategies</option></select>
       <select id="filterInstrument" onchange="renderTrades()"><option value="">All instruments</option></select>
       <select id="filterStatus" onchange="renderTrades()">
         <option value="">All statuses</option>
@@ -202,26 +227,57 @@ input[type=file]{display:none}
   <div class="page" id="page-protocol">
     <div class="rule-box">
       <div class="rule-label">The rule everything rests on</div>
-      <div class="rule-text">A zone or block is a location, never a signal. Confirmation is what tells you when.</div>
+      <div class="rule-text">A zone, block, or candle is a location, never a signal on its own. Confirmation is what tells you when.</div>
     </div>
     <div id="protocolContainer"></div>
+
+    <div class="section-label" style="margin-top:24px"><span>Add a Protocol Note</span></div>
+    <div class="hint">Tag it to a strategy so it groups under that strategy's rules — or leave it general if it applies everywhere.</div>
+    <div class="grid2">
+      <div class="fld"><label>Strategy</label><select id="newProtocolStrategy"><option value="">General — all strategies</option></select></div>
+      <div class="fld"><label>Title</label><input type="text" id="newProtocolTitle" placeholder="e.g. Step 7 — ..."></div>
+    </div>
+    <div class="fld"><label>Rule text</label><textarea id="newProtocolText" placeholder="Write the rule out in full..."></textarea></div>
+    <button class="icon-btn gold" onclick="addProtocolBlock()">+ Add to Protocol</button>
+  </div>
+
+  <!-- ══════════ BINGE ══════════ -->
+  <div class="page" id="page-binge">
+    <div class="hint">7 days, all instruments — Volatility, Step, Crash, Boom, Jump. One trade logged in a category marks it done for this binge, regardless of strategy.</div>
+    <div class="binge-hero">
+      <div class="binge-day" id="bingeDay">Day —</div>
+      <div class="binge-sub" id="bingeSub">—</div>
+      <div class="binge-cats" id="bingeCats"></div>
+    </div>
+    <div class="fld"><label>Binge start date</label><input type="date" id="bingeStartInput" onchange="setBingeStart(this.value)"></div>
+    <button class="icon-btn gold" onclick="resetBinge()">Start a new Binge from today</button>
   </div>
 
   <!-- ══════════ LIBRARY ══════════ -->
   <div class="page" id="page-library">
     <div class="lib-section">
+      <div class="section-label"><span>Strategies</span></div>
+      <div class="hint">Tag every trade so win rates never get conflated between strategies.</div>
+      <div id="libStrategies"></div>
+      <div class="lib-add-row">
+        <input type="text" id="addStrategy" placeholder="Name a strategy..." onkeydown="if(event.key==='Enter')addLibItem('strategies')">
+        <button onclick="addLibItem('strategies')">+ Add</button>
+      </div>
+    </div>
+    <div class="lib-section">
       <div class="section-label"><span>Instruments</span></div>
       <div id="libInstruments"></div>
       <div class="lib-add-row">
-        <input type="text" id="addInstrument" placeholder="e.g. V25, EUR/USD, XAU/USD..." onkeydown="if(event.key==='Enter')addLibItem('instruments')">
+        <input type="text" id="addInstrument" placeholder="e.g. V25, EUR/USD, XAU/USD...">
+        <select id="addInstrumentCat"><option>Volatility</option><option>Step</option><option>Crash</option><option>Boom</option><option>Jump</option><option>Other</option></select>
         <button onclick="addLibItem('instruments')">+ Add</button>
       </div>
     </div>
     <div class="lib-section">
-      <div class="section-label"><span>Candle Set Types <span style="color:var(--text-faint);font-weight:400;text-transform:none;letter-spacing:0">— the origin pattern that defines a zone</span></span></div>
+      <div class="section-label"><span>Candle Set Types <span style="color:var(--text-faint);font-weight:400;text-transform:none;letter-spacing:0">— zone-origin patterns, or standalone reversal candle names</span></span></div>
       <div id="libCandleSets"></div>
       <div class="lib-add-row">
-        <input type="text" id="addCandleSet" placeholder="Name a candle set type..." onkeydown="if(event.key==='Enter')addLibItem('candleSetTypes')">
+        <input type="text" id="addCandleSet" placeholder="Name a candle set / candle type..." onkeydown="if(event.key==='Enter')addLibItem('candleSetTypes')">
         <button onclick="addLibItem('candleSetTypes')">+ Add</button>
       </div>
     </div>
@@ -242,6 +298,14 @@ input[type=file]{display:none}
         <button onclick="addLibItem('confirmationModels')">+ Add</button>
       </div>
     </div>
+    <div class="lib-section">
+      <div class="section-label"><span>Entry Types</span></div>
+      <div id="libEntryTypes"></div>
+      <div class="lib-add-row">
+        <input type="text" id="addEntryType" placeholder="Name an entry type..." onkeydown="if(event.key==='Enter')addLibItem('entryTypes')">
+        <button onclick="addLibItem('entryTypes')">+ Add</button>
+      </div>
+    </div>
   </div>
 
   <!-- ══════════ STATS ══════════ -->
@@ -251,8 +315,12 @@ input[type=file]{display:none}
       <div class="stat"><div class="stat-n" id="statWinRate">—</div><div class="stat-l">Win rate</div></div>
       <div class="stat"><div class="stat-n" id="statAvgPips">—</div><div class="stat-l">Avg pips (closed)</div></div>
     </div>
+    <div class="section-label"><span>By strategy</span></div>
+    <div id="statsByStrategy" style="margin-bottom:20px"></div>
     <div class="section-label"><span>By instrument</span></div>
     <div id="statsByInstrument" style="margin-bottom:20px"></div>
+    <div class="section-label"><span>By candle / zone type</span></div>
+    <div id="statsByCandle" style="margin-bottom:20px"></div>
     <div class="section-label"><span>By zone timeframe <span style="color:var(--text-faint);font-weight:400;text-transform:none;letter-spacing:0">— which timeframes actually deliver, and how they cluster</span></span></div>
     <div id="statsByZoneTF"></div>
   </div>
@@ -269,11 +337,23 @@ input[type=file]{display:none}
 <script>
 // ══════════════════════ DATA MODEL ══════════════════════
 const STORAGE_KEY = 'trade_protocol_v1';
+const CATEGORY_LIST = ['Volatility','Step','Crash','Boom','Jump'];
 
 const DEFAULT_LIBRARY = {
+  strategies: [
+    {id:'4lines', name:'4-Lines Zone (Original)'},
+    {id:'revcandle', name:'Reversal Candle (ITF)'},
+  ],
   instruments: [
-    {id:'v75-1s', name:'V75(1s)'}, {id:'v75', name:'V75'}, {id:'v10', name:'V10'},
-    {id:'v25', name:'V25'}, {id:'v50', name:'V50'}, {id:'v100', name:'V100'},
+    {id:'v75-1s', name:'V75(1s)', category:'Volatility'}, {id:'v75', name:'V75', category:'Volatility'},
+    {id:'v10', name:'V10', category:'Volatility'}, {id:'v25', name:'V25', category:'Volatility'},
+    {id:'v50', name:'V50', category:'Volatility'}, {id:'v100', name:'V100', category:'Volatility'},
+    {id:'v10-1s', name:'V10(1s)', category:'Volatility'}, {id:'v25-1s', name:'V25(1s)', category:'Volatility'},
+    {id:'v50-1s', name:'V50(1s)', category:'Volatility'}, {id:'v100-1s', name:'V100(1s)', category:'Volatility'},
+    {id:'step', name:'Step Index', category:'Step'},
+    {id:'crash300', name:'Crash 300 Index', category:'Crash'}, {id:'crash500', name:'Crash 500 Index', category:'Crash'}, {id:'crash1000', name:'Crash 1000 Index', category:'Crash'},
+    {id:'boom300', name:'Boom 300 Index', category:'Boom'}, {id:'boom500', name:'Boom 500 Index', category:'Boom'}, {id:'boom1000', name:'Boom 1000 Index', category:'Boom'},
+    {id:'jump10', name:'Jump 10 Index', category:'Jump'}, {id:'jump25', name:'Jump 25 Index', category:'Jump'}, {id:'jump50', name:'Jump 50 Index', category:'Jump'}, {id:'jump75', name:'Jump 75 Index', category:'Jump'}, {id:'jump100', name:'Jump 100 Index', category:'Jump'},
   ],
   candleSetTypes: [
     {id:'pin-engulf', name:'Inverted Pin/Doji + Momentum Engulfing'},
@@ -285,23 +365,29 @@ const DEFAULT_LIBRARY = {
     {id:'3candle', name:'3-Candle Reversal (opposite candle → small same-direction candle → momentum candle exceeding the first candle\'s extreme)', kind:'pattern'},
     {id:'second-foray', name:'Second foray — return sweep of the same IDM, more momentous 2nd expansion', kind:'second-foray'},
   ],
+  entryTypes: [
+    {id:'dipmove', name:'Dip & Move'},
+    {id:'dally', name:'Dally'},
+  ],
 };
 
 const PROTOCOL_DEFAULT = [
-  { id:'p1', title:'Step 1 — HTF Context & Operating Range',
+  { id:'p1', strategyId:'4lines', title:'Step 1 — HTF Context & Operating Range',
     text:'Identify the overall trend on a higher timeframe of your choosing. Use a Fibonacci tool to define the current operating range — valid buys sit in the discount, valid sells in the premium. Don\'t just read the trend; place where price delivery currently sits within it, so you\'re not trading against the immediate HTF program.' },
-  { id:'p2', title:'Step 2 — Mechanical Zone Discovery (The "4 Lines")',
+  { id:'p2', strategyId:'4lines', title:'Step 2 — Mechanical Zone Discovery (The "4 Lines")',
     text:'A zone is only valid to operate from if it meets all four: (1) Candle Set High/Low — the boundary of the origin reversal pattern. (2) Break of Structure — an uninterrupted, momentous expansion follows the candle set. (3) EPA Low — after the BoS, price returns and dips below the BoS line before reversing again; this is what makes the price action efficient. (4) Inducement — the low created by the EPA process is the liquidity that must be swept before the real move. The candle immediately before the "tip" and the candle that creates the BoS should not themselves be counted as part of the 2–3 candles defining the zone. Fresh zones are prioritized — be wary of aging zone sets that take too long to deliver.' },
-  { id:'p3', title:'Step 3 — Identification of the Operating Block',
+  { id:'p3', strategyId:'4lines', title:'Step 3 — Identification of the Operating Block',
     text:'Drop to a lower timeframe of your choosing to find the specific Operating Block — typically the last opposite-color candle before the momentum expansion that broke structure.' },
-  { id:'p4', title:'Step 4 — The Confirmation (the signal)',
+  { id:'p4', strategyId:'4lines', title:'Step 4 — The Confirmation (the signal)',
     text:'Wait for a specific confirmation to print within the operating block — candles, a named pattern, or a second foray of the zone. A POI or block is never a trade on its own; it\'s only a location. The confirmation is what tells you when. Timeframe scaling matters: a 30M zone typically wants a 1M-scale confirmation, not a 15M one — waiting for too coarse a confirmation on an intraday setup often means missing the entry entirely.' },
-  { id:'p5', title:'Step 5 — LTF Internal Confirmation',
+  { id:'p5', strategyId:'4lines', title:'Step 5 — LTF Internal Confirmation',
     text:'Confirm entry on a lower timeframe again: price dips into the operating block, sweeps the internal IDM (short-term low), and prints an internal BoS. High-quality zones often deliver twice — an initial move, then a return to sweep the same IDM again for a more momentous second expansion.' },
-  { id:'p6', title:'Step 6 — Target Selection',
+  { id:'p6', strategyId:'4lines', title:'Step 6 — Target Selection',
     text:'Scalp strategy: target the high (or low) of the immediate setup. Entry-pattern / trend strategy: target the current highest (or lowest) point of HTF market structure. Tag every logged trade with which of the two it was — conflating them corrupts both win rates.' },
-  { id:'p-notes', title:'Key concepts to keep in view',
+  { id:'p-notes', strategyId:'', title:'Key concepts to keep in view',
     text:'EPA vs raw expansion — raw expansion creates inefficient price action (gaps); EPA is the leg that makes price efficient and provides the actual, safe entry. This protocol has held up across different instruments and on both HTF and intraday deliveries so far — but no timeframe pairing is fixed. A 4H zone and a 15M zone are not the same trade with different clocks; track them separately and let the data show how each actually delivers.' },
+  { id:'p7', strategyId:'revcandle', title:'Reversal Candle (ITF) — a separate, simpler strategy',
+    text:'Built purely off strong reversal candles on the ITF, not the full 4-Lines zone system. Steps: (1) Note HTF direction as context, not a hard filter. (2) Identify a strong, clearly-formed reversal candle on the ITF — log which timeframe it actually formed on. (3) Note the operating block if one is visible, but it is not required the way it is for the 4-Lines strategy. (4) Enter, log entry type as Dip & Move (price dipped then moved immediately) or Dally (price hesitated before moving), and note if a gap was involved. Keep this strategy\'s trades tagged separately in Library → Strategies so its win rate never blends with the 4-Lines numbers.' },
 ];
 
 function freshState(){
@@ -309,6 +395,7 @@ function freshState(){
     library: JSON.parse(JSON.stringify(DEFAULT_LIBRARY)),
     protocol: JSON.parse(JSON.stringify(PROTOCOL_DEFAULT)),
     trades: [],
+    bingeStart: todayKey(),
   };
 }
 
@@ -316,8 +403,14 @@ let state;
 try { const s = localStorage.getItem(STORAGE_KEY); state = s ? Object.assign(freshState(), JSON.parse(s)) : freshState(); }
 catch(e){ state = freshState(); }
 if(!state.library) state.library = JSON.parse(JSON.stringify(DEFAULT_LIBRARY));
+['strategies','instruments','candleSetTypes','operatingBlockTypes','confirmationModels','entryTypes'].forEach(k=>{
+  if(!state.library[k] || !state.library[k].length) state.library[k] = JSON.parse(JSON.stringify(DEFAULT_LIBRARY[k]));
+});
+// backfill category on any instrument saved before categories existed
+state.library.instruments.forEach(i=>{ if(!i.category) i.category='Other'; });
 if(!state.protocol) state.protocol = JSON.parse(JSON.stringify(PROTOCOL_DEFAULT));
 if(!state.trades) state.trades = [];
+if(!state.bingeStart) state.bingeStart = todayKey();
 
 let isDark = localStorage.getItem('tp-theme') !== 'light';
 let openTradeIds = new Set();
@@ -326,6 +419,8 @@ function uid(){ return Date.now()+Math.random().toString(36).slice(2,7); }
 function esc(s){ return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
 function escA(s){ return String(s||'').replace(/&/g,'&amp;').replace(/"/g,'&quot;'); }
 function fmtDate(ts){ if(!ts) return '—'; const d=new Date(ts); return d.toLocaleDateString('en-GB',{day:'numeric',month:'short'})+' '+d.toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'}); }
+function pad(n){ return String(n).padStart(2,'0'); }
+function todayKey(){ const d=new Date(); return d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate()); }
 
 function saveAll(manual){
   try{ localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); }catch(e){}
@@ -355,6 +450,7 @@ function showTab(name, el){
   el.classList.add('active');
   document.getElementById('page-'+name).classList.add('active');
   if(name==='protocol') renderProtocol();
+  if(name==='binge') renderBinge();
   if(name==='library') renderLibrary();
   if(name==='stats') renderStats();
 }
@@ -366,11 +462,31 @@ function toggleTheme(){
 
 // ══════════════════════ LIBRARY ══════════════════════
 function renderLibrary(){
+  document.getElementById('libStrategies').innerHTML = (state.library.strategies||[]).map(it=>`
+    <div class="lib-item">
+      <input type="text" value="${escA(it.name)}" onchange="renameLibItem('strategies','${it.id}',this.value)">
+      <button class="del-btn" onclick="deleteLibItem('strategies','${it.id}')">✕</button>
+    </div>`).join('') || '<div class="empty" style="padding:10px">No strategies yet.</div>';
+
+  const instByCat = CATEGORY_LIST.concat(['Other']).map(cat=>{
+    const items = state.library.instruments.filter(i=>i.category===cat);
+    if(!items.length) return '';
+    return `<div class="lib-cat-label">${cat}</div>` + items.map(it=>`
+      <div class="lib-item">
+        <input type="text" value="${escA(it.name)}" onchange="renameLibItem('instruments','${it.id}',this.value)">
+        <select onchange="setInstrumentCategory('${it.id}',this.value)">
+          ${CATEGORY_LIST.concat(['Other']).map(c=>`<option ${c===it.category?'selected':''}>${c}</option>`).join('')}
+        </select>
+        <button class="del-btn" onclick="deleteLibItem('instruments','${it.id}')">✕</button>
+      </div>`).join('');
+  }).join('');
+  document.getElementById('libInstruments').innerHTML = instByCat || '<div class="empty" style="padding:10px">Nothing yet.</div>';
+
   const map = [
-    ['instruments','libInstruments',false],
     ['candleSetTypes','libCandleSets',false],
     ['operatingBlockTypes','libOperatingBlocks',false],
     ['confirmationModels','libConfirmations',true],
+    ['entryTypes','libEntryTypes',false],
   ];
   map.forEach(([key, containerId, hasKind])=>{
     const container = document.getElementById(containerId);
@@ -388,18 +504,20 @@ function renderLibrary(){
   });
 }
 function addLibItem(key){
-  const inputMap = {instruments:'addInstrument', candleSetTypes:'addCandleSet', operatingBlockTypes:'addOperatingBlock', confirmationModels:'addConfirmation'};
+  const inputMap = {strategies:'addStrategy', instruments:'addInstrument', candleSetTypes:'addCandleSet', operatingBlockTypes:'addOperatingBlock', confirmationModels:'addConfirmation', entryTypes:'addEntryType'};
   const input = document.getElementById(inputMap[key]);
   const name = input.value.trim();
   if(!name) return;
   const item = {id:uid(), name};
   if(key==='confirmationModels') item.kind = document.getElementById('addConfirmationKind').value;
+  if(key==='instruments') item.category = document.getElementById('addInstrumentCat').value;
   state.library[key].push(item);
   input.value='';
   renderLibrary(); renderTrades(); autosave();
 }
 function renameLibItem(key,id,val){ const it=state.library[key].find(x=>x.id===id); if(it){it.name=val; autosave(); renderTrades();} }
 function setLibItemKind(key,id,val){ const it=state.library[key].find(x=>x.id===id); if(it){it.kind=val; autosave();} }
+function setInstrumentCategory(id,val){ const it=state.library.instruments.find(x=>x.id===id); if(it){it.category=val; autosave(); renderLibrary(); renderBinge();} }
 function deleteLibItem(key,id){
   if(!confirm('Remove this from the library? Trades already using it keep the reference, it just won\'t be selectable for new ones.')) return;
   state.library[key] = state.library[key].filter(x=>x.id!==id);
@@ -411,25 +529,99 @@ function libOptions(key, selectedId, kindFilter){
   return '<option value="">— select —</option>' + items.map(i=>`<option value="${i.id}" ${i.id===selectedId?'selected':''}>${esc(i.name)}</option>`).join('');
 }
 function instrumentOptions(selectedId){
-  return '<option value="">— select —</option>' + (state.library.instruments||[]).map(i=>`<option value="${i.id}" ${i.id===selectedId?'selected':''}>${esc(i.name)}</option>`).join('');
+  return '<option value="">— select —</option>' + CATEGORY_LIST.concat(['Other']).map(cat=>{
+    const items = (state.library.instruments||[]).filter(i=>i.category===cat);
+    if(!items.length) return '';
+    return `<optgroup label="${cat}">` + items.map(i=>`<option value="${i.id}" ${i.id===selectedId?'selected':''}>${esc(i.name)}</option>`).join('') + `</optgroup>`;
+  }).join('');
+}
+function strategyOptions(selectedId){
+  return '<option value="">— select —</option>' + (state.library.strategies||[]).map(i=>`<option value="${i.id}" ${i.id===selectedId?'selected':''}>${esc(i.name)}</option>`).join('');
+}
+function entryTypeOptions(selectedId){
+  return '<option value="">— select —</option>' + (state.library.entryTypes||[]).map(i=>`<option value="${i.id}" ${i.id===selectedId?'selected':''}>${esc(i.name)}</option>`).join('');
 }
 function libName(key,id){ const it=(state.library[key]||[]).find(x=>x.id===id); return it?it.name:''; }
 
 // ══════════════════════ PROTOCOL ══════════════════════
 function renderProtocol(){
+  // populate the strategy selector on the add-form
+  const sel = document.getElementById('newProtocolStrategy');
+  sel.innerHTML = '<option value="">General — all strategies</option>' + (state.library.strategies||[]).map(s=>`<option value="${s.id}">${esc(s.name)}</option>`).join('');
+
   const c = document.getElementById('protocolContainer');
-  c.innerHTML = state.protocol.map(p=>`
-    <div class="protocol-block">
-      <h3>${esc(p.title)}</h3>
-      <textarea class="protocol-note" onchange="setProtocolText('${p.id}',this.value)">${esc(p.text)}</textarea>
-    </div>`).join('');
+  const groups = [{id:'', name:'General — all strategies'}, ...(state.library.strategies||[])];
+  c.innerHTML = groups.map(g=>{
+    const blocks = state.protocol.filter(p=>(p.strategyId||'')===g.id);
+    if(!blocks.length) return '';
+    return `<div class="section-label" style="margin-top:18px"><span>${esc(g.name)}</span></div>` +
+      blocks.map(p=>`
+      <div class="protocol-block">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px">
+          <h3>${esc(p.title)}</h3>
+          <button class="del-btn" style="flex-shrink:0" onclick="deleteProtocolBlock('${p.id}')">✕</button>
+        </div>
+        <textarea class="protocol-note" onchange="setProtocolText('${p.id}',this.value)">${esc(p.text)}</textarea>
+      </div>`).join('');
+  }).join('') || '<div class="empty">No protocol notes yet.</div>';
+}
+function addProtocolBlock(){
+  const title = document.getElementById('newProtocolTitle').value.trim();
+  const text = document.getElementById('newProtocolText').value.trim();
+  const strategyId = document.getElementById('newProtocolStrategy').value;
+  if(!title || !text){ alert('Give it a title and the rule text.'); return; }
+  state.protocol.push({ id:uid(), strategyId, title, text });
+  document.getElementById('newProtocolTitle').value='';
+  document.getElementById('newProtocolText').value='';
+  autosave(); renderProtocol();
+  showToastMini('Added to Protocol.');
+}
+function deleteProtocolBlock(id){
+  if(!confirm('Remove this protocol note?')) return;
+  state.protocol = state.protocol.filter(p=>p.id!==id);
+  autosave(); renderProtocol();
+}
 }
 function setProtocolText(id,val){ const p=state.protocol.find(x=>x.id===id); if(p){p.text=val; autosave();} }
 
+// ══════════════════════ BINGE ══════════════════════
+function setBingeStart(val){ state.bingeStart = val; autosave(); renderBinge(); }
+function resetBinge(){
+  if(!confirm('Start a new 7-day Binge from today?')) return;
+  state.bingeStart = todayKey();
+  autosave(); renderBinge();
+}
+function renderBinge(){
+  const start = new Date(state.bingeStart+'T00:00:00');
+  const today = new Date(todayKey()+'T00:00:00');
+  const diff = Math.floor((today-start)/86400000);
+  const day = Math.min(Math.max(diff+1,1),7);
+  document.getElementById('bingeDay').textContent = diff<0 ? 'Not started' : (diff>=7 ? 'Day 7 — complete' : 'Day '+day+' of 7');
+  document.getElementById('bingeSub').textContent = 'Started ' + start.toLocaleDateString('en-GB',{day:'numeric',month:'short'});
+  document.getElementById('bingeStartInput').value = state.bingeStart;
+
+  const windowTrades = state.trades.filter(t=>new Date(t.createdAt) >= start);
+  const catCounts = {}; CATEGORY_LIST.forEach(c=>catCounts[c]=0);
+  windowTrades.forEach(t=>{
+    const inst = state.library.instruments.find(i=>i.id===t.instrumentId);
+    if(inst && catCounts.hasOwnProperty(inst.category)) catCounts[inst.category]++;
+  });
+  document.getElementById('bingeCats').innerHTML = CATEGORY_LIST.map(cat=>{
+    const n = catCounts[cat];
+    return `<div class="binge-cat ${n>0?'done':''}"><div class="binge-cat-name">${cat}</div><div class="binge-cat-n">${n}</div></div>`;
+  }).join('');
+}
+
 // ══════════════════════ TRADES ══════════════════════
 function ensureTradeDefaults(t){
+  t.strategyId = t.strategyId || '';
   t.direction = t.direction||'buy';
   t.status = t.status||'forming'; // forming | confirmed | closed
+  t.candleTime = t.candleTime || '';
+  t.caught = t.caught || 'live'; // live | missed
+  t.entryTypeId = t.entryTypeId || '';
+  t.gapUsed = !!t.gapUsed;
+  t.gapNote = t.gapNote || '';
   t.htf = t.htf || {trend:'', timeframe:'', position:'', notes:''};
   t.zone = t.zone || {timeframe:'', candleSetTypeId:'', lines:{candleSet:{on:false,note:''},bos:{on:false,note:''},epa:{on:false,note:''},idm:{on:false,note:''}}, freshness:'', notes:''};
   t.operatingBlock = t.operatingBlock || {timeframe:'', typeId:'', notes:''};
@@ -472,20 +664,26 @@ function statusBadge(t){
   return '<span class="trade-tag forming">Forming</span>';
 }
 
-function populateInstrumentFilter(){
-  const sel = document.getElementById('filterInstrument');
-  const cur = sel.value;
-  sel.innerHTML = '<option value="">All instruments</option>' + (state.library.instruments||[]).map(i=>`<option value="${i.id}">${esc(i.name)}</option>`).join('');
-  sel.value = cur;
+function populateFilters(){
+  const si = document.getElementById('filterInstrument');
+  const curI = si.value;
+  si.innerHTML = '<option value="">All instruments</option>' + (state.library.instruments||[]).map(i=>`<option value="${i.id}">${esc(i.name)}</option>`).join('');
+  si.value = curI;
+  const ss = document.getElementById('filterStrategy');
+  const curS = ss.value;
+  ss.innerHTML = '<option value="">All strategies</option>' + (state.library.strategies||[]).map(s=>`<option value="${s.id}">${esc(s.name)}</option>`).join('');
+  ss.value = curS;
 }
 
 function renderTrades(){
-  populateInstrumentFilter();
+  populateFilters();
+  const fst = document.getElementById('filterStrategy').value;
   const fi = document.getElementById('filterInstrument').value;
   const fs = document.getElementById('filterStatus').value;
   const fq = (document.getElementById('filterSearch').value||'').toLowerCase();
 
   let list = state.trades.map(ensureTradeDefaults);
+  if(fst) list = list.filter(t=>t.strategyId===fst);
   if(fi) list = list.filter(t=>t.instrumentId===fi);
   if(fs){
     if(['win','loss','be'].includes(fs)) list = list.filter(t=>t.status==='closed' && t.outcome.result===fs);
@@ -504,10 +702,12 @@ function renderTrades(){
   container.innerHTML = list.map(t=>{
     const open = openTradeIds.has(t.id);
     const instName = libName('instruments',t.instrumentId) || 'No instrument set';
+    const stratName = libName('strategies',t.strategyId);
     return `<div class="trade-card ${open?'open':''}" id="trade-${t.id}">
       <div class="trade-hd" onclick="toggleTradeOpen('${t.id}')">
         <span class="chevron">▶</span>
         <span class="trade-title">${esc(instName)} <span style="color:var(--text-faint);font-size:.85rem">· ${t.direction==='buy'?'Buy':'Sell'}</span></span>
+        ${stratName?`<span class="trade-tag strategy">${esc(stratName)}</span>`:''}
         ${statusBadge(t)}
         <span class="trade-sub">${fmtDate(t.createdAt)}</span>
       </div>
@@ -523,22 +723,39 @@ function renderTrades(){
 
 function renderTradeForm(t){
   const l = t.zone.lines;
-  const shotStages = ['HTF','Zone','Operating Block','Confirmation','LTF','Outcome','Other'];
   return `
     <div class="grid2">
+      <div class="fld"><label>Strategy</label><select onchange="setTradeField('${t.id}','strategyId',this.value)">${strategyOptions(t.strategyId)}</select></div>
       <div class="fld"><label>Instrument</label><select onchange="setTradeField('${t.id}','instrumentId',this.value)">${instrumentOptions(t.instrumentId)}</select></div>
+    </div>
+    <div class="grid3">
       <div class="fld"><label>Direction</label><select onchange="setTradeField('${t.id}','direction',this.value)">
         <option value="buy" ${t.direction==='buy'?'selected':''}>Buy</option>
         <option value="sell" ${t.direction==='sell'?'selected':''}>Sell</option>
       </select></div>
-    </div>
-    <div class="grid2">
       <div class="fld"><label>Status</label><select onchange="setTradeStatus('${t.id}',this.value)">
         <option value="forming" ${t.status==='forming'?'selected':''}>Forming</option>
         <option value="confirmed" ${t.status==='confirmed'?'selected':''}>Confirmed / Open</option>
         <option value="closed" ${t.status==='closed'?'selected':''}>Closed</option>
       </select></div>
       <div class="fld"><label>Last updated</label><input type="text" value="${fmtDate(t.updatedAt)}" disabled></div>
+    </div>
+
+    <div class="stage">
+      <div class="stage-hd"><span>Candle Details <span style="color:var(--text-faint);font-weight:400;text-transform:none;letter-spacing:0">— relevant either strategy, essential for Reversal Candle</span></span></div>
+      <div class="grid3">
+        <div class="fld"><label>Candle formed at</label><input type="datetime-local" value="${escA(t.candleTime)}" onchange="setTradeField('${t.id}','candleTime',this.value)"></div>
+        <div class="fld"><label>Caught live or missed</label><select onchange="setTradeField('${t.id}','caught',this.value)">
+          <option value="live" ${t.caught==='live'?'selected':''}>Caught live</option>
+          <option value="missed" ${t.caught==='missed'?'selected':''}>Missed</option>
+        </select></div>
+        <div class="fld"><label>Entry type</label><select onchange="setTradeField('${t.id}','entryTypeId',this.value)">${entryTypeOptions(t.entryTypeId)}</select></div>
+      </div>
+      <div class="checkrow">
+        <label><input type="checkbox" ${t.gapUsed?'checked':''} onchange="setTradeField('${t.id}','gapUsed',this.checked)"> Gap involved in this setup</label>
+      </div>
+      ${t.gapUsed?`<div class="fld"><label>Gap note</label><input type="text" value="${escA(t.gapNote)}" onchange="setTradeField('${t.id}','gapNote',this.value)" placeholder="What kind of candle/context the gap showed up in..."></div>`:''}
+      ${renderShots(t,'Candle')}
     </div>
 
     <div class="stage">
@@ -563,7 +780,7 @@ function renderTradeForm(t){
     </div>
 
     <div class="stage">
-      <div class="stage-hd"><span><span class="stage-num">2</span>Zone — The 4 Lines</span></div>
+      <div class="stage-hd"><span><span class="stage-num">2</span>Zone — The 4 Lines <span style="color:var(--text-faint);font-weight:400;text-transform:none;letter-spacing:0">(4-Lines strategy only — skip for Reversal Candle)</span></span></div>
       <div class="grid2">
         <div class="fld"><label>Timeframe</label><input type="text" list="tfSuggestions" value="${escA(t.zone.timeframe)}" onchange="setNested('${t.id}','zone','timeframe',this.value)" placeholder="any timeframe"></div>
         <div class="fld"><label>Candle set type</label><select onchange="setNested('${t.id}','zone','candleSetTypeId',this.value)">${libOptions('candleSetTypes', t.zone.candleSetTypeId)}</select></div>
@@ -643,8 +860,8 @@ function renderTradeForm(t){
         <div class="fld"><label>Lot size</label><input type="text" value="${escA(t.outcome.lotSize)}" onchange="setNested('${t.id}','outcome','lotSize',this.value)" placeholder="minimum"></div>
       </div>
       <div class="grid2">
-        <div class="fld"><label>Cost at SL (this lot size)</label><input type="number" step="any" value="${escA(t.outcome.riskAmount)}" onchange="setNested('${t.id}','outcome','riskAmount',this.value)"></div>
-        <div class="fld"><label>Value at TP (this lot size)</label><input type="number" step="any" value="${escA(t.outcome.rewardAmount)}" onchange="setNested('${t.id}','outcome','rewardAmount',this.value)"></div>
+        <div class="fld"><label>Cost at SL — $ (this lot size)</label><input type="number" step="any" value="${escA(t.outcome.riskAmount)}" onchange="setNested('${t.id}','outcome','riskAmount',this.value)"></div>
+        <div class="fld"><label>Value at TP — $ (this lot size)</label><input type="number" step="any" value="${escA(t.outcome.rewardAmount)}" onchange="setNested('${t.id}','outcome','rewardAmount',this.value)"></div>
       </div>
       <div class="grid2">
         <div class="fld"><label>Actual result — pips</label><input type="number" step="any" value="${escA(t.outcome.actualPips)}" onchange="setNested('${t.id}','outcome','actualPips',this.value)"></div>
@@ -743,17 +960,31 @@ function renderStats(){
   const pipsArr = closed.map(t=>parseFloat(t.outcome.actualPips)).filter(n=>!isNaN(n));
   document.getElementById('statAvgPips').textContent = pipsArr.length ? (pipsArr.reduce((a,b)=>a+b,0)/pipsArr.length).toFixed(1) : '—';
 
-  const byInst = {};
-  trades.forEach(t=>{ const name=libName('instruments',t.instrumentId)||'Unset'; byInst[name]=byInst[name]||{total:0,win:0,loss:0,be:0}; byInst[name].total++; if(t.status==='closed') byInst[name][t.outcome.result]=(byInst[name][t.outcome.result]||0)+1; });
-  document.getElementById('statsByInstrument').innerHTML = Object.entries(byInst).map(([name,s])=>`
-    <div class="lib-item"><div style="flex:1">${esc(name)}</div><div class="mono" style="font-size:.72rem;color:var(--text-dim)">${s.total} logged · ${s.win||0}W / ${s.loss||0}L / ${s.be||0}BE</div></div>
-  `).join('') || '<div class="empty" style="padding:10px">No trades logged yet.</div>';
-
-  const byTF = {};
-  trades.forEach(t=>{ const tf=t.zone.timeframe||'Unset'; byTF[tf]=byTF[tf]||{total:0,win:0,loss:0,be:0}; byTF[tf].total++; if(t.status==='closed') byTF[tf][t.outcome.result]=(byTF[tf][t.outcome.result]||0)+1; });
-  document.getElementById('statsByZoneTF').innerHTML = Object.entries(byTF).map(([tf,s])=>`
-    <div class="lib-item"><div style="flex:1">${esc(tf)}</div><div class="mono" style="font-size:.72rem;color:var(--text-dim)">${s.total} logged · ${s.win||0}W / ${s.loss||0}L / ${s.be||0}BE</div></div>
-  `).join('') || '<div class="empty" style="padding:10px">No trades logged yet.</div>';
+  renderBreakdown('statsByStrategy', trades, t=>libName('strategies',t.strategyId)||'Unset');
+  renderBreakdown('statsByInstrument', trades, t=>libName('instruments',t.instrumentId)||'Unset');
+  renderBreakdown('statsByCandle', trades, t=>libName('candleSetTypes',t.zone.candleSetTypeId)||'Unset');
+  renderBreakdown('statsByZoneTF', trades, t=>t.zone.timeframe||'Unset');
+}
+function renderBreakdown(elId, trades, keyFn){
+  const groups = {};
+  trades.forEach(t=>{
+    const k = keyFn(t);
+    if(!groups[k]) groups[k]={total:0,win:0,loss:0,be:0};
+    groups[k].total++;
+    if(t.status==='closed') groups[k][t.outcome.result] = (groups[k][t.outcome.result]||0)+1;
+  });
+  const keys = Object.keys(groups).sort((a,b)=>groups[b].total-groups[a].total);
+  const c = document.getElementById(elId);
+  if(!keys.length){ c.innerHTML = '<div class="empty" style="padding:10px">No trades logged yet.</div>'; return; }
+  const maxTotal = Math.max(...keys.map(k=>groups[k].total),1);
+  c.innerHTML = keys.map(k=>{
+    const g = groups[k];
+    return `<div class="breakdown-row">
+      <div class="bd-name">${esc(k)}</div>
+      <div class="bd-bar-wrap"><div class="bd-bar" style="width:${g.total/maxTotal*100}%"></div></div>
+      <div class="bd-stat">${g.total} logged · ${g.win||0}W / ${g.loss||0}L / ${g.be||0}BE</div>
+    </div>`;
+  }).join('');
 }
 
 // ══════════════════════ EXPORT / IMPORT ══════════════════════
@@ -771,7 +1002,7 @@ document.getElementById('importFile').addEventListener('change', function(e){
     try{
       const imported = JSON.parse(ev.target.result);
       state = mergeState(state, imported);
-      renderTrades(); renderLibrary(); renderProtocol(); renderStats();
+      renderTrades(); renderLibrary(); renderProtocol(); renderStats(); renderBinge();
       autosave();
       showToastMini('Imported and merged.');
     }catch(err){ alert("Couldn't read that file."); }
@@ -780,10 +1011,9 @@ document.getElementById('importFile').addEventListener('change', function(e){
   e.target.value='';
 });
 
-// merge by id everywhere, last-write-wins on trades via updatedAt, library items add-only by id
 function mergeState(local, remote){
-  const out = { library:{}, protocol: local.protocol, trades: [] };
-  ['instruments','candleSetTypes','operatingBlockTypes','confirmationModels'].forEach(key=>{
+  const out = { library:{}, protocol: local.protocol, trades: [], bingeStart: local.bingeStart };
+  ['strategies','instruments','candleSetTypes','operatingBlockTypes','confirmationModels','entryTypes'].forEach(key=>{
     const map = new Map();
     (local.library[key]||[]).forEach(i=>map.set(i.id,i));
     (remote.library&&remote.library[key]||[]).forEach(i=>{ if(!map.has(i.id)) map.set(i.id,i); });
@@ -844,7 +1074,7 @@ document.addEventListener('visibilitychange', ()=>{ if(document.visibilityState=
 (async function(){
   await pullCloud();
   if(!isDark) document.body.classList.add('light');
-  populateInstrumentFilter();
+  populateFilters();
   renderTrades();
   autosave();
 })();
