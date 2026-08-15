@@ -581,7 +581,6 @@ function deleteProtocolBlock(id){
   state.protocol = state.protocol.filter(p=>p.id!==id);
   autosave(); renderProtocol();
 }
-}
 function setProtocolText(id,val){ const p=state.protocol.find(x=>x.id===id); if(p){p.text=val; autosave();} }
 
 // ══════════════════════ BINGE ══════════════════════
