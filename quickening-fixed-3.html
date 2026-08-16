@@ -269,6 +269,14 @@ body.light .ci-bar { background:rgba(0,0,0,0.07); }
 .skill-cat { margin-bottom:8px; }
 .skill-cat-title { font-size:7px; letter-spacing:0.18em; text-transform:uppercase; color:var(--text-dim); margin-bottom:5px; }
 .skill-opts { display:flex; flex-wrap:wrap; gap:4px; }
+.skill-opt-row { display:inline-flex; align-items:center; gap:2px; }
+.skill-opt-del { background:none; border:none; color:var(--text-dim); cursor:pointer; font-size:9px; padding:0 3px; opacity:.5; }
+.skill-opt-del:hover { opacity:1; color:var(--red); }
+.skill-cat-del { background:none; border:none; color:var(--text-dim); cursor:pointer; font-size:9px; margin-left:6px; opacity:.6; }
+.skill-cat-del:hover { color:var(--red); opacity:1; }
+.skill-add-opt { display:flex; gap:4px; margin-top:4px; }
+.skill-add-opt input { flex:1; background:var(--surface2); border:1px solid var(--border); border-radius:3px; color:var(--text); font-family:var(--font-mono); font-size:8px; padding:4px 6px; }
+.skill-add-opt button { background:none; border:1px solid var(--border); border-radius:3px; color:var(--text-dim); font-size:8px; padding:4px 8px; cursor:pointer; }
 .s-opt { font-size:8px; padding:3px 8px; border:1px solid var(--border); border-radius:2px; cursor:pointer; color:var(--text-dim); transition:all 0.18s; }
 .s-opt:hover { border-color:var(--border-acc); color:var(--text-mid); }
 .s-opt.sel { border-color:var(--acc); background:rgba(100,200,160,0.06); color:var(--acc); }
@@ -865,31 +873,11 @@ body.light .aic-bar-track { background:rgba(0,0,0,0.07); }
       </div>
       <div class="skill-wrap">
         <div class="skill-header"><div class="skill-chk" id="skill-chk"></div><div class="skill-name">Skill Practice</div><div class="skill-pts" id="skill-pts-val">0 AP · pick any that apply</div></div>
-        <div class="skill-cat"><div class="skill-cat-title">Civil Engineering</div><div class="skill-opts">
-          <div class="s-opt" onclick="togSkill(this)">AutoCAD session</div>
-          <div class="s-opt" onclick="togSkill(this)">Structural calc</div>
-          <div class="s-opt" onclick="togSkill(this)">Cost estimation</div>
-          <div class="s-opt" onclick="togSkill(this)">Site planning</div>
-          <div class="s-opt" onclick="togSkill(this)">Software tutorial</div>
-          <div class="s-opt" onclick="togSkill(this)">Project document</div>
-        </div></div>
-        <div class="skill-cat"><div class="skill-cat-title">Trading</div><div class="skill-opts">
-          <div class="s-opt" onclick="togSkill(this)">Chart markup</div>
-          <div class="s-opt" onclick="togSkill(this)">Strategy review</div>
-          <div class="s-opt" onclick="togSkill(this)">Trade journaling</div>
-          <div class="s-opt" onclick="togSkill(this)">Backtesting</div>
-        </div></div>
-        <div class="skill-cat"><div class="skill-cat-title">Founder / Business</div><div class="skill-opts">
-          <div class="s-opt" onclick="togSkill(this)">Business podcast</div>
-          <div class="s-opt" onclick="togSkill(this)">Idea development</div>
-          <div class="s-opt" onclick="togSkill(this)">Financial planning</div>
-          <div class="s-opt" onclick="togSkill(this)">Vision work</div>
-        </div></div>
-        <div class="skill-cat"><div class="skill-cat-title">Personal Development</div><div class="skill-opts">
-          <div class="s-opt" onclick="togSkill(this)">New skill practice</div>
-          <div class="s-opt" onclick="togSkill(this)">Framework drafted</div>
-          <div class="s-opt" onclick="togSkill(this)">Mission review</div>
-        </div></div>
+        <div id="skillCatsContainer"></div>
+        <div style="display:flex;gap:6px;margin-top:8px">
+          <input type="text" id="newSkillCatName" placeholder="New category name..." style="flex:1;background:var(--surface2);border:1px solid var(--border);border-radius:4px;color:var(--text);font-family:var(--font-mono);font-size:9px;padding:6px 8px;">
+          <button class="modal-btn" style="padding:6px 12px;font-size:8px" onclick="addSkillCategory()">+ Category</button>
+        </div>
       </div>
     </div>
   </div>
@@ -997,11 +985,18 @@ body.light .aic-bar-track { background:rgba(0,0,0,0.07); }
       <div class="gp-item" data-gp="20" data-key="gb-good" onclick="togGP(this)"><div class="gp-chk"></div><div class="gp-name">Act of conscious, deliberate good</div><div class="gp-val">+20</div></div>
       <div class="gp-item" data-gp="25" data-key="gb-praybreak" onclick="togGP(this)"><div class="gp-chk"></div><div class="gp-name">Prayer breakthrough or significant moment</div><div class="gp-val">+25</div></div>
       <div class="gp-item" data-gp="35" data-key="gb-fast" onclick="togGP(this)"><div class="gp-chk"></div><div class="gp-name">Fasted and prayed</div><div class="gp-val">+35</div></div>
-      <div class="gp-item" data-gp="20" data-key="gb-str3" onclick="togGP(this)"><div class="gp-chk"></div><div class="gp-name">3-day streak achieved</div><div class="gp-val">+20</div></div>
-      <div class="gp-item" data-gp="50" data-key="gb-str7" onclick="togGP(this)"><div class="gp-chk"></div><div class="gp-name">7-day streak achieved</div><div class="gp-val">+50</div></div>
-      <div class="gp-item" data-gp="100" data-key="gb-str14" onclick="togGP(this)"><div class="gp-chk"></div><div class="gp-name">14-day streak achieved</div><div class="gp-val">+100</div></div>
       <div class="gp-item" data-gp="30" data-key="gb-t2x3" onclick="togGP(this)"><div class="gp-chk"></div><div class="gp-name">Tier II or above — 3 days running</div><div class="gp-val">+30</div></div>
       <div class="gp-item" data-gp="45" data-key="gb-nomiss" onclick="togGP(this)"><div class="gp-chk"></div><div class="gp-name">No missed Tier I in a week</div><div class="gp-val">+45</div></div>
+      <div class="gp-item" data-gp="25" data-key="gb-catch" onclick="togGP(this)"><div class="gp-chk"></div><div class="gp-name">Caught and corrected a mistake before it cost you</div><div class="gp-val">+25</div></div>
+      <div class="gp-item" data-gp="20" data-key="gb-saidno" onclick="togGP(this)"><div class="gp-chk"></div><div class="gp-name">Said no to something that would've derailed the day</div><div class="gp-val">+20</div></div>
+      <div class="gp-item" data-gp="30" data-key="gb-avoided" onclick="togGP(this)"><div class="gp-chk"></div><div class="gp-name">Finished something you'd been avoiding</div><div class="gp-val">+30</div></div>
+      <div class="gp-item" data-gp="20" data-key="gb-decide" onclick="togGP(this)"><div class="gp-chk"></div><div class="gp-name">Made a real decision instead of deferring it again</div><div class="gp-val">+20</div></div>
+      <div class="gp-item" data-gp="20" data-key="gb-pattern" onclick="togGP(this)"><div class="gp-chk"></div><div class="gp-name">Noticed a pattern in yourself and named it honestly</div><div class="gp-val">+20</div></div>
+      <div class="gp-item" data-gp="20" data-key="gb-lesson" onclick="togGP(this)"><div class="gp-chk"></div><div class="gp-name">Turned a mistake into a documented lesson</div><div class="gp-val">+20</div></div>
+      <div class="gp-item" data-gp="20" data-key="gb-hardfirst" onclick="togGP(this)"><div class="gp-chk"></div><div class="gp-name">Did the hard task first, not last</div><div class="gp-val">+20</div></div>
+      <div class="gp-item" data-gp="15" data-key="gb-better" onclick="togGP(this)"><div class="gp-chk"></div><div class="gp-name">Left something better than you found it</div><div class="gp-val">+15</div></div>
+      <div class="gp-item" data-gp="15" data-key="gb-learned" onclick="togGP(this)"><div class="gp-chk"></div><div class="gp-name">Learned something today you didn't know this morning</div><div class="gp-val">+15</div></div>
+      <div class="gp-item" data-gp="15" data-key="gb-idea" onclick="togGP(this)"><div class="gp-chk"></div><div class="gp-name">Had an idea worth writing down before it vanished</div><div class="gp-val">+15</div></div>
     </div>
   </div>
 
@@ -1583,6 +1578,7 @@ async function init() {
   injectCustomActs();
   applyItemOverrides();
   applyAppearance();
+  renderSkillCats();
   loadDay(getTodayKey());
   renderReadingTags();
   renderHiddenSections();
@@ -1679,6 +1675,7 @@ function loadDB() {
   if (!db.basketItems) db.basketItems = [];
   if (db.currentAnchorVerse == null) db.currentAnchorVerse = '';
   if (!db.hiddenSections) db.hiddenSections = [];
+  if (!db.skillCategories || !db.skillCategories.length) db.skillCategories = JSON.parse(JSON.stringify(SKILL_CATEGORIES_DEFAULT));
   const k = getTodayKey();
   const ex = db.history.find(e => e.date === k);
   if (ex) today = migrateLegacyDay(Object.assign(freshToday(), ex.state || {}));
@@ -1863,6 +1860,16 @@ const SEED_BASKET_ITEMS = [
   {icon:'🖼',name:'A piece of art for the apartment',tags:['legendary']},
   {icon:'🪴',name:'A plant for the space',tags:['streak']},
   {icon:'☕',name:'A proper coffee setup',tags:['streak','silver']},
+  {icon:'🎳',name:'Something purely playful — bowling, arcade, pool',tags:['bronze']},
+  {icon:'🌊',name:'Time near water, no agenda',tags:['silver']},
+  {icon:'🥾',name:"A trail or route you've never walked",tags:['bronze']},
+  {icon:'🎲',name:'A board or strategy game session',tags:['bronze']},
+  {icon:'📓',name:'A proper notebook, the good kind',tags:['bronze']},
+  {icon:'🧩',name:'An hour on a puzzle or hobby with zero productivity goal',tags:['silver']},
+  {icon:'🍜',name:"Street food or a market you haven't tried",tags:['silver']},
+  {icon:'🛠',name:'A tool or gadget for the craft/trading setup',tags:['gold','legendary']},
+  {icon:'🎈',name:'Something entirely impractical, just because',tags:['gold']},
+  {icon:'🕶',name:'An evening with no screens, deliberately',tags:['streak']},
 ];
 function seedBasketIfEmpty() {
   if(!db.basketItems || !db.basketItems.length) {
@@ -2029,12 +2036,14 @@ function applyItemOverrides() {
       const ptsEl=el.querySelector('.ai-pts'); if(ptsEl && ov.pts!=null) ptsEl.textContent=ov.pts+' AP';
       if(ov.pts!=null) el.dataset.pts=ov.pts;
       if(ov.sub) el.dataset.sub=ov.sub;
+      el.style.display = ov.hidden ? 'none' : '';
     }
     const gpEl=document.querySelector(`.gp-item[data-key="${key}"]`);
     if(gpEl){
       const nameEl=gpEl.querySelector('.gp-name'); if(nameEl && ov.name) nameEl.textContent=ov.name;
       const valEl=gpEl.querySelector('.gp-val'); if(valEl && ov.pts!=null) valEl.textContent='+'+ov.pts;
       if(ov.pts!=null) gpEl.dataset.gp=ov.pts;
+      gpEl.style.display = ov.hidden ? 'none' : '';
     }
   });
   // group live area lists by subcategory too, where any item in that area has a sub set
@@ -2469,6 +2478,67 @@ function togSkill(el) {
 }
 // kept for compatibility with any external references
 function selSkill(el) { togSkill(el); }
+
+// ── EDITABLE SKILL CATEGORIES ──
+// Previously hardcoded in the HTML. Now data-driven (db.skillCategories,
+// synced like everything else) so categories and options can be added,
+// renamed, or removed from the app itself.
+const SKILL_CATEGORIES_DEFAULT = [
+  { id:'civil', name:'Civil Engineering', options:['AutoCAD session','Structural calc','Cost estimation','Site planning','Software tutorial','Project document'] },
+  { id:'trading', name:'Trading', options:['Chart markup','Strategy review','Trade journaling','Backtesting'] },
+  { id:'founder', name:'Founder / Business', options:['Business podcast','Idea development','Financial planning','Vision work'] },
+  { id:'personal', name:'Personal Development', options:['New skill practice','Framework drafted','Mission review'] },
+];
+function ensureSkillCategories(){
+  if(!db.skillCategories || !db.skillCategories.length) db.skillCategories = JSON.parse(JSON.stringify(SKILL_CATEGORIES_DEFAULT));
+  return db.skillCategories;
+}
+function renderSkillCats(){
+  const cats = ensureSkillCategories();
+  const c = document.getElementById('skillCatsContainer');
+  if(!c) return;
+  c.innerHTML = cats.map(cat=>`
+    <div class="skill-cat" data-cat="${cat.id}">
+      <div class="skill-cat-title">${cat.name}<button class="skill-cat-del" onclick="deleteSkillCategory('${cat.id}')" title="Delete category">✕ category</button></div>
+      <div class="skill-opts">
+        ${cat.options.map(opt=>`
+          <span class="skill-opt-row">
+            <div class="s-opt" onclick="togSkill(this)">${opt}</div>
+            <button class="skill-opt-del" onclick="deleteSkillOption('${cat.id}','${opt.replace(/'/g,"\\'")}')" title="Remove option">✕</button>
+          </span>`).join('')}
+      </div>
+      <div class="skill-add-opt">
+        <input type="text" id="newSkillOpt-${cat.id}" placeholder="Add an option..." onkeydown="if(event.key==='Enter')addSkillOption('${cat.id}')">
+        <button onclick="addSkillOption('${cat.id}')">+ Add</button>
+      </div>
+    </div>`).join('');
+  // re-apply today's current selections after re-render
+  if(today.skill && today.skill.length){
+    document.querySelectorAll('.s-opt').forEach(o=>{ if(today.skill.includes(o.textContent)) o.classList.add('sel'); });
+  }
+}
+function addSkillCategory(){
+  const inp = document.getElementById('newSkillCatName');
+  const name = inp.value.trim(); if(!name) return;
+  ensureSkillCategories().push({ id:'cat-'+Date.now(), name, options:[] });
+  inp.value='';
+  saveDB(); renderSkillCats();
+}
+function deleteSkillCategory(id){
+  if(!confirm('Delete this whole skill category? Options inside it go too — past logged selections in history are unaffected.')) return;
+  db.skillCategories = ensureSkillCategories().filter(c=>c.id!==id);
+  saveDB(); renderSkillCats();
+}
+function addSkillOption(catId){
+  const inp = document.getElementById('newSkillOpt-'+catId);
+  const name = inp.value.trim(); if(!name) return;
+  const cat = ensureSkillCategories().find(c=>c.id===catId);
+  if(cat){ cat.options.push(name); inp.value=''; saveDB(); renderSkillCats(); }
+}
+function deleteSkillOption(catId, optName){
+  const cat = ensureSkillCategories().find(c=>c.id===catId);
+  if(cat){ cat.options = cat.options.filter(o=>o!==optName); saveDB(); renderSkillCats(); }
+}
 
 function togGP(el) {
   const k=el.dataset.key;
@@ -3118,23 +3188,23 @@ function openEdit(section) {
   
   if(section==='gp') {
     document.getElementById('modalTitle').textContent='Edit Growth Point Bonuses';
-    document.getElementById('modalSub').textContent='Remove or add GP bonus items';
+    document.getElementById('modalSub').textContent='Remove, hide, or add GP bonus items';
     const items=[];
     document.querySelectorAll('#gpBonusList .gp-item').forEach(el=>{
-      items.push({ key:el.dataset.key, name:el.querySelector('.gp-name').textContent, pts:parseInt(el.dataset.gp), isGP:true });
+      items.push({ key:el.dataset.key, name:el.querySelector('.gp-name').textContent, pts:parseInt(el.dataset.gp), isGP:true, hidden:!!(itemOverrides[el.dataset.key]&&itemOverrides[el.dataset.key].hidden) });
     });
     editItems=items;
   } else {
     const areaConfig=AREAS[section];
     document.getElementById('modalTitle').textContent=`Edit — ${areaConfig?.name||section}`;
-    document.getElementById('modalSub').textContent='Add or remove activities for this area';
+    document.getElementById('modalSub').textContent='Add, remove, or hide activities for this area — hiding keeps it out of view without touching logged history';
     const items=[];
     document.querySelectorAll(`#acts-${section} .act-item`).forEach(el=>{
-      items.push({ key:el.dataset.key, name:el.querySelector('.ai-name').textContent, pts:parseInt(el.dataset.pts)||0, sub:el.dataset.sub||undefined });
+      items.push({ key:el.dataset.key, name:el.querySelector('.ai-name').textContent, pts:parseInt(el.dataset.pts)||0, sub:el.dataset.sub||undefined, hidden:!!(itemOverrides[el.dataset.key]&&itemOverrides[el.dataset.key].hidden) });
     });
     // custom items
     if(customActs[section]) {
-      customActs[section].forEach(c=>{ if(!items.find(i=>i.key===c.key)) items.push(c); });
+      customActs[section].forEach(c=>{ if(!items.find(i=>i.key===c.key)) items.push({...c, hidden:!!(itemOverrides[c.key]&&itemOverrides[c.key].hidden)}); });
     }
     editItems=items;
   }
@@ -3155,11 +3225,12 @@ function renderEditList() {
   list.innerHTML = order.map(g=>{
     const rows = groups[g].map(i=>{
       const item=editItems[i];
-      return `<div class="edit-item">
+      return `<div class="edit-item" style="${item.hidden?'opacity:.5':''}">
         <input class="edit-item-name-inp" value="${esc(item.name)}" onchange="updateEditItemField(${i},'name',this.value)" style="flex:1;background:none;border:none;color:var(--text-hi);font-family:inherit;font-size:12px;padding:2px 0">
         <input class="edit-item-pts-inp" type="number" value="${item.pts}" onchange="updateEditItemField(${i},'pts',this.value)" style="width:44px;background:none;border:none;color:var(--acc);font-family:inherit;font-size:11px;text-align:right">
         <span style="font-size:9px;color:var(--text-dim);margin-left:2px">${item.isGP?'GP':'AP'}</span>
-        <button class="edit-item-del" onclick="removeEditItem(${i})">✕</button>
+        <button class="edit-item-del" onclick="toggleEditItemHidden(${i})" title="${item.hidden?'Unhide':'Hide — keeps it out of view without deleting'}" style="font-size:11px">${item.hidden?'🚫':'👁'}</button>
+        <button class="edit-item-del" onclick="removeEditItem(${i})" title="Delete permanently">✕</button>
       </div>`;
     }).join('');
     const header = g ? `<div style="font-size:9px;letter-spacing:.1em;text-transform:uppercase;color:var(--acc);margin:10px 0 4px">${esc(g)}</div>` : '';
@@ -3174,6 +3245,10 @@ function updateEditItemField(i,field,value){
 
 function removeEditItem(i) {
   editItems.splice(i,1);
+  renderEditList();
+}
+function toggleEditItemHidden(i) {
+  editItems[i].hidden = !editItems[i].hidden;
   renderEditList();
 }
 
@@ -3194,10 +3269,10 @@ function saveEdit() {
   if(editSection==='gp') {
     // rebuild GP list
     const gpList=document.getElementById('gpBonusList');
-    gpList.innerHTML=editItems.map(item=>`<div class="gp-item" data-gp="${item.pts}" data-key="${item.key}" onclick="togGP(this)"><div class="gp-chk"></div><div class="gp-name">${item.name}</div><div class="gp-val">+${item.pts}</div></div>`).join('');
+    gpList.innerHTML=editItems.map(item=>`<div class="gp-item" data-gp="${item.pts}" data-key="${item.key}" onclick="togGP(this)" style="${item.hidden?'display:none':''}"><div class="gp-chk"></div><div class="gp-name">${item.name}</div><div class="gp-val">+${item.pts}</div></div>`).join('');
     // restore checked state
     Object.entries(today.gpB).forEach(([k,v])=>{ if(v){ const el=document.querySelector(`.gp-item[data-key="${k}"]`); if(el){ el.classList.add('checked'); el.querySelector('.gp-chk').textContent='✓'; } } });
-    editItems.forEach(item=>{ itemOverrides[item.key]={name:item.name,pts:item.pts}; });
+    editItems.forEach(item=>{ itemOverrides[item.key]={name:item.name,pts:item.pts,hidden:!!item.hidden}; });
     saveItemOverrides();
   } else {
     // group by subcategory for the live view too
@@ -3209,7 +3284,7 @@ function saveEdit() {
     const vaHTML=Array.from(vaWraps).map(el=>el.outerHTML).join('');
     const actHTML=order.map(g=>{
       const header = g ? `<div class="sub-header" style="font-size:9px;letter-spacing:.1em;text-transform:uppercase;color:var(--acc);margin:10px 0 4px">${esc(g)}</div>` : '';
-      const rows = groups[g].map(item=>`<div class="act-item" data-key="${item.key}" data-pts="${item.pts}" data-area="${editSection}" ${item.sub?`data-sub="${esc(item.sub)}"`:''} onclick="togAct(this)"><div class="ai-chk"></div><div class="ai-name">${esc(item.name)}</div><div class="ai-pts">${item.pts} AP</div></div>`).join('');
+      const rows = groups[g].map(item=>`<div class="act-item" data-key="${item.key}" data-pts="${item.pts}" data-area="${editSection}" ${item.sub?`data-sub="${esc(item.sub)}"`:''} onclick="togAct(this)" style="${item.hidden?'display:none':''}"><div class="ai-chk"></div><div class="ai-name">${esc(item.name)}</div><div class="ai-pts">${item.pts} AP</div></div>`).join('');
       return header+rows;
     }).join('');
     container.innerHTML=vaHTML+actHTML;
@@ -3218,8 +3293,8 @@ function saveEdit() {
     // save custom acts (brand new items)
     customActs[editSection]=editItems.filter(i=>i.key.startsWith('custom-'));
     saveCustomActs();
-    // save overrides for every item (built-in or custom) so name/pts/sub persist across reload
-    editItems.forEach(item=>{ itemOverrides[item.key]={name:item.name,pts:item.pts,sub:item.sub||null}; });
+    // save overrides for every item (built-in or custom) so name/pts/sub/hidden persist across reload
+    editItems.forEach(item=>{ itemOverrides[item.key]={name:item.name,pts:item.pts,sub:item.sub||null,hidden:!!item.hidden}; });
     saveItemOverrides();
   }
   closeEdit();
