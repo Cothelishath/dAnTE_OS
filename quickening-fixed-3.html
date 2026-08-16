@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <!-- v4 — 20 Jul 2026 — fixes: wellbeing sliders persist; Sober/Used tag now actually saves; cloud sync now bundles custom activities and item overrides, not just db -->
 <html lang="en">
@@ -1705,6 +1706,7 @@ function loadDB() {
   if (!db.hiddenSections) db.hiddenSections = [];
   if (!db.skillCategories || !db.skillCategories.length) db.skillCategories = JSON.parse(JSON.stringify(SKILL_CATEGORIES_DEFAULT));
   if (!db.customBurstTags) db.customBurstTags = [];
+  if (!db.localGoalMarks) db.localGoalMarks = {};
   if (!db.arcCache) db.arcCache = null;
   const k = getTodayKey();
   const ex = db.history.find(e => e.date === k);
@@ -1894,12 +1896,40 @@ function calcTagAP(tagId, days){
   });
   return total;
 }
+function toggleLocalGoalMark(goalId){
+  if(!db.localGoalMarks) db.localGoalMarks = {};
+  db.localGoalMarks[goalId] = !db.localGoalMarks[goalId];
+  saveDB();
+  renderBurstPage();
+}
 function addCustomTag(){
   const inp = document.getElementById('newCustomTagName');
   const name = inp.value.trim(); if(!name) return;
   if(!db.customBurstTags) db.customBurstTags=[];
-  db.customBurstTags.push({ id:'ct-'+Date.now(), name });
+  db.customBurstTags.push({ id:'ct-'+Date.now(), name, items:[] });
   inp.value=''; saveDB(); renderCustomTags(); renderTagRollup();
+}
+function renameCustomTag(id, val){
+  const t = (db.customBurstTags||[]).find(t=>t.id===id);
+  if(t){ t.name = val; saveDB(); renderTagRollup(); }
+}
+function addCustomTagItem(tagId){
+  const inp = document.getElementById('newTagItem-'+tagId);
+  const text = inp.value.trim(); if(!text) return;
+  const t = (db.customBurstTags||[]).find(t=>t.id===tagId);
+  if(!t) return;
+  if(!t.items) t.items=[];
+  t.items.push({ id:'ti-'+Date.now(), text, done:false });
+  inp.value=''; saveDB(); renderCustomTags();
+}
+function toggleCustomTagItem(tagId, itemId){
+  const t = (db.customBurstTags||[]).find(t=>t.id===tagId);
+  const item = t && (t.items||[]).find(i=>i.id===itemId);
+  if(item){ item.done = !item.done; saveDB(); renderCustomTags(); }
+}
+function deleteCustomTagItem(tagId, itemId){
+  const t = (db.customBurstTags||[]).find(t=>t.id===tagId);
+  if(t){ t.items = (t.items||[]).filter(i=>i.id!==itemId); saveDB(); renderCustomTags(); }
 }
 function deleteCustomTag(id){
   if(!confirm('Delete this tag? Activities using it fall back to Maintenance.')) return;
@@ -1938,7 +1968,10 @@ function renderBurstPage(){
     goalsEl.innerHTML = Object.entries(byCat).map(([cat,list])=>`
       <div style="margin-bottom:10px">
         <div style="font-size:8px;letter-spacing:.1em;text-transform:uppercase;color:var(--acc-dim);margin-bottom:4px">${cat}</div>
-        ${list.map(g=>`<div style="font-size:11px;color:var(--text-mid);padding:3px 0;${g.done?'text-decoration:line-through;color:var(--text-dim)':''}">${g.done?'✓ ':'· '}${g.text}</div>`).join('')}
+        ${list.map(g=>`<div style="display:flex;align-items:center;gap:7px;padding:3px 0">
+          <div class="gp-chk" style="${(db.localGoalMarks&&db.localGoalMarks[g.id])?'background:var(--acc);border-color:var(--acc);color:var(--bg)':''}" onclick="toggleLocalGoalMark('${g.id}')" title="Personal tally — marks it here only, never changes The Arc">${(db.localGoalMarks&&db.localGoalMarks[g.id])?'✓':''}</div>
+          <div style="font-size:11px;color:var(--text-mid);${g.done?'text-decoration:line-through;color:var(--text-dim)':''}">${g.done?'✓ (done in Arc) ':''}${g.text}</div>
+        </div>`).join('')}
       </div>`).join('');
   }
   renderTagRollup();
@@ -1964,7 +1997,24 @@ function renderCustomTags(){
   const el = document.getElementById('customTagsList');
   if(!el) return;
   const tags = db.customBurstTags||[];
-  el.innerHTML = tags.map(t=>`<div style="display:flex;align-items:center;gap:8px;padding:5px 8px;background:var(--surface2);border-radius:4px;margin-bottom:4px;font-size:11px"><span style="flex:1">${t.name}</span><button style="background:none;border:none;color:var(--text-dim);cursor:pointer" onclick="deleteCustomTag('${t.id}')">✕</button></div>`).join('') || '<div class="hint" style="font-family:var(--font-mono);font-size:9px;color:var(--text-dim)">None yet.</div>';
+  el.innerHTML = tags.map(t=>{
+    const items = t.items||[];
+    return `<div style="padding:8px;background:var(--surface2);border-radius:4px;margin-bottom:8px">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px">
+        <input type="text" value="${t.name.replace(/"/g,'&quot;')}" onchange="renameCustomTag('${t.id}',this.value)" style="flex:1;background:none;border:none;border-bottom:1px dashed var(--border);color:var(--text);font-size:11px;padding:2px 0">
+        <button style="background:none;border:none;color:var(--text-dim);cursor:pointer" onclick="deleteCustomTag('${t.id}')" title="Delete tag">✕</button>
+      </div>
+      ${items.map(i=>`<div style="display:flex;align-items:center;gap:7px;padding:2px 0">
+        <div class="gp-chk" style="${i.done?'background:var(--acc);border-color:var(--acc);color:var(--bg)':''}" onclick="toggleCustomTagItem('${t.id}','${i.id}')">${i.done?'✓':''}</div>
+        <div style="flex:1;font-size:10px;color:${i.done?'var(--text-dim)':'var(--text-mid)'};${i.done?'text-decoration:line-through':''}">${esc(i.text)}</div>
+        <button style="background:none;border:none;color:var(--text-dim);cursor:pointer;font-size:10px" onclick="deleteCustomTagItem('${t.id}','${i.id}')">✕</button>
+      </div>`).join('')}
+      <div style="display:flex;gap:6px;margin-top:6px">
+        <input type="text" id="newTagItem-${t.id}" placeholder="Add something to tally under this tag..." onkeydown="if(event.key==='Enter')addCustomTagItem('${t.id}')" style="flex:1;background:var(--bg);border:1px solid var(--border);border-radius:3px;color:var(--text);font-size:9px;padding:4px 6px">
+        <button class="modal-btn" style="padding:4px 8px;font-size:8px" onclick="addCustomTagItem('${t.id}')">+</button>
+      </div>
+    </div>`;
+  }).join('') || '<div class="hint" style="font-family:var(--font-mono);font-size:9px;color:var(--text-dim)">None yet.</div>';
 }
 
 // ── REWARDS ──
