@@ -586,6 +586,7 @@ body.light .aic-bar-track { background:rgba(0,0,0,0.07); }
     <div class="nc-date" id="syncStatus" style="color:var(--text-dim);">—</div>
   </div>
   <div class="nav-tab active" onclick="showPage('today',this)">Today</div>
+  <div class="nav-tab" onclick="showPage('burst',this)">Burst</div>
   <div class="nav-tab" onclick="showPage('progress',this)">Progress</div>
   <div class="nav-tab" onclick="showPage('milestones',this)">Milestones</div>
   <div class="nav-tab" onclick="showPage('rewards',this)">Rewards<span id="rewardsNavBadge"></span></div>
@@ -1015,6 +1016,32 @@ body.light .aic-bar-track { background:rgba(0,0,0,0.07); }
 </div>
 
 <!-- PROGRESS -->
+<!-- BURST — read-only link to The Arc -->
+<div class="page" id="page-burst">
+  <div class="sec">
+    <div class="sec-head">The Arc — Live Link <button class="sec-edit-btn" onclick="fetchArcData().then(renderBurstPage)">↻ refresh</button></div>
+    <div id="arcStatusLine" style="font-size:9px;color:var(--text-dim);margin-bottom:10px;font-family:var(--font-mono)"></div>
+    <div id="arcBurstHeader" style="margin-bottom:14px"></div>
+    <div id="arcGoalsList"></div>
+    <div class="hint" style="font-family:var(--font-mono);font-size:8px;color:var(--text-dim);margin-top:8px">Read-only — nothing here ever writes back to The Arc.</div>
+  </div>
+  <div class="sec">
+    <div class="sec-head">This Burst — AP by Tag</div>
+    <div id="tagRollup"></div>
+  </div>
+  <div class="sec">
+    <div class="sec-head">Custom Tags <span style="font-weight:400;color:var(--text-dim);font-size:9px">— for things that don't map to an Arc category</span></div>
+    <div id="customTagsList"></div>
+    <div style="display:flex;gap:6px;margin-top:8px">
+      <input type="text" id="newCustomTagName" placeholder="e.g. Rest, Admin..." style="flex:1;background:var(--surface2);border:1px solid var(--border);border-radius:4px;color:var(--text);font-family:var(--font-mono);font-size:9px;padding:6px 8px;">
+      <button class="modal-btn" style="padding:6px 12px;font-size:8px" onclick="addCustomTag()">+ Add</button>
+    </div>
+  </div>
+  <div class="hint" style="font-family:var(--font-mono);font-size:9px;color:var(--text-dim);margin-top:10px">
+    Tag individual activities from each section's "edit" button on the Today page — a small tag picker sits next to each item there. Anything untagged counts as Maintenance.
+  </div>
+</div>
+
 <div class="page" id="page-progress">
 
   <!-- STREAK + INDEX ROW -->
@@ -1584,6 +1611,7 @@ async function init() {
   renderHiddenSections();
   updateUI();
   checkPendingAchievements();
+  fetchArcData().then(()=>{ if(document.getElementById('page-burst')?.classList.contains('active')) renderBurstPage(); });
 }
 
 function injectCustomActs() {
@@ -1676,6 +1704,8 @@ function loadDB() {
   if (db.currentAnchorVerse == null) db.currentAnchorVerse = '';
   if (!db.hiddenSections) db.hiddenSections = [];
   if (!db.skillCategories || !db.skillCategories.length) db.skillCategories = JSON.parse(JSON.stringify(SKILL_CATEGORIES_DEFAULT));
+  if (!db.customBurstTags) db.customBurstTags = [];
+  if (!db.arcCache) db.arcCache = null;
   const k = getTodayKey();
   const ex = db.history.find(e => e.date === k);
   if (ex) today = migrateLegacyDay(Object.assign(freshToday(), ex.state || {}));
@@ -1769,6 +1799,173 @@ function loadCustomActs() { try{ const s=localStorage.getItem('quickening_custom
 function saveCustomActs() { try{ localStorage.setItem('quickening_custom',JSON.stringify(customActs)); }catch(e){} scheduleCloudPush(); }
 function loadItemOverrides() { try{ const s=localStorage.getItem('quickening_overrides'); if(s) itemOverrides=JSON.parse(s); }catch(e){} }
 function saveItemOverrides() { try{ localStorage.setItem('quickening_overrides',JSON.stringify(itemOverrides)); }catch(e){} scheduleCloudPush(); }
+
+// ══════════════════════ THE ARC — READ-ONLY LINK ══════════════════════
+// Deep integration, phase 1: manual tagging. Quickening reads The Arc's
+// live burst goals (same Supabase row, tool='the-arc') purely to power the
+// tag picker and the "this burst so far" rollup below. This NEVER writes
+// to that row — GET requests only. If the fetch fails, the last cached
+// copy (db.arcCache) is used, clearly marked as stale, rather than
+// silently showing nothing.
+const ARC_SYNC_TOOL = 'the-arc';
+let arcData = null;
+let arcFetchStatus = 'idle';
+
+async function fetchArcData(){
+  arcFetchStatus = 'loading';
+  try{
+    const ctrl = new AbortController(); const timeout = setTimeout(()=>ctrl.abort(),6000);
+    const res = await fetch(`${SYNC_URL}?tool=eq.${ARC_SYNC_TOOL}&select=data,updated_at`, {
+      headers:{ 'apikey':SYNC_ANON_KEY, 'Authorization':'Bearer '+SYNC_ANON_KEY, 'x-sync-key':SYNC_KEY },
+      signal: ctrl.signal
+    });
+    clearTimeout(timeout);
+    if(!res.ok){ arcFetchStatus='error'; return; }
+    const rows = await res.json();
+    if(!rows.length){ arcFetchStatus='empty'; return; }
+    arcData = rows[0].data;
+    db.arcCache = { data: arcData, fetchedAt: Date.now() };
+    saveDBLocalOnly();
+    arcFetchStatus='ok';
+  }catch(e){ arcFetchStatus='offline'; }
+}
+function dkey(d){ return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0'); }
+function arcBurstIndexForToday(){
+  if(!arcData || !arcData.cycleStart) return null;
+  const start = new Date(arcData.cycleStart+'T00:00:00');
+  const t = new Date(getTodayKey()+'T00:00:00');
+  const diff = Math.floor((t-start)/86400000);
+  return diff<0 ? 0 : Math.floor(diff/11);
+}
+function arcBurstDateRange(index){
+  const start = new Date(arcData.cycleStart+'T00:00:00');
+  const workStart = new Date(start.getTime()+index*11*86400000);
+  const restDay = new Date(workStart.getTime()+10*86400000);
+  return { workStart, restDay };
+}
+function currentArcBurstGoals(){
+  if(!arcData) return [];
+  const idx = arcBurstIndexForToday();
+  const burst = arcData.bursts && arcData.bursts[idx];
+  if(!burst) return [];
+  return (burst.goals||[]).map(g=>({...g, catName: ((arcData.categories||[]).find(c=>c.id===g.catId)||{}).name || 'Uncategorized'}));
+}
+function datesInCurrentArcBurst(){
+  if(!arcData) return [];
+  const idx = arcBurstIndexForToday();
+  const { workStart } = arcBurstDateRange(idx);
+  const t = new Date(getTodayKey()+'T00:00:00');
+  const out = [];
+  for(let i=0;i<10;i++){
+    const d = new Date(workStart.getTime()+i*86400000);
+    if(d>t) break;
+    out.push(dkey(d));
+  }
+  return out;
+}
+function tagOptionsHTML(selected){
+  let html = `<option value="maintenance" ${(!selected||selected==='maintenance')?'selected':''}>Maintenance</option>`;
+  if(arcData && arcData.categories){
+    arcData.categories.forEach(c=>{ html += `<option value="arc:${c.id}" ${selected==='arc:'+c.id?'selected':''}>${c.name} (Arc)</option>`; });
+  }
+  (db.customBurstTags||[]).forEach(t=>{ html += `<option value="custom:${t.id}" ${selected==='custom:'+t.id?'selected':''}>${t.name}</option>`; });
+  return html;
+}
+function ptsForActKey(k){
+  const ov = itemOverrides[k];
+  if(ov && ov.pts!=null) return ov.pts;
+  const el = document.querySelector(`.act-item[data-key="${k}"]`);
+  return el ? (parseInt(el.dataset.pts)||0) : 0;
+}
+function ptsForGpKey(k){
+  const ov = itemOverrides[k];
+  if(ov && ov.pts!=null) return ov.pts;
+  const el = document.querySelector(`.gp-item[data-key="${k}"]`);
+  return el ? (parseInt(el.dataset.gp)||0) : 0;
+}
+function tagIdForKey(k){ return (itemOverrides[k] && itemOverrides[k].tagId) || 'maintenance'; }
+function calcTagAP(tagId, days){
+  let total = 0;
+  days.forEach(dateKey=>{
+    const entry = db.history.find(e=>e.date===dateKey);
+    const st = entry && entry.state; if(!st) return;
+    Object.entries(st.checks||{}).forEach(([k,v])=>{ if(v && tagIdForKey(k)===tagId) total += ptsForActKey(k); });
+    Object.entries(st.gpB||{}).forEach(([k,v])=>{ if(v && tagIdForKey(k)===tagId) total += ptsForGpKey(k); });
+  });
+  return total;
+}
+function addCustomTag(){
+  const inp = document.getElementById('newCustomTagName');
+  const name = inp.value.trim(); if(!name) return;
+  if(!db.customBurstTags) db.customBurstTags=[];
+  db.customBurstTags.push({ id:'ct-'+Date.now(), name });
+  inp.value=''; saveDB(); renderCustomTags(); renderTagRollup();
+}
+function deleteCustomTag(id){
+  if(!confirm('Delete this tag? Activities using it fall back to Maintenance.')) return;
+  db.customBurstTags = (db.customBurstTags||[]).filter(t=>t.id!==id);
+  Object.values(itemOverrides).forEach(ov=>{ if(ov.tagId==='custom:'+id) ov.tagId='maintenance'; });
+  saveDB(); saveItemOverrides(); renderCustomTags(); renderTagRollup();
+}
+function renderBurstPage(){
+  const statusEl = document.getElementById('arcStatusLine');
+  if(!statusEl) return;
+  if(arcFetchStatus==='ok' && arcData){
+    statusEl.textContent = 'Connected — pulled ' + new Date(db.arcCache.fetchedAt).toLocaleTimeString();
+  } else if(arcFetchStatus==='loading'){
+    statusEl.textContent = 'Reaching The Arc…';
+  } else if(db.arcCache && db.arcCache.data){
+    arcData = db.arcCache.data;
+    statusEl.textContent = '⚠ Offline — showing last known Arc data from ' + new Date(db.arcCache.fetchedAt).toLocaleString();
+  } else {
+    statusEl.textContent = "⚠ Couldn't reach The Arc yet, and nothing cached.";
+  }
+
+  const idx = arcBurstIndexForToday();
+  const hdr = document.getElementById('arcBurstHeader');
+  if(arcData && idx!=null){
+    const { workStart, restDay } = arcBurstDateRange(idx);
+    hdr.innerHTML = `<div style="font-family:var(--font-display);font-size:20px;color:var(--acc)">Burst ${idx+1}</div><div style="font-size:9px;color:var(--text-dim)">started ${workStart.toLocaleDateString('en-GB',{day:'numeric',month:'short'})} · rest day ${restDay.toLocaleDateString('en-GB',{day:'numeric',month:'short'})}</div>`;
+  } else { hdr.innerHTML = ''; }
+
+  const goals = currentArcBurstGoals();
+  const goalsEl = document.getElementById('arcGoalsList');
+  if(!goals.length){
+    goalsEl.innerHTML = '<div class="hint" style="font-family:var(--font-mono);font-size:9px;color:var(--text-dim)">No live goals pulled yet, or this burst has none logged in The Arc.</div>';
+  } else {
+    const byCat = {};
+    goals.forEach(g=>{ if(!byCat[g.catName]) byCat[g.catName]=[]; byCat[g.catName].push(g); });
+    goalsEl.innerHTML = Object.entries(byCat).map(([cat,list])=>`
+      <div style="margin-bottom:10px">
+        <div style="font-size:8px;letter-spacing:.1em;text-transform:uppercase;color:var(--acc-dim);margin-bottom:4px">${cat}</div>
+        ${list.map(g=>`<div style="font-size:11px;color:var(--text-mid);padding:3px 0;${g.done?'text-decoration:line-through;color:var(--text-dim)':''}">${g.done?'✓ ':'· '}${g.text}</div>`).join('')}
+      </div>`).join('');
+  }
+  renderTagRollup();
+  renderCustomTags();
+}
+function renderTagRollup(){
+  const el = document.getElementById('tagRollup');
+  if(!el) return;
+  const days = datesInCurrentArcBurst();
+  const tags = [{id:'maintenance', name:'Maintenance'}];
+  if(arcData && arcData.categories) arcData.categories.forEach(c=>tags.push({id:'arc:'+c.id, name:c.name}));
+  (db.customBurstTags||[]).forEach(t=>tags.push({id:'custom:'+t.id, name:t.name}));
+  const rows = tags.map(t=>({...t, ap:calcTagAP(t.id, days)})).filter(t=>t.ap>0 || t.id==='maintenance');
+  const maxAp = Math.max(...rows.map(r=>r.ap),1);
+  el.innerHTML = rows.map(r=>`
+    <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px">
+      <div style="width:120px;font-size:10px;color:var(--text-mid)">${r.name}</div>
+      <div style="flex:1;height:6px;background:rgba(255,255,255,.05);border-radius:3px;overflow:hidden"><div style="height:100%;width:${r.ap/maxAp*100}%;background:var(--acc)"></div></div>
+      <div style="font-size:9px;color:var(--text-dim);width:50px;text-align:right">${r.ap} AP</div>
+    </div>`).join('') || '<div class="hint" style="font-family:var(--font-mono);font-size:9px;color:var(--text-dim)">Nothing logged yet this burst.</div>';
+}
+function renderCustomTags(){
+  const el = document.getElementById('customTagsList');
+  if(!el) return;
+  const tags = db.customBurstTags||[];
+  el.innerHTML = tags.map(t=>`<div style="display:flex;align-items:center;gap:8px;padding:5px 8px;background:var(--surface2);border-radius:4px;margin-bottom:4px;font-size:11px"><span style="flex:1">${t.name}</span><button style="background:none;border:none;color:var(--text-dim);cursor:pointer" onclick="deleteCustomTag('${t.id}')">✕</button></div>`).join('') || '<div class="hint" style="font-family:var(--font-mono);font-size:9px;color:var(--text-dim)">None yet.</div>';
+}
 
 // ── REWARDS ──
 function addRewardCatalogueItem() {
@@ -3191,7 +3388,7 @@ function openEdit(section) {
     document.getElementById('modalSub').textContent='Remove, hide, or add GP bonus items';
     const items=[];
     document.querySelectorAll('#gpBonusList .gp-item').forEach(el=>{
-      items.push({ key:el.dataset.key, name:el.querySelector('.gp-name').textContent, pts:parseInt(el.dataset.gp), isGP:true, hidden:!!(itemOverrides[el.dataset.key]&&itemOverrides[el.dataset.key].hidden) });
+      items.push({ key:el.dataset.key, name:el.querySelector('.gp-name').textContent, pts:parseInt(el.dataset.gp), isGP:true, hidden:!!(itemOverrides[el.dataset.key]&&itemOverrides[el.dataset.key].hidden), tagId:(itemOverrides[el.dataset.key]&&itemOverrides[el.dataset.key].tagId)||'maintenance' });
     });
     editItems=items;
   } else {
@@ -3200,11 +3397,11 @@ function openEdit(section) {
     document.getElementById('modalSub').textContent='Add, remove, or hide activities for this area — hiding keeps it out of view without touching logged history';
     const items=[];
     document.querySelectorAll(`#acts-${section} .act-item`).forEach(el=>{
-      items.push({ key:el.dataset.key, name:el.querySelector('.ai-name').textContent, pts:parseInt(el.dataset.pts)||0, sub:el.dataset.sub||undefined, hidden:!!(itemOverrides[el.dataset.key]&&itemOverrides[el.dataset.key].hidden) });
+      items.push({ key:el.dataset.key, name:el.querySelector('.ai-name').textContent, pts:parseInt(el.dataset.pts)||0, sub:el.dataset.sub||undefined, hidden:!!(itemOverrides[el.dataset.key]&&itemOverrides[el.dataset.key].hidden), tagId:(itemOverrides[el.dataset.key]&&itemOverrides[el.dataset.key].tagId)||'maintenance' });
     });
     // custom items
     if(customActs[section]) {
-      customActs[section].forEach(c=>{ if(!items.find(i=>i.key===c.key)) items.push({...c, hidden:!!(itemOverrides[c.key]&&itemOverrides[c.key].hidden)}); });
+      customActs[section].forEach(c=>{ if(!items.find(i=>i.key===c.key)) items.push({...c, hidden:!!(itemOverrides[c.key]&&itemOverrides[c.key].hidden), tagId:(itemOverrides[c.key]&&itemOverrides[c.key].tagId)||'maintenance'}); });
     }
     editItems=items;
   }
@@ -3225,10 +3422,11 @@ function renderEditList() {
   list.innerHTML = order.map(g=>{
     const rows = groups[g].map(i=>{
       const item=editItems[i];
-      return `<div class="edit-item" style="${item.hidden?'opacity:.5':''}">
+      return `<div class="edit-item" style="${item.hidden?'opacity:.5':''}flex-wrap:wrap">
         <input class="edit-item-name-inp" value="${esc(item.name)}" onchange="updateEditItemField(${i},'name',this.value)" style="flex:1;background:none;border:none;color:var(--text-hi);font-family:inherit;font-size:12px;padding:2px 0">
         <input class="edit-item-pts-inp" type="number" value="${item.pts}" onchange="updateEditItemField(${i},'pts',this.value)" style="width:44px;background:none;border:none;color:var(--acc);font-family:inherit;font-size:11px;text-align:right">
         <span style="font-size:9px;color:var(--text-dim);margin-left:2px">${item.isGP?'GP':'AP'}</span>
+        <select onchange="updateEditItemField(${i},'tagId',this.value)" title="Which burst category this feeds into" style="background:var(--surface2);border:1px solid var(--border);color:var(--text-dim);font-size:8px;border-radius:3px;padding:2px 4px;margin-left:4px;max-width:110px">${tagOptionsHTML(item.tagId)}</select>
         <button class="edit-item-del" onclick="toggleEditItemHidden(${i})" title="${item.hidden?'Unhide':'Hide — keeps it out of view without deleting'}" style="font-size:11px">${item.hidden?'🚫':'👁'}</button>
         <button class="edit-item-del" onclick="removeEditItem(${i})" title="Delete permanently">✕</button>
       </div>`;
@@ -3272,7 +3470,7 @@ function saveEdit() {
     gpList.innerHTML=editItems.map(item=>`<div class="gp-item" data-gp="${item.pts}" data-key="${item.key}" onclick="togGP(this)" style="${item.hidden?'display:none':''}"><div class="gp-chk"></div><div class="gp-name">${item.name}</div><div class="gp-val">+${item.pts}</div></div>`).join('');
     // restore checked state
     Object.entries(today.gpB).forEach(([k,v])=>{ if(v){ const el=document.querySelector(`.gp-item[data-key="${k}"]`); if(el){ el.classList.add('checked'); el.querySelector('.gp-chk').textContent='✓'; } } });
-    editItems.forEach(item=>{ itemOverrides[item.key]={name:item.name,pts:item.pts,hidden:!!item.hidden}; });
+    editItems.forEach(item=>{ itemOverrides[item.key]={name:item.name,pts:item.pts,hidden:!!item.hidden,tagId:item.tagId||'maintenance'}; });
     saveItemOverrides();
   } else {
     // group by subcategory for the live view too
@@ -3294,7 +3492,7 @@ function saveEdit() {
     customActs[editSection]=editItems.filter(i=>i.key.startsWith('custom-'));
     saveCustomActs();
     // save overrides for every item (built-in or custom) so name/pts/sub/hidden persist across reload
-    editItems.forEach(item=>{ itemOverrides[item.key]={name:item.name,pts:item.pts,sub:item.sub||null,hidden:!!item.hidden}; });
+    editItems.forEach(item=>{ itemOverrides[item.key]={name:item.name,pts:item.pts,sub:item.sub||null,hidden:!!item.hidden,tagId:item.tagId||'maintenance'}; });
     saveItemOverrides();
   }
   closeEdit();
@@ -3531,6 +3729,7 @@ function showPage(id,el) {
   document.getElementById('page-'+id).classList.add('active');
   el.classList.add('active');
   if(id==='progress'){ renderProgress(); }
+  if(id==='burst'){ renderBurstPage(); }
   if(id==='milestones') renderMilestones();
   if(id==='rewards') renderRewardsPage();
   if(id==='data') renderStats();
