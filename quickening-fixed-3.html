@@ -842,7 +842,7 @@ body.light .aic-bar-track { background:rgba(0,0,0,0.07); }
       </div>
       <div class="multi-wrap">
         <div class="multi-header"><div class="multi-name">Cognitive Training</div><div class="multi-pts" id="cog-pts">0 AP</div></div>
-        <div class="multi-opts">
+        <div class="multi-opts" id="cogOptsContainer">
           <div class="m-opt" data-val="20" data-key="neuronation" onclick="togMulti(this,'cog')">Neuronation · 20</div>
           <div class="m-opt" data-val="20" data-key="elevate" onclick="togMulti(this,'cog')">Elevate · 20</div>
           <div class="m-opt" data-val="15" data-key="lumosity" onclick="togMulti(this,'cog')">Lumosity · 15</div>
@@ -850,16 +850,18 @@ body.light .aic-bar-track { background:rgba(0,0,0,0.07); }
           <div class="m-opt" data-val="12" data-key="mindpal" onclick="togMulti(this,'cog')">Mindpal · 12</div>
           <div class="m-opt" data-val="10" data-key="impulse" onclick="togMulti(this,'cog')">Impulse · 10</div>
         </div>
+        <div class="skill-add-opt"><input type="text" id="newMultiOpt-cog" placeholder="Add an option..."><input type="number" id="newMultiPts-cog" placeholder="pts" style="width:44px;flex:none"><button onclick="addMultiOption('cog')">+ Add</button></div>
       </div>
       <div class="multi-wrap">
         <div class="multi-header"><div class="multi-name">Podcasts <span style="font-weight:400;color:var(--text-dim)">— tap + per episode finished</span></div><div class="multi-pts" id="pod-pts">0 AP</div></div>
-        <div class="counter-grid">
+        <div class="counter-grid" id="podOptsContainer">
           <div class="counter-chip" data-key="pod-trading"><span>Trading · 15</span><span class="counter-btn" onclick="stepCount('pod-trading',-1)">−</span><span class="counter-val" id="cnt-pod-trading">0</span><span class="counter-btn" onclick="stepCount('pod-trading',1)">+</span></div>
           <div class="counter-chip" data-key="pod-vusi"><span>Vusi · 15</span><span class="counter-btn" onclick="stepCount('pod-vusi',-1)">−</span><span class="counter-val" id="cnt-pod-vusi">0</span><span class="counter-btn" onclick="stepCount('pod-vusi',1)">+</span></div>
           <div class="counter-chip" data-key="pod-money"><span>Finance · 15</span><span class="counter-btn" onclick="stepCount('pod-money',-1)">−</span><span class="counter-val" id="cnt-pod-money">0</span><span class="counter-btn" onclick="stepCount('pod-money',1)">+</span></div>
           <div class="counter-chip" data-key="pod-dev"><span>Personal Dev · 12</span><span class="counter-btn" onclick="stepCount('pod-dev',-1)">−</span><span class="counter-val" id="cnt-pod-dev">0</span><span class="counter-btn" onclick="stepCount('pod-dev',1)">+</span></div>
           <div class="counter-chip" data-key="pod-other"><span>Other · 10</span><span class="counter-btn" onclick="stepCount('pod-other',-1)">−</span><span class="counter-val" id="cnt-pod-other">0</span><span class="counter-btn" onclick="stepCount('pod-other',1)">+</span></div>
         </div>
+        <div class="skill-add-opt"><input type="text" id="newCounterOpt-pod" placeholder="Add a podcast category..."><input type="number" id="newCounterPts-pod" placeholder="pts" style="width:44px;flex:none"><button onclick="addCounterOption('pod')">+ Add</button></div>
       </div>
     </div>
   </div>
@@ -870,11 +872,12 @@ body.light .aic-bar-track { background:rgba(0,0,0,0.07); }
     <div id="acts-craft">
       <div class="multi-wrap">
         <div class="multi-header"><div class="multi-name">Chart Work</div><div class="multi-pts" id="chart-pts">0 AP</div></div>
-        <div class="multi-opts">
+        <div class="multi-opts" id="chartOptsContainer">
           <div class="m-opt" data-val="20" data-key="chart1" onclick="togMulti(this,'chart')">Session 1 · 20</div>
           <div class="m-opt" data-val="15" data-key="chart2" onclick="togMulti(this,'chart')">Session 2 · 15</div>
           <div class="m-opt" data-val="10" data-key="chart3" onclick="togMulti(this,'chart')">Session 3 · 10</div>
         </div>
+        <div class="skill-add-opt"><input type="text" id="newMultiOpt-chart" placeholder="Add a session..."><input type="number" id="newMultiPts-chart" placeholder="pts" style="width:44px;flex:none"><button onclick="addMultiOption('chart')">+ Add</button></div>
       </div>
       <div class="skill-wrap">
         <div class="skill-header"><div class="skill-chk" id="skill-chk"></div><div class="skill-name">Skill Practice</div><div class="skill-pts" id="skill-pts-val">0 AP · pick any that apply</div></div>
@@ -1636,6 +1639,7 @@ async function init() {
   applyItemOverrides();
   applyAppearance();
   renderSkillCats();
+  renderAllCustomOptionGroups();
   applyAreaNames();
   loadDay(getTodayKey());
   renderReadingTags();
@@ -1738,6 +1742,8 @@ function loadDB() {
   if (!db.customBurstTags) db.customBurstTags = [];
   if (!db.localGoalMarks) db.localGoalMarks = {};
   if (!db.areaNameOverrides) db.areaNameOverrides = {};
+  if (!db.customMultiOptions) db.customMultiOptions = { cog:[], chart:[] };
+  if (!db.customCounterOptions) db.customCounterOptions = { pod:[] };
   if (!db.arcCache) db.arcCache = null;
   const k = getTodayKey();
   const ex = db.history.find(e => e.date === k);
@@ -2368,6 +2374,98 @@ const COUNTER_CONFIG = {
   'pod-other':   { pts:10, max:4, group:'pod' },
 };
 const MEDITATION_BASE = { sitting:15, walking:12, active:10 };
+
+// ── EDITABLE OPTION GROUPS (Cognitive Training, Chart Work, Podcasts) ──
+// Same pattern as the skill-category editor: built-in options stay fixed
+// (so history/back-compat scoring never breaks), and anything you add is
+// layered on top. Deleting only ever removes something you added.
+function customMultiPts(group){
+  const out = {};
+  ((db.customMultiOptions && db.customMultiOptions[group]) || []).forEach(o=>{ out[o.key]=o.pts; });
+  return out;
+}
+function mergeCounterConfigCustoms(){
+  ((db.customCounterOptions && db.customCounterOptions.pod) || []).forEach(o=>{
+    if(!COUNTER_CONFIG[o.key]) COUNTER_CONFIG[o.key] = { pts:o.pts, max:o.max||4, group:'pod' };
+  });
+}
+function addMultiOption(group){
+  const nameInp = document.getElementById('newMultiOpt-'+group);
+  const ptsInp = document.getElementById('newMultiPts-'+group);
+  const name = nameInp.value.trim(); const pts = parseInt(ptsInp.value)||10;
+  if(!name) return;
+  const key = group+'-custom-'+Date.now();
+  if(!db.customMultiOptions) db.customMultiOptions = { cog:[], chart:[] };
+  if(!db.customMultiOptions[group]) db.customMultiOptions[group]=[];
+  db.customMultiOptions[group].push({ key, name, pts });
+  nameInp.value=''; ptsInp.value='';
+  saveDB();
+  renderCustomMultiOptions(group);
+}
+function deleteCustomMultiOption(group, key){
+  db.customMultiOptions[group] = (db.customMultiOptions[group]||[]).filter(o=>o.key!==key);
+  if(today.multi) delete today.multi[key];
+  saveDB();
+  renderCustomMultiOptions(group);
+  updateUI();
+}
+function renderCustomMultiOptions(group){
+  const container = document.getElementById(group+'OptsContainer');
+  if(!container) return;
+  // remove any previously-injected custom nodes, then re-add current ones
+  container.querySelectorAll('.m-opt[data-custom="1"]').forEach(el=>el.remove());
+  ((db.customMultiOptions && db.customMultiOptions[group]) || []).forEach(o=>{
+    const el = document.createElement('div');
+    el.className = 'm-opt'; el.dataset.custom='1'; el.dataset.val=o.pts; el.dataset.key=o.key;
+    el.style.position='relative'; el.style.paddingRight='16px';
+    el.onclick = function(){ togMulti(this, group); };
+    el.innerHTML = `${esc(o.name)} · ${o.pts}<button onclick="event.stopPropagation();deleteCustomMultiOption('${group}','${o.key}')" style="position:absolute;top:0;right:2px;background:none;border:none;color:var(--text-dim);font-size:8px;opacity:.5;cursor:pointer">✕</button>`;
+    if(today.multi && today.multi[o.key]) el.classList.add('sel');
+    container.appendChild(el);
+  });
+}
+function addCounterOption(group){
+  const nameInp = document.getElementById('newCounterOpt-'+group);
+  const ptsInp = document.getElementById('newCounterPts-'+group);
+  const name = nameInp.value.trim(); const pts = parseInt(ptsInp.value)||10;
+  if(!name) return;
+  const key = group+'-custom-'+Date.now();
+  if(!db.customCounterOptions) db.customCounterOptions = { pod:[] };
+  if(!db.customCounterOptions[group]) db.customCounterOptions[group]=[];
+  db.customCounterOptions[group].push({ key, name, pts, max:4 });
+  COUNTER_CONFIG[key] = { pts, max:4, group };
+  nameInp.value=''; ptsInp.value='';
+  saveDB();
+  renderCustomCounterOptions(group);
+}
+function deleteCustomCounterOption(group, key){
+  db.customCounterOptions[group] = (db.customCounterOptions[group]||[]).filter(o=>o.key!==key);
+  delete COUNTER_CONFIG[key];
+  if(today.counts) delete today.counts[key];
+  saveDB();
+  renderCustomCounterOptions(group);
+  updateUI();
+}
+function renderCustomCounterOptions(group){
+  const container = document.getElementById(group+'OptsContainer');
+  if(!container) return;
+  container.querySelectorAll('.counter-chip[data-custom="1"]').forEach(el=>el.remove());
+  ((db.customCounterOptions && db.customCounterOptions[group]) || []).forEach(o=>{
+    const n = (today.counts && today.counts[o.key]) || 0;
+    const el = document.createElement('div');
+    el.className = 'counter-chip'; el.dataset.custom='1'; el.dataset.key=o.key;
+    if(n>0) el.classList.add('active');
+    el.innerHTML = `<span>${esc(o.name)} · ${o.pts}</span><span class="counter-btn" onclick="stepCount('${o.key}',-1)">−</span><span class="counter-val" id="cnt-${o.key}">${n}</span><span class="counter-btn" onclick="stepCount('${o.key}',1)">+</span><button onclick="deleteCustomCounterOption('${group}','${o.key}')" style="background:none;border:none;color:var(--text-dim);font-size:8px;opacity:.5;cursor:pointer;margin-left:2px">✕</button>`;
+    container.appendChild(el);
+  });
+}
+function renderAllCustomOptionGroups(){
+  mergeCounterConfigCustoms();
+  renderCustomMultiOptions('cog');
+  renderCustomMultiOptions('chart');
+  renderCustomCounterOptions('pod');
+}
+
 function meditationPoints() {
   const m = today.meditation;
   if(!m || !m.type || !m.blocks) return 0;
@@ -2433,11 +2531,15 @@ function addReadingBook(title) {
   if(!title) return;
   db.currentlyReading.push({ id:'bk-'+Date.now(), title });
   saveDB();
+  clearTimeout(cloudPushTimer);
+  pushCloudNow();
   renderReadingTags();
 }
 function removeReadingBook(id) {
   db.currentlyReading = db.currentlyReading.filter(b=>b.id!==id);
   saveDB();
+  clearTimeout(cloudPushTimer);
+  pushCloudNow();
   renderReadingTags();
 }
 function renderReadingTags() {
@@ -2451,8 +2553,8 @@ function calcAP() {
   if(today.tier) ap+=[0,15,25,40][today.tier];
   Object.entries(today.checks).forEach(([k,v])=>{if(v){ const el=document.querySelector(`.act-item[data-key="${k}"]`); if(el) ap+=parseInt(el.dataset.pts)||0; }});
   ['prayer','book1','book2','workout'].forEach(k=>{ ap+=parseInt(today.va[k])||0; });
-  const cogP={neuronation:20,elevate:20,lumosity:15,peak:12,mindpal:12,impulse:10};
-  const chartP={chart1:20,chart2:15,chart3:10};
+  const cogP=Object.assign({neuronation:20,elevate:20,lumosity:15,peak:12,mindpal:12,impulse:10}, customMultiPts('cog'));
+  const chartP=Object.assign({chart1:20,chart2:15,chart3:10}, customMultiPts('chart'));
   Object.entries(today.multi).forEach(([k,v])=>{ if(!v)return; if(cogP[k])ap+=cogP[k]; else if(chartP[k])ap+=chartP[k]; });
   Object.entries(COUNTER_CONFIG).forEach(([k,c])=>{ ap += (today.counts?.[k]||0)*c.pts; });
   ap += (today.water||0)*2;
@@ -2497,13 +2599,13 @@ function calcAreaAP(areaKey) {
   if(areaKey==='mind') {
     ap+=parseInt(today.va['book1'])||0;
     ap+=parseInt(today.va['book2'])||0;
-    const cogP={neuronation:20,elevate:20,lumosity:15,peak:12,mindpal:12,impulse:10};
+    const cogP=Object.assign({neuronation:20,elevate:20,lumosity:15,peak:12,mindpal:12,impulse:10}, customMultiPts('cog'));
     Object.entries(today.multi).forEach(([k,v])=>{ if(v&&cogP[k])ap+=cogP[k]; });
     Object.entries(COUNTER_CONFIG).forEach(([k,c])=>{ if(c.group==='pod') ap += (today.counts?.[k]||0)*c.pts; });
   }
   // craft
   if(areaKey==='craft') {
-    const chartP={chart1:20,chart2:15,chart3:10};
+    const chartP=Object.assign({chart1:20,chart2:15,chart3:10}, customMultiPts('chart'));
     Object.entries(today.multi).forEach(([k,v])=>{ if(v&&chartP[k])ap+=chartP[k]; });
     ap += skillPoints(today.skill);
   }
@@ -2598,6 +2700,7 @@ function calcConvergence() {
 
 // ── UPDATE UI ──
 function updateUI() {
+  renderReadingTags();
   const ap=calcAP(), gp=calcGP();
   document.getElementById('apVal').textContent=ap;
   document.getElementById('gpVal').textContent=gp;
@@ -2731,9 +2834,9 @@ function togMulti(el, group) {
   const k=el.dataset.key;
   today.multi[k]=!today.multi[k];
   el.classList.toggle('sel',today.multi[k]);
-  const cogP={neuronation:20,elevate:20,lumosity:15,peak:12,mindpal:12,impulse:10};
+  const cogP=Object.assign({neuronation:20,elevate:20,lumosity:15,peak:12,mindpal:12,impulse:10}, customMultiPts('cog'));
   const podP={'pod-trading':15,'pod-vusi':15,'pod-money':15,'pod-dev':12,'pod-other':10};
-  const chartP={chart1:20,chart2:15,chart3:10};
+  const chartP=Object.assign({chart1:20,chart2:15,chart3:10}, customMultiPts('chart'));
   let cog=0,pod=0,chart=0;
   Object.entries(today.multi).forEach(([k,v])=>{if(!v)return;if(cogP[k])cog+=cogP[k];else if(podP[k])pod+=podP[k];else if(chartP[k])chart+=chartP[k];});
   document.getElementById('cog-pts').textContent=cog+' AP';
@@ -3810,8 +3913,8 @@ function restoreUI() {
   if(today.dayType){ togDayType(today.dayType); }
   // multi pts (cognitive + chart groups only — podcasts now use the counter grid above)
   let cog=0,chart=0;
-  const cogP={neuronation:20,elevate:20,lumosity:15,peak:12,mindpal:12,impulse:10};
-  const chartP={chart1:20,chart2:15,chart3:10};
+  const cogP=Object.assign({neuronation:20,elevate:20,lumosity:15,peak:12,mindpal:12,impulse:10}, customMultiPts('cog'));
+  const chartP=Object.assign({chart1:20,chart2:15,chart3:10}, customMultiPts('chart'));
   Object.entries(today.multi).forEach(([k,v])=>{ if(!v)return; if(cogP[k])cog+=cogP[k]; else if(chartP[k])chart+=chartP[k]; });
   document.getElementById('cog-pts').textContent=cog+' AP';
   document.getElementById('chart-pts').textContent=chart+' AP';
