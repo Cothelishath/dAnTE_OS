@@ -15,6 +15,7 @@
   --text:#ddd8ce;--text-dim:#777;--text-muted:#404040;
   --green:#4caf7d;--green-bg:rgba(76,175,125,0.1);
   --red:#c0392b;--red-bg:rgba(192,57,43,0.1);
+  --blue:#4a8cc9;--blue-bg:rgba(74,140,201,0.1);
   --radius:5px;
 }
 .light{
@@ -165,6 +166,31 @@ main{flex:1;padding:14px 16px 60px;max-width:680px;width:100%;margin:0 auto}
 
 .toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%) translateY(6px);background:var(--bg3);border:1px solid var(--gold-dim);color:var(--gold);font-family:'JetBrains Mono',monospace;font-size:11px;padding:9px 18px;border-radius:20px;z-index:400;opacity:0;transition:all .25s;pointer-events:none;white-space:nowrap}
 .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
+/* ── INSIGHTS / CHARTS ── */
+.chart-card{background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:16px 14px;margin-bottom:16px}
+.chart-card-title{font-family:'Cormorant Garamond',serif;font-size:16px;font-weight:300;color:var(--text);margin-bottom:2px}
+.chart-card-sub{font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--text-muted);letter-spacing:.08em;margin-bottom:12px}
+.legend-row{display:flex;gap:14px;margin-top:8px;flex-wrap:wrap}
+.legend-item{display:flex;align-items:center;gap:5px;font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--text-dim)}
+.legend-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0}
+.donut-wrap{display:flex;align-items:center;gap:18px;flex-wrap:wrap}
+.donut-legend{flex:1;min-width:140px;display:flex;flex-direction:column;gap:6px}
+.donut-legend-row{display:flex;align-items:center;gap:7px;font-size:11px}
+.donut-legend-row .dl-name{flex:1;color:var(--text-dim)}
+.donut-legend-row .dl-pct{font-family:'JetBrains Mono',monospace;color:var(--text-muted);font-size:10px}
+
+/* BUDGET */
+.budget-row{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--border)}
+.budget-row:last-child{border-bottom:none}
+.budget-name{font-size:12px;color:var(--text);flex-shrink:0;width:110px}
+.budget-bar-wrap{flex:1;height:8px;background:var(--border2);border-radius:4px;overflow:hidden;position:relative}
+.budget-bar{height:100%;border-radius:4px;transition:width .4s}
+.budget-nums{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--text-dim);min-width:110px;text-align:right;flex-shrink:0}
+.budget-inp{width:90px;background:var(--bg3);border:1px solid var(--border2);border-radius:var(--radius);color:var(--gold);font-family:'JetBrains Mono',monospace;font-size:11px;padding:6px 8px;outline:none;text-align:right;flex-shrink:0}
+.budget-inp:focus{border-color:var(--gold)}
+.budget-over{color:var(--red)!important}
+.budget-summary-strip{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:16px}
 </style>
 </head>
 <body>
@@ -196,6 +222,8 @@ main{flex:1;padding:14px 16px 60px;max-width:680px;width:100%;margin:0 auto}
 <div class="tab-bar">
   <div class="tab active" onclick="switchTab('log')">Log</div>
   <div class="tab" onclick="switchTab('breakdown')">Breakdown</div>
+  <div class="tab" onclick="switchTab('insights')">Insights</div>
+  <div class="tab" onclick="switchTab('budget')">Budget</div>
   <div class="tab" onclick="switchTab('alltime')">All Time</div>
   <div class="tab" onclick="switchTab('categories')">Categories</div>
 </div>
@@ -232,6 +260,16 @@ main{flex:1;padding:14px 16px 60px;max-width:680px;width:100%;margin:0 auto}
   <!-- BREAKDOWN PAGE -->
   <div class="page" id="page-breakdown">
     <div id="breakdownContent"></div>
+  </div>
+
+  <!-- INSIGHTS PAGE -->
+  <div class="page" id="page-insights">
+    <div id="insightsContent"></div>
+  </div>
+
+  <!-- BUDGET PAGE -->
+  <div class="page" id="page-budget">
+    <div id="budgetContent"></div>
   </div>
 
   <!-- ALL TIME PAGE -->
@@ -321,6 +359,7 @@ const DEFAULT_CATS=[
 let state={
   entries:[],
   categories:JSON.parse(JSON.stringify(DEFAULT_CATS)),
+  budgets:{},
 };
 let entryType='exp';
 let viewYear=new Date().getFullYear();
@@ -611,14 +650,201 @@ function renderAllTime(){
   });
 }
 
+// ── INSIGHTS (charts) ────────────────────────────────────
+const DONUT_COLORS=['#c9a84c','#4caf7d','#4a8cc9','#c0392b','#9b6bc9','#c96b8c','#6bc9b8','#c9986b','#7a9ac9','#a8c96b'];
+
+function svgArcPath(cx,cy,r,startAngle,endAngle){
+  const s={x:cx+r*Math.cos(startAngle),y:cy+r*Math.sin(startAngle)};
+  const e={x:cx+r*Math.cos(endAngle),y:cy+r*Math.sin(endAngle)};
+  const large=endAngle-startAngle>Math.PI?1:0;
+  return `M ${cx} ${cy} L ${s.x} ${s.y} A ${r} ${r} 0 ${large} 1 ${e.x} ${e.y} Z`;
+}
+
+function renderDonut(dataObj, totalLabel){
+  const entries=Object.entries(dataObj).sort((a,b)=>b[1]-a[1]);
+  const total=entries.reduce((s,[,v])=>s+v,0);
+  if(!total) return '<div class="empty-note">Nothing to chart yet.</div>';
+  const cx=90,cy=90,r=72,rInner=42;
+  let angle=-Math.PI/2;
+  let paths='';
+  entries.forEach(([name,val],i)=>{
+    const frac=val/total;
+    const next=angle+frac*Math.PI*2;
+    const color=DONUT_COLORS[i%DONUT_COLORS.length];
+    paths+=`<path d="${svgArcPath(cx,cy,r,angle,next)}" fill="${color}" opacity="0.92"/>`;
+    angle=next;
+  });
+  const legend=entries.map(([name,val],i)=>{
+    const pct=Math.round(val/total*100);
+    return `<div class="donut-legend-row"><span class="legend-dot" style="background:${DONUT_COLORS[i%DONUT_COLORS.length]}"></span><span class="dl-name">${esc(name)}</span><span class="dl-pct">${pct}% · ${fmt(val)}</span></div>`;
+  }).join('');
+  return `<div class="donut-wrap">
+    <svg width="180" height="180" viewBox="0 0 180 180">
+      ${paths}
+      <circle cx="${cx}" cy="${cy}" r="${rInner}" fill="var(--bg2)"/>
+      <text x="${cx}" y="${cy-4}" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="9" fill="var(--text-muted)" letter-spacing="1">${esc(totalLabel)}</text>
+      <text x="${cx}" y="${cy+14}" text-anchor="middle" font-family="Cormorant Garamond, serif" font-size="15" fill="var(--text)">${fmt(total)}</text>
+    </svg>
+    <div class="donut-legend">${legend}</div>
+  </div>`;
+}
+
+function last6MonthKeys(){
+  const keys=[];
+  let y=viewYear, m=viewMonth;
+  for(let i=0;i<6;i++){
+    keys.unshift(y+'-'+pad(m+1));
+    m--; if(m<0){m=11;y--;}
+  }
+  return keys;
+}
+
+function renderTrendChart(){
+  const keys=last6MonthKeys();
+  const monthData=keys.map(mk=>{
+    const ents=state.entries.filter(e=>e.date.startsWith(mk));
+    const inc=ents.filter(e=>e.type==='inc').reduce((s,e)=>s+Number(e.amount),0);
+    const exp=ents.filter(e=>e.type==='exp').reduce((s,e)=>s+Number(e.amount),0);
+    return {mk,inc,exp};
+  });
+  const maxVal=Math.max(1,...monthData.map(m=>Math.max(m.inc,m.exp)));
+  const W=680,H=150,padL=8,padR=8,padB=22,padT=10;
+  const chartW=W-padL-padR, chartH=H-padT-padB;
+  const groupW=chartW/monthData.length;
+  const barW=Math.min(22,groupW*0.28);
+  let bars='';
+  monthData.forEach((m,i)=>{
+    const gx=padL+i*groupW+groupW/2;
+    const incH=(m.inc/maxVal)*chartH;
+    const expH=(m.exp/maxVal)*chartH;
+    bars+=`<rect x="${gx-barW-2}" y="${padT+chartH-incH}" width="${barW}" height="${incH}" rx="2" fill="var(--green)" opacity="0.85"/>`;
+    bars+=`<rect x="${gx+2}" y="${padT+chartH-expH}" width="${barW}" height="${expH}" rx="2" fill="var(--red)" opacity="0.85"/>`;
+    const [y,mo]=m.mk.split('-');
+    bars+=`<text x="${gx}" y="${H-6}" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="9" fill="var(--text-muted)">${MONTH_SHORT[parseInt(mo)-1]}</text>`;
+  });
+  return `<svg width="100%" height="${H}" viewBox="0 0 ${W} ${H}" preserveAspectRatio="xMidYMid meet">
+    <line x1="${padL}" y1="${padT+chartH}" x2="${W-padR}" y2="${padT+chartH}" stroke="var(--border2)" stroke-width="1"/>
+    ${bars}
+  </svg>
+  <div class="legend-row">
+    <div class="legend-item"><span class="legend-dot" style="background:var(--green)"></span>Income</div>
+    <div class="legend-item"><span class="legend-dot" style="background:var(--red)"></span>Expenses</div>
+  </div>`;
+}
+
+function renderBalanceLine(){
+  const keys=last6MonthKeys();
+  let running=0;
+  // Establish a running balance carried in from all history before this window
+  const beforeKey=keys[0];
+  state.entries.filter(e=>e.date.slice(0,7)<beforeKey).forEach(e=>{
+    running += e.type==='inc' ? Number(e.amount) : -Number(e.amount);
+  });
+  const points=keys.map(mk=>{
+    const ents=state.entries.filter(e=>e.date.startsWith(mk));
+    const inc=ents.filter(e=>e.type==='inc').reduce((s,e)=>s+Number(e.amount),0);
+    const exp=ents.filter(e=>e.type==='exp').reduce((s,e)=>s+Number(e.amount),0);
+    running += inc-exp;
+    return {mk, val:running};
+  });
+  const vals=points.map(p=>p.val);
+  const minV=Math.min(0,...vals), maxV=Math.max(1,...vals);
+  const range=(maxV-minV)||1;
+  const W=680,H=110,padL=10,padR=10,padT=14,padB=10;
+  const chartW=W-padL-padR, chartH=H-padT-padB;
+  const stepX=chartW/(points.length-1||1);
+  const yOf=v=>padT+chartH-((v-minV)/range)*chartH;
+  const path=points.map((p,i)=>`${i===0?'M':'L'} ${padL+i*stepX} ${yOf(p.val)}`).join(' ');
+  const dots=points.map((p,i)=>`<circle cx="${padL+i*stepX}" cy="${yOf(p.val)}" r="3" fill="var(--gold)"/>`).join('');
+  return `<svg width="100%" height="${H}" viewBox="0 0 ${W} ${H}" preserveAspectRatio="xMidYMid meet">
+    <path d="${path}" fill="none" stroke="var(--gold)" stroke-width="1.8"/>
+    ${dots}
+  </svg>
+  <div class="legend-row"><div class="legend-item">Running balance across the last ${points.length} months, based on everything logged before this window plus what's recorded in it.</div></div>`;
+}
+
+function renderInsights(){
+  const container=document.getElementById('insightsContent');
+  const entries=getMonthEntries();
+  const expCats={}, incCats={};
+  entries.filter(e=>e.type==='exp').forEach(e=>{const k=e.cat||'Uncategorised';expCats[k]=(expCats[k]||0)+Number(e.amount)});
+  entries.filter(e=>e.type==='inc').forEach(e=>{const k=e.cat||'Uncategorised';incCats[k]=(incCats[k]||0)+Number(e.amount)});
+
+  container.innerHTML=`
+    <div class="chart-card">
+      <div class="chart-card-title">Where it went</div>
+      <div class="chart-card-sub">Expense split — ${MONTH_NAMES[viewMonth]} ${viewYear}</div>
+      ${renderDonut(expCats,'SPENT')}
+    </div>
+    <div class="chart-card">
+      <div class="chart-card-title">Where it came from</div>
+      <div class="chart-card-sub">Income split — ${MONTH_NAMES[viewMonth]} ${viewYear}</div>
+      ${renderDonut(incCats,'EARNED')}
+    </div>
+    <div class="chart-card">
+      <div class="chart-card-title">6-month trend</div>
+      <div class="chart-card-sub">Income vs expenses, month by month</div>
+      ${renderTrendChart()}
+    </div>
+    <div class="chart-card">
+      <div class="chart-card-title">Running balance</div>
+      <div class="chart-card-sub">Net position over the last 6 months</div>
+      ${renderBalanceLine()}
+    </div>
+  `;
+}
+
+// ── BUDGET ────────────────────────────────────────────────
+function setBudget(catName,val){
+  const n=parseFloat(val);
+  if(!n||n<=0) delete state.budgets[catName];
+  else state.budgets[catName]=n;
+  saveData();
+  renderBudget();
+}
+function renderBudget(){
+  const container=document.getElementById('budgetContent');
+  const entries=getMonthEntries().filter(e=>e.type==='exp');
+  const spent={};
+  entries.forEach(e=>{const k=e.cat||'Uncategorised';spent[k]=(spent[k]||0)+Number(e.amount)});
+
+  const expCats=getCatsForType('exp').filter(c=>!getCatsForType('exp').some(x=>false)); // just expense-eligible cats
+  const budgetedTotal=Object.values(state.budgets).reduce((s,v)=>s+v,0);
+  const spentAgainstBudget=Object.keys(state.budgets).reduce((s,k)=>s+(spent[k]||0),0);
+
+  let html=`<div class="budget-summary-strip">
+    <div class="sum-card"><div class="sum-num bal">${fmt(budgetedTotal)}</div><div class="sum-lbl">Total Budgeted</div></div>
+    <div class="sum-card"><div class="sum-num ${spentAgainstBudget>budgetedTotal&&budgetedTotal?'exp':'inc'}">${fmt(spentAgainstBudget)}</div><div class="sum-lbl">Spent Against Budget</div></div>
+  </div>
+  <div style="font-size:11px;color:var(--text-muted);font-style:italic;margin-bottom:14px">Set a monthly ceiling per category. Leave blank for categories you're not tracking a limit on. Budgets apply the same figure every month until changed.</div>
+  <div class="cat-section">`;
+
+  getCatsForType('exp').forEach(c=>{
+    const budget=state.budgets[c.name]||0;
+    const s=spent[c.name]||0;
+    const pct=budget?Math.min(100,Math.round(s/budget*100)):0;
+    const over=budget>0 && s>budget;
+    html+=`<div class="budget-row">
+      <div class="budget-name">${esc(c.name)}</div>
+      <div class="budget-bar-wrap"><div class="budget-bar" style="width:${budget?pct:0}%;background:${over?'var(--red)':'var(--gold)'}"></div></div>
+      <div class="budget-nums ${over?'budget-over':''}">${fmt(s)} ${budget?'/ '+fmt(budget):''}</div>
+      <input class="budget-inp" type="number" min="0" placeholder="limit" value="${budget||''}" onchange="setBudget('${esc(c.name)}',this.value)">
+    </div>`;
+  });
+  html+='</div>';
+  container.innerHTML=html;
+}
+
 // ── TAB ───────────────────────────────────────────────────
-const TABS=['log','breakdown','alltime','categories'];
+const TABS=['log','breakdown','insights','budget','alltime','categories'];
 function switchTab(tab){
   currentTab=tab;
   document.querySelectorAll('.tab').forEach((t,i)=>t.classList.toggle('active',TABS[i]===tab));
   document.querySelectorAll('.page').forEach((p,i)=>p.classList.toggle('active',TABS[i]===tab));
   if(tab==='log') renderLog();
   else if(tab==='breakdown') renderBreakdown();
+  else if(tab==='insights') renderInsights();
+  else if(tab==='budget') renderBudget();
   else if(tab==='alltime') renderAllTime();
   else if(tab==='categories') renderCategories();
 }
@@ -653,6 +879,7 @@ async function pullCloud() {
       const d = remote.data;
       if(d.entries) state.entries = d.entries;
       if(d.categories && d.categories.length) state.categories = d.categories;
+      if(d.budgets) state.budgets = d.budgets;
       localStorage.setItem('moneyFlow', JSON.stringify(state));
       localStorage.setItem(SYNC_TOOL + '_synced_at', remote.updated_at);
     }
@@ -682,7 +909,7 @@ async function pushCloudNow() {
 }
 function loadData(){
   const raw=localStorage.getItem('moneyFlow');
-  if(raw){try{const d=JSON.parse(raw);if(d.entries)state.entries=d.entries;if(d.categories&&d.categories.length)state.categories=d.categories;}catch(e){}}
+  if(raw){try{const d=JSON.parse(raw);if(d.entries)state.entries=d.entries;if(d.categories&&d.categories.length)state.categories=d.categories;if(d.budgets)state.budgets=d.budgets;}catch(e){}}
 }
 function exportData(){
   const blob=new Blob([JSON.stringify(state,null,2)],{type:'application/json'});
@@ -692,7 +919,7 @@ function exportData(){
 function handleImport(e){
   const file=e.target.files[0];if(!file)return;
   const r=new FileReader();
-  r.onload=ev=>{try{const d=JSON.parse(ev.target.result);if(d.entries)state.entries=d.entries;if(d.categories)state.categories=d.categories;renderAll();buildCatSelect('fCat',entryType);showToast('Imported');}catch(err){showToast('Import failed')}};
+  r.onload=ev=>{try{const d=JSON.parse(ev.target.result);if(d.entries)state.entries=d.entries;if(d.categories)state.categories=d.categories;if(d.budgets)state.budgets=d.budgets;renderAll();buildCatSelect('fCat',entryType);showToast('Imported');}catch(err){showToast('Import failed')}};
   r.readAsText(file);e.target.value='';
 }
 function toggleTheme(){
@@ -709,6 +936,8 @@ function renderAll(){
   renderSummary();
   if(currentTab==='log') renderLog();
   else if(currentTab==='breakdown') renderBreakdown();
+  else if(currentTab==='insights') renderInsights();
+  else if(currentTab==='budget') renderBudget();
   else if(currentTab==='alltime') renderAllTime();
   else if(currentTab==='categories') renderCategories();
 }
