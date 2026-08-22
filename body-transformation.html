@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Mat + Band — dAnTE</title>
+<title>Band + Mat — dAnTE</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
@@ -48,13 +48,13 @@
   .burst-heading{font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.16em;color:var(--gold-dim);text-transform:uppercase}
 
   .day-strip{display:flex;gap:6px;margin-bottom:18px;overflow-x:auto;padding-bottom:4px}
-  .day-chip{flex-shrink:0;padding:8px 12px;border-radius:var(--radius);border:1px solid var(--border2);background:var(--bg2);cursor:pointer;text-align:center;min-width:52px}
+  .day-chip{flex-shrink:0;padding:8px 12px;border-radius:var(--radius);border:1px solid var(--border2);background:var(--bg2);cursor:pointer;text-align:center;min-width:58px}
   .day-chip .dn{font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--text-muted);letter-spacing:.06em}
   .day-chip .df{font-family:'Cormorant Garamond',serif;font-size:13px;color:var(--text-dim);margin-top:2px}
   .day-chip.active{border-color:var(--gold);background:var(--gold-glow)}
   .day-chip.active .dn{color:var(--gold)}
   .day-chip.today{outline:1px solid var(--gold-dim);outline-offset:1px}
-  .day-chip.rest{border-style:dashed}
+  .day-chip.light{border-style:dashed}
 
   .day-h1{font-family:'Cormorant Garamond',serif;font-size:28px;font-weight:300;margin-bottom:2px}
   .day-sub{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--text-muted);margin-bottom:16px}
@@ -72,12 +72,6 @@
   .ex-sets{display:flex;gap:5px;flex-shrink:0}
   .set-box{width:30px;height:30px;border-radius:5px;border:1px solid var(--border2);background:var(--bg3);cursor:pointer;font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--text-muted);display:flex;align-items:center;justify-content:center}
   .set-box.done{background:var(--gold);border-color:var(--gold);color:var(--bg)}
-
-  .rec-card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:16px;margin-bottom:8px;display:flex;align-items:center;gap:12px}
-  .rec-check{width:18px;height:18px;border:1px solid var(--border2);border-radius:4px;cursor:pointer;flex-shrink:0}
-  .rec-check.done{background:var(--green);border-color:var(--green)}
-  .rec-text{flex:1;font-size:13.5px}
-  .rec-quote{font-family:'Cormorant Garamond',serif;font-style:italic;font-size:16px;color:var(--gold-dim);text-align:center;margin-top:20px;padding:16px;border-top:1px solid var(--border)}
 
   .sleep-row{display:flex;align-items:center;gap:10px;background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:10px 14px;margin-bottom:16px}
   .sleep-row label{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--text-muted);letter-spacing:.06em}
@@ -123,7 +117,7 @@
 <header>
   <div>
     <div class="brand">dAnTE</div>
-    <div class="title">Mat + <em>Band</em></div>
+    <div class="title">Band + <em>Mat</em></div>
   </div>
   <div class="hdr-right">
     <div id="syncStatus">—</div>
@@ -133,7 +127,7 @@
     <input type="file" id="importFile" accept=".json" style="display:none" onchange="importData(event)">
   </div>
 </header>
-<div class="equip-note">Equipment: mat · resistance band · bodyweight · skipping rope — 10 work days + 1 rest, same cycle as The Arc</div>
+<div class="equip-note">Equipment: mat · resistance band (stood on — no doors, chairs, or tables) · bodyweight · skipping rope. Every burst day carries a session — the old rest-day slot is now a lighter one, kept in reserve if you need to actually rest.</div>
 
 <nav class="tabs">
   <div class="tab active" data-tab="workout" onclick="showTab('workout',this)">Workout</div>
@@ -170,16 +164,16 @@
   <div class="page" id="page-guide">
     <div class="section-label">Progression by Burst</div>
     <div class="phase-grid" id="weekGrid"></div>
-    <div class="section-label">Long-Term (Bursts 1–18+, ≈6 months)</div>
+    <div class="section-label">Long-Term (Bursts 1–12+, ≈3-4 months)</div>
     <div class="phase-grid" id="phaseGrid" style="grid-template-columns:repeat(3,1fr)"></div>
-    <div class="section-label">How to Progress — Three Levers</div>
+    <div class="section-label">How to Progress — Three Levers, In Order</div>
     <ol style="margin-left:18px;color:var(--text-dim);font-size:13px;line-height:2">
-      <li><b>Increase tension</b> — choke up on the same band, or move to a thicker one, before adding anything else.</li>
-      <li><b>Slow the eccentric</b> — take 3 seconds on the way back/down on every band movement. This alone makes a light band feel heavy.</li>
-      <li><b>Increase reps</b> — once 12 feels genuinely easy at a given tension, push to 15 before upgrading the band.</li>
-      <li>These three are the whole game with no heavy weights — there's no fourth lever, so don't chase one you don't have.</li>
-      <li>Reduce rest time across bursts — from 60 sec down to 20-30 sec, once tension/tempo/reps have each had their turn.</li>
-      <li>Track results honestly and aim to beat your own numbers, not anyone else's.</li>
+      <li><b>Tension first.</b> Choke up on the same band, or move to a thicker one, before adding anything else.</li>
+      <li><b>Then tempo.</b> Slow the lowering/return phase to ~3 seconds on every band movement. This alone makes a light band feel heavy.</li>
+      <li><b>Then reps.</b> Once the top of a rep range feels genuinely easy at a given tension, push past it before upgrading the band again.</li>
+      <li>These three are the whole game without added weight — there's no fourth lever, so don't go looking for one.</li>
+      <li>Reduce rest time across bursts — 45-60 sec down to 20-30 sec, once tension/tempo/reps have each had their turn.</li>
+      <li>When 2 sets at the top of a rep range with a slow negative stops being hard, that's the actual signal to increase resistance — not a fixed week number.</li>
       <li>Eat well, sleep well, stay consistent — this is 20% of the plan and 80% of the result.</li>
     </ol>
   </div>
@@ -208,7 +202,7 @@
 </main>
 
 <script>
-// ══════════════════════ ICONS (original line-art, reused by movement pattern) ══════════════════════
+// ══════════════════════ ICONS ══════════════════════
 function icon(cat){
   const c = 'var(--gold-dim)';
   const stroke = `stroke="${c}" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"`;
@@ -245,7 +239,7 @@ function setGifCache(cache){ try{ localStorage.setItem(GIF_CACHE_KEY, JSON.strin
 
 function searchTermsFor(name){
   const base = name.toLowerCase().replace(/[—-]/g,' ').replace(/\(.*?\)/g,'').trim();
-  const stripped = base.replace(/\b(banded|band|resistance|seated|standing|overhead|with taps)\b/g,'').trim();
+  const stripped = base.replace(/\b(banded|band|resistance|band-resisted|bulgarian-style|straight-arm)\b/g,'').trim();
   const terms = [base, stripped].filter((v,i,a)=>v && a.indexOf(v)===i);
   return terms;
 }
@@ -298,110 +292,130 @@ async function loadExerciseGifs(day, dayKey){
   }
 }
 
-// ══════════════════════ EXERCISE DATABASE — 5 workout types, run twice per burst ══════════════════════
-// A burst is 10 work days + 1 rest day. These 5 sessions run twice through
-// the 10 work days (positions 0-4, then 5-9 again). Rebuilt around the
-// fuller band-exercise set: banded squats, glute bridges, banded push-ups,
-// seated band rows, dead-bugs, plank with banded taps — each session still
-// leans pull/push/legs/arms/power the way the split always has, just with
-// better-targeted movements per muscle group than the earlier pass. Sets
-// bumped to 3 (from 2) to match the 8-12-rep, three-sets structure. This
-// stays maintenance-efficient, not a growth program — same equipment,
-// same daily cadence, just better-chosen movements per session.
+// ══════════════════════ WORKOUT DATABASE ══════════════════════
+// Built directly from the band+mat plan: 7 named sessions, 2 sets as the
+// operating rule, band exercises done standing-on/looped-under-feet or
+// held overhead — no doors, chairs, or tables required anywhere. Cycled
+// across the 11-day burst (positions 0-10, mod 7) so every single day —
+// including what used to be the fixed rest slot — carries a real session.
+// The two "recovery-flavoured" slots (old Wednesday) are deliberately
+// lighter: mobility + light band work, kept in reserve as an actual rest
+// day if that's what's needed that cycle, but never blank.
 const WORKOUT_TYPES = [
-  { key:'pull-a', label:'Pull + Core', focus:'Band Day', color:'#4a8cc9', type:'workout', sets:3, exercises:[
-    {name:'Banded Rows', reps:'8-12', cat:'band', note:'Sit on the mat, loop the band around your feet, pull to the torso — elbows tight to the ribs.'},
-    {name:'Band Pull-Aparts', reps:'15', cat:'band', note:'Arms straight out in front, pull the band apart to chest level — rear delts and upper back.'},
-    {name:'Bicep Curl', reps:'8-12 (each arm)', cat:'curl', note:'Step on the band, curl upward, 3-second lower.'},
-    {name:'Banded Dead-bugs', reps:'10 (each side)', cat:'core-raise', note:'Lying on the mat, loop the band under the arch of both feet, hold a handle overhead in each hand — extend one leg while lowering the opposite arm against the resistance.'},
-    {name:'Plank with Banded Taps', reps:'20 taps total', cat:'core-twist', note:'Grip the band with both hands about a foot apart, hold in plank position, tap one hand to the other against the resistance, alternating.'},
-    {name:'Skipping', reps:'3 min', cat:'rope'},
+  { key:'mon', label:'Chest / Quads / Core', focus:'', color:'#4caf7d', type:'workout', sets:2, exercises:[
+    {name:'Push-ups', reps:'15-20', cat:'push'},
+    {name:'Band-Resisted Squat', reps:'15-20', cat:'band', note:'Stand on the band, top of the loop pulled up to shoulder height, squat against the tension.'},
+    {name:'Band Chest Press', reps:'12-15', cat:'band', note:'Loop the band behind your upper back, press both handles forward at chest height.'},
+    {name:'Reverse Lunges', reps:'12 (each leg)', cat:'lunge'},
+    {name:'Band Lateral Raise', reps:'12-15', cat:'band', note:'Stand on the band, raise both arms out to the sides to shoulder height.'},
+    {name:'Bicycle Crunches', reps:'20 total', cat:'core-twist'},
+    {name:'Band Bicep Curl', reps:'12-15', cat:'curl', note:'Stand on the band, curl both handles up, 3-second lower once it starts feeling easy.'},
+    {name:'Glute Bridge', reps:'15-20', cat:'hinge'},
+    {name:'Reverse Crunch', reps:'12-15', cat:'core-raise'},
+    {name:'Plank', reps:'30-60 sec', cat:'plank'},
   ]},
-  { key:'push-legs', label:'Push + Legs', focus:'', color:'#4caf7d', type:'workout', sets:3, exercises:[
-    {name:'Banded Push-ups', reps:'8-12', cat:'push', note:'Wrap the band across your back, under the armpits, hands on the mat — real overload on a bodyweight staple.'},
-    {name:'Pike Push-ups', reps:'12-15', cat:'push'},
-    {name:'Banded Squats', reps:'8-12', cat:'squat', note:'Step on the band, pull the top up to shoulder height, squat against the tension.'},
-    {name:'Banded Glute Bridges', reps:'12-15', cat:'hinge', note:'Loop the band under the arch of both feet, hold a handle in each hand at hip height, mat under the hips — drive hips up against the resistance.'},
-    {name:'Calf Raises', reps:'20', cat:'calf'},
-    {name:'Russian Twists (mat)', reps:'20 (10 each side)', cat:'core-twist'},
-    {name:'Skipping', reps:'3 min', cat:'rope'},
+  { key:'tue', label:'Back / Biceps / Glutes', focus:'', color:'#4a8cc9', type:'workout', sets:2, exercises:[
+    {name:'Band Bent-Over Row', reps:'12-15', cat:'band', note:'Stand on the band, hinge forward slightly, pull both handles to the ribs.'},
+    {name:'Band Straight-Arm Pulldown', reps:'12-15', cat:'band', note:'Stand on the band, hinge slightly at the hips, arms straight — pull down and back past the hips. No door anchor needed; this is the lat-pulldown stand-in.'},
+    {name:'Band Bicep Curl', reps:'12-15', cat:'curl'},
+    {name:'Band Hammer Curl', reps:'12-15', cat:'curl', note:'Same stance, palms facing each other through the curl.'},
+    {name:'Band Romanian Deadlift', reps:'12-15', cat:'hinge', note:'Stand on the band, soft knees, hinge at the hips keeping the back flat.'},
+    {name:'Reverse Lunges', reps:'12 (each leg)', cat:'lunge'},
+    {name:'Glute Bridge', reps:'20', cat:'hinge'},
+    {name:'Heel-Touch Crunches', reps:'20 total', cat:'core-twist'},
+    {name:'Side Plank', reps:'30-45 sec (each side)', cat:'plank'},
+    {name:'Superman', reps:'12-15', cat:'hinge'},
   ]},
-  { key:'pull-b', label:'Pull + Shoulders', focus:'Band Day', color:'#4a8cc9', type:'workout', sets:3, exercises:[
-    {name:'Banded Lat Pulldown', reps:'8-12', cat:'band', note:'Anchor the band overhead (top of a door), kneel, pull down to chest level.'},
-    {name:'Overhead Press', reps:'8-12', cat:'band', note:'Step on the band, press the handles straight upward.'},
-    {name:'Band Face Pulls', reps:'12-15', cat:'band', note:'Anchor at chest height, pull toward the face, elbows high — rear delts and upper back.'},
-    {name:'Banded Good Mornings', reps:'10-12', cat:'hinge', note:'Stand on the band, loop over the shoulders, hinge at the hips keeping the back flat — hamstrings and lower back.'},
-    {name:'Side Plank (mat)', reps:'45 sec (each side)', cat:'plank'},
-    {name:'Skipping', reps:'4 min, mix pace', cat:'rope'},
+  { key:'wed', label:'Active Mobility + Light Band', focus:'lighter day', color:'#b8902a', type:'workout', sets:2, exercises:[
+    {name:'Easy Skipping', reps:'3-4 min, relaxed pace', cat:'rope'},
+    {name:'Cat-Cow', reps:'8', cat:'stretch', note:"On hands and knees, arch and round the spine slowly."},
+    {name:"World's Greatest Stretch", reps:'5 (each side)', cat:'stretch'},
+    {name:'Band Pull-Aparts', reps:'15', cat:'band', note:'Arms straight out in front, pull the band apart to chest level — easy tension, focus on the squeeze.'},
+    {name:'Bodyweight Squats — Slow', reps:'12, 3-sec down', cat:'squat'},
+    {name:'Glute Bridge', reps:'15', cat:'hinge'},
+    {name:'Bird Dog', reps:'10 (each side)', cat:'core-raise', note:'On hands and knees, extend opposite arm and leg, hold briefly.'},
+    {name:'Hip-Flexor Stretch', reps:'30 sec (each side)', cat:'stretch'},
+    {name:'Hamstring Stretch', reps:'30 sec (each side)', cat:'stretch'},
   ]},
-  { key:'push-arms', label:'Push + Arms + Core', focus:'', color:'#4caf7d', type:'workout', sets:3, exercises:[
-    {name:'Banded Push-ups', reps:'8-12', cat:'push', note:'Band across the back again — second push session, aim to beat the first one\'s reps at the same tension.'},
-    {name:'Chair Dips', reps:'10-15', cat:'dip'},
-    {name:'Bicep Curl', reps:'8-12 (each arm)', cat:'curl'},
-    {name:'Overhead Tricep Extension', reps:'10-12', cat:'band', note:'Step on one end, pull the other behind the head — check the band for nicks before this one specifically.'},
-    {name:'Banded Dead-bugs', reps:'10 (each side)', cat:'core-raise'},
-    {name:'Hollow Hold (mat)', reps:'45 sec', cat:'plank'},
-    {name:'Skipping', reps:'3 min', cat:'rope'},
+  { key:'thu', label:'Shoulders / Quads / Core', focus:'', color:'#4caf7d', type:'workout', sets:2, exercises:[
+    {name:'Pike Push-ups', reps:'10-15', cat:'push'},
+    {name:'Band Overhead Press', reps:'12-15', cat:'band', note:'Stand on the band, press both handles straight up overhead.'},
+    {name:'Band Lateral Raise', reps:'12-15', cat:'band'},
+    {name:'Squats', reps:'15-20', cat:'squat'},
+    {name:'Bulgarian-Style Split Squat', reps:'10-12 (each leg)', cat:'lunge', note:'Rear foot up on the mat rolled thick, or just elevated on toes — no chair needed.'},
+    {name:'Band Front Raise', reps:'12-15', cat:'band', note:'Stand on the band, raise both handles straight out in front to shoulder height.'},
+    {name:'Leg Raises', reps:'10-15', cat:'core-raise'},
+    {name:'Russian Twists', reps:'20 total', cat:'core-twist'},
+    {name:'Mountain Climbers', reps:'20-30 total', cat:'cardio'},
+    {name:'Band Bicep Curl', reps:'12-15', cat:'curl'},
   ]},
-  { key:'power', label:'Full Power + Conditioning', focus:'', color:'#c9a84c', type:'workout', sets:2, exercises:[
-    {name:'Burpees', reps:'15-20', cat:'cardio'},
-    {name:'Banded Squats', reps:'15-20', cat:'squat'},
-    {name:'Jump Lunges', reps:'20 (10 each leg)', cat:'lunge'},
-    {name:'Banded Rows', reps:'12-15', cat:'band'},
-    {name:'Banded Push-ups', reps:'10-12', cat:'push'},
-    {name:'Mountain Climbers', reps:'30 (15 each leg)', cat:'cardio'},
-    {name:'Plank (mat)', reps:'60 sec', cat:'plank'},
-    {name:'Skipping — Intervals', reps:'6 min (30s fast/30s easy)', cat:'rope', note:'The main event this session — everything else supports it.'},
+  { key:'fri', label:'Back / Arms / Hamstrings', focus:'', color:'#4a8cc9', type:'workout', sets:2, exercises:[
+    {name:'Band Bent-Over Row', reps:'12-15', cat:'band'},
+    {name:'Band Reverse Fly', reps:'12-15', cat:'band', note:'Stand on the band, hinge forward, sweep both arms out and back — rear delts.'},
+    {name:'Band Romanian Deadlift', reps:'12-15', cat:'hinge'},
+    {name:'Band Bicep Curl', reps:'12-15', cat:'curl'},
+    {name:'Band Hammer Curl', reps:'12-15', cat:'curl'},
+    {name:'Diamond Push-ups', reps:'10-15', cat:'push'},
+    {name:'Glute Bridge', reps:'15-20', cat:'hinge'},
+    {name:'Flutter Kicks', reps:'20-30', cat:'core-raise'},
+    {name:'Bicycle Crunches', reps:'20 total', cat:'core-twist'},
+    {name:'Side Plank', reps:'30-45 sec (each side)', cat:'plank'},
+  ]},
+  { key:'sat', label:'Full Body Strength', focus:'', color:'#c9a84c', type:'workout', sets:2, exercises:[
+    {name:'Band-Resisted Squat', reps:'15', cat:'band'},
+    {name:'Push-ups', reps:'15-20', cat:'push'},
+    {name:'Band Bent-Over Row', reps:'12-15', cat:'band'},
+    {name:'Reverse Lunges', reps:'12 (each leg)', cat:'lunge'},
+    {name:'Band Overhead Press', reps:'12-15', cat:'band'},
+    {name:'Band Bicep Curl', reps:'12-15', cat:'curl'},
+    {name:'Glute Bridge', reps:'20', cat:'hinge'},
+    {name:'Reverse Crunch', reps:'15', cat:'core-raise'},
+    {name:'Mountain Climbers', reps:'30', cat:'cardio'},
+    {name:'Plank', reps:'45-60 sec', cat:'plank'},
+  ]},
+  { key:'sun', label:'Full-Body Conditioning', focus:'controlled pace, not maximal', color:'#cf6b9e', type:'workout', sets:2, exercises:[
+    {name:'Burpees', reps:'8-12', cat:'cardio'},
+    {name:'Squat-to-Knee-Drive', reps:'12 (each leg)', cat:'squat'},
+    {name:'Push-ups', reps:'12-20', cat:'push'},
+    {name:'Band Rows', reps:'15', cat:'band'},
+    {name:'Band Curls', reps:'15', cat:'curl'},
+    {name:'Reverse Lunges', reps:'10 (each leg)', cat:'lunge'},
+    {name:'Band Lateral Raises', reps:'12-15', cat:'band'},
+    {name:'Bicycle Crunches', reps:'20', cat:'core-twist'},
+    {name:'Leg Raises', reps:'10-15', cat:'core-raise'},
+    {name:'Plank', reps:'45 sec', cat:'plank'},
   ]},
 ];
-
-// Optional — only reached for on a genuinely good day. Not part of the
-// count toward "workout done," just there if there's more in the tank.
-const FINISHER = [
-  {name:'High-Intensity Skip — Round 1', reps:'1 min, max effort', cat:'rope'},
-  {name:'High-Intensity Skip — Round 2', reps:'1 min, max effort', cat:'rope'},
-  {name:'High-Intensity Skip — Round 3', reps:'1 min, max effort', cat:'rope'},
-];
-
-const REST_DAY = { type:'recovery', items:[
-  'Walk — 30-45 minutes',
-  'Mat stretching & mobility work',
-  'Optional easy skipping — 2 min, relaxed pace, not a workout',
-  'Hydration — 3-4L water',
-  'Sleep — 8+ hours',
-]};
 
 const WARMUP = [
-  {name:'Easy Skipping', reps:'3-5 min, build pace gradually', cat:'rope'},
   {name:'Arm Circles', reps:'30 sec', cat:'stretch'},
-  {name:'Leg Swings', reps:'10 (each leg)', cat:'stretch'},
-  {name:'Cat-Cow (mat)', reps:'10 cycles', cat:'stretch', note:'On hands and knees, arch and round the spine slowly — wakes up the whole back.'},
+  {name:'March / High Knees', reps:'45 sec', cat:'cardio'},
   {name:'Bodyweight Squats', reps:'15', cat:'squat'},
-  {name:'Shoulder Rolls', reps:'30 sec', cat:'stretch'},
+  {name:'Hip Circles', reps:'30 sec', cat:'stretch'},
+  {name:'Easy Push-ups', reps:'8', cat:'push'},
 ];
 const COOLDOWN = [
-  {name:"Child's Pose (mat)", reps:'45 sec', cat:'stretch'},
-  {name:'Cobra Stretch (mat)', reps:'45 sec', cat:'stretch'},
-  {name:'Hamstring Stretch (mat)', reps:'45 sec (each leg)', cat:'stretch'},
-  {name:'Chest Stretch', reps:'45 sec (each side)', cat:'stretch'},
-  {name:'Calf / Achilles Stretch', reps:'45 sec (each leg)', cat:'stretch'},
-  {name:'Deep Breathing', reps:'5 cycles', cat:'stretch'},
+  {name:"World's Greatest Stretch", reps:'5 (each side)', cat:'stretch'},
+  {name:'Hip-Flexor Stretch', reps:'30 sec (each side)', cat:'stretch'},
+  {name:'Hamstring Stretch', reps:'30 sec (each side)', cat:'stretch'},
+  {name:'Chest / Shoulder Stretch', reps:'30 sec', cat:'stretch'},
+  {name:'Easy Breathing', reps:'2 min', cat:'stretch'},
 ];
 
 const WEEKS = [
-  {wk:'Bursts 1-2', name:'Foundation', items:['Light band throughout, learn the anchor points','Basic skipping, unbroken sets','3 sets, 8-12 reps','45-60 sec rest','Focus on control, not reps']},
-  {wk:'Bursts 3-4', name:'Build', items:['Choke up on the band or move to medium','3-second eccentric on every band movement','Skipping intervals introduced','Rest 45 sec']},
-  {wk:'Bursts 5-6', name:'Challenge', items:['Heaviest comfortable band on main lifts','Push to 15 reps before upgrading tension again','Push skipping intervals harder','Rest 35-40 sec']},
-  {wk:'Bursts 7+', name:'Peak', items:['Highest quality reps at heaviest comfortable band','Attempt double-unders on skipping','Add the Finisher most sessions','Minimal rest']},
+  {wk:'Bursts 1-2', name:'Foundation', items:['Light band throughout, learn every anchor-free setup','2 sets, 45-60 sec rest','Focus on control, not reps','Learn the movements before loading them']},
+  {wk:'Bursts 3-4', name:'Build', items:['Choke up on the band or move to medium tension','3-second lowering phase on every band movement','Rest 45 sec']},
+  {wk:'Bursts 5-6', name:'Strength', items:['Heaviest comfortable band on the main lifts','Push toward the top of the rep range before upgrading again','Rest 35-40 sec']},
+  {wk:'Bursts 7+', name:'Hypertrophy', items:['8-15 reps on harder band movements, 12-20 on easier ones','3-4 second negatives, 1-2 second peak-contraction holds','Progressively stronger bands as 2×15 stops being hard']},
 ];
 const PHASES = [
-  {name:'Phase 1 — Foundation', months:'Bursts 1-5'},
-  {name:'Phase 2 — Strength', months:'Bursts 6-11'},
-  {name:'Phase 3 — Performance', months:'Bursts 12-18+'},
+  {name:'Phase 1 — Foundation', months:'Bursts 1-4'},
+  {name:'Phase 2 — Strength', months:'Bursts 5-8'},
+  {name:'Phase 3 — Hypertrophy', months:'Bursts 9-12+'},
 ];
 
 // ══════════════════════ STATE ══════════════════════
-const STORAGE_KEY = 'body_transformation_v2';
+const STORAGE_KEY = 'body_transformation_v3';
 function freshState(){ return { log:{}, weekly:{}, cycleStart:'2026-08-01' }; }
 let state;
 try { const s = localStorage.getItem(STORAGE_KEY); state = s ? Object.assign(freshState(), JSON.parse(s)) : freshState(); }
@@ -409,7 +423,7 @@ catch(e) { state = freshState(); }
 if(!state.cycleStart) state.cycleStart = '2026-08-01';
 
 let currentBurstIndex = 0;
-let currentPos = 0; // 0-9 work days, 10 = rest
+let currentPos = 0; // 0-10, all 11 days carry a session — no dedicated rest slot
 let isDark = localStorage.getItem('bt-theme') !== 'light';
 
 function pad(n){ return String(n).padStart(2,'0'); }
@@ -420,13 +434,12 @@ function fmtDate(d){ return d.toLocaleDateString('en-GB',{day:'numeric',month:'s
 
 function saveAll(){ try{ localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); }catch(e){} scheduleCloudPush(); }
 
-// ══════════════════════ BURST MATH — same 11-day cycle as The Arc ══════════════════════
+// ══════════════════════ BURST MATH — 11-day cycle, same as The Arc ══════════════════════
 function burstDateRange(index){
   const start = new Date(state.cycleStart+'T00:00:00');
   const workStart = new Date(start.getTime() + index*11*86400000);
-  const workEnd = new Date(workStart.getTime() + 9*86400000);
-  const restDay = new Date(workStart.getTime() + 10*86400000);
-  return { workStart, workEnd, restDay };
+  const workEnd = new Date(workStart.getTime() + 10*86400000);
+  return { workStart, workEnd };
 }
 function burstIndexForToday(){
   const start = new Date(state.cycleStart+'T00:00:00');
@@ -440,14 +453,14 @@ function posForToday(){
   const today = new Date(todayKey()+'T00:00:00');
   const diff = Math.floor((today-start)/86400000);
   if(diff < 0) return 0;
-  return diff % 11; // 0-9 work, 10 rest
+  return diff % 11;
 }
 function dateForPos(burstIndex, pos){
   const { workStart } = burstDateRange(burstIndex);
   return new Date(workStart.getTime() + pos*86400000);
 }
 function dateKeyForPos(burstIndex, pos){ return toKey(dateForPos(burstIndex, pos)); }
-function workoutForPos(pos){ return pos===10 ? REST_DAY : WORKOUT_TYPES[pos % 5]; }
+function workoutForPos(pos){ return WORKOUT_TYPES[pos % 7]; }
 
 function setCycleStart(val){
   state.cycleStart = val;
@@ -475,10 +488,10 @@ function jumpToToday(){ currentBurstIndex = burstIndexForToday(); currentPos = p
 function selectPos(pos){ currentPos = pos; renderAll(); }
 
 function renderBurstHeader(){
-  const { workStart, workEnd, restDay } = burstDateRange(currentBurstIndex);
+  const { workStart, workEnd } = burstDateRange(currentBurstIndex);
   const isCurrentBurst = currentBurstIndex === burstIndexForToday();
   document.getElementById('burstHeading').textContent = 'Burst ' + (currentBurstIndex+1) + (isCurrentBurst ? ' — Current' : '');
-  document.getElementById('burstDates').textContent = fmtDate(workStart) + ' – ' + fmtDate(workEnd) + '  ·  rest day ' + fmtDate(restDay);
+  document.getElementById('burstDates').textContent = fmtDate(workStart) + ' – ' + fmtDate(workEnd) + '  ·  11 days, every one carries a session';
 }
 
 function renderDayStrip(){
@@ -486,52 +499,29 @@ function renderDayStrip(){
   const isCurrentBurst = currentBurstIndex === burstIndexForToday();
   const todayPos = posForToday();
   let html = '';
-  for(let p=0;p<10;p++){
+  for(let p=0;p<11;p++){
+    const day = workoutForPos(p);
     const active = p===currentPos ? 'active' : '';
     const today = (isCurrentBurst && p===todayPos) ? 'today' : '';
+    const light = day.key==='wed' ? 'light' : '';
     const d = dateForPos(currentBurstIndex, p);
-    html += `<div class="day-chip ${active} ${today}" onclick="selectPos(${p})">
+    html += `<div class="day-chip ${active} ${today} ${light}" onclick="selectPos(${p})" title="${esc(day.label)}">
       <div class="dn">DAY ${p+1}</div>
       <div class="df">${fmtDate(d)}</div>
     </div>`;
   }
-  const restActive = currentPos===10 ? 'active' : '';
-  const restToday = (isCurrentBurst && todayPos===10) ? 'today' : '';
-  const restD = dateForPos(currentBurstIndex,10);
-  html += `<div class="day-chip rest ${restActive} ${restToday}" onclick="selectPos(10)">
-    <div class="dn">REST</div>
-    <div class="df">${fmtDate(restD)}</div>
-  </div>`;
   strip.innerHTML = html;
 }
 
 function renderDay(){
   const day = workoutForPos(currentPos);
-  const dayKey = currentPos===10 ? 'rest' : WORKOUT_TYPES[currentPos%5].key;
+  const dayKey = day.key + '-' + currentPos;
   const dateKey = dateKeyForPos(currentBurstIndex, currentPos);
   const log = ensureDayLog(dateKey);
   const body = document.getElementById('dayBody');
 
-  const headingLabel = currentPos===10 ? 'Rest Day' : ('Day ' + (currentPos+1) + ' — ' + day.label + (day.focus?(' ('+day.focus+')'):''));
-  document.getElementById('dayHeading').textContent = headingLabel;
-
-  if(day.type==='recovery'){
-    document.getElementById('daySub').textContent = 'No workout today — recovery is where the transformation actually happens.';
-    document.getElementById('dayProgress').style.width = '0%';
-    let html = `<div class="sleep-row"><label>Hours slept last night</label><input type="number" step="0.5" min="0" max="14" value="${esc(log.sleepHours)}" onchange="setSleepHours(this.value)"></div>`;
-    html += day.items.map((item,i)=>{
-      const done = log.sets['rec-'+i];
-      return `<div class="rec-card">
-        <div class="rec-check ${done?'done':''}" onclick="toggleRecItem(${i})"></div>
-        <div class="rec-text">${esc(item)}</div>
-      </div>`;
-    }).join('');
-    html += `<div class="rec-quote">"Recovery is where the transformation happens."</div>`;
-    body.innerHTML = html;
-    return;
-  }
-
-  document.getElementById('daySub').textContent = day.sets + ' sets · 30-60 sec rest between sets';
+  document.getElementById('dayHeading').textContent = 'Day ' + (currentPos+1) + ' — ' + day.label;
+  document.getElementById('daySub').textContent = day.sets + ' sets · 30-60 sec rest between sets' + (day.focus?' · '+day.focus:'');
 
   let totalBoxes = day.exercises.length * day.sets;
   let doneBoxes = 0;
@@ -539,7 +529,7 @@ function renderDay(){
   document.getElementById('dayProgress').style.width = (totalBoxes?Math.round(doneBoxes/totalBoxes*100):0)+'%';
 
   let html = `<div class="sleep-row"><label>Hours slept last night</label><input type="number" step="0.5" min="0" max="14" value="${esc(log.sleepHours)}" onchange="setSleepHours(this.value)"></div>`;
-  html += '<div class="section-label">Warm-Up — 5-10 minutes</div>';
+  html += '<div class="section-label">Warm-Up — 4-5 minutes</div>';
   html += renderMiniList(WARMUP, 'warmup', log);
   html += '<div class="section-label">Workout</div>';
   html += day.exercises.map((ex,i)=>{
@@ -558,10 +548,7 @@ function renderDay(){
       <div class="ex-sets">${setsHtml}</div>
     </div>`;
   }).join('');
-  html += '<div class="section-label">Optional Finisher</div>';
-  html += '<div class="section-hint">Only if there\'s more in the tank — doesn\'t count against the workout being "done."</div>';
-  html += renderMiniList(FINISHER, 'finisher', log);
-  html += '<div class="section-label">Cool-Down — 5 minutes</div>';
+  html += '<div class="section-label">Cool-Down — 4-5 minutes</div>';
   html += renderMiniList(COOLDOWN, 'cooldown', log);
 
   body.innerHTML = html;
@@ -597,12 +584,6 @@ function toggleMini(key){
   log.sets[key] = !log.sets[key];
   renderDay(); saveAll();
 }
-function toggleRecItem(i){
-  const log = ensureDayLog(currentDateKey());
-  const key = 'rec-'+i;
-  log.sets[key] = !log.sets[key];
-  renderDay(); saveAll();
-}
 
 function renderAll(){
   renderBurstHeader();
@@ -630,7 +611,7 @@ function renderGuide(){
 
 // ══════════════════════ BURST TRACKER TAB ══════════════════════
 const TRACKER_FIELDS = [
-  {key:'workouts', label:'Workouts done'}, {key:'weight', label:'Weight (kg)'},
+  {key:'workouts', label:'Sessions done'}, {key:'weight', label:'Weight (kg)'},
   {key:'waist', label:'Waist (cm)'}, {key:'bandlevel', label:'Band level (light/med/heavy)'},
   {key:'skiptime', label:'Longest unbroken skip (min)'}, {key:'plank', label:'Plank max (sec)'},
   {key:'squats', label:'Squats max'}, {key:'energy', label:'Energy (1-5)'},
@@ -665,6 +646,8 @@ function showTab(name, el){
   document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
   el.classList.add('active');
   document.getElementById('page-'+name).classList.add('active');
+  if(name==='guide') renderGuide();
+  if(name==='tracker') renderTracker();
 }
 function toggleTheme(){
   isDark = !isDark;
@@ -675,7 +658,7 @@ function exportData(){
   const blob = new Blob([JSON.stringify(state,null,2)],{type:'application/json'});
   const a = document.createElement('a');
   a.href = URL.createObjectURL(blob);
-  a.download = 'body-transformation-export.json';
+  a.download = 'band-mat-export.json';
   a.click();
 }
 function importData(e){
