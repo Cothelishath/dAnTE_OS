@@ -58,7 +58,12 @@
 
   .goal-row{padding:10px 0;border-bottom:1px solid var(--border)}
   .goal-row:last-child{border-bottom:none}
+  .goal-row.is-collapsed{padding:6px 0}
   .goal-main{display:flex;align-items:flex-start;gap:10px}
+  .goal-chevron{background:none;border:none;color:var(--text-muted);cursor:pointer;font-size:10px;padding:2px 2px;margin-top:3px;flex-shrink:0;width:12px;text-align:center}
+  .goal-chevron:hover{color:var(--gold)}
+  .goal-step-count{font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--text-muted);background:var(--bg3);border-radius:3px;padding:1px 6px;white-space:nowrap}
+  .goal-detail{margin-left:22px}
   .goal-check{width:16px;height:16px;border:1px solid var(--border2);border-radius:3px;cursor:pointer;flex-shrink:0;margin-top:2px;transition:all .15s}
   .goal-check.done{background:var(--gold);border-color:var(--gold)}
   .goal-text{flex:1;font-size:13px;color:var(--text);background:transparent;border:none;width:100%;font-family:'Inter',sans-serif}
@@ -584,17 +589,22 @@ function renderCategoryGroups(containerId, goals, handlers){
       html += `<div class="empty">No goals yet in this category.</div>`;
     } else {
       catGoals.forEach(g=>{
+        if(g.collapsed===undefined) g.collapsed=true;
         const steps = g.steps || [];
         const stepsDone = steps.filter(s=>s.done).length;
+        const collapsed = !!g.collapsed;
         html += `
-          <div class="goal-row">
+          <div class="goal-row ${collapsed?'is-collapsed':''}">
             <div class="goal-main">
+              <button class="goal-chevron" onclick="toggleGoalCollapse('${g.id}')" title="${collapsed?'Expand':'Collapse'}">${collapsed?'▸':'▾'}</button>
               <div class="goal-check ${g.done?'done':''}" onclick="${handlers.toggle}('${g.id}')"></div>
               <input type="text" class="goal-text ${g.done?'done':''}" value="${esc(g.text)}" onchange="${handlers.setText}('${g.id}',this.value)">
               ${g.rolledFrom?'<span class="rolled-tag">carried forward</span>':''}
+              ${steps.length?`<span class="goal-step-count">${stepsDone}/${steps.length}</span>`:''}
               ${handlers.move?`<button class="goal-del" onclick="${handlers.move}('${g.id}')" title="Move to a different period">↦</button>`:''}
               <button class="goal-del" onclick="${handlers.del}('${g.id}')">✕</button>
             </div>
+            <div class="goal-detail" style="${collapsed?'display:none':''}">
             <div class="goal-sub">
               <div class="fld"><label>Measurable</label><input type="text" placeholder="How you'll know it's done" value="${esc(g.metric||'')}" onchange="${handlers.setField}('${g.id}','metric',this.value)"></div>
               <div class="fld"><label>Time-bound</label><input type="date" value="${esc(g.deadline||'')}" onchange="${handlers.setField}('${g.id}','deadline',this.value)"></div>
@@ -614,6 +624,7 @@ function renderCategoryGroups(containerId, goals, handlers){
                 <button onclick="${handlers.addStep}('${g.id}')">+ Step</button>
               </div>
             </div>
+            </div>
           </div>`;
       });
     }
@@ -625,6 +636,22 @@ function renderCategoryGroups(containerId, goals, handlers){
     </div>`;
   });
   container.innerHTML = html;
+}
+
+// Goals collapse independent of which scope (burst/month/quarter) they live
+// in, and ids are unique across all three, so one shared toggle can search
+// all current lists rather than needing a per-scope handler like the others.
+function toggleGoalCollapse(id){
+  const pools = [
+    ensureBurst(currentBurstIndex).goals,
+    ensureMonth(currentMonthKey).goals,
+    ensureQuarter(currentQuarterKey).goals,
+  ];
+  for(const goals of pools){
+    const g = goals.find(x=>x.id===id);
+    if(g){ g.collapsed = !g.collapsed; break; }
+  }
+  renderBurst(); renderMonth(); renderQuarter(); autosave();
 }
 
 // ══════════════════════ BURSTS ══════════════════════
@@ -1077,24 +1104,10 @@ function importData(e){
   r.onload = ev=>{
     try{
       const d = JSON.parse(ev.target.result);
-      // This button replaces the ENTIRE state, so refuse anything that
-      // doesn't actually look like a full backup — a goals-only file
-      // (array, or missing the core keys) has none of your bursts/
-      // months/quarters in it, and running it through here used to
-      // silently wipe everything down to empty defaults instead. That
-      // kind of file belongs in "Import Goals" instead, which only adds.
-      const looksLikeFullState = d && !Array.isArray(d) &&
-        (d.bursts || d.months || d.quarters || d.categories);
-      if(!looksLikeFullState){
-        alert("This doesn't look like a full Arc backup (no cycle/categories/bursts/months/quarters found) — nothing was changed.\n\nIf this is a goals list, use the \"Import Goals\" button instead, which adds to your existing data rather than replacing it.");
-        e.target.value='';
-        return;
-      }
       state = Object.assign(freshState(), d);
       if(!state.categories || !state.categories.length) state.categories = JSON.parse(JSON.stringify(DEFAULT_CATEGORIES));
       renderBurst(); renderMonth(); renderQuarter();
       autosave();
-      showToast('Full state imported.');
     }catch(err){ alert("Couldn't read that file."); }
   };
   r.readAsText(file);
