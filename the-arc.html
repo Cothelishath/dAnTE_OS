@@ -52,6 +52,8 @@
   .cat-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
   .cat-name{font-family:'Cormorant Garamond',serif;font-size:16px;color:var(--text);flex:1}
   .cat-prog{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--text-muted)}
+  .cat-chevron{background:none;border:none;color:var(--text-muted);cursor:pointer;font-size:10px;padding:2px 2px;flex-shrink:0;width:12px;text-align:center}
+  .cat-chevron:hover{color:var(--gold)}
 
   .progress-bar{height:4px;background:var(--bg3);border-radius:2px;overflow:hidden;margin:10px 0}
   .progress-fill{height:100%;background:var(--gold);transition:width .3s}
@@ -59,7 +61,9 @@
   .goal-row{padding:10px 0;border-bottom:1px solid var(--border)}
   .goal-row:last-child{border-bottom:none}
   .goal-row.is-collapsed{padding:6px 0}
-  .goal-main{display:flex;align-items:flex-start;gap:10px}
+  .goal-row.status-deferred{opacity:.65}
+  .goal-row.status-dropped{opacity:.4}
+  .goal-main{display:flex;align-items:flex-start;gap:10px;flex-wrap:wrap}
   .goal-chevron{background:none;border:none;color:var(--text-muted);cursor:pointer;font-size:10px;padding:2px 2px;margin-top:3px;flex-shrink:0;width:12px;text-align:center}
   .goal-chevron:hover{color:var(--gold)}
   .goal-step-count{font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--text-muted);background:var(--bg3);border-radius:3px;padding:1px 6px;white-space:nowrap}
@@ -73,6 +77,10 @@
   .goal-row:hover .goal-del{opacity:1}
   .goal-del:hover{color:var(--red)}
   .rolled-tag{font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--gold-dim);background:var(--gold-glow);padding:1px 6px;border-radius:3px;margin-left:6px;white-space:nowrap}
+  .status-tag{font-family:'JetBrains Mono',monospace;font-size:9px;padding:1px 7px;border-radius:3px;margin-left:6px;white-space:nowrap;cursor:pointer;border:1px solid var(--border2);color:var(--text-muted);user-select:none}
+  .status-tag:hover{border-color:var(--gold-dim)}
+  .status-tag.status-deferred{color:#c9a84c;border-color:#8a6f2e;background:rgba(201,168,76,.08)}
+  .status-tag.status-dropped{color:var(--red);border-color:var(--red);background:rgba(192,57,43,.08)}
 
   .goal-sub{margin-left:26px;margin-top:6px;display:grid;grid-template-columns:1fr 1fr;gap:6px}
   .goal-sub .fld{display:flex;flex-direction:column;gap:2px}
@@ -334,7 +342,7 @@ function starterGoals(scope){
     learning:'Block 30 minutes on the calendar.',
   };
   const generic = DEFAULT_CATEGORIES.filter(c=>c.id!=='income' && c.id!=='faith' && c.id!=='personal').map(c=>({
-    id: uid(), catId: c.id, text: base[c.id][scope], done:false,
+    id: uid(), catId: c.id, text: base[c.id][scope], done:false, status:'active',
     metric: metrics[c.id], deadline:'', mva: mvas[c.id], steps:[]
   }));
   return [...incomeStarterGoals(scope), ...faithStarterGoals(scope), ...personalStarterGoals(scope), ...generic];
@@ -347,7 +355,7 @@ function starterGoals(scope){
 // is already there, not replacing it.
 function faithStarterGoals(scope){
   const mk = (text, metric, mva, steps) => ({
-    id: uid(), catId:'faith', text, done:false, metric, deadline:'', mva,
+    id: uid(), catId:'faith', text, done:false, status:'active', metric, deadline:'', mva,
     steps: steps.map(t=>({id:uid(), text:t, done:false}))
   });
 
@@ -419,7 +427,7 @@ function faithStarterGoals(scope){
 // since you flagged "goals for me" as broader than just this.
 function personalStarterGoals(scope){
   const mk = (text, metric, mva, steps) => ({
-    id: uid(), catId:'personal', text, done:false, metric, deadline:'', mva,
+    id: uid(), catId:'personal', text, done:false, status:'active', metric, deadline:'', mva,
     steps: steps.map(t=>({id:uid(), text:t, done:false}))
   });
 
@@ -453,7 +461,7 @@ function personalStarterGoals(scope){
 
 function incomeStarterGoals(scope){
   const mk = (text, metric, mva, steps) => ({
-    id: uid(), catId:'income', text, done:false, metric, deadline:'', mva,
+    id: uid(), catId:'income', text, done:false, status:'active', metric, deadline:'', mva,
     steps: steps.map(t=>({id:uid(), text:t, done:false}))
   });
 
@@ -563,6 +571,8 @@ function pad(n){ return String(n).padStart(2,'0'); }
 function toKey(d){ return d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate()); }
 function todayKey(){ return toKey(new Date()); }
 function catById(id){ return state.categories.find(c=>c.id===id); }
+function nextStatus(s){ const order=['active','deferred','dropped']; const i=order.indexOf(s||'active'); return order[(i+1)%order.length]; }
+function statusLabel(s){ return s==='deferred' ? 'Deferred' : s==='dropped' ? 'Dropped' : 'Active'; }
 
 function saveAll(){
   try { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); } catch(e){}
@@ -578,62 +588,69 @@ function renderCategoryGroups(containerId, goals, handlers){
   let html = '';
   state.categories.forEach(cat=>{
     const catGoals = goals.filter(g=>g.catId===cat.id);
-    const done = catGoals.filter(g=>g.done).length;
+    const activeCatGoals = catGoals.filter(g=>(g.status||'active')!=='dropped');
+    const done = activeCatGoals.filter(g=>g.done).length;
+    const catCollapsed = !!cat.collapsed;
     html += `<div class="cat-block">
       <div class="cat-hd">
+        <button class="cat-chevron" onclick="toggleCatCollapse('${cat.id}')" title="${catCollapsed?'Expand category':'Collapse category'}">${catCollapsed?'▸':'▾'}</button>
         <div class="cat-dot" style="background:${cat.color}"></div>
         <div class="cat-name">${esc(cat.name)}</div>
-        <div class="cat-prog">${catGoals.length ? done+'/'+catGoals.length : '—'}</div>
+        <div class="cat-prog">${activeCatGoals.length ? done+'/'+activeCatGoals.length : '—'}</div>
       </div>`;
-    if(!catGoals.length){
-      html += `<div class="empty">No goals yet in this category.</div>`;
-    } else {
-      catGoals.forEach(g=>{
-        if(g.collapsed===undefined) g.collapsed=true;
-        const steps = g.steps || [];
-        const stepsDone = steps.filter(s=>s.done).length;
-        const collapsed = !!g.collapsed;
-        html += `
-          <div class="goal-row ${collapsed?'is-collapsed':''}">
-            <div class="goal-main">
-              <button class="goal-chevron" onclick="toggleGoalCollapse('${g.id}')" title="${collapsed?'Expand':'Collapse'}">${collapsed?'▸':'▾'}</button>
-              <div class="goal-check ${g.done?'done':''}" onclick="${handlers.toggle}('${g.id}')"></div>
-              <input type="text" class="goal-text ${g.done?'done':''}" value="${esc(g.text)}" onchange="${handlers.setText}('${g.id}',this.value)">
-              ${g.rolledFrom?'<span class="rolled-tag">carried forward</span>':''}
-              ${steps.length?`<span class="goal-step-count">${stepsDone}/${steps.length}</span>`:''}
-              ${handlers.move?`<button class="goal-del" onclick="${handlers.move}('${g.id}')" title="Move to a different period">↦</button>`:''}
-              <button class="goal-del" onclick="${handlers.del}('${g.id}')">✕</button>
-            </div>
-            <div class="goal-detail" style="${collapsed?'display:none':''}">
-            <div class="goal-sub">
-              <div class="fld"><label>Measurable</label><input type="text" placeholder="How you'll know it's done" value="${esc(g.metric||'')}" onchange="${handlers.setField}('${g.id}','metric',this.value)"></div>
-              <div class="fld"><label>Time-bound</label><input type="date" value="${esc(g.deadline||'')}" onchange="${handlers.setField}('${g.id}','deadline',this.value)"></div>
-              <div class="fld mva"><label>Minimum viable action</label><input type="text" placeholder="Smallest possible first step" value="${esc(g.mva||'')}" onchange="${handlers.setField}('${g.id}','mva',this.value)"></div>
-            </div>
-            <div class="steps-block">
-              <div class="steps-label">Path to actually get there${steps.length?' — '+stepsDone+'/'+steps.length:''}</div>
-              ${steps.map((s,i)=>`
-                <div class="step-row">
-                  <div class="step-check ${s.done?'done':''}" onclick="${handlers.toggleStep}('${g.id}','${s.id}')"></div>
-                  <span class="step-num">${i+1}.</span>
-                  <input type="text" class="step-text ${s.done?'done':''}" value="${esc(s.text)}" onchange="${handlers.setStepText}('${g.id}','${s.id}',this.value)">
-                  <button class="step-del" onclick="${handlers.delStep}('${g.id}','${s.id}')">✕</button>
-                </div>`).join('')}
-              <div class="step-add-row">
-                <input type="text" id="newstep-${containerId}-${g.id}" placeholder="Add the next concrete step…" onkeydown="if(event.key==='Enter')${handlers.addStep}('${g.id}')">
-                <button onclick="${handlers.addStep}('${g.id}')">+ Step</button>
+    if(!catCollapsed){
+      if(!catGoals.length){
+        html += `<div class="empty">No goals yet in this category.</div>`;
+      } else {
+        catGoals.forEach(g=>{
+          if(g.collapsed===undefined) g.collapsed=true;
+          const steps = g.steps || [];
+          const stepsDone = steps.filter(s=>s.done).length;
+          const collapsed = !!g.collapsed;
+          const status = g.status || 'active';
+          html += `
+            <div class="goal-row ${collapsed?'is-collapsed':''} ${status!=='active'?'status-'+status:''}">
+              <div class="goal-main">
+                <button class="goal-chevron" onclick="toggleGoalCollapse('${g.id}')" title="${collapsed?'Expand':'Collapse'}">${collapsed?'▸':'▾'}</button>
+                <div class="goal-check ${g.done?'done':''}" onclick="${handlers.toggle}('${g.id}')"></div>
+                <input type="text" class="goal-text ${g.done?'done':''}" value="${esc(g.text)}" onchange="${handlers.setText}('${g.id}',this.value)">
+                ${g.rolledFrom?'<span class="rolled-tag">carried forward</span>':''}
+                ${steps.length?`<span class="goal-step-count">${stepsDone}/${steps.length}</span>`:''}
+                <span class="status-tag status-${status}" onclick="${handlers.cycleStatus}('${g.id}')" title="Click to cycle: Active → Deferred → Dropped">${statusLabel(status)}</span>
+                ${handlers.move?`<button class="goal-del" onclick="${handlers.move}('${g.id}')" title="Move to a different period">↦</button>`:''}
+                <button class="goal-del" onclick="${handlers.del}('${g.id}')">✕</button>
               </div>
-            </div>
-            </div>
-          </div>`;
-      });
+              <div class="goal-detail" style="${collapsed?'display:none':''}">
+              <div class="goal-sub">
+                <div class="fld"><label>Measurable</label><input type="text" placeholder="How you'll know it's done" value="${esc(g.metric||'')}" onchange="${handlers.setField}('${g.id}','metric',this.value)"></div>
+                <div class="fld"><label>Time-bound</label><input type="date" value="${esc(g.deadline||'')}" onchange="${handlers.setField}('${g.id}','deadline',this.value)"></div>
+                <div class="fld mva"><label>Minimum viable action</label><input type="text" placeholder="Smallest possible first step" value="${esc(g.mva||'')}" onchange="${handlers.setField}('${g.id}','mva',this.value)"></div>
+              </div>
+              <div class="steps-block">
+                <div class="steps-label">Path to actually get there${steps.length?' — '+stepsDone+'/'+steps.length:''}</div>
+                ${steps.map((s,i)=>`
+                  <div class="step-row">
+                    <div class="step-check ${s.done?'done':''}" onclick="${handlers.toggleStep}('${g.id}','${s.id}')"></div>
+                    <span class="step-num">${i+1}.</span>
+                    <input type="text" class="step-text ${s.done?'done':''}" value="${esc(s.text)}" onchange="${handlers.setStepText}('${g.id}','${s.id}',this.value)">
+                    <button class="step-del" onclick="${handlers.delStep}('${g.id}','${s.id}')">✕</button>
+                  </div>`).join('')}
+                <div class="step-add-row">
+                  <input type="text" id="newstep-${containerId}-${g.id}" placeholder="Add the next concrete step…" onkeydown="if(event.key==='Enter')${handlers.addStep}('${g.id}')">
+                  <button onclick="${handlers.addStep}('${g.id}')">+ Step</button>
+                </div>
+              </div>
+              </div>
+            </div>`;
+        });
+      }
+      html += `
+        <div class="add-row">
+          <input type="text" id="new-${containerId}-${cat.id}" placeholder="Add a ${esc(cat.name)} goal…" onkeydown="if(event.key==='Enter')${handlers.add}('${cat.id}')">
+          <button onclick="${handlers.add}('${cat.id}')">Add</button>
+        </div>`;
     }
-    html += `
-      <div class="add-row">
-        <input type="text" id="new-${containerId}-${cat.id}" placeholder="Add a ${esc(cat.name)} goal…" onkeydown="if(event.key==='Enter')${handlers.add}('${cat.id}')">
-        <button onclick="${handlers.add}('${cat.id}')">Add</button>
-      </div>
-    </div>`;
+    html += `</div>`;
   });
   container.innerHTML = html;
 }
@@ -652,6 +669,13 @@ function toggleGoalCollapse(id){
     if(g){ g.collapsed = !g.collapsed; break; }
   }
   renderBurst(); renderMonth(); renderQuarter(); autosave();
+}
+
+// Categories are shared across all three scopes, so collapsing one collapses
+// it everywhere — consistent with the category list itself being global.
+function toggleCatCollapse(id){
+  const cat = catById(id);
+  if(cat){ cat.collapsed = !cat.collapsed; renderBurst(); renderMonth(); renderQuarter(); autosave(); }
 }
 
 // ══════════════════════ BURSTS ══════════════════════
@@ -683,7 +707,7 @@ function rolloverBursts(){
     if(!past) continue;
     (past.goals||[]).forEach(g=>{
       if(!g.done && !g.rolledOver && !cur.goals.find(x=>x.rolledFrom===g.id)){
-        cur.goals.push({ id:uid(), text:g.text, done:false, catId:g.catId, metric:g.metric, deadline:g.deadline, mva:g.mva, rolledFrom:g.id, rolledFromBurst:i });
+        cur.goals.push({ id:uid(), text:g.text, done:false, status:'active', catId:g.catId, metric:g.metric, deadline:g.deadline, mva:g.mva, rolledFrom:g.id, rolledFromBurst:i });
         g.rolledOver = true;
       }
     });
@@ -739,7 +763,7 @@ function renderBurst(){
 
   renderCategoryGroups('burstCategories', burst.goals || [], {
     toggle:'toggleBurstGoal', del:'deleteBurstGoal', add:'addBurstGoal',
-    setText:'setBurstGoalText', setField:'setBurstGoalField',
+    setText:'setBurstGoalText', setField:'setBurstGoalField', cycleStatus:'cycleBurstGoalStatus',
     toggleStep:'toggleBurstStep', setStepText:'setBurstStepText', delStep:'deleteBurstStep', addStep:'addBurstStep', move:'moveBurstGoal'
   });
 }
@@ -748,13 +772,14 @@ function addBurstGoal(catId){
   const input = document.getElementById('new-burstCategories-'+catId);
   const text = input.value.trim();
   if(!text) return;
-  ensureBurst(currentBurstIndex).goals.push({ id:uid(), text, done:false, catId, metric:'', deadline:'', mva:'', steps:[] });
+  ensureBurst(currentBurstIndex).goals.push({ id:uid(), text, done:false, status:'active', catId, metric:'', deadline:'', mva:'', steps:[] });
   input.value='';
   renderBurst(); autosave();
 }
 function toggleBurstGoal(id){ const g=ensureBurst(currentBurstIndex).goals.find(x=>x.id===id); if(g){g.done=!g.done; renderBurst(); autosave();} }
 function setBurstGoalText(id,val){ const g=ensureBurst(currentBurstIndex).goals.find(x=>x.id===id); if(g){g.text=val; autosave();} }
 function setBurstGoalField(id,field,val){ const g=ensureBurst(currentBurstIndex).goals.find(x=>x.id===id); if(g){g[field]=val; autosave();} }
+function cycleBurstGoalStatus(id){ const g=ensureBurst(currentBurstIndex).goals.find(x=>x.id===id); if(g){ g.status=nextStatus(g.status); renderBurst(); autosave(); } }
 function deleteBurstGoal(id){ const b=ensureBurst(currentBurstIndex); b.goals=b.goals.filter(x=>x.id!==id); renderBurst(); autosave(); }
 function moveBurstGoal(id){
   const input = prompt('Move to which burst number? (e.g. 2 for Burst 2)', currentBurstIndex+2);
@@ -810,7 +835,7 @@ function renderMonth(){
 
   renderCategoryGroups('monthCategories', goals, {
     toggle:'toggleMonthGoal', del:'deleteMonthGoal', add:'addMonthGoal',
-    setText:'setMonthGoalText', setField:'setMonthGoalField',
+    setText:'setMonthGoalText', setField:'setMonthGoalField', cycleStatus:'cycleMonthGoalStatus',
     toggleStep:'toggleMonthStep', setStepText:'setMonthStepText', delStep:'deleteMonthStep', addStep:'addMonthStep', move:'moveMonthGoal'
   });
 }
@@ -819,13 +844,14 @@ function addMonthGoal(catId){
   const input = document.getElementById('new-monthCategories-'+catId);
   const text = input.value.trim();
   if(!text) return;
-  ensureMonth(currentMonthKey).goals.push({ id:uid(), text, done:false, catId, metric:'', deadline:'', mva:'', steps:[] });
+  ensureMonth(currentMonthKey).goals.push({ id:uid(), text, done:false, status:'active', catId, metric:'', deadline:'', mva:'', steps:[] });
   input.value='';
   renderMonth(); autosave();
 }
 function toggleMonthGoal(id){ const g=ensureMonth(currentMonthKey).goals.find(x=>x.id===id); if(g){g.done=!g.done; renderMonth(); autosave();} }
 function setMonthGoalText(id,val){ const g=ensureMonth(currentMonthKey).goals.find(x=>x.id===id); if(g){g.text=val; autosave();} }
 function setMonthGoalField(id,field,val){ const g=ensureMonth(currentMonthKey).goals.find(x=>x.id===id); if(g){g[field]=val; autosave();} }
+function cycleMonthGoalStatus(id){ const g=ensureMonth(currentMonthKey).goals.find(x=>x.id===id); if(g){ g.status=nextStatus(g.status); renderMonth(); autosave(); } }
 function deleteMonthGoal(id){ const m=ensureMonth(currentMonthKey); m.goals=m.goals.filter(x=>x.id!==id); renderMonth(); autosave(); }
 function moveMonthGoal(id){
   const input = prompt('Move to which month? (format YYYY-MM, e.g. 2026-08)', shiftMonthKey(currentMonthKey,1));
@@ -878,7 +904,7 @@ function renderQuarter(){
 
   renderCategoryGroups('quarterCategories', quarter.goals || [], {
     toggle:'toggleQuarterGoal', del:'deleteQuarterGoal', add:'addQuarterGoal',
-    setText:'setQuarterGoalText', setField:'setQuarterGoalField',
+    setText:'setQuarterGoalText', setField:'setQuarterGoalField', cycleStatus:'cycleQuarterGoalStatus',
     toggleStep:'toggleQuarterStep', setStepText:'setQuarterStepText', delStep:'deleteQuarterStep', addStep:'addQuarterStep', move:'moveQuarterGoal'
   });
 }
@@ -887,13 +913,14 @@ function addQuarterGoal(catId){
   const input = document.getElementById('new-quarterCategories-'+catId);
   const text = input.value.trim();
   if(!text) return;
-  ensureQuarter(currentQuarterKey).goals.push({ id:uid(), text, done:false, catId, metric:'', deadline:'', mva:'', steps:[] });
+  ensureQuarter(currentQuarterKey).goals.push({ id:uid(), text, done:false, status:'active', catId, metric:'', deadline:'', mva:'', steps:[] });
   input.value='';
   renderQuarter(); autosave();
 }
 function toggleQuarterGoal(id){ const g=ensureQuarter(currentQuarterKey).goals.find(x=>x.id===id); if(g){g.done=!g.done; renderQuarter(); autosave();} }
 function setQuarterGoalText(id,val){ const g=ensureQuarter(currentQuarterKey).goals.find(x=>x.id===id); if(g){g.text=val; autosave();} }
 function setQuarterGoalField(id,field,val){ const g=ensureQuarter(currentQuarterKey).goals.find(x=>x.id===id); if(g){g[field]=val; autosave();} }
+function cycleQuarterGoalStatus(id){ const g=ensureQuarter(currentQuarterKey).goals.find(x=>x.id===id); if(g){ g.status=nextStatus(g.status); renderQuarter(); autosave(); } }
 function deleteQuarterGoal(id){ const q=ensureQuarter(currentQuarterKey); q.goals=q.goals.filter(x=>x.id!==id); renderQuarter(); autosave(); }
 function moveQuarterGoal(id){
   const input = prompt('Move to which quarter? (format YYYY-Q#, e.g. 2026-Q4)', shiftQuarterKey(currentQuarterKey,1));
@@ -1051,7 +1078,7 @@ function confirmGoalsImport(){
 
   pendingImportGoals.forEach(g=>{
     target.push({
-      id: uid(), text: g.text, done: g.done,
+      id: uid(), text: g.text, done: g.done, status:'active',
       catId: resolveCategoryId(g.catName),
       metric: g.metric, deadline: g.deadline, mva: g.mva,
       steps: (g.steps||[]).map(s=>({id:uid(), text:s.text, done:s.done}))
