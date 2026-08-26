@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- v4 — 20 Jul 2026 — fixes: wellbeing sliders persist; Sober/Used tag now actually saves; cloud sync now bundles custom activities and item overrides, not just db -->
+<!-- v5 — 25 Aug 2026 — fixes: anchor verse + currently-reading now persist per-day (autosave on edit, snapshot in history); custom milestones added -->
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -216,6 +216,7 @@ body.light .ci-bar { background:rgba(0,0,0,0.07); }
 .interrupt-grid { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
 @media (max-width:520px) { .interrupt-grid { grid-template-columns:1fr; } }
 .interrupt-input { width:100%; background:var(--surface2); border:1px solid var(--border); border-radius:4px; color:var(--text); font-family:var(--font-sans); font-size:11px; padding:8px 10px; outline:none; }
+.interrupt-input:disabled { opacity:.5; cursor:not-allowed; }
 .book-tag { display:inline-flex; align-items:center; gap:4px; background:var(--surface); border:1px solid var(--border); border-radius:12px; padding:3px 8px; font-size:9px; margin:3px 4px 0 0; }
 .book-tag button { background:none; border:none; color:var(--text-dim); cursor:pointer; font-size:10px; padding:0; }
 .tc-num { font-size:7px; letter-spacing:0.18em; color:var(--text-dim); text-transform:uppercase; margin-bottom:3px; }
@@ -808,7 +809,7 @@ body.light .aic-bar-track { background:rgba(0,0,0,0.07); }
     <div class="interrupt-grid">
       <div>
         <div class="va-name" style="margin-bottom:6px;">Anchor verse for today</div>
-        <input type="text" id="anchorVerseInput" class="interrupt-input" placeholder="e.g. Psalm 90:12" oninput="today.anchorVerse=this.value; db.currentAnchorVerse=this.value; scheduleCloudPush();">
+        <input type="text" id="anchorVerseInput" class="interrupt-input" placeholder="e.g. Psalm 90:12" oninput="today.anchorVerse=this.value; db.currentAnchorVerse=this.value; scheduleDayAutosave();">
       </div>
       <div>
         <div class="va-name" style="margin-bottom:6px;">Currently reading</div>
@@ -1207,6 +1208,22 @@ body.light .aic-bar-track { background:rgba(0,0,0,0.07); }
   <div class="sec"><div class="sec-head">Streak Achievements</div><div class="ms-grid" id="ms-streak"></div></div>
   <div class="sec"><div class="sec-head">Compound Achievements</div><div class="ms-grid" id="ms-compound"></div></div>
   <div class="sec"><div class="sec-head">Area Mastery</div><div class="ms-grid" id="ms-areas"></div></div>
+  <div class="sec">
+    <div class="sec-head">Custom Milestones <span style="font-weight:400;color:var(--text-dim);font-size:9px">— your own, marked by hand</span></div>
+    <div class="ms-grid" id="ms-custom"></div>
+    <div class="add-item-row" style="margin-top:10px">
+      <input class="add-input" id="cmIcon" placeholder="Icon (emoji)" style="max-width:60px;text-align:center">
+      <input class="add-input" id="cmName" placeholder="Milestone name...">
+    </div>
+    <div class="add-item-row" style="margin-top:6px">
+      <input class="add-input" id="cmDesc" placeholder="Description...">
+    </div>
+    <div class="add-item-row" style="margin-top:6px">
+      <input class="add-input" id="cmReq" placeholder="What counts as hitting it...">
+      <button class="modal-btn" onclick="addCustomMilestone()">+ Add</button>
+    </div>
+    <div class="hint" style="font-family:var(--font-mono);font-size:9px;color:var(--text-dim);margin-top:6px">Self-declared — tap the status line on the card to mark it unlocked or locked again. Nothing here is auto-calculated.</div>
+  </div>
 </div>
 
 <!-- REWARDS -->
@@ -1541,9 +1558,22 @@ let db = { history:[], milestones:{}, compound:{}, rewardsCatalogue:[], rewardsE
 let today = freshToday();
 let currentViewDate = null;
 let appearance = { mode:'dark', accent:null, size:'13px', fonts:null, title:null, subtitle:null };
+let dayMetaSaveTimer = null;
 
 function freshToday() {
   return { tier:null, checks:{}, va:{prayer:0,book1:0,book2:0,workout:0}, multi:{}, skill:null, gpB:{}, metrics:{balance:'',trade:'',charts:''}, journal:{win:'',lesson:'',intention:''}, onePercent:'', seed:false, dayType:null, areas:{}, counts:{}, water:0, meditation:{type:null,blocks:0}, steps:'', anchorVerse:(typeof db!=='undefined' && db && db.currentAnchorVerse) || '', stateTag:null, wellbeing:{energy:5,heaviness:5,clarity:5,restlessness:5,urge:0}, wellbeingTouched:false };
+}
+
+// A moment's worth of edits — anchor verse text, or a currently-reading tag
+// being added/removed — should persist for that specific day the instant
+// they happen, not just when "Record This Day" is pressed. This writes a
+// full (silent — no toast/achievement popups) day entry immediately, so
+// the current day is captured in the record from the very first keystroke,
+// and so navigating back to any earlier day later shows exactly what was
+// true for that day, not whatever's live right now.
+function scheduleDayAutosave(){
+  clearTimeout(dayMetaSaveTimer);
+  dayMetaSaveTimer = setTimeout(()=>saveDay(true), 800);
 }
 
 // ── DAY NAVIGATION — view/edit the full dashboard for any date ──
@@ -1607,6 +1637,9 @@ function loadDay(dateKey) {
   updateDayNavStatus(entry);
   updateUI();
   document.getElementById('dayNavPicker').value = dateKey;
+  renderReadingTags();
+  const readingInput = document.getElementById('readingInput');
+  if(readingInput) readingInput.disabled = (dateKey !== getTodayKey());
 }
 
 function shiftViewDate(delta) {
@@ -1686,38 +1719,27 @@ function updateDateHeader() {
 }
 
 // ── DB ──
-const SEED_DATA = {"history": [{"date": "2026-04-23", "ap": 107, "gp": 50, "rank": "Bronze", "seed": true, "onePercent": "", "journal": {"win": "First 'work' day at Sars Road...", "lesson": "I cannot talk my way out of problem I behave my way into...", "intention": ""}, "metrics": {"balance": "", "trade": "", "charts": ""}, "areaAP": {"faith": 20, "health": 0, "mind": 10, "craft": 15, "finance": 35, "character": 15, "career": 0, "business": 0, "relationships": 0, "creative": 0, "environment": 12}, "state": {"tier": null, "checks": {"output": true, "journal-output": true, "nodbt": true, "env-system": true}, "va": {"prayer": 20, "book1": 10, "book2": 0, "workout": 0}, "multi": {}, "skill": "Cost estimation", "gpB": {"gb-calc": true, "gb-shared": true}, "metrics": {"balance": "", "trade": "", "charts": ""}, "journal": {"win": "", "lesson": "", "intention": ""}, "onePercent": "", "seed": true, "areas": {}}}, {"date": "2026-04-24", "ap": 354, "gp": 55, "rank": "Legendary", "seed": false, "onePercent": "", "journal": {"win": "", "lesson": "", "intention": ""}, "metrics": {"balance": "", "trade": "", "charts": ""}, "areaAP": {"faith": 50, "health": 18, "mind": 154, "craft": 25, "finance": 15, "character": 25, "career": 0, "business": 35, "relationships": 10, "creative": 0, "environment": 12}, "state": {"tier": 1, "checks": {"meditation": true, "water": true, "journal-output": true, "nodbt": true, "dante-vision": true, "dante-docs": true, "rel-check": true, "env-system": true, "stage": false, "evjournal": true}, "va": {"prayer": 35, "book1": 50, "book2": 35, "workout": 10}, "multi": {"pod-other": true, "elevate": true, "lumosity": true, "mindpal": true, "peak": true, "chart3": true}, "skill": "Vision work", "gpB": {"gb-vision": true, "gb-insight": true}, "metrics": {"balance": "", "trade": "", "charts": ""}, "journal": {"win": "", "lesson": "", "intention": ""}, "onePercent": "", "seed": false, "areas": {}}}, {"date": "2026-04-25", "ap": 223, "gp": 56, "rank": "Gold", "seed": false, "onePercent": "", "journal": {"win": "", "lesson": "", "intention": ""}, "metrics": {"balance": "", "trade": "", "charts": ""}, "areaAP": {"faith": 50, "health": 18, "mind": 60, "craft": 25, "finance": 15, "character": 15, "career": 0, "business": 15, "relationships": 10, "creative": 0, "environment": 20}, "state": {"tier": null, "checks": {"meditation": true, "dante-vision": true, "journal-output": true, "env-order": true, "env-system": true, "rel-check": true, "water": true, "nodbt": true}, "va": {"prayer": 35, "book1": 50, "book2": 0, "workout": 10}, "multi": {"pod-other": true, "chart3": true}, "skill": "Mission review", "gpB": {}, "metrics": {"balance": "", "trade": "", "charts": ""}, "journal": {"win": "", "lesson": "", "intention": ""}, "onePercent": "", "seed": false, "areas": {}}}, {"date": "2026-04-26", "ap": 215, "gp": 54, "rank": "Gold", "seed": false, "onePercent": "", "journal": {"win": "", "lesson": "", "intention": ""}, "metrics": {"balance": "", "trade": "", "charts": ""}, "areaAP": {"faith": 80, "health": 0, "mind": 40, "craft": 15, "finance": 15, "character": 25, "career": 0, "business": 35, "relationships": 10, "creative": 0, "environment": 0}, "state": {"tier": null, "checks": {"sermon": true, "meditation": true, "journal-output": true, "nodbt": true, "evjournal": false, "stage": true, "dante-docs": true, "dante-vision": true, "rel-check": true}, "va": {"prayer": 50, "book1": 20, "book2": 0, "workout": 0}, "multi": {"elevate": true}, "skill": "Vision work", "gpB": {}, "metrics": {"balance": "", "trade": "", "charts": ""}, "journal": {"win": "", "lesson": "", "intention": ""}, "onePercent": "", "seed": false, "areas": {}}}, {"date": "2026-04-27", "ap": 228, "gp": 57, "rank": "Gold", "seed": true, "onePercent": "", "journal": {"win": "", "lesson": "", "intention": ""}, "metrics": {"balance": "", "trade": "", "charts": ""}, "areaAP": {"faith": 65, "health": 10, "mind": 60, "craft": 15, "finance": 15, "character": 15, "career": 0, "business": 35, "relationships": 10, "creative": 0, "environment": 8}, "state": {"tier": null, "checks": {"meditation": true, "sermon": true, "journal-output": true, "dante-docs": true, "dante-vision": true, "env-order": true, "water": false, "nodbt": true, "rel-check": true}, "va": {"prayer": 35, "book1": 50, "book2": 0, "workout": 10}, "multi": {"pod-other": true}, "skill": "Cost estimation", "gpB": {}, "metrics": {"balance": "", "trade": "", "charts": ""}, "journal": {"win": "", "lesson": "", "intention": ""}, "onePercent": "", "seed": true, "areas": {}}}, {"date": "2026-04-28", "ap": 255, "gp": 64, "rank": "Gold", "seed": false, "onePercent": "", "journal": {"win": "", "lesson": "", "intention": ""}, "metrics": {"balance": "", "trade": "", "charts": ""}, "areaAP": {"faith": 50, "health": 8, "mind": 70, "craft": 30, "finance": 35, "character": 15, "career": 0, "business": 35, "relationships": 0, "creative": 0, "environment": 12}, "state": {"tier": null, "checks": {"journal-output": true, "nodbt": true, "env-system": true, "sermon": true, "dante-vision": true, "output": true, "water": true, "dante-docs": true}, "va": {"prayer": 35, "book1": 50, "book2": 0, "workout": 0}, "multi": {"chart1": false, "chart2": true, "elevate": true}, "skill": "Cost estimation", "gpB": {}, "metrics": {"balance": "", "trade": "", "charts": ""}, "journal": {"win": "", "lesson": "", "intention": ""}, "onePercent": "", "seed": false, "areas": {}}}, {"date": "2026-04-29", "ap": 200, "gp": 50, "rank": "Silver", "seed": true, "onePercent": "", "journal": {"win": "", "lesson": "", "intention": ""}, "metrics": {"balance": "", "trade": "", "charts": ""}, "areaAP": {"faith": 35, "health": 18, "mind": 60, "craft": 25, "finance": 15, "character": 15, "career": 0, "business": 15, "relationships": 10, "creative": 0, "environment": 12}, "state": {"tier": null, "checks": {"meditation": true, "water": true, "journal-output": true, "nodbt": true, "dante-vision": true, "rel-check": true, "env-system": true}, "va": {"prayer": 20, "book1": 50, "book2": 0, "workout": 10}, "multi": {"pod-other": true, "chart3": true}, "skill": "Cost estimation", "gpB": {}, "metrics": {"balance": "", "trade": "", "charts": ""}, "journal": {"win": "", "lesson": "", "intention": ""}, "onePercent": "", "seed": true, "areas": {}}}, {"date": "2026-04-30", "ap": 251, "gp": 83, "rank": "Gold", "seed": false, "onePercent": "", "journal": {"win": "", "lesson": "", "intention": ""}, "metrics": {"balance": "", "trade": "", "charts": ""}, "areaAP": {"faith": 80, "health": 18, "mind": 30, "craft": 30, "finance": 15, "character": 35, "career": 0, "business": 15, "relationships": 25, "creative": 0, "environment": 8}, "state": {"tier": null, "checks": {"bible": true, "sermon": true, "meditation": true, "journal-output": true, "nodbt": true, "4am": true, "dante-vision": true, "env-order": true, "water": true, "rel-check": true, "rel-mentor": true}, "va": {"prayer": 35, "book1": 20, "book2": 0, "workout": 10}, "multi": {"pod-other": true, "chart2": true}, "skill": "Cost estimation", "gpB": {"gb-calc": true}, "metrics": {"balance": "", "trade": "", "charts": ""}, "journal": {"win": "", "lesson": "", "intention": ""}, "onePercent": "", "seed": false, "areas": {}}}, {"date": "2026-05-01", "ap": 170, "gp": 43, "rank": "Silver", "seed": true, "onePercent": "", "journal": {"win": "", "lesson": "", "intention": ""}, "metrics": {"balance": "", "trade": "", "charts": ""}, "areaAP": {"faith": 20, "health": 18, "mind": 47, "craft": 25, "finance": 15, "character": 15, "career": 12, "business": 8, "relationships": 10, "creative": 0, "environment": 0}, "state": {"tier": null, "checks": {"meditation": false, "water": true, "journal-output": true, "nodbt": true, "4am": false, "site-prep": true, "dante-vision": false, "pinterest": true, "rel-check": true}, "va": {"prayer": 20, "book1": 0, "book2": 0, "workout": 10}, "multi": {"elevate": true, "mindpal": true, "lumosity": true, "chart3": true}, "skill": "Site planning", "gpB": {}, "metrics": {"balance": "", "trade": "", "charts": ""}, "journal": {"win": "", "lesson": "", "intention": ""}, "onePercent": "", "seed": true, "areas": {}}}, {"date": "2026-05-02", "ap": 197, "gp": 69, "rank": "Silver", "seed": false, "onePercent": "", "journal": {"win": "", "lesson": "", "intention": ""}, "metrics": {"balance": "", "trade": "", "charts": ""}, "areaAP": {"faith": 20, "health": 8, "mind": 50, "craft": 30, "finance": 35, "character": 15, "career": 12, "business": 15, "relationships": 0, "creative": 0, "environment": 12}, "state": {"tier": null, "checks": {"water": true, "journal-output": true, "nodbt": true, "site-prep": true, "dante-vision": true, "env-system": true, "output": true}, "va": {"prayer": 20, "book1": 50, "book2": 0, "workout": 0}, "multi": {"chart3": false, "chart2": true}, "skill": "Cost estimation", "gpB": {"gb-projdoc": false, "gb-calc": true}, "metrics": {"balance": "", "trade": "", "charts": ""}, "journal": {"win": "", "lesson": "", "intention": ""}, "onePercent": "", "seed": false, "areas": {}}}, {"date": "2026-05-03", "ap": 170, "gp": 68, "rank": "Silver", "seed": true, "onePercent": "", "journal": {"win": "", "lesson": "", "intention": ""}, "metrics": {"balance": "", "trade": "", "charts": ""}, "areaAP": {"faith": 50, "health": 18, "mind": 0, "craft": 25, "finance": 27, "character": 15, "career": 0, "business": 15, "relationships": 0, "creative": 0, "environment": 20}, "state": {"tier": null, "checks": {"sermon": true, "water": true, "journal-output": true, "nodbt": true, "site-prep": false, "dante-docs": false, "dante-vision": true, "env-order": true, "env-system": true, "fin-review": true}, "va": {"prayer": 35, "book1": 0, "book2": 0, "workout": 10}, "multi": {"chart2": false, "chart3": true}, "skill": "Framework drafted", "gpB": {"gb-framework": true}, "metrics": {"balance": "", "trade": "", "charts": ""}, "journal": {"win": "", "lesson": "", "intention": ""}, "onePercent": "", "seed": true, "areas": {}}}, {"date": "2026-05-04", "ap": 362, "gp": 161, "rank": "Legendary", "seed": false, "onePercent": "", "journal": {"win": "", "lesson": "", "intention": ""}, "metrics": {"balance": "", "trade": "", "charts": ""}, "areaAP": {"faith": 95, "health": 26, "mind": 92, "craft": 25, "finance": 35, "character": 35, "career": 12, "business": 23, "relationships": 0, "creative": 12, "environment": 12}, "state": {"tier": null, "checks": {"bible": true, "sermon": true, "meditation": true, "water": true, "journal-output": true, "output": true, "nodbt": true, "4am": true, "site-prep": true, "dante-vision": true, "write": true, "env-system": true, "pinterest": true}, "va": {"prayer": 50, "book1": 50, "book2": 0, "workout": 18}, "multi": {"pod-other": true, "elevate": true, "mindpal": true, "chart3": true}, "skill": "Project document", "gpB": {"gb-projdoc": true, "gb-framework": true, "gb-insight": true}, "metrics": {"balance": "", "trade": "", "charts": ""}, "journal": {"win": "", "lesson": "", "intention": ""}, "onePercent": "", "seed": false, "areas": {}}}, {"date": "2026-05-05", "ap": 330, "gp": 113, "rank": "Legendary", "seed": false, "onePercent": "", "journal": {"win": "", "lesson": "", "intention": ""}, "metrics": {"balance": "", "trade": "", "charts": ""}, "areaAP": {"faith": 80, "health": 41, "mind": 109, "craft": 15, "finance": 35, "character": 35, "career": 0, "business": 8, "relationships": 0, "creative": 0, "environment": 12}, "state": {"tier": null, "checks": {"bible": true, "meditation": true, "water": true, "journal-output": true, "nodbt": true, "4am": true, "pinterest": true, "env-system": true, "sermon": true, "output": true, "sleep": true}, "va": {"prayer": 35, "book1": 50, "book2": 0, "workout": 18}, "multi": {"pod-other": false, "pod-dev": true, "elevate": true, "lumosity": true, "mindpal": true}, "skill": "Idea development", "gpB": {"gb-shared": true}, "metrics": {"balance": "", "trade": "", "charts": ""}, "journal": {"win": "", "lesson": "", "intention": ""}, "onePercent": "", "seed": false, "areas": {}}}, {"date": "2026-05-06", "ap": 208, "gp": 107, "rank": "Silver", "seed": true, "onePercent": "", "journal": {"win": "", "lesson": "", "intention": ""}, "metrics": {"balance": "", "trade": "", "charts": ""}, "areaAP": {"faith": 80, "health": 33, "mind": 10, "craft": 0, "finance": 35, "character": 35, "career": 0, "business": 8, "relationships": 0, "creative": 0, "environment": 12}, "state": {"tier": null, "checks": {"bible": true, "sermon": true, "meditation": true, "water": true, "sleep": true, "output": true, "journal-output": true, "nodbt": true, "4am": true, "pinterest": true, "env-order": false, "env-system": true}, "va": {"prayer": 35, "book1": 0, "book2": 0, "workout": 10}, "multi": {"pod-other": true}, "skill": null, "gpB": {"gb-out3": true, "gb-str3": true, "gb-str7": false}, "metrics": {"balance": "", "trade": "", "charts": ""}, "journal": {"win": "", "lesson": "", "intention": ""}, "onePercent": "", "seed": true, "areas": {}}}, {"date": "2026-05-07", "ap": 298, "gp": 105, "rank": "Legendary", "seed": false, "onePercent": "", "journal": {"win": "", "lesson": "", "intention": ""}, "metrics": {"balance": "", "trade": "", "charts": ""}, "areaAP": {"faith": 80, "health": 33, "mind": 65, "craft": 25, "finance": 35, "character": 35, "career": 0, "business": 8, "relationships": 10, "creative": 0, "environment": 12}, "state": {"tier": null, "checks": {"bible": true, "sermon": true, "meditation": true, "water": true, "sleep": true, "journal-output": true, "output": true, "nodbt": true, "4am": true, "pinterest": true, "rel-check": true, "env-system": true}, "va": {"prayer": 35, "book1": 50, "book2": 0, "workout": 10}, "multi": {"pod-dev": false, "pod-money": true, "chart3": true}, "skill": "Cost estimation", "gpB": {"gb-shared": true}, "metrics": {"balance": "", "trade": "", "charts": ""}, "journal": {"win": "", "lesson": "", "intention": ""}, "onePercent": "", "seed": false, "areas": {}}}, {"date": "2026-05-08", "ap": 342, "gp": 181, "rank": "Legendary", "seed": false, "onePercent": "", "journal": {"win": "", "lesson": "", "intention": ""}, "metrics": {"balance": "", "trade": "", "charts": ""}, "areaAP": {"faith": 80, "health": 18, "mind": 107, "craft": 15, "finance": 35, "character": 35, "career": 0, "business": 35, "relationships": 10, "creative": 0, "environment": 12}, "state": {"tier": null, "checks": {"bible": true, "sermon": true, "meditation": true, "water": true, "output": true, "journal-output": true, "nodbt": true, "4am": true, "dante-docs": true, "dante-vision": true, "rel-morning-call": true, "rel-check": true, "env-system": true}, "va": {"prayer": 35, "book1": 50, "book2": 0, "workout": 10}, "multi": {"pod-other": true, "lumosity": true, "elevate": true, "mindpal": true}, "skill": "Cost estimation", "gpB": {"gb-mentor": false, "gb-shared": true, "gb-vision": true, "gb-framework": true}, "metrics": {"balance": "", "trade": "", "charts": ""}, "journal": {"win": "", "lesson": "", "intention": ""}, "onePercent": "", "seed": false, "areas": {}}}, {"date": "2026-05-09", "ap": 284, "gp": 176, "rank": "Legendary", "seed": false, "onePercent": "", "journal": {"win": "", "lesson": "", "intention": ""}, "metrics": {"balance": "", "trade": "", "charts": ""}, "areaAP": {"faith": 65, "health": 18, "mind": 47, "craft": 15, "finance": 35, "character": 35, "career": 12, "business": 28, "relationships": 22, "creative": 0, "environment": 12}, "state": {"tier": null, "checks": {"bible": true, "meditation": true, "water": true, "output": true, "nodbt": true, "4am": true, "site-prep": true, "dante-docs": true, "pinterest": true, "rel-check": true, "env-system": true, "journal-output": true, "fin-review": false, "rel-research": true}, "va": {"prayer": 35, "book1": 35, "book2": 0, "workout": 10}, "multi": {"pod-other": false, "pod-dev": true}, "skill": "Site planning", "gpB": {"gb-shared": true, "gb-vision": true, "gb-calc": true, "gb-insight": true}, "metrics": {"balance": "", "trade": "", "charts": ""}, "journal": {"win": "", "lesson": "", "intention": ""}, "onePercent": "", "seed": false, "areas": {}}}, {"date": "2026-05-10", "ap": 323, "gp": 121, "rank": "Legendary", "seed": false, "onePercent": "", "journal": {"win": "", "lesson": "", "intention": ""}, "metrics": {"balance": "", "trade": "", "charts": ""}, "areaAP": {"faith": 65, "health": 18, "mind": 97, "craft": 30, "finance": 35, "character": 35, "career": 0, "business": 23, "relationships": 0, "creative": 0, "environment": 20}, "state": {"tier": null, "checks": {"bible": true, "sermon": true, "env-order": true, "water": true, "journal-output": true, "output": true, "4am": true, "pinterest": true, "dante-vision": true, "env-system": true, "stage": false, "nodbt": true, "dante-docs": false}, "va": {"prayer": 35, "book1": 50, "book2": 0, "workout": 10}, "multi": {"chart2": true, "elevate": true, "lumosity": true, "mindpal": true}, "skill": "Idea development", "gpB": {"gb-snotes": true, "gb-vision": false, "gb-framework": true}, "metrics": {"balance": "", "trade": "", "charts": ""}, "journal": {"win": "", "lesson": "", "intention": ""}, "onePercent": "", "seed": false, "areas": {}}}, {"date": "2026-05-11", "ap": 297, "gp": 184, "rank": "Legendary", "seed": false, "onePercent": "", "journal": {"win": "", "lesson": "", "intention": ""}, "metrics": {"balance": "", "trade": "", "charts": ""}, "areaAP": {"faith": 65, "health": 18, "mind": 62, "craft": 25, "finance": 35, "character": 35, "career": 27, "business": 23, "relationships": 0, "creative": 0, "environment": 12}, "state": {"tier": null, "checks": {"bible": true, "meditation": true, "water": true, "journal-output": true, "autocad-lesson": true, "pinterest": true, "env-system": true, "output": true, "4am": true, "nodbt": true, "site-prep": true, "dante-vision": true}, "va": {"prayer": 35, "book1": 50, "book2": 0, "workout": 10}, "multi": {"pod-dev": true, "chart3": true}, "skill": "AutoCAD session", "gpB": {"gb-insight": true, "gb-framework": true, "gb-shared": true, "gb-vision": true}, "metrics": {"balance": "", "trade": "", "charts": ""}, "journal": {"win": "", "lesson": "", "intention": ""}, "onePercent": "", "seed": false, "areas": {}}}, {"date": "2026-05-12", "ap": 195, "gp": 49, "rank": "Silver", "seed": false, "onePercent": "", "journal": {"win": "", "lesson": "", "intention": ""}, "metrics": {"balance": "", "trade": "", "charts": ""}, "areaAP": {"faith": 35, "health": 8, "mind": 97, "craft": 0, "finance": 20, "character": 15, "career": 12, "business": 0, "relationships": 0, "creative": 0, "environment": 8}, "state": {"tier": null, "checks": {"water": true, "output": true, "nodbt": true, "4am": false, "site-prep": true, "env-order": true}, "va": {"prayer": 35, "book1": 50, "book2": 0, "workout": 0}, "multi": {"elevate": true, "lumosity": true, "mindpal": true}, "skill": null, "gpB": {}, "metrics": {"balance": "", "trade": "", "charts": ""}, "journal": {"win": "", "lesson": "", "intention": ""}, "onePercent": "", "seed": false, "areas": {}}}, {"date": "2026-05-13", "ap": 199, "gp": 50, "rank": "Silver", "seed": false, "dayType": "site", "onePercent": "", "journal": {"win": "", "lesson": "", "intention": ""}, "metrics": {"balance": "", "trade": "", "charts": ""}, "areaAP": {"faith": 50, "health": 10, "mind": 50, "craft": 10, "finance": 0, "character": 35, "career": 12, "business": 15, "relationships": 10, "creative": 0, "environment": 12}, "state": {"tier": null, "checks": {"meditation": true, "nodbt": true, "4am": true, "site-prep": true, "water": false, "dante-vision": true, "rel-check": true, "env-system": true}, "va": {"prayer": 35, "book1": 50, "book2": 0, "workout": 10}, "multi": {"chart3": true}, "skill": null, "gpB": {}, "metrics": {"balance": "", "trade": "", "charts": ""}, "journal": {"win": "", "lesson": "", "intention": ""}, "onePercent": "", "seed": false, "dayType": "site", "areas": {}}}, {"date": "2026-05-14", "ap": 330, "gp": 148, "rank": "Legendary", "seed": false, "dayType": null, "onePercent": "", "journal": {"win": "", "lesson": "", "intention": ""}, "metrics": {"balance": "", "trade": "", "charts": ""}, "areaAP": {"faith": 65, "health": 18, "mind": 97, "craft": 15, "finance": 20, "character": 35, "career": 12, "business": 43, "relationships": 10, "creative": 0, "environment": 20}, "state": {"tier": null, "checks": {"bible": true, "meditation": true, "output": true, "pinterest": true, "dante-docs": true, "dante-vision": true, "env-system": true, "env-order": true, "rel-check": true, "nodbt": true, "water": true, "4am": true, "site-prep": true}, "va": {"prayer": 35, "book1": 50, "book2": 0, "workout": 10}, "multi": {"elevate": true, "lumosity": true, "mindpal": true}, "skill": "Site planning", "gpB": {"gb-framework": true, "gb-vision": true}, "metrics": {"balance": "", "trade": "", "charts": ""}, "journal": {"win": "", "lesson": "", "intention": ""}, "onePercent": "", "seed": false, "dayType": null, "areas": {}}}, {"date": "2026-05-15", "ap": 132, "gp": 53, "rank": "Bronze", "seed": false, "dayType": "site", "onePercent": "", "journal": {"win": "", "lesson": "", "intention": ""}, "metrics": {"balance": "", "trade": "", "charts": ""}, "areaAP": {"faith": 50, "health": 0, "mind": 0, "craft": 15, "finance": 15, "character": 15, "career": 12, "business": 8, "relationships": 10, "creative": 0, "environment": 12}, "state": {"tier": null, "checks": {"meditation": true, "site-prep": true, "env-system": true, "journal-output": true, "bible": true, "dante-vision": false, "pinterest": true, "nodbt": true, "rel-check": true}, "va": {"prayer": 20, "book1": 0, "book2": 0, "workout": 0}, "multi": {}, "skill": "Cost estimation", "gpB": {"gb-eng": true}, "metrics": {"balance": "", "trade": "", "charts": ""}, "journal": {"win": "", "lesson": "", "intention": ""}, "onePercent": "", "seed": false, "dayType": "site", "areas": {}}}, {"date": "2026-05-16", "ap": 277, "gp": 114, "rank": "Legendary", "seed": false, "dayType": "site", "onePercent": "", "journal": {"win": "", "lesson": "", "intention": ""}, "metrics": {"balance": "", "trade": "", "charts": ""}, "areaAP": {"faith": 65, "health": 8, "mind": 35, "craft": 15, "finance": 35, "character": 35, "career": 27, "business": 28, "relationships": 22, "creative": 0, "environment": 12}, "state": {"tier": null, "checks": {"meditation": true, "output": true, "nodbt": true, "4am": true, "msc-work": true, "dante-docs": true, "pinterest": true, "rel-research": true, "env-system": true, "bible": true, "water": true, "journal-output": true, "site-prep": true, "rel-check": true}, "va": {"prayer": 35, "book1": 35, "book2": 0, "workout": 0}, "multi": {}, "skill": "Site planning", "gpB": {"gb-eng": true, "gb-framework": true}, "metrics": {"balance": "", "trade": "", "charts": ""}, "journal": {"win": "", "lesson": "", "intention": ""}, "onePercent": "", "seed": false, "dayType": "site", "areas": {}}}, {"date": "2026-05-17", "ap": 258, "gp": 85, "rank": "Gold", "seed": false, "dayType": "site", "onePercent": "Lol. I reckon that's learning a bit more about Dredgers...", "journal": {"win": "", "lesson": "", "intention": ""}, "metrics": {"balance": "", "trade": "", "charts": ""}, "areaAP": {"faith": 80, "health": 8, "mind": 35, "craft": 15, "finance": 35, "character": 15, "career": 12, "business": 28, "relationships": 35, "creative": 0, "environment": 0}, "state": {"tier": null, "checks": {"bible": true, "meditation": true, "water": true, "journal-output": true, "output": true, "nodbt": true, "4am": false, "site-prep": true, "dante-docs": true, "pinterest": true, "rel-afternoon-call": true, "sermon": true, "rel-evening-call": true, "rel-check": false}, "va": {"prayer": 35, "book1": 35, "book2": 0, "workout": 0}, "multi": {}, "skill": "Site planning", "gpB": {"gb-eng": true}, "metrics": {"balance": "", "trade": "", "charts": ""}, "journal": {"win": "", "lesson": "", "intention": ""}, "onePercent": "", "seed": false, "dayType": "site", "areas": {}}}, {"date": "2026-05-18", "ap": 209, "gp": 72, "rank": "Silver", "seed": false, "dayType": "site", "onePercent": "Lol. I reckon that's learning a bit more about Dredgers...", "journal": {"win": "", "lesson": "", "intention": ""}, "metrics": {"balance": "", "trade": "", "charts": ""}, "areaAP": {"faith": 35, "health": 8, "mind": 35, "craft": 25, "finance": 27, "character": 15, "career": 12, "business": 0, "relationships": 40, "creative": 0, "environment": 12}, "state": {"tier": null, "checks": {"bible": true, "water": true, "journal-output": true, "nodbt": true, "site-prep": true, "rel-morning-call": true, "fin-review": true, "rel-check": true, "rel-mentor": true, "env-system": true, "stage": false}, "va": {"prayer": 20, "book1": 35, "book2": 0, "workout": 0}, "multi": {"chart3": true}, "skill": "Site planning", "gpB": {"gb-drawing": false, "gb-mentor": true}, "metrics": {"balance": "", "trade": "", "charts": ""}, "journal": {"win": "", "lesson": "", "intention": ""}, "onePercent": "", "seed": false, "dayType": "site", "areas": {}}}, {"date": "2026-05-19", "ap": 182, "gp": 46, "rank": "Silver", "seed": false, "dayType": "site", "onePercent": "", "journal": {"win": "", "lesson": "", "intention": ""}, "metrics": {"balance": "", "trade": "", "charts": ""}, "areaAP": {"faith": 65, "health": 8, "mind": 35, "craft": 15, "finance": 15, "character": 0, "career": 12, "business": 0, "relationships": 25, "creative": 0, "environment": 12}, "state": {"tier": null, "checks": {"bible": true, "meditation": true, "site-prep": true, "rel-check": true, "water": true, "journal-output": true, "nodbt": false, "rel-morning-call": true, "env-system": true}, "va": {"prayer": 35, "book1": 35, "book2": 0, "workout": 0}, "multi": {}, "skill": "Site planning", "gpB": {}, "metrics": {"balance": "", "trade": "", "charts": ""}, "journal": {"win": "", "lesson": "", "intention": ""}, "onePercent": "", "seed": false, "dayType": "site", "areas": {}}}, {"date": "2026-05-20", "ap": 150, "gp": 68, "rank": "Bronze", "seed": false, "dayType": "site", "onePercent": "", "journal": {"win": "", "lesson": "", "intention": ""}, "metrics": {"balance": "", "trade": "", "charts": ""}, "areaAP": {"faith": 50, "health": 8, "mind": 0, "craft": 15, "finance": 20, "character": 20, "career": 12, "business": 0, "relationships": 25, "creative": 0, "environment": 0}, "state": {"tier": null, "checks": {"bible": true, "site-prep": true, "output": true, "rel-morning-call": true, "rel-check": true, "water": true, "4am": true}, "va": {"prayer": 35, "book1": 0, "book2": 0, "workout": 0}, "multi": {}, "skill": "Site planning", "gpB": {"gb-shared": true, "gb-projdoc": false}, "metrics": {"balance": "", "trade": "", "charts": ""}, "journal": {"win": "", "lesson": "", "intention": ""}, "onePercent": "", "seed": false, "dayType": "site", "areas": {}}}, {"date": "2026-05-21", "ap": 225, "gp": 106, "rank": "Gold", "seed": false, "dayType": "site", "onePercent": "", "journal": {"win": "", "lesson": "", "intention": ""}, "metrics": {"balance": "", "trade": "", "charts": ""}, "areaAP": {"faith": 50, "health": 18, "mind": 20, "craft": 15, "finance": 35, "character": 35, "career": 12, "business": 0, "relationships": 40, "creative": 0, "environment": 0}, "state": {"tier": null, "checks": {"rel-morning-call": true, "bible": true, "site-prep": true, "water": true, "output": true, "journal-output": true, "nodbt": true, "4am": true, "rel-afternoon-call": false, "rel-evening-call": true, "rel-check": true}, "va": {"prayer": 35, "book1": 20, "book2": 0, "workout": 10}, "multi": {}, "skill": "Project document", "gpB": {"gb-shared": true, "gb-calc": true}, "metrics": {"balance": "", "trade": "", "charts": ""}, "journal": {"win": "", "lesson": "", "intention": ""}, "onePercent": "", "seed": false, "dayType": "site", "areas": {}}}, {"date": "2026-05-22", "ap": 263, "gp": 96, "rank": "Gold", "seed": false, "dayType": "site", "onePercent": "", "journal": {"win": "", "lesson": "", "intention": ""}, "metrics": {"balance": "", "trade": "", "charts": ""}, "areaAP": {"faith": 50, "health": 8, "mind": 35, "craft": 15, "finance": 35, "character": 55, "career": 12, "business": 15, "relationships": 30, "creative": 0, "environment": 8}, "state": {"tier": null, "checks": {"sermon": true, "bible": true, "output": true, "nodbt": true, "site-prep": true, "rel-morning-call": true, "env-order": true, "journal-output": true, "water": true, "4am": true, "stage": true, "evjournal": true, "dante-vision": true, "rel-evening-call": true}, "va": {"prayer": 20, "book1": 35, "book2": 0, "workout": 0}, "multi": {}, "skill": "Site planning", "gpB": {"gb-shared": true}, "metrics": {"balance": "", "trade": "", "charts": ""}, "journal": {"win": "", "lesson": "", "intention": ""}, "onePercent": "", "seed": false, "dayType": "site", "areas": {}}}, {"date": "2026-05-23", "ap": 217, "gp": 54, "rank": "Gold", "seed": false, "dayType": "site", "onePercent": "", "journal": {"win": "", "lesson": "", "intention": ""}, "metrics": {"balance": "", "trade": "", "charts": ""}, "areaAP": {"faith": 65, "health": 8, "mind": 0, "craft": 15, "finance": 35, "character": 20, "career": 12, "business": 8, "relationships": 42, "creative": 0, "environment": 12}, "state": {"tier": null, "checks": {"bible": true, "water": true, "output": true, "nodbt": false, "4am": true, "site-prep": true, "pinterest": true, "rel-morning-call": true, "rel-research": true, "env-system": true, "sermon": true, "journal-output": true, "rel-evening-call": true}, "va": {"prayer": 35, "book1": 0, "book2": 0, "workout": 0}, "multi": {}, "skill": "Site planning", "gpB": {}, "metrics": {"balance": "", "trade": "", "charts": ""}, "journal": {"win": "", "lesson": "", "intention": ""}, "onePercent": "", "seed": false, "dayType": "site", "areas": {}}}, {"date": "2026-05-24", "ap": 200, "gp": 50, "rank": "Silver", "seed": false, "dayType": "site", "onePercent": "", "journal": {"win": "", "lesson": "", "intention": ""}, "metrics": {"balance": "", "trade": "", "charts": ""}, "areaAP": {"faith": 65, "health": 8, "mind": 0, "craft": 15, "finance": 20, "character": 20, "career": 12, "business": 0, "relationships": 60, "creative": 0, "environment": 0}, "state": {"tier": null, "checks": {"bible": true, "sermon": true, "water": true, "output": true, "4am": true, "site-prep": true, "rel-morning-call": true, "rel-afternoon-call": true, "rel-evening-call": true, "rel-check": true}, "va": {"prayer": 35, "book1": 0, "book2": 0, "workout": 0}, "multi": {}, "skill": "Site planning", "gpB": {}, "metrics": {"balance": "", "trade": "", "charts": ""}, "journal": {"win": "", "lesson": "", "intention": ""}, "onePercent": "", "seed": false, "dayType": "site", "areas": {}}}, {"date": "2026-05-25", "ap": 183, "gp": 46, "rank": "Silver", "seed": false, "dayType": "site", "onePercent": "", "journal": {"win": "", "lesson": "", "intention": ""}, "metrics": {"balance": "", "trade": "", "charts": ""}, "areaAP": {"faith": 50, "health": 26, "mind": 0, "craft": 15, "finance": 0, "character": 20, "career": 12, "business": 15, "relationships": 45, "creative": 0, "environment": 0}, "state": {"tier": null, "checks": {"bible": true, "water": true, "4am": true, "site-prep": true, "rel-morning-call": true, "rel-afternoon-call": true, "dante-vision": true, "rel-check": true}, "va": {"prayer": 35, "book1": 0, "book2": 0, "workout": 18}, "multi": {}, "skill": "Site planning", "gpB": {"gb-vision": false}, "metrics": {"balance": "", "trade": "", "charts": ""}, "journal": {"win": "", "lesson": "", "intention": ""}, "onePercent": "", "seed": false, "dayType": "site", "areas": {}}}, {"date": "2026-05-26", "ap": 237, "gp": 104, "rank": "Gold", "seed": false, "dayType": "site", "onePercent": "", "journal": {"win": "", "lesson": "", "intention": ""}, "metrics": {"balance": "", "trade": "", "charts": ""}, "areaAP": {"faith": 50, "health": 26, "mind": 12, "craft": 15, "finance": 27, "character": 20, "career": 12, "business": 0, "relationships": 60, "creative": 0, "environment": 0}, "state": {"tier": 1, "checks": {"bible": true, "water": true, "journal-output": true, "fin-review": true, "site-prep": true, "4am": true, "rel-morning-call": true, "rel-check": true, "rel-mentor": false, "rel-afternoon-call": true, "rel-evening-call": true}, "va": {"prayer": 35, "book1": 0, "book2": 0, "workout": 18}, "multi": {"chart3": false, "pod-other": false, "pod-dev": true}, "skill": "Site planning", "gpB": {"gb-shared": true, "gb-insight": true}, "metrics": {"balance": "", "trade": "", "charts": ""}, "journal": {"win": "", "lesson": "", "intention": ""}, "onePercent": "", "seed": false, "dayType": "site", "areas": {}}}, {"date": "2026-05-27", "ap": 277, "gp": 139, "rank": "Legendary", "seed": false, "dayType": "site", "onePercent": "", "journal": {"win": "", "lesson": "", "intention": ""}, "metrics": {"balance": "", "trade": "", "charts": ""}, "areaAP": {"faith": 50, "health": 26, "mind": 0, "craft": 15, "finance": 32, "character": 35, "career": 12, "business": 8, "relationships": 87, "creative": 0, "environment": 12}, "state": {"tier": null, "checks": {"bible": true, "water": true, "output": true, "fin-review": true, "4am": true, "nodbt": true, "site-prep": true, "pinterest": true, "rel-morning-call": true, "rel-evening-call": true, "rel-afternoon-call": true, "rel-research": true, "rel-check": true, "rel-mentor": true, "env-system": true}, "va": {"prayer": 35, "book1": 0, "book2": 0, "workout": 18}, "multi": {}, "skill": "Site planning", "gpB": {"gb-shared": true, "gb-calc": true, "gb-drawing": false, "gb-eng": true}, "metrics": {"balance": "", "trade": "", "charts": ""}, "journal": {"win": "", "lesson": "", "intention": ""}, "onePercent": "", "seed": false, "dayType": "site", "areas": {}}}, {"date": "2026-05-28", "ap": 109, "gp": 27, "rank": "Bronze", "seed": false, "dayType": null, "onePercent": "", "journal": {"win": "", "lesson": "", "intention": ""}, "metrics": {"balance": "", "trade": "", "charts": ""}, "areaAP": {"faith": 50, "health": 0, "mind": 0, "craft": 0, "finance": 12, "character": 20, "career": 0, "business": 0, "relationships": 15, "creative": 0, "environment": 12}, "state": {"tier": null, "checks": {"bible": true, "fin-review": true, "4am": true, "rel-morning-call": true, "env-system": true}, "va": {"prayer": 35, "book1": 0, "book2": 0, "workout": 0}, "multi": {}, "skill": null, "gpB": {}, "metrics": {"balance": "", "trade": "", "charts": ""}, "journal": {"win": "", "lesson": "", "intention": ""}, "onePercent": "", "seed": false, "dayType": null, "areas": {}}}], "milestones": {"ms-seed": "2026-04-23", "ms-bronze": "2026-04-23", "ms-first": "2026-04-23", "ms-gold": "2026-04-24", "ms-legend": "2026-04-24", "ms-str3": "2026-04-25", "ms-ci105": "2026-04-25", "ms-wk150": "2026-04-25", "ms-wk1": "2026-04-29", "ms-str7": "2026-04-29", "ms-debt0": "2026-04-30", "ms-conv": "2026-05-01", "ms-ci120": "2026-05-04", "ms-wk600": "2026-05-06", "ms-str14": "2026-05-06", "ms-ci150": "2026-05-12", "ms-log": "2026-05-17", "ms-str30": "2026-05-22"}, "compound": {}};
+const SEED_DATA = {"history": [], "milestones": {}, "compound": {}};
 
 function loadDB() {
   try {
     const s = localStorage.getItem('quickening_db');
     if (s) {
       db = JSON.parse(s);
-      // SEED_DATA is authoritative — update any existing entries from it,
-      // and add any missing ones. User's retro entries and today's data are preserved.
       const todayK = getTodayKey();
       SEED_DATA.history.forEach(seedEntry => {
-        if(seedEntry.date === todayK) return; // never overwrite today's live data
+        if(seedEntry.date === todayK) return;
         const idx = db.history.findIndex(e => e.date === seedEntry.date);
         if(idx >= 0) {
-          // only overwrite if not a retro entry the user manually added
           if(!db.history[idx].retroEntry) db.history[idx] = seedEntry;
         } else {
           db.history.push(seedEntry);
         }
       });
-      // Merge milestones — SEED_DATA wins
       Object.assign(db.milestones, SEED_DATA.milestones);
       db.history.sort((a,b) => a.date.localeCompare(b.date));
       saveDB();
     } else {
-      // First load — inject saved history. Only push this to the cloud if
-      // the pull above actually succeeded — otherwise we can't tell whether
-      // "no local data" means genuinely first-run, or a failed/offline pull
-      // that shouldn't be allowed to overwrite real cloud data with this
-      // built-in seed snapshot. This is the exact failure mode that caused
-      // a prior data-loss incident: a failed pull + empty local storage +
-      // an unconditional push silently wiped a real cloud copy.
       db = JSON.parse(JSON.stringify(SEED_DATA));
       if (pullSucceeded) { saveDB(); }
       else { saveDBLocalOnly(); setSyncStatus('⚠ Unverified — reload once online'); }
@@ -1727,8 +1749,6 @@ function loadDB() {
     if (pullSucceeded) { saveDB(); }
     else { saveDBLocalOnly(); setSyncStatus('⚠ Unverified — reload once online'); }
   }
-  // Normalize once, regardless of which branch above ran — SEED_DATA itself
-  // doesn't define these keys, so every path needs this same safety net.
   if (!db.milestones) db.milestones = {};
   if (!db.compound) db.compound = {};
   if (!db.rewardsCatalogue) db.rewardsCatalogue = [];
@@ -1745,6 +1765,7 @@ function loadDB() {
   if (!db.customMultiOptions) db.customMultiOptions = { cog:[], chart:[] };
   if (!db.customCounterOptions) db.customCounterOptions = { pod:[] };
   if (!db.arcCache) db.arcCache = null;
+  if (!db.customMilestones) db.customMilestones = [];
   const k = getTodayKey();
   const ex = db.history.find(e => e.date === k);
   if (ex) today = migrateLegacyDay(Object.assign(freshToday(), ex.state || {}));
@@ -2129,10 +2150,6 @@ function renderRewardsPage() {
 }
 
 // ── DEFERRED ACHIEVEMENT REWARDS ──
-// Rank/streak/milestone hits are queued in saveDay() and surfaced here, the next
-// time the dashboard is opened — one reward decision at a time, not a pile of options.
-// The Basket lives in db.basketItems now (editable, taggable, marked used once given),
-// not hardcoded — you can add your own and say exactly which rank/streak it's for.
 const SEED_BASKET_ITEMS = [
   {icon:'👔',name:'Quality shirts — linen or cotton',tags:['streak']},
   {icon:'👞',name:'Quality leather shoes or boots',tags:['streak']},
@@ -2175,9 +2192,6 @@ function seedBasketIfEmpty() {
     saveDB();
   }
 }
-// Non-material, low-cost, repeatable — these are meant to be doable back-to-back for
-// however many days a rank is hit. Bigger, rarer rewards belong in the Basket, tagged
-// to streaks, not to single-day rank hits which can now happen often.
 const RANK_SUGGESTIONS = {
   'Bronze Day':       ['☕ A coffee/tea made properly, no rushing it', '🎵 One favourite track, full volume, no multitasking', '📵 15 min with the phone somewhere else'],
   'Silver Day':       ['🍫 A specific snack you actually like, not just whatever\u2019s there', '📺 One episode of something, guilt-free', '🚶 A short walk with no destination'],
@@ -2186,15 +2200,13 @@ const RANK_SUGGESTIONS = {
   'Transcendent Day': ['This one\u2019s rare by design — pick something from the Basket that actually matches the effort', 'Or just say what you want, out loud, and do it'],
 };
 function tagForAchievement(ach) {
-  if(ach.type==='rank') return ach.label.split(' ')[0].toLowerCase(); // "Bronze Day" -> "bronze"
+  if(ach.type==='rank') return ach.label.split(' ')[0].toLowerCase();
   if(ach.type==='streak') return 'streak';
-  return null; // milestone — no specific tag, matched loosely below
+  return null;
 }
 let currentAch = null;
 function checkPendingAchievements() {
   renderPendingBanner();
-  // Auto-open the picker once per fresh load, but the banner below stays as a
-  // permanent, findable way back in if it's dismissed or missed.
   const list = (db.pendingAchievements||[]).filter(a=>!a.resolved);
   if(list.length) showAchievementPicker(list[0]);
 }
@@ -2220,7 +2232,7 @@ function showAchievementPicker(ach) {
   const tag = tagForAchievement(ach);
   const available = (db.basketItems||[]).filter(b=>!b.used);
   const matched = tag ? available.filter(b=>b.tags.includes(tag)) : available;
-  const pool = matched.length ? matched : available; // fall back to the whole basket if nothing tagged matches yet
+  const pool = matched.length ? matched : available;
   const freebies = RANK_SUGGESTIONS[ach.label] || [];
   let html = freebies.map(o=>`<div class="edit-item" style="cursor:pointer" onclick="pickAchievementReward(${JSON.stringify(o).replace(/"/g,'&quot;')})">${o}</div>`).join('');
   html += pool.map(b=>`<div class="edit-item" style="cursor:pointer" onclick="pickBasketReward('${b.id}')"><div class="edit-item-name">${b.icon} ${b.name}</div>${!matched.length&&pool.length?'<span style="font-size:8px;color:var(--text-dim)">from full Basket</span>':''}</div>`).join('');
@@ -2254,7 +2266,6 @@ function confirmCustomAchReward() {
 }
 function skipAchievement() { document.getElementById('achModal').classList.remove('show'); }
 
-// ── BASKET ADMIN — add, tag, retire, and reinstate your own reward items ──
 function renderBasketAdmin() {
   const el=document.getElementById('basketAdmin');
   if(!el) return;
@@ -2293,8 +2304,6 @@ function renderRewardsCatalogueReference() {
   renderBasketAdmin();
 }
 
-// Called after saveDay() — checks for newly-met targets on the saved date
-// and lets the user pick which reward(s) to assign for hitting them.
 function checkRewardTargets(dateKey, ap) {
   const already = db.rewardsEarned.filter(r=>r.date===dateKey).map(r=>r.catalogueId);
   const eligible = db.rewardsCatalogue.filter(r=>ap>=r.target && !already.includes(r.id));
@@ -2304,7 +2313,6 @@ function checkRewardTargets(dateKey, ap) {
 let rewardPickerDate=null;
 function openRewardPickerModal(dateKey, eligible) {
   rewardPickerDate=dateKey;
-  const box=document.getElementById('modalBox')||document.getElementById('editModal');
   const overlay=document.getElementById('rewardPickerModal');
   if(!overlay) return;
   document.getElementById('rewardPickerList').innerHTML = eligible.map(r=>`
@@ -2316,8 +2324,6 @@ function assignReward(catalogueId, text, target) {
   db.rewardsEarned.push({ id:'re-'+Date.now(), catalogueId, text, target, date:rewardPickerDate, claimed:false });
   saveDB();
   toast('Reward assigned — find it under Pending.');
-  const overlay=document.getElementById('rewardPickerModal');
-  // remove just-assigned one from the visible list without closing, in case more than one target was hit
   const remaining = db.rewardsCatalogue.filter(r=>r.id!==catalogueId && !db.rewardsEarned.some(e=>e.date===rewardPickerDate&&e.catalogueId===r.id));
   document.getElementById('rewardPickerList').innerHTML = remaining.length ? remaining.map(r=>`
     <div class="edit-item"><div class="edit-item-name">${r.text} <span style="color:var(--text-dim);font-size:10px">(${r.target} AP)</span></div><button class="modal-btn" style="padding:4px 10px" onclick="assignReward('${r.id}','${r.text.replace(/'/g,"\\'")}',${r.target})">Choose</button></div>
@@ -2344,7 +2350,6 @@ function applyItemOverrides() {
       gpEl.style.display = ov.hidden ? 'none' : '';
     }
   });
-  // group live area lists by subcategory too, where any item in that area has a sub set
   Object.keys(AREAS).forEach(section=>{
     const container=document.getElementById('acts-'+section);
     if(!container) return;
@@ -2364,7 +2369,6 @@ function applyItemOverrides() {
 }
 
 // ── CALC AP ──
-// Multi-instance activities — tap +/- for each time engaged in a day (e.g. 3 Bible readings, 4 podcast episodes)
 const COUNTER_CONFIG = {
   'bible':       { pts:15, max:4, group:null  },
   'pod-trading': { pts:15, max:4, group:'pod' },
@@ -2375,10 +2379,6 @@ const COUNTER_CONFIG = {
 };
 const MEDITATION_BASE = { sitting:15, walking:12, active:10 };
 
-// ── EDITABLE OPTION GROUPS (Cognitive Training, Chart Work, Podcasts) ──
-// Same pattern as the skill-category editor: built-in options stay fixed
-// (so history/back-compat scoring never breaks), and anything you add is
-// layered on top. Deleting only ever removes something you added.
 function customMultiPts(group){
   const out = {};
   ((db.customMultiOptions && db.customMultiOptions[group]) || []).forEach(o=>{ out[o.key]=o.pts; });
@@ -2412,7 +2412,6 @@ function deleteCustomMultiOption(group, key){
 function renderCustomMultiOptions(group){
   const container = document.getElementById(group+'OptsContainer');
   if(!container) return;
-  // remove any previously-injected custom nodes, then re-add current ones
   container.querySelectorAll('.m-opt[data-custom="1"]').forEach(el=>el.remove());
   ((db.customMultiOptions && db.customMultiOptions[group]) || []).forEach(o=>{
     const el = document.createElement('div');
@@ -2488,7 +2487,7 @@ function stepCount(key, delta) {
   updateUI();
 }
 function setWaterLevel(n) {
-  today.water = (today.water===n) ? n-1 : n; // clicking the last filled bottle again trims back by one
+  today.water = (today.water===n) ? n-1 : n;
   if(today.water<0) today.water=0;
   if(today.water>8) today.water=8;
   renderWater();
@@ -2513,7 +2512,7 @@ function setMeditationType(type) {
 }
 function setMeditationBlocks(n) {
   if(!today.meditation) today.meditation={type:null,blocks:0};
-  today.meditation.blocks = (today.meditation.blocks===n) ? n-1 : n; // clicking the active pose trims back by one, so you can correct an over-click without resetting everything
+  today.meditation.blocks = (today.meditation.blocks===n) ? n-1 : n;
   if(today.meditation.blocks<0) today.meditation.blocks=0;
   renderMeditation();
   updateUI();
@@ -2525,7 +2524,7 @@ function renderMeditation() {
   if(lbl) lbl.textContent = m.blocks ? (m.blocks*5)+' min · '+meditationPoints()+' AP' : 'No duration logged yet';
 }
 
-// ── CURRENTLY READING — persists across days, not scored, just a monotony-breaker ──
+// ── CURRENTLY READING — persists across days, snapshotted per-day at save time ──
 function addReadingBook(title) {
   title = (title||'').trim();
   if(!title) return;
@@ -2534,6 +2533,7 @@ function addReadingBook(title) {
   clearTimeout(cloudPushTimer);
   pushCloudNow();
   renderReadingTags();
+  scheduleDayAutosave();
 }
 function removeReadingBook(id) {
   db.currentlyReading = db.currentlyReading.filter(b=>b.id!==id);
@@ -2541,11 +2541,24 @@ function removeReadingBook(id) {
   clearTimeout(cloudPushTimer);
   pushCloudNow();
   renderReadingTags();
+  scheduleDayAutosave();
 }
+// Today's list is the live, editable global list. Any other day shown via
+// the day-navigator reads that day's own saved snapshot instead, so
+// browsing back shows what was actually being read then, not today's list.
 function renderReadingTags() {
   const el = document.getElementById('readingTags');
   if(!el) return;
-  el.innerHTML = (db.currentlyReading||[]).map(b=>`<span class="book-tag">${b.title}<button onclick="removeReadingBook('${b.id}')">✕</button></span>`).join('');
+  const isToday = (currentViewDate||getTodayKey()) === getTodayKey();
+  if(isToday){
+    el.innerHTML = (db.currentlyReading||[]).map(b=>`<span class="book-tag">${esc(b.title)}<button onclick="removeReadingBook('${b.id}')">✕</button></span>`).join('');
+  } else {
+    const entry = db.history.find(e=>e.date===currentViewDate);
+    const snap = (entry && entry.readingSnapshot) || [];
+    el.innerHTML = snap.length
+      ? snap.map(b=>`<span class="book-tag" style="opacity:.7">${esc(b.title)}</span>`).join('')
+      : '<span style="font-size:9px;color:var(--text-dim);font-style:italic">Nothing logged as being read on this day.</span>';
+  }
 }
 
 function calcAP() {
@@ -2562,18 +2575,14 @@ function calcAP() {
   ap += skillPoints(today.skill);
   return ap;
 }
-// today.skill may be a legacy single string (old saved days) or the current array — this normalizes either.
 function skillCount(skill) {
   if(!skill) return 0;
   if(Array.isArray(skill)) return skill.length;
   return 1;
 }
 function calcGP() {
-  // Base GP = AP / 4 rounded — small consistent days earn GP automatically.
-  // This restores the original relationship: AP is daily input, GP is weekly output.
   const ap = calcAP();
   const baseGP = Math.round(ap / 4);
-  // Bonus GP from self-reported achievements stacks on top.
   let bonusGP = 0;
   Object.entries(today.gpB).forEach(([k,v])=>{ if(v){ const el=document.querySelector(`.gp-item[data-key="${k}"]`); if(el) bonusGP+=parseInt(el.dataset.gp)||0; } });
   return baseGP + bonusGP;
@@ -2582,20 +2591,17 @@ function calcGP() {
 // ── AREA ACTIVITY TRACKING ──
 function calcAreaAP(areaKey) {
   let ap=0;
-  // faith
   if(areaKey==='faith') {
     ap+=parseInt(today.va['prayer'])||0;
     if(today.checks['sermon']) ap+=15;
     ap += (today.counts?.['bible']||0)*COUNTER_CONFIG.bible.pts;
     ap += meditationPoints();
   }
-  // health
   if(areaKey==='health') {
     ap+=parseInt(today.va['workout'])||0;
     if(today.checks['sleep']) ap+=15;
     ap += (today.water||0)*2;
   }
-  // mind
   if(areaKey==='mind') {
     ap+=parseInt(today.va['book1'])||0;
     ap+=parseInt(today.va['book2'])||0;
@@ -2603,30 +2609,23 @@ function calcAreaAP(areaKey) {
     Object.entries(today.multi).forEach(([k,v])=>{ if(v&&cogP[k])ap+=cogP[k]; });
     Object.entries(COUNTER_CONFIG).forEach(([k,c])=>{ if(c.group==='pod') ap += (today.counts?.[k]||0)*c.pts; });
   }
-  // craft
   if(areaKey==='craft') {
     const chartP=Object.assign({chart1:20,chart2:15,chart3:10}, customMultiPts('chart'));
     Object.entries(today.multi).forEach(([k,v])=>{ if(v&&chartP[k])ap+=chartP[k]; });
     ap += skillPoints(today.skill);
   }
-  // finance
   if(areaKey==='finance') {
     ['output','journal-output','fin-review'].forEach(k=>{ if(today.checks[k]){ const el=document.querySelector(`.act-item[data-key="${k}"]`); if(el) ap+=parseInt(el.dataset.pts)||0; } });
   }
-  // character
   if(areaKey==='character') {
     ['stage','evjournal','4am','nodbt'].forEach(k=>{ if(today.checks[k]){ const el=document.querySelector(`.act-item[data-key="${k}"]`); if(el) ap+=parseInt(el.dataset.pts)||0; } });
   }
-  // secondary areas — any checked items with data-area attribute
   const secAreas=['career','business','relationships','creative','environment'];
   if(secAreas.includes(areaKey)) {
     document.querySelectorAll(`.act-item[data-area="${areaKey}"]`).forEach(el=>{
       if(today.checks[el.dataset.key]) ap+=parseInt(el.dataset.pts)||0;
     });
   }
-  // custom activities you've added yourself under a PRIMARY area — these were
-  // previously invisible to area debt/index entirely. Built-in keys above are
-  // never in customActs, so this can't double-count them.
   const primaryAreas2=['faith','health','mind','craft','finance','character'];
   if(primaryAreas2.includes(areaKey) && customActs[areaKey]) {
     customActs[areaKey].forEach(item=>{
@@ -2641,20 +2640,15 @@ function calcCompoundIndex() {
   const h=db.history;
   if(!h.length) return 1.00;
   let index=1.00;
-  const primaryAreas=['faith','health','mind','craft','finance','character'];
   h.forEach(entry=>{
-    const state=entry.state||{};
     const ap=entry.ap||0;
     const isSeed=entry.seed||false;
-    // A declared Seed Day is a deliberate rest, not a miss — it should never take
-    // the debt dip, regardless of whether any AP happened to be logged that day.
     if(isSeed) {
       index*=(1+0.001);
     } else if(ap>0) {
-      const boost=0.002 + (ap/10000); // small daily boost
+      const boost=0.002 + (ap/10000);
       index*=(1+boost);
     } else {
-      // momentum debt: missed primary days create small dip
       index*=0.998;
     }
   });
@@ -2668,13 +2662,12 @@ function calcAreaIndex(areaKey) {
   h.forEach(entry=>{
     const areaAP=entry.areaAP?.[areaKey]||0;
     if(entry.seed) {
-      index*=(1+0.0005); // declared rest — neutral, not a dip, same principle as the overall index
+      index*=(1+0.0005);
     } else if(areaAP>0) {
       index*=(1+0.003+(areaAP/8000));
     } else {
       const area=AREAS[areaKey];
-      if(area&&area.primary) index*=0.997; // primary debt
-      // secondary: no debt, just no growth
+      if(area&&area.primary) index*=0.997;
     }
   });
   return Math.max(1.00, parseFloat(index.toFixed(4)));
@@ -2707,14 +2700,12 @@ function updateUI() {
   document.getElementById('navAP').textContent=ap;
   document.getElementById('navGP').textContent=gp;
 
-  // rank
   let rank=RANKS[0];
   for(const r of RANKS) if(ap>=r.min) rank=r;
   const rEl=document.getElementById('todayRank');
   rEl.textContent=rank.name==='—'?'—':rank.name;
   rEl.className='th-rank '+rank.cls;
 
-  // AP bar
   const nextRank=RANKS.find(r=>r.min>ap)||RANKS[RANKS.length-1];
   const prevMin=rank.min; const nextMin=nextRank.min;
   const pct=nextMin>prevMin?Math.min(100,Math.round((ap-prevMin)/(nextMin-prevMin)*100)):100;
@@ -2722,7 +2713,6 @@ function updateUI() {
   document.getElementById('apBarLbl').textContent=`${ap} / ${nextMin}`;
   document.getElementById('apSub').textContent=ap>=420?'Transcendent reached!':`Next: ${nextRank.name} at ${nextMin}`;
 
-  // GP bar
   const wgp=calcWeekGP();
   const wNext=GP_WK.find(g=>g.min>wgp)||GP_WK[GP_WK.length-1];
   const wPrev=GP_WK.slice().reverse().find(g=>g.min<=wgp)||GP_WK[0];
@@ -2733,7 +2723,6 @@ function updateUI() {
   let bonusGP=0; Object.entries(today.gpB).forEach(([k,v])=>{ if(v){ const el=document.querySelector(`.gp-item[data-key="${k}"]`); if(el) bonusGP+=parseInt(el.dataset.gp)||0; } });
   document.getElementById('gpSub').textContent=`Today: ${baseGP} base + ${bonusGP} bonus · Week: ${wgp}`;
 
-  // milestone checks
   checkMilestones(ap, gp);
 }
 
@@ -2817,7 +2806,6 @@ function selVA(el, key) {
   const chk=document.getElementById(key+'-chk');
   const pts=document.getElementById(key+'-pts');
   if(wasSel) {
-    // clicking the already-selected option clears it — a mistaken tick shouldn't force a nonzero score
     today.va[key]=0;
     if(chk){chk.classList.remove('on');chk.textContent='';}
     if(pts)pts.textContent='0 AP';
@@ -2845,11 +2833,11 @@ function togMulti(el, group) {
   updateUI();
 }
 
-const SKILL_PTS = 15; // AP for the first skill action selected — extra picks taper off, see skillPoints()
+const SKILL_PTS = 15;
 function skillPoints(skillArr) {
   const n = skillCount(skillArr);
   if(!n) return 0;
-  const taper = [15,10,8,5]; // 1st, 2nd, 3rd, 4th+ each
+  const taper = [15,10,8,5];
   let total=0;
   for(let i=0;i<n;i++) total += taper[Math.min(i,3)];
   return total;
@@ -2871,13 +2859,8 @@ function togSkill(el) {
   }
   updateUI();
 }
-// kept for compatibility with any external references
 function selSkill(el) { togSkill(el); }
 
-// ── EDITABLE SKILL CATEGORIES ──
-// Previously hardcoded in the HTML. Now data-driven (db.skillCategories,
-// synced like everything else) so categories and options can be added,
-// renamed, or removed from the app itself.
 const SKILL_CATEGORIES_DEFAULT = [
   { id:'civil', name:'Civil Engineering', options:['AutoCAD session','Structural calc','Cost estimation','Site planning','Software tutorial','Project document'] },
   { id:'trading', name:'Trading', options:['Chart markup','Strategy review','Trade journaling','Backtesting'] },
@@ -2907,7 +2890,6 @@ function renderSkillCats(){
         <button onclick="addSkillOption('${cat.id}')">+ Add</button>
       </div>
     </div>`).join('');
-  // re-apply today's current selections after re-render
   if(today.skill && today.skill.length){
     document.querySelectorAll('.s-opt').forEach(o=>{ if(today.skill.includes(o.textContent)) o.classList.add('sel'); });
   }
@@ -2999,13 +2981,16 @@ function togDayType(type) {
 }
 
 // ── SAVE DAY ──
-function saveDay() {
+// silent=true is used by scheduleDayAutosave() for continuous background
+// persistence (anchor verse, reading list) — it still writes a full,
+// correct day entry but skips the toast and achievement/reward popups so
+// typing a verse doesn't trigger a wave of celebration modals.
+function saveDay(silent) {
   const ap=calcAP(), gp=calcGP();
   const rank=RANKS.slice().reverse().find(r=>r.min<=ap)||RANKS[0];
-  // calc area APs
   const areaAP={};
   Object.keys(AREAS).forEach(k=>{ areaAP[k]=calcAreaAP(k); });
-  
+
   const entry = {
     date: currentViewDate || getTodayKey(),
     ap, gp,
@@ -3016,6 +3001,7 @@ function saveDay() {
     wellbeing: today.wellbeing ? {...today.wellbeing} : null,
     wellbeingTouched: wbTouched.size>0,
     onePercent: document.getElementById('onePercent').value.trim(),
+    readingSnapshot: JSON.parse(JSON.stringify(db.currentlyReading||[])),
     journal: {
       win: document.getElementById('jWin').value,
       lesson: document.getElementById('jLesson').value,
@@ -3033,32 +3019,32 @@ function saveDay() {
   const idx=db.history.findIndex(e=>e.date===entry.date);
   if(idx>=0) db.history[idx]=entry; else db.history.push(entry);
   db.history.sort((a,b)=>a.date.localeCompare(b.date));
-  
+
   const newMilestones = checkMilestones(ap, gp);
   saveDB();
-  checkRewardTargets(entry.date, ap);
 
-  if(ap>=100) queueAchievement('rank', rank.name, rank.name+' Day', entry.date, rank.icon);
-  const streakNow = calcStreak();
-  [3,7,14,30,60,100].forEach(n=>{ if(streakNow===n) queueAchievement('streak', 'ms-str'+n, n+'-Day Streak', entry.date, '🔥'); });
-  newMilestones.forEach(id=>{
-    if(id.startsWith('ms-str')) return; // streaks already queued above with a friendlier label
-    const def = findMilestoneDef(id);
-    if(def) queueAchievement('milestone', id, def.name, entry.date, def.icon);
-  });
-  saveDB();
-  toast(ap>=100 ? rank.name+' day recorded — see the banner above to choose your reward.' : 'Day recorded. Every drop counts.');
-  renderPendingBanner();
+  if(!silent){
+    checkRewardTargets(entry.date, ap);
+
+    if(ap>=100) queueAchievement('rank', rank.name, rank.name+' Day', entry.date, rank.icon);
+    const streakNow = calcStreak();
+    [3,7,14,30,60,100].forEach(n=>{ if(streakNow===n) queueAchievement('streak', 'ms-str'+n, n+'-Day Streak', entry.date, '🔥'); });
+    newMilestones.forEach(id=>{
+      if(id.startsWith('ms-str')) return;
+      const def = findMilestoneDef(id);
+      if(def) queueAchievement('milestone', id, def.name, entry.date, def.icon);
+    });
+    saveDB();
+    toast(ap>=100 ? rank.name+' day recorded — see the banner above to choose your reward.' : 'Day recorded. Every drop counts.');
+    renderPendingBanner();
+  }
 }
-// Adds an achievement to the pending queue (deduped) — the reward-picker shows these on next open, not immediately.
 function queueAchievement(type, key, label, date, icon) {
   if(type==='rank') { queueRankAchievement(key, label, date, icon); return; }
   const already = db.pendingAchievements.some(a=>a.type===type&&a.key===key&&a.date===date)
     || db.rewardsEarned.some(r=>r.source===type&&r.achKey===key&&r.date===date);
   if(!already) db.pendingAchievements.push({ type, key, label, date, icon:icon||'🏆', resolved:false });
 }
-// Only one rank reward per day, period. A later save that climbs to a higher
-// rank upgrades the existing entry in place rather than creating a second one.
 function queueRankAchievement(rankName, label, date, icon) {
   const order = RANKS.map(r=>r.name);
   const newIdx = order.indexOf(rankName);
@@ -3069,8 +3055,6 @@ function queueRankAchievement(rankName, label, date, icon) {
   }
   const earned = db.rewardsEarned.find(r=>r.source==='rank'&&r.date===date);
   if(earned) {
-    // a reward was already chosen for a lower rank today — don't re-prompt,
-    // just keep the record honest about how far the day actually went.
     if(newIdx>order.indexOf(earned.achKey)) {
       earned.achKey = rankName;
       if(!earned.text.includes('later reached')) earned.text += ` (day later reached ${rankName})`;
@@ -3089,12 +3073,10 @@ function renderProgress() {
   const conv = calcConvergence();
   const wgp = calcWeekGP();
 
-  // ── STREAK DOTS ──
   document.getElementById('streakNum').textContent = streak;
   const dots = document.getElementById('streakDots');
   dots.innerHTML = '';
   const todayK = getTodayKey();
-  // show last 21 days as dots, filling gaps
   const dotDays = [];
   for(let i=20;i>=0;i--){
     const d=new Date(); d.setDate(d.getDate()-i);
@@ -3111,18 +3093,15 @@ function renderProgress() {
     dots.appendChild(div);
   });
 
-  // ── CI HERO ──
   document.getElementById('ciIndex').textContent = ci.toFixed(2);
   const debtEl = document.getElementById('ciDebt');
   debtEl.textContent = debt > 0 ? `⚠ Momentum Debt: ${debt} missed day${debt>1?'s':''} this week` : '↑ No debt. Compounding clean.';
   debtEl.style.color = debt > 0 ? 'var(--red)' : 'var(--acc-dim)';
 
-  // ── LAG PROJECTIONS ──
   document.getElementById('lagToday').textContent = ci.toFixed(2);
   document.getElementById('lag30').textContent = (ci * Math.pow(1.003, 30)).toFixed(2);
   document.getElementById('lag90').textContent = (ci * Math.pow(1.003, 90)).toFixed(2);
 
-  // ── DRAW ALL CHARTS ──
   drawAPCurve();
   drawCICurve();
   drawWellbeingCurve();
@@ -3130,10 +3109,8 @@ function renderProgress() {
   drawRing(conv);
   drawWeekBars();
 
-  // ── AREA INDEX CARDS ──
   renderAreaIndexCards();
 
-  // ── WEEKLY MILESTONES ──
   document.getElementById('weekGP').textContent = wgp + ' GP';
   document.querySelectorAll('#weekMilestones .wm').forEach(el => {
     el.classList.remove('reached','current');
@@ -3144,7 +3121,6 @@ function renderProgress() {
     if(!fc && !el.classList.contains('reached')){ el.classList.add('current'); fc=true; }
   });
 
-  // ── HISTORY LIST ──
   const list = document.getElementById('histList');
   const entries = [...h].sort((a,b) => b.date.localeCompare(a.date));
   if(!entries.length){ list.innerHTML='<div class="empty">Your record begins today.</div>'; return; }
@@ -3155,8 +3131,12 @@ function renderProgress() {
     const bal = e.metrics?.balance ? `$${parseFloat(e.metrics.balance).toFixed(2)}` : null;
     const trade = e.metrics?.trade ? (parseFloat(e.metrics.trade)>=0?'+':'')+parseFloat(e.metrics.trade).toFixed(2) : null;
     const areaSnap = e.areaAP ? Object.entries(AREAS).map(([k,a])=>`<span style="opacity:${(e.areaAP[k]||0)>0?1:0.25}">${a.icon}</span>`).join('') : '';
+    const verse = e.state && e.state.anchorVerse;
+    const reading = e.readingSnapshot && e.readingSnapshot.length ? e.readingSnapshot.map(b=>esc(b.title)).join(', ') : '';
     const det = `<div class="h-detail">
       ${e.onePercent?`<div class="hd-row"><span class="hd-lbl">1%</span><span class="hd-val">${e.onePercent}</span></div>`:''}
+      ${verse?`<div class="hd-row"><span class="hd-lbl">Verse</span><span class="hd-val">${esc(verse)}</span></div>`:''}
+      ${reading?`<div class="hd-row"><span class="hd-lbl">Reading</span><span class="hd-val">${reading}</span></div>`:''}
       ${j.win?`<div class="hd-row"><span class="hd-lbl">Win</span><span class="hd-val">${j.win}</span></div>`:''}
       ${j.lesson?`<div class="hd-row"><span class="hd-lbl">Lesson</span><span class="hd-val">${j.lesson}</span></div>`:''}
       ${j.intention?`<div class="hd-row"><span class="hd-lbl">Tomorrow</span><span class="hd-val">${j.intention}</span></div>`:''}
@@ -3188,7 +3168,6 @@ function renderProgress() {
 function renderAreaIndexCards() {
   const container = document.getElementById('areaIndexCards');
   if(!container) return;
-  const todayK = getTodayKey();
   const h = db.history;
 
   container.innerHTML = Object.entries(AREAS).map(([k,a]) => {
@@ -3202,7 +3181,6 @@ function renderAreaIndexCards() {
     const activeDays = h.filter(e=>(e.areaAP?.[k]||0)>0).length;
     const totalDays = h.length;
     const consistency = totalDays > 0 ? Math.round((activeDays/totalDays)*100) : 0;
-    // progress bar: index above 1.0 as % toward 1.5 max
     const pct = Math.min(100, ((idx-1)/0.5)*100).toFixed(1);
     const colorVar = `var(--${k})`;
 
@@ -3268,7 +3246,6 @@ function smoothPath(pts) {
   return d;
 }
 
-// ── AP / GP CURVE ──
 function drawWellbeingCurve() {
   const g = document.getElementById('wbLines');
   if(!g) return;
@@ -3283,7 +3260,7 @@ function drawWellbeingCurve() {
   const W=700, H=120, PAD=10;
   const n = h.length;
   const xOf = i => PAD + (i/Math.max(n-1,1))*(W-PAD*2);
-  const yOf = v => H-PAD - (v/10)*(H-PAD*2); // scale 0-10 to chart height
+  const yOf = v => H-PAD - (v/10)*(H-PAD*2);
   const series = {
     energy:      { color:'#64c8a0', vals: h.map(e=>e.wellbeing.energy) },
     heaviness:   { color:'#c9a45c', vals: h.map(e=>e.wellbeing.heaviness) },
@@ -3342,7 +3319,6 @@ function drawAPCurve() {
   gpLine.setAttribute('d', gpLinePath);
   gpArea.setAttribute('d', gpAreaPath);
 
-  // dots on AP line
   apPts.forEach(([x,y], i) => {
     const circle = document.createElementNS('http://www.w3.org/2000/svg','circle');
     circle.setAttribute('cx', x); circle.setAttribute('cy', y);
@@ -3352,7 +3328,6 @@ function drawAPCurve() {
     dotsG.appendChild(circle);
   });
 
-  // x-axis date labels (show ~5)
   const step = Math.max(1, Math.floor(n/5));
   for(let i=0;i<n;i+=step){
     const t = document.createElementNS('http://www.w3.org/2000/svg','text');
@@ -3366,7 +3341,6 @@ function drawAPCurve() {
   }
 }
 
-// ── COMPOUND INDEX CURVE ──
 function drawCICurve() {
   const W=700, H=100, PAD=10;
   const ciLine = document.getElementById('ciLine');
@@ -3377,7 +3351,6 @@ function drawCICurve() {
   const h = db.history;
   if(h.length < 1){ ciLine.setAttribute('d',''); ciArea.setAttribute('d',''); return; }
 
-  // build running CI series
   let idx=1.0;
   const series = h.map(e=>{
     const ap=e.ap||0;
@@ -3402,7 +3375,6 @@ function drawCICurve() {
   ciLine.setAttribute('d', linePath);
   ciArea.setAttribute('d', areaPath);
 
-  // red debt dots
   series.forEach((s,i)=>{
     if(s.debt){
       const c=document.createElementNS('http://www.w3.org/2000/svg','circle');
@@ -3412,7 +3384,6 @@ function drawCICurve() {
     }
   });
 
-  // projection dotted line (30 days)
   if(n>0){
     const lastX = xOf(n-1); const lastY = yOf(series[n-1].ci);
     const projCI30 = series[n-1].ci * Math.pow(1.003,30);
@@ -3426,7 +3397,6 @@ function drawCICurve() {
   }
 }
 
-// ── RADAR CHART ──
 function drawRadar() {
   const cx=110, cy=100, R=75;
   const areaKeys = Object.keys(AREAS);
@@ -3441,7 +3411,6 @@ function drawRadar() {
   const px = (r,i) => cx + r*Math.cos(angle(i));
   const py = (r,i) => cy + r*Math.sin(angle(i));
 
-  // grid rings
   [0.25,0.5,0.75,1].forEach(scale=>{
     const pts = areaKeys.map((_,i)=>`${px(R*scale,i)},${py(R*scale,i)}`).join(' ');
     const poly = document.createElementNS('http://www.w3.org/2000/svg','polygon');
@@ -3451,7 +3420,6 @@ function drawRadar() {
     gridG.appendChild(poly);
   });
 
-  // axis lines
   areaKeys.forEach((_,i)=>{
     const line = document.createElementNS('http://www.w3.org/2000/svg','line');
     line.setAttribute('x1',cx); line.setAttribute('y1',cy);
@@ -3460,7 +3428,6 @@ function drawRadar() {
     axesG.appendChild(line);
   });
 
-  // data shape
   const areaIndexes = areaKeys.map(k=>calcAreaIndex(k));
   const maxIdx = Math.max(...areaIndexes, 1.001);
   const shapePts = areaKeys.map((_,i)=>{
@@ -3470,7 +3437,6 @@ function drawRadar() {
   }).join(' ');
   shape.setAttribute('points', shapePts);
 
-  // colored dots per area
   areaKeys.forEach((k,i)=>{
     const a = AREAS[k];
     const val = (areaIndexes[i]-1)/(maxIdx-1)||0;
@@ -3478,11 +3444,9 @@ function drawRadar() {
     const dot = document.createElementNS('http://www.w3.org/2000/svg','circle');
     dot.setAttribute('cx',px(r,i)); dot.setAttribute('cy',py(r,i));
     dot.setAttribute('r',3);
-    // parse CSS variable color — fallback to acc
     dot.setAttribute('fill','#64c8a0');
     axesG.appendChild(dot);
 
-    // labels
     const labelR = R+14;
     const t = document.createElementNS('http://www.w3.org/2000/svg','text');
     t.setAttribute('x',px(labelR,i)); t.setAttribute('y',py(labelR,i)+3);
@@ -3493,14 +3457,12 @@ function drawRadar() {
   });
 }
 
-// ── CONVERGENCE RING ──
 function drawRing(conv) {
   const circ = 2*Math.PI*52;
   const filled = (conv/100)*circ;
   document.getElementById('ringFill').setAttribute('stroke-dasharray',`${filled} ${circ}`);
   document.getElementById('ringPct').textContent = conv+'%';
 
-  // area dots
   const container = document.getElementById('ringAreas');
   container.innerHTML='';
   const week = db.history.slice(-7);
@@ -3512,7 +3474,6 @@ function drawRing(conv) {
   });
 }
 
-// ── WEEKLY BAR CHART ──
 function drawWeekBars() {
   const W=700, H=90, PAD=8;
   const barG = document.getElementById('weekBarGroup');
@@ -3543,7 +3504,6 @@ function drawWeekBars() {
     rect.setAttribute('fill', d.isToday ? '#64c8a0' : d.ap>0 ? 'rgba(100,200,160,0.4)' : 'rgba(255,255,255,0.04)');
     barG.appendChild(rect);
 
-    // AP value above bar
     if(d.ap>0){
       const valT = document.createElementNS('http://www.w3.org/2000/svg','text');
       valT.setAttribute('x',x+3+barW/2); valT.setAttribute('y',y-3);
@@ -3554,7 +3514,6 @@ function drawWeekBars() {
       labelG.appendChild(valT);
     }
 
-    // day label
     const dayT = document.createElementNS('http://www.w3.org/2000/svg','text');
     dayT.setAttribute('x',x+3+barW/2); dayT.setAttribute('y',H-2);
     dayT.setAttribute('text-anchor','middle'); dayT.setAttribute('font-size','7');
@@ -3574,6 +3533,50 @@ function renderMilestones() {
       return `<div class="ms-card ${u?'unlocked':''}"><div class="ms-icon">${m.icon}</div><div class="ms-name">${m.name}</div><div class="ms-desc">${m.desc}</div><div class="ms-req">${m.req}</div><div class="ms-status ${u?'unlocked':'locked'}">${u?'✓ Unlocked':'Locked'}</div>${u?`<div class="ms-date">${fmtDate(u)}</div>`:''}</div>`;
     }).join('');
   });
+  renderCustomMilestones();
+}
+
+// ── CUSTOM MILESTONES — self-declared, hand-marked, not auto-evaluated ──
+function renderCustomMilestones(){
+  const grid = document.getElementById('ms-custom');
+  if(!grid) return;
+  const list = db.customMilestones||[];
+  grid.innerHTML = list.map(m=>`
+    <div class="ms-card ${m.unlocked?'unlocked':''}">
+      <div class="ms-icon">${esc(m.icon||'🏅')}</div>
+      <div class="ms-name">${esc(m.name)}</div>
+      <div class="ms-desc">${esc(m.desc||'')}</div>
+      <div class="ms-req">${esc(m.req||'')}</div>
+      <div class="ms-status ${m.unlocked?'unlocked':'locked'}" style="cursor:pointer" onclick="toggleCustomMilestone('${m.id}')">${m.unlocked?'✓ Unlocked — tap to lock':'Locked — tap to mark unlocked'}</div>
+      ${m.unlocked?`<div class="ms-date">${fmtDate(m.unlocked)}</div>`:''}
+      <button class="edit-item-del" style="margin-top:6px" onclick="deleteCustomMilestone('${m.id}')">✕ remove</button>
+    </div>`).join('') || '<div class="empty-note">None yet — add your own below.</div>';
+}
+function addCustomMilestone(){
+  const icon=document.getElementById('cmIcon').value.trim()||'🏅';
+  const name=document.getElementById('cmName').value.trim();
+  const desc=document.getElementById('cmDesc').value.trim();
+  const req=document.getElementById('cmReq').value.trim();
+  if(!name) { toast('Give it a name first.'); return; }
+  if(!db.customMilestones) db.customMilestones=[];
+  db.customMilestones.push({ id:'cm-'+Date.now(), icon, name, desc, req, unlocked:null });
+  ['cmIcon','cmName','cmDesc','cmReq'].forEach(id=>document.getElementById(id).value='');
+  saveDB();
+  renderCustomMilestones();
+  toast('Milestone added.');
+}
+function toggleCustomMilestone(id){
+  const m=(db.customMilestones||[]).find(x=>x.id===id);
+  if(!m) return;
+  m.unlocked = m.unlocked ? null : getTodayKey();
+  saveDB();
+  renderCustomMilestones();
+}
+function deleteCustomMilestone(id){
+  if(!confirm('Remove this custom milestone?')) return;
+  db.customMilestones=(db.customMilestones||[]).filter(x=>x.id!==id);
+  saveDB();
+  renderCustomMilestones();
 }
 
 // ── EDIT MODAL ──
@@ -3597,7 +3600,6 @@ function openEdit(section) {
     document.querySelectorAll(`#acts-${section} .act-item`).forEach(el=>{
       items.push({ key:el.dataset.key, name:el.querySelector('.ai-name').textContent, pts:parseInt(el.dataset.pts)||0, sub:el.dataset.sub||undefined, hidden:!!(itemOverrides[el.dataset.key]&&itemOverrides[el.dataset.key].hidden), tagId:(itemOverrides[el.dataset.key]&&itemOverrides[el.dataset.key].tagId)||'maintenance' });
     });
-    // custom items
     if(customActs[section]) {
       customActs[section].forEach(c=>{ if(!items.find(i=>i.key===c.key)) items.push({...c, hidden:!!(itemOverrides[c.key]&&itemOverrides[c.key].hidden), tagId:(itemOverrides[c.key]&&itemOverrides[c.key].tagId)||'maintenance'}); });
     }
@@ -3609,7 +3611,6 @@ function openEdit(section) {
 
 function renderEditList() {
   const list=document.getElementById('editList');
-  // group by subcategory — items with no 'sub' go in an unlabeled group first
   const groups={};
   editItems.forEach((item,i)=>{
     const g=item.sub||'';
@@ -3663,15 +3664,12 @@ function addEditItem() {
 
 function saveEdit() {
   if(editSection==='gp') {
-    // rebuild GP list
     const gpList=document.getElementById('gpBonusList');
     gpList.innerHTML=editItems.map(item=>`<div class="gp-item" data-gp="${item.pts}" data-key="${item.key}" onclick="togGP(this)" style="${item.hidden?'display:none':''}"><div class="gp-chk"></div><div class="gp-name">${item.name}</div><div class="gp-val">+${item.pts}</div></div>`).join('');
-    // restore checked state
     Object.entries(today.gpB).forEach(([k,v])=>{ if(v){ const el=document.querySelector(`.gp-item[data-key="${k}"]`); if(el){ el.classList.add('checked'); el.querySelector('.gp-chk').textContent='✓'; } } });
     editItems.forEach(item=>{ itemOverrides[item.key]={name:item.name,pts:item.pts,hidden:!!item.hidden,tagId:item.tagId||'maintenance'}; });
     saveItemOverrides();
   } else {
-    // group by subcategory for the live view too
     const groups={};
     editItems.forEach(item=>{ const g=item.sub||''; if(!groups[g]) groups[g]=[]; groups[g].push(item); });
     const order=Object.keys(groups).sort((a,b)=> a===''? -1 : b===''? 1 : a.localeCompare(b));
@@ -3684,12 +3682,9 @@ function saveEdit() {
       return header+rows;
     }).join('');
     container.innerHTML=vaHTML+actHTML;
-    // restore checked state
     Object.entries(today.checks).forEach(([k,v])=>{ if(v){ const el=document.querySelector(`.act-item[data-key="${k}"]`); if(el){ el.classList.add('checked'); el.querySelector('.ai-chk').textContent='✓'; } } });
-    // save custom acts (brand new items)
     customActs[editSection]=editItems.filter(i=>i.key.startsWith('custom-'));
     saveCustomActs();
-    // save overrides for every item (built-in or custom) so name/pts/sub/hidden persist across reload
     editItems.forEach(item=>{ itemOverrides[item.key]={name:item.name,pts:item.pts,sub:item.sub||null,hidden:!!item.hidden,tagId:item.tagId||'maintenance'}; });
     saveItemOverrides();
   }
@@ -3734,12 +3729,7 @@ function resetToDefaults(){
 }
 function exportData() { const bundle={ db, customActs, itemOverrides, appearance }; const j=JSON.stringify(bundle,null,2); const b=new Blob([j],{type:'application/json'}); const u=URL.createObjectURL(b); const a=document.createElement('a'); a.href=u; a.download=`quickening-${getTodayKey()}.json`; a.click(); URL.revokeObjectURL(u); toast('Data exported — includes custom activities.'); }
 function copyData() { const bundle={ db, customActs, itemOverrides, appearance }; navigator.clipboard.writeText(JSON.stringify(bundle)).then(()=>toast('Copied.')).catch(()=>toast('Copy failed — use Export.')); }
-// Accepts either the new bundle format { db, customActs, itemOverrides, appearance }
-// or a legacy export that is just the db object itself — old files still import cleanly.
 function applyImportedBundle(p) {
-  // Lightweight data-only patch — e.g. a rewards/basket JSON with no day-history
-  // at all. Detected by the absence of both db.history and a bare history array,
-  // so it never gets confused with a real backup.
   const looksLikeFullBundle = p && ((p.db && p.db.history) || p.history);
   if (!looksLikeFullBundle && p && Array.isArray(p.basketItems)) {
     if (!db.basketItems) db.basketItems = [];
@@ -3767,6 +3757,7 @@ function applyImportedBundle(p) {
   if (!db.currentlyReading) db.currentlyReading = [];
   if (!db.pendingAchievements) db.pendingAchievements = [];
   if (!db.basketItems) db.basketItems = [];
+  if (!db.customMilestones) db.customMilestones = [];
   if (isBundle) {
     if (p.customActs) customActs = p.customActs;
     if (p.itemOverrides) itemOverrides = p.itemOverrides;
@@ -3870,7 +3861,7 @@ function restoreUI() {
   document.querySelectorAll('.act-item').forEach(el=>{ const k=el.dataset.key; if(today.checks[k]){ el.classList.add('checked'); el.querySelector('.ai-chk').textContent='✓'; } });
   ['prayer','book1','book2','workout'].forEach(k=>{ if(today.va[k]){ const opt=document.querySelector(`.va-opt[data-key="${k}"][data-val="${today.va[k]}"]`); if(opt){ opt.classList.add('sel'); const chk=document.getElementById(k+'-chk'); if(chk){ chk.classList.add('on'); chk.textContent='✓'; } const pts=document.getElementById(k+'-pts'); if(pts) pts.textContent=today.va[k]+' AP'; } } });
   Object.entries(today.multi).forEach(([k,v])=>{ if(v){ const el=document.querySelector(`[data-key="${k}"]`); if(el) el.classList.add('sel'); } });
-  if(today.skill && !Array.isArray(today.skill)) today.skill=[today.skill]; // migrate legacy single-value days
+  if(today.skill && !Array.isArray(today.skill)) today.skill=[today.skill];
   if(today.skill && today.skill.length){
     document.querySelectorAll('.s-opt').forEach(o=>{ if(today.skill.includes(o.textContent)) o.classList.add('sel'); });
     const chk=document.getElementById('skill-chk'); if(chk){ chk.classList.add('on'); chk.textContent='✓'; }
@@ -3878,11 +3869,8 @@ function restoreUI() {
   } else {
     const ptsEl=document.getElementById('skill-pts-val'); if(ptsEl) ptsEl.textContent='0 AP · pick any that apply';
   }
-  // multi-instance counters (bible + podcast episodes)
   Object.keys(COUNTER_CONFIG).forEach(k=>{ if(today.counts?.[k]) stepCount(k,0); });
-  // hydration bottles
   renderWater();
-  // meditation
   if(today.meditation?.type) document.querySelectorAll('.med-type').forEach(el=>el.classList.toggle('sel', el.dataset.type===today.meditation.type));
   renderMeditation();
   if(today.steps){ const si=document.getElementById('stepsInput'); if(si) si.value=today.steps; }
@@ -3911,7 +3899,6 @@ function restoreUI() {
   if(today.onePercent) document.getElementById('onePercent').value=today.onePercent;
   if(today.seed){ const btn=document.getElementById('seedBtn'); btn.classList.add('active'); btn.textContent='🌱 Seed Day Marked — Roots are forming.'; }
   if(today.dayType){ togDayType(today.dayType); }
-  // multi pts (cognitive + chart groups only — podcasts now use the counter grid above)
   let cog=0,chart=0;
   const cogP=Object.assign({neuronation:20,elevate:20,lumosity:15,peak:12,mindpal:12,impulse:10}, customMultiPts('cog'));
   const chartP=Object.assign({chart1:20,chart2:15,chart3:10}, customMultiPts('chart'));
@@ -4028,7 +4015,7 @@ function toast(msg) { const t=document.getElementById('toast'); t.textContent=ms
 function fmtDate(key) { const[y,m,d]=key.split('-'); const months=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec']; return `${d} ${months[parseInt(m)-1]} ${y}`; }
 function calcStreak() {
   if(!db.history.length) return 0;
-  const sorted=[...db.history].sort((a,b)=>b.date.localeCompare(a.date));
+  const sorted=[...db.history].sort(function(a,b){return b.date.localeCompare(a.date);});
   const todayK=getTodayKey();
   let streak=0;
   let checkDate=new Date();
@@ -4048,10 +4035,6 @@ function calcStreak() {
 }
 
 // ── HIDE SECTIONS ──
-// Hides a whole section from view without deleting anything — activities,
-// history, and stats underneath are untouched. Meant for things like a
-// Relationships block that's painful to look at right now; unhide any time
-// from the strip that appears once at least one section is hidden.
 function ensureHiddenSections(){ if(!db.hiddenSections) db.hiddenSections=[]; return db.hiddenSections; }
 function hideSection(key){
   const list = ensureHiddenSections();
