@@ -1770,8 +1770,8 @@ function loadDB() {
   const ex = db.history.find(e => e.date === k);
   if (ex) today = migrateLegacyDay(Object.assign(freshToday(), ex.state || {}));
 }
-function saveDB() { try{ localStorage.setItem('quickening_db',JSON.stringify(db)); }catch(e){} scheduleCloudPush(); }
-function saveDBLocalOnly() { try{ localStorage.setItem('quickening_db',JSON.stringify(db)); }catch(e){} }
+function saveDB() { try{ localStorage.setItem('quickening_db',JSON.stringify(db)); localStorage.setItem('quickening_local_updated_at', new Date().toISOString()); }catch(e){} scheduleCloudPush(); }
+function saveDBLocalOnly() { try{ localStorage.setItem('quickening_db',JSON.stringify(db)); localStorage.setItem('quickening_local_updated_at', new Date().toISOString()); }catch(e){} }
 let pullSucceeded = false;
 
 // ── CLOUD SYNC (Supabase) ──
@@ -1804,13 +1804,24 @@ async function pullCloud() {
     const rows = await res.json();
     if(!rows.length) { setSyncStatus('Synced'); pushCloudNow(); return; }
     const remote = rows[0];
-    const localSyncedAt = localStorage.getItem('quickening_synced_at');
-    if(!localSyncedAt || new Date(remote.updated_at) > new Date(localSyncedAt)) {
+    // Compare against when THIS device last actually edited something
+    // locally — not against whether a push to the cloud ever succeeded.
+    // A same-day edit that hasn't finished syncing yet (tab closed before
+    // the debounced push fired, connection hiccup, etc.) must never lose
+    // to a stale or empty cloud row just because "synced_at" was never
+    // set. If local has never saved anything on this device, there's
+    // nothing to protect, so a first-time pull still goes through.
+    const localUpdatedAt = localStorage.getItem('quickening_local_updated_at');
+    if(!localUpdatedAt || new Date(remote.updated_at) > new Date(localUpdatedAt)) {
       const d = remote.data;
       if(d.db) localStorage.setItem('quickening_db', JSON.stringify(d.db));
       if(d.customActs) localStorage.setItem('quickening_custom', JSON.stringify(d.customActs));
       if(d.itemOverrides) localStorage.setItem('quickening_overrides', JSON.stringify(d.itemOverrides));
       localStorage.setItem('quickening_synced_at', remote.updated_at);
+    } else {
+      // Local is newer than what's in the cloud — push it up rather than
+      // silently discarding today's progress.
+      pushCloudNow();
     }
     setSyncStatus('Synced');
   } catch(e) {
@@ -2039,10 +2050,17 @@ function renderBurstPage(){
     goalsEl.innerHTML = Object.entries(byCat).map(([cat,list])=>`
       <div style="margin-bottom:10px">
         <div style="font-size:8px;letter-spacing:.1em;text-transform:uppercase;color:var(--acc-dim);margin-bottom:4px">${cat}</div>
-        ${list.map(g=>`<div style="display:flex;align-items:center;gap:7px;padding:3px 0">
+        ${list.map(g=>{
+          const status = g.status || 'active';
+          const statusTag = status==='deferred' ? '<span style="font-family:var(--font-mono);font-size:8px;padding:1px 6px;border-radius:3px;margin-left:6px;color:#c9a84c;border:1px solid #8a6f2e;background:rgba(201,168,76,.08)">Deferred</span>'
+                          : status==='dropped' ? '<span style="font-family:var(--font-mono);font-size:8px;padding:1px 6px;border-radius:3px;margin-left:6px;color:var(--red);border:1px solid var(--red);background:rgba(200,100,100,.08)">Dropped</span>'
+                          : '';
+          const dim = status!=='active' ? 'opacity:.55' : '';
+          return `<div style="display:flex;align-items:center;gap:7px;padding:3px 0;${dim}">
           <div class="gp-chk" style="${(db.localGoalMarks&&db.localGoalMarks[g.id])?'background:var(--acc);border-color:var(--acc);color:var(--bg)':''}" onclick="toggleLocalGoalMark('${g.id}')" title="Personal tally — marks it here only, never changes The Arc">${(db.localGoalMarks&&db.localGoalMarks[g.id])?'✓':''}</div>
-          <div style="font-size:11px;color:var(--text-mid);${g.done?'text-decoration:line-through;color:var(--text-dim)':''}">${g.done?'✓ (done in Arc) ':''}${g.text}</div>
-        </div>`).join('')}
+          <div style="font-size:11px;color:var(--text-mid);${g.done?'text-decoration:line-through;color:var(--text-dim)':''}">${g.done?'✓ (done in Arc) ':''}${g.text}${statusTag}</div>
+        </div>`;
+        }).join('')}
       </div>`).join('');
   }
   renderTagRollup();
