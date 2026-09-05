@@ -131,7 +131,7 @@ body.editing .tool-card:hover{background:var(--s1);}
   </div>
   <div class="hdr-r">
     <div class="date-chip" id="datechip"></div>
-    <div class="date-chip" id="syncStatus">—</div>
+    <div class="date-chip" id="syncStatus" onclick="pullCloud()" style="cursor:pointer" title="Click to re-check sync now">—</div>
     <button class="hbtn" onclick="exportState()">Export</button>
     <button class="hbtn" onclick="document.getElementById('importFile').click()">Import</button>
     <input type="file" id="importFile" accept=".json" style="display:none" onchange="importState(this)">
@@ -344,6 +344,22 @@ async function pushCloudNow() {
     setSyncStatus('Synced');
   } catch(e) { setSyncStatus('Offline'); }
 }
+
+// pullCloud() used to run exactly once, at page load. A single slow or
+// blocked attempt at that moment left the status box reading "Offline"
+// for the entire session afterward, even once the connection was fine —
+// nothing ever re-checked it. This adds a re-check when the tab regains
+// focus and a periodic heartbeat, both throttled so they don't hammer
+// Supabase on a tab left open for hours.
+let lastPullCheck = Date.now();
+function pullCloudThrottled(){
+  const now = Date.now();
+  if(now - lastPullCheck < 10000) return; // no more than once per 10s
+  lastPullCheck = now;
+  pullCloud();
+}
+document.addEventListener('visibilitychange', ()=>{ if(document.visibilityState==='visible') pullCloudThrottled(); });
+setInterval(pullCloudThrottled, 45000);
 
 function toast(m){
   const t=document.getElementById('toast');
