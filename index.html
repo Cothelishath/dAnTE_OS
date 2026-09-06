@@ -311,15 +311,33 @@ async function pullCloud() {
     clearTimeout(timeout);
     if(!res.ok) { setSyncStatus('Sync error'); return; }
     const rows = await res.json();
-    if(!rows.length) { setSyncStatus('Synced'); pushCloudNow(); return; }
+    // Pulling never pushes on its own — see the note below on the race
+    // that created.
+    if(!rows.length) { setSyncStatus('Synced'); return; }
     const remote = rows[0];
-    const localSyncedAt = localStorage.getItem(SYNC_TOOL + '_synced_at');
-    if(!localSyncedAt || new Date(remote.updated_at) > new Date(localSyncedAt)) {
-      state = remote.data;
-      localStorage.setItem(LS, JSON.stringify(state));
-      localStorage.setItem(SYNC_TOOL + '_synced_at', remote.updated_at);
-      render();
-    }
+    // Merge, not overwrite: sections merge by id, and each section's
+    // tools merge by file (falling back to name), local wins on the same
+    // key. A straight `state = remote.data` here would silently drop any
+    // card you'd just added or edited if a pull landed before that edit
+    // had finished pushing.
+    const remoteState = remote.data || {sections:[]};
+    const localSections = state.sections || [];
+    const remoteSections = remoteState.sections || [];
+    const secMap = new Map();
+    remoteSections.forEach(s=>secMap.set(s.id, JSON.parse(JSON.stringify(s))));
+    localSections.forEach(s=>{
+      const existing = secMap.get(s.id);
+      if(!existing){ secMap.set(s.id, JSON.parse(JSON.stringify(s))); return; }
+      const toolMap = new Map();
+      (existing.tools||[]).forEach(t=>toolMap.set(t.file||t.name, t));
+      (s.tools||[]).forEach(t=>toolMap.set(t.file||t.name, t));
+      existing.tools = Array.from(toolMap.values());
+      Object.assign(existing, {label:s.label||existing.label, color:s.color||existing.color});
+    });
+    state = Object.assign({}, remoteState, {sections: Array.from(secMap.values())});
+    localStorage.setItem(LS, JSON.stringify(state));
+    localStorage.setItem(SYNC_TOOL + '_synced_at', remote.updated_at);
+    render();
     setSyncStatus('Synced');
   } catch(e) { setSyncStatus('Offline'); }
 }
