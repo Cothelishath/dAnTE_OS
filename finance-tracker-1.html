@@ -872,17 +872,29 @@ async function pullCloud() {
     clearTimeout(timeout);
     if(!res.ok) { setSyncStatus('Sync error'); return; }
     const rows = await res.json();
-    if(!rows.length) { setSyncStatus('Synced'); pushCloudNow(); return; }
+    // Pulling never pushes on its own. This ran before loadData() had a
+    // chance to populate state.entries from local storage, so an eager
+    // push here would send an empty transaction list and overwrite real
+    // history — the same failure mode that wiped Quickening on 2026-09-03.
+    if(!rows.length) { setSyncStatus('Synced'); return; }
     const remote = rows[0];
-    const localSyncedAt = localStorage.getItem(SYNC_TOOL + '_synced_at');
-    if(!localSyncedAt || new Date(remote.updated_at) > new Date(localSyncedAt)) {
-      const d = remote.data;
-      if(d.entries) state.entries = d.entries;
-      if(d.categories && d.categories.length) state.categories = d.categories;
-      if(d.budgets) state.budgets = d.budgets;
-      localStorage.setItem('moneyFlow', JSON.stringify(state));
-      localStorage.setItem(SYNC_TOOL + '_synced_at', remote.updated_at);
-    }
+    const d = remote.data || {};
+    // Merge, not overwrite: entries and categories union by id (local
+    // wins on the same id edited both places), budgets union by category
+    // name the same way. Read local storage directly since loadData()
+    // hasn't run yet — `state` here is still the empty startup default.
+    let localSaved = {}; try { localSaved = JSON.parse(localStorage.getItem('moneyFlow')||'null') || {}; } catch(e){}
+    const entryMap = new Map();
+    (d.entries||[]).forEach(e=>{ if(e && e.id) entryMap.set(e.id, e); });
+    (localSaved.entries||[]).forEach(e=>{ if(e && e.id) entryMap.set(e.id, e); });
+    state.entries = Array.from(entryMap.values());
+    const catMap = new Map();
+    (d.categories||[]).forEach(c=>{ if(c && c.id) catMap.set(c.id, c); });
+    (localSaved.categories||[]).forEach(c=>{ if(c && c.id) catMap.set(c.id, c); });
+    state.categories = catMap.size ? Array.from(catMap.values()) : JSON.parse(JSON.stringify(DEFAULT_CATS));
+    state.budgets = Object.assign({}, d.budgets||{}, localSaved.budgets||{});
+    localStorage.setItem('moneyFlow', JSON.stringify(state));
+    localStorage.setItem(SYNC_TOOL + '_synced_at', remote.updated_at);
     setSyncStatus('Synced');
   } catch(e) { setSyncStatus('Offline'); }
 }
