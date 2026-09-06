@@ -1149,6 +1149,38 @@ const SYNC_TOOL = 'the-arc';
 
 function setSyncStatus(msg){ const el=document.getElementById('syncStatus'); if(el) el.textContent=msg; }
 
+// Merge, not overwrite. Categories merge by id. Each of bursts/months/
+// quarters is an object keyed by period (burst index, "YYYY-MM", or
+// "YYYY-Q#") — for every period present on either side, goals merge by
+// id (local wins on the same goal edited both places), and the
+// intention/title text prefers whichever side actually has one set.
+function mergeArcState(local, remote){
+  local = local || freshState();
+  if(!remote) return local;
+  const merged = Object.assign(freshState(), JSON.parse(JSON.stringify(remote)));
+  const catMap = new Map();
+  (merged.categories||[]).forEach(c=>{ if(c && c.id) catMap.set(c.id, c); });
+  (local.categories||[]).forEach(c=>{ if(c && c.id) catMap.set(c.id, c); });
+  merged.categories = Array.from(catMap.values());
+  if(!merged.categories.length) merged.categories = JSON.parse(JSON.stringify(DEFAULT_CATEGORIES));
+  ['bursts','months','quarters'].forEach(scope=>{
+    const out = Object.assign({}, merged[scope]||{});
+    const localScope = local[scope]||{};
+    Object.keys(localScope).forEach(key=>{
+      const localPeriod = localScope[key] || {goals:[]};
+      const remotePeriod = out[key] || {goals:[]};
+      const goalMap = new Map();
+      (remotePeriod.goals||[]).forEach(g=>{ if(g && g.id) goalMap.set(g.id, g); });
+      (localPeriod.goals||[]).forEach(g=>{ if(g && g.id) goalMap.set(g.id, g); });
+      out[key] = Object.assign({}, remotePeriod, localPeriod, { goals: Array.from(goalMap.values()) });
+      if(!localPeriod.intention && remotePeriod.intention) out[key].intention = remotePeriod.intention;
+      if(!localPeriod.title && remotePeriod.title) out[key].title = remotePeriod.title;
+    });
+    merged[scope] = out;
+  });
+  return merged;
+}
+
 async function pullCloud(){
   setSyncStatus('Syncing…');
   try{
@@ -1161,15 +1193,11 @@ async function pullCloud(){
     clearTimeout(timeout);
     if(!res.ok){ setSyncStatus('Sync error'); return; }
     const rows = await res.json();
-    if(!rows.length){ setSyncStatus('Synced'); pushCloudNow(); return; }
+    if(!rows.length){ setSyncStatus('Synced'); return; }
     const remote = rows[0];
-    const localSyncedAt = localStorage.getItem(SYNC_TOOL+'_synced_at');
-    if(!localSyncedAt || new Date(remote.updated_at) > new Date(localSyncedAt)){
-      state = Object.assign(freshState(), remote.data);
-      if(!state.categories || !state.categories.length) state.categories = JSON.parse(JSON.stringify(DEFAULT_CATEGORIES));
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
-      localStorage.setItem(SYNC_TOOL+'_synced_at', remote.updated_at);
-    }
+    state = mergeArcState(state, remote.data);
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+    localStorage.setItem(SYNC_TOOL+'_synced_at', remote.updated_at);
     setSyncStatus('Synced');
   }catch(e){ setSyncStatus('Offline'); }
 }
