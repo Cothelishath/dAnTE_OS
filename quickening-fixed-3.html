@@ -1785,6 +1785,45 @@ const SYNC_TOOL = 'quickening';
 
 function setSyncStatus(msg) { const el=document.getElementById('syncStatus'); if(el) el.textContent=msg; }
 
+// Merge, not overwrite. History is date-keyed — union by date, local wins
+// on same-day conflicts (the device sitting in front of you right now
+// knows about its own unsynced edits). Everything else that's a list of
+// objects merges by id the same way. This is what actually stops one
+// device's stale pull-then-push cycle from silently erasing entries the
+// other device hadn't synced down yet — the exact failure mode that
+// wiped this row on 2026-09-03.
+function mergeQuickeningDb(local, remote) {
+  local = local || {};
+  if(!remote) return local;
+  const merged = JSON.parse(JSON.stringify(remote));
+  const histMap = new Map();
+  (merged.history||[]).forEach(e=>{ if(e && e.date) histMap.set(e.date, e); });
+  (local.history||[]).forEach(e=>{ if(e && e.date) histMap.set(e.date, e); });
+  merged.history = Array.from(histMap.values()).sort((a,b)=>a.date.localeCompare(b.date));
+  ['milestones','compound','customMultiOptions','customCounterOptions','localGoalMarks','areaNameOverrides'].forEach(k=>{
+    merged[k] = Object.assign({}, merged[k]||{}, local[k]||{});
+  });
+  ['rewardsCatalogue','rewardsEarned','currentlyReading','pendingAchievements','basketItems','customMilestones','customBurstTags'].forEach(k=>{
+    const map = new Map();
+    (merged[k]||[]).forEach(item=>{ if(item && item.id) map.set(item.id, item); });
+    (local[k]||[]).forEach(item=>{ if(item && item.id) map.set(item.id, item); });
+    merged[k] = Array.from(map.values());
+  });
+  const skillMap = new Map();
+  (merged.skillCategories||[]).forEach(c=>{ if(c && c.id) skillMap.set(c.id, JSON.parse(JSON.stringify(c))); });
+  (local.skillCategories||[]).forEach(c=>{
+    if(!c || !c.id) return;
+    const existing = skillMap.get(c.id);
+    if(existing) existing.options = Array.from(new Set([...(existing.options||[]),...(c.options||[])]));
+    else skillMap.set(c.id, JSON.parse(JSON.stringify(c)));
+  });
+  merged.skillCategories = Array.from(skillMap.values());
+  if(local.currentAnchorVerse) merged.currentAnchorVerse = local.currentAnchorVerse;
+  if(local.hiddenSections && local.hiddenSections.length) merged.hiddenSections = Array.from(new Set([...(merged.hiddenSections||[]),...local.hiddenSections]));
+  if(local.arcCache) merged.arcCache = local.arcCache;
+  return merged;
+}
+
 async function pullCloud() {
   setSyncStatus('Syncing…');
   try {
@@ -1802,27 +1841,28 @@ async function pullCloud() {
     if(!res.ok) { setSyncStatus('Sync error'); return; }
     pullSucceeded = true;
     const rows = await res.json();
-    if(!rows.length) { setSyncStatus('Synced'); pushCloudNow(); return; }
+    // Pulling never pushes on its own — creating/confirming the row is
+    // the job of the normal save flow, once there's real data to save.
+    // Auto-pushing here was the other half of the 2026-09-03 wipe: it
+    // fired using whatever `db` held at that instant, which — this early
+    // in page load — can still be the empty placeholder declared above,
+    // before loadDB() has ever run.
+    if(!rows.length) { setSyncStatus('Synced'); return; }
     const remote = rows[0];
-    // Compare against when THIS device last actually edited something
-    // locally — not against whether a push to the cloud ever succeeded.
-    // A same-day edit that hasn't finished syncing yet (tab closed before
-    // the debounced push fired, connection hiccup, etc.) must never lose
-    // to a stale or empty cloud row just because "synced_at" was never
-    // set. If local has never saved anything on this device, there's
-    // nothing to protect, so a first-time pull still goes through.
-    const localUpdatedAt = localStorage.getItem('quickening_local_updated_at');
-    if(!localUpdatedAt || new Date(remote.updated_at) > new Date(localUpdatedAt)) {
-      const d = remote.data;
-      if(d.db) localStorage.setItem('quickening_db', JSON.stringify(d.db));
-      if(d.customActs) localStorage.setItem('quickening_custom', JSON.stringify(d.customActs));
-      if(d.itemOverrides) localStorage.setItem('quickening_overrides', JSON.stringify(d.itemOverrides));
-      localStorage.setItem('quickening_synced_at', remote.updated_at);
-    } else {
-      // Local is newer than what's in the cloud — push it up rather than
-      // silently discarding today's progress.
-      pushCloudNow();
+    const d = remote.data || {};
+    let localDb; try { localDb = JSON.parse(localStorage.getItem('quickening_db')||'null'); } catch(e){ localDb = null; }
+    const mergedDb = mergeQuickeningDb(localDb, d.db);
+    localStorage.setItem('quickening_db', JSON.stringify(mergedDb));
+    if(d.customActs) {
+      let localCustom; try { localCustom = JSON.parse(localStorage.getItem('quickening_custom')||'null'); } catch(e){ localCustom = null; }
+      localStorage.setItem('quickening_custom', JSON.stringify(Object.assign({}, d.customActs, localCustom||{})));
     }
+    if(d.itemOverrides) {
+      let localOv; try { localOv = JSON.parse(localStorage.getItem('quickening_overrides')||'null'); } catch(e){ localOv = null; }
+      localStorage.setItem('quickening_overrides', JSON.stringify(Object.assign({}, d.itemOverrides, localOv||{})));
+    }
+    localStorage.setItem('quickening_synced_at', remote.updated_at);
+    localStorage.setItem('quickening_local_updated_at', new Date().toISOString());
     setSyncStatus('Synced');
   } catch(e) {
     setSyncStatus('Offline');
