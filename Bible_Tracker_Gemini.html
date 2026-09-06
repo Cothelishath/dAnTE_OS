@@ -148,16 +148,22 @@ async function pullCloud() {
     clearTimeout(timeout);
     if(!res.ok) { setSyncStatus('Sync error'); return; }
     const rows = await res.json();
-    if(!rows.length) { setSyncStatus('Synced'); pushCloudNow(); return; }
+    // Pulling never pushes on its own — this ran before load() had a
+    // chance to populate `completions` from local storage, so an eager
+    // push here would send an empty object and overwrite real progress.
+    // That's the same failure mode that wiped Quickening on 2026-09-03.
+    if(!rows.length) { setSyncStatus('Synced'); return; }
     const remote = rows[0];
-    const localSyncedAt = localStorage.getItem(SYNC_TOOL + '_synced_at');
-    if(!localSyncedAt || new Date(remote.updated_at) > new Date(localSyncedAt)) {
-      const data = remote.data;
-      completions = data.c || completions;
-      isDark = data.dark !== false;
-      save();
-      localStorage.setItem(SYNC_TOOL + '_synced_at', remote.updated_at);
-    }
+    const data = remote.data || {};
+    // Merge, not overwrite: union of completed days, local wins on the
+    // same day marked differently on two devices. Also read local storage
+    // directly rather than the in-memory `completions`, since load() runs
+    // after this and the in-memory value is still just the empty default.
+    let localSaved = {}; try { localSaved = JSON.parse(localStorage.getItem(STORE)||'null') || {}; } catch(e){}
+    completions = Object.assign({}, data.c||{}, localSaved.c||{});
+    isDark = (localSaved.dark!==undefined) ? localSaved.dark!==false : (data.dark !== false);
+    try{ localStorage.setItem(STORE, JSON.stringify({c:completions,dark:isDark})); }catch(e){}
+    localStorage.setItem(SYNC_TOOL + '_synced_at', remote.updated_at);
     setSyncStatus('Synced');
   } catch(e) { setSyncStatus('Offline'); }
 }
